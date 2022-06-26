@@ -1,12 +1,14 @@
 /*global kakao */
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 
+// 카카오맵
 export default function Kakaomap(props) {
   useEffect(() => {
     if(props.exifData["GPSInfo"]) { mapscript(); };
   }, [props.exifData]);
 
   const mapscript = () => {
+    kakao.maps.disableHD();
     let lat = props.exifData["GPSInfo"][0]; // 위도
     let lon = props.exifData["GPSInfo"][1]; // 경도
     let container = document.getElementById("map");

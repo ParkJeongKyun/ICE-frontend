@@ -1,9 +1,9 @@
 import React from 'react';
-
-function mainPage() {
+// 안씀 아직
+function MainPage() {
     return (
       <span>히히</span>
     );
   }
   
-export default mainPage;
+export default MainPage;
