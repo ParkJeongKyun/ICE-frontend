@@ -77,7 +77,7 @@ function EditExifData(props) {
         <Tooltip {...props}>영어, 숫자만 입력 가능</Tooltip>
     );
     const inputTooltipNumber = props => (
-        <Tooltip {...props}> 15~-1 숫자만 입력 가능</Tooltip>
+        <Tooltip {...props}> (-1~15) 숫자만 입력 가능</Tooltip>
     );
     const inputTooltipGPS = props => (
         <Tooltip {...props}>클릭해서 위치 설정</Tooltip>
