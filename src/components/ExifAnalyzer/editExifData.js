@@ -27,7 +27,17 @@ function EditExifData(props) {
     // 인풋 컨트롤
     const onChangeInputs = useCallback( e => {
         const { value, name } = e.target;
-        e.target.value = e.target.value.replace(/[^A-Za-z0-9]/ig, ''); // 영어, 숫자만 입력 가능
+        if(!name.includes("Time")){
+            if(name.includes("Flash")){ // 플래시 정수만 가능
+                if(e.target.value > 15){ // 15보다 큰경우
+                    e.target.value = 15;
+                } else if(e.target.value < -1){ // -1 보다 작은 경우
+                    e.target.value = -1;
+                }
+            } else {
+                e.target.value = e.target.value.replace(/[^A-Za-z0-9]/ig, ''); // 영어, 숫자만 입력 가능
+            }
+        }
         let val = value;
         // 날짜 포맷 수정
         if(name.includes("Time")){ val = value.split("T")[0] + " "  + value.split("T")[1]; }
@@ -67,7 +77,7 @@ function EditExifData(props) {
         <Tooltip {...props}>영어, 숫자만 입력 가능</Tooltip>
     );
     const inputTooltipNumber = props => (
-        <Tooltip {...props}>숫자만 입력 가능</Tooltip>
+        <Tooltip {...props}> 15~-1 숫자만 입력 가능</Tooltip>
     );
     const inputTooltipGPS = props => (
         <Tooltip {...props}>클릭해서 위치 설정</Tooltip>
@@ -127,7 +137,7 @@ function EditExifData(props) {
                     <tr>
                         <td><CameraFill/> 플래시정보</td>
                         <td><OverlayTrigger placement="left" overlay={ inputTooltipNumber }><Form.Control
-                        name = 'Flash' size = 'sm' maxLength='100'
+                        name = 'Flash' size = 'sm' max={15} min={-1}
                         type = 'number'
                         defaultValue = {props.exifData['Flash']}
                         onChange={onChangeInputs}/></OverlayTrigger></td>

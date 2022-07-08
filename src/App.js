@@ -10,7 +10,7 @@ import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 
-import { Snow, Mailbox } from 'react-bootstrap-icons';
+import { Snow, Mailbox, PostcardFill } from 'react-bootstrap-icons';
 
 //Application Component
 //import MainPage from "./components/mainPage"; // 추후 추가 예정
@@ -37,7 +37,7 @@ function App() {
             <Navbar.Toggle aria-controls="responsive-navbar-nav" />
             <Navbar.Collapse id="responsive-navbar-nav">
               <Nav className="me-auto">
-                <Nav.Link as={NavLink} to="/appExifAnalyzer">이미지분석</Nav.Link>
+                <Nav.Link as={NavLink} to="/appExifAnalyzer">이미지분석/수정</Nav.Link>
                 <Nav.Link as={NavLink} to="/more">더보기</Nav.Link>
               </Nav>
             </Navbar.Collapse>
@@ -64,6 +64,7 @@ function App() {
               />ICE</h4>
             <p>
               Forensic Web Application for Free<br/>
+              <a target="_blank" className="text-info" href="https://blog.naver.com/dbzoseh84"><PostcardFill/> https://blog.naver.com/dbzoseh84</a><br/>
               <span className="text-info"><Mailbox/> dbzoseh84@gmail.com</span><br/>
               <span className="text-secondary">ParkJeongkyun</span><br/>
               <Link className="text-info" to="/more"><Snow/>More</Link>
