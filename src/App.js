@@ -13,8 +13,8 @@ import Navbar from 'react-bootstrap/Navbar';
 import { Snow, Mailbox } from 'react-bootstrap-icons';
 
 //Application Component
-//import MainPage from "./components/mainPage";
-import AppExifAnalyzer from "./components/appExifAnalyzer";
+//import MainPage from "./components/mainPage"; // 추후 추가 예정
+import AppExifAnalyzer from "./components/ExifAnalyzer/appExifAnalyzer";
 import More from "./components/more";
 
 

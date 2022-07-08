@@ -11,7 +11,7 @@ function convertDateFormat(date) {
   return date.toLocaleDateString().replace(/\./g, '').split(' ').map((v,i)=> i > 0 && v.length < 2 ? '0' + v : v).join('-') + " " + date.toTimeString().split(" ")[0];
 }
 
-// 이미지 드롭
+// 이미지 드롭존
 function ImgDropzone(props) {
   const onChangeImg = async (file) => {
     if(file && file[0].size < 10000000 ){ // 10M 미만
@@ -24,6 +24,7 @@ function ImgDropzone(props) {
       await axios({
         method: 'post',
         url: 'https://api.ice-forensic.com/api/getExif', // 백엔드 REST_API 주소
+        //url: 'http://127.0.0.1:5000/api/getExif', // 로컬 테스트용
         data: formData,
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -31,12 +32,13 @@ function ImgDropzone(props) {
       }).then((Response)=>{
         props.setExifData(Response.data); // 받은 데이터 동기화
         props.setUploadImg({
-          "name" : file[0].name,
-          "url" : URL.createObjectURL(file[0]),
-          "lastModifiedDate" : convertDateFormat(file[0].lastModifiedDate)
+          "file" : file[0], // 원본 파일
+          "name" : file[0].name, // 이름
+          "url" : URL.createObjectURL(file[0]), // 썸네일용
+          "lastModifiedDate" : convertDateFormat(file[0].lastModifiedDate) // 마지막 수정시간
         }); // 이미지 이름, 썸네일, 마지막 수정 시간 동기화 
-        props.setLoading(false); // 로딩 종료
-      }).catch((Error)=>{ console.log(Error); props.setLoading(false); }); // 에러
+      }).catch((Error)=>{ console.log(Error); }); // 에러
+      props.setLoading(false); // 로딩 종료
     } else { props.setOverSize(true); } // 파일 사이즈 너무 큼
   }
   // 이미지를 드롭 했을때 실행할 함수

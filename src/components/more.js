@@ -6,7 +6,7 @@ import Alert from 'react-bootstrap/Alert';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 
-import { Mailbox, Snow, FilePerson, Server, WrenchAdjustable, Github, Stars, MortarboardFill, ChatRightTextFill, FlagFill, PostcardFill, CalendarCheckFill, EmojiWink } from 'react-bootstrap-icons';
+import { Mailbox, FilePerson, Server, WrenchAdjustable, Github, Stars, MortarboardFill, ChatRightTextFill, FlagFill, PostcardFill, CalendarCheckFill, EmojiWink, WrenchAdjustableCircleFill } from 'react-bootstrap-icons';
 
 // 더보기 페이지
 function More() {
@@ -25,16 +25,18 @@ function More() {
                 가볍게 이용해주시고 업데이트를 기대해주세요!
               </p>
               <p>
-                <EmojiWink/> 사이트를 찾아주신 분들, 프레임워크, 플랫폼, 언어 개발자 분들께 감사합니다.<br/>
+                <EmojiWink/> 사이트를 찾아주신 분들, 프레임워크, 플랫폼, 언어 개발자 분들께 감사합니다.
               </p>
             </Alert>
           </Col>
           <Col md={12}>
             <Alert variant="primary">
               <Alert.Heading><FilePerson/> 개발자</Alert.Heading>
+              
+                <h5>박정균 <span className="text-primary">Park Jeong-kyun</span> (2001.02.23)</h5>
+                <hr/>
               <p>
-                박정균 <span className="text-primary">Park Jeong-kyun</span> (2001.02.23) <br/>
-                <ChatRightTextFill/> "특별히 내세울건 없지만 누군가에게 도움 줄 수 있는, 의미 있는 사람이 되고 싶습니다."<br/>
+                <ChatRightTextFill/> "특별히 내세울건 없어도 누군가에게 도움 줄 수 있는, 의미 있는 사람이 되고 싶습니다."<br/>
                 <Mailbox/> dbzoseh84@gmail.com<br/>
                 <PostcardFill/> 블로그 <a target="_blank" href="https://blog.naver.com/dbzoseh84">https://blog.naver.com/dbzoseh84</a>
               </p>
@@ -46,9 +48,9 @@ function More() {
               </p>
               <hr/>
               <p>
-                <FlagFill/> 네이버 뉴스 크롤링 분석기 웹앱 개발<br/>
-                <FlagFill/> 코로나나우(coronanow.kr) 웹사이트 백엔드 크롤링 개발<br/>
-                <FlagFill/> ICE 무료 포렌식 웹 애플리케이션 개발<br/>
+                <WrenchAdjustableCircleFill/> (개인) 네이버 뉴스 크롤링 분석기 웹앱 개발<br/>
+                <WrenchAdjustableCircleFill/> (참여) 코로나나우(<a target="_blank" href="https://coronanow.kr">coronanow.kr</a>) 웹사이트 백엔드 크롤러 개발<br/>
+                <WrenchAdjustableCircleFill/> (개인) ICE 무료 포렌식 웹 애플리케이션 개발
               </p>
             </Alert>
           </Col>
@@ -82,16 +84,20 @@ function More() {
             <Alert variant="dark">
               <Alert.Heading><WrenchAdjustable/> 업데이트 예정</Alert.Heading>
               <p>
-                - EXIF 데이터 정보 수정 앱 추가<br/>
-                - 다른 포렌식 툴 추가
+                - 이미지 업로드 제한 크기 늘리기<br/>
+                - 현재 제공되는 분석/수정 가능한 데이터 외에 다른 EXIF 정보도 분석/수정 가능하게 구현<br/>
+                - 이미지 위치 수정시, 현재 위치, 지도 클릭 위치로 지정하는 기능 추가<br/>
+                - 이미지 EXIF 분석 외 다른 포렌식 툴 추가<br/>
+                - 메인/소개 페이지 추가
               </p>
             </Alert>
           </Col>
           <Col md={12}>
             <Alert variant="info">
-              <Alert.Heading><Stars/>역사</Alert.Heading>
+              <Alert.Heading><Stars/> 업데이트 내역</Alert.Heading>
               <p>
                 <CalendarCheckFill/> 사이트 첫 배포 : 22.06.23<br/>
+                <CalendarCheckFill/> EXIF 수정 기능 추가 : 22.07.07<br/>
               </p>
             </Alert>
           </Col>

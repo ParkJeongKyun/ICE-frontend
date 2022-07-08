@@ -1,27 +1,23 @@
 import React, { useState, useEffect } from "react";
-import Kakaomap from "./kakaomap";
+import { Kakaomap } from "./kakaomap";
+import NoExifData from "./noExifData";
 
 // Bootstrap
 import { Table } from 'react-bootstrap';
 import Card from 'react-bootstrap/Card';
-import { FileEarmarkImage, FileEarmarkExcelFill, CameraFill, ClockFill, GeoAltFill } from 'react-bootstrap-icons';
+import { FileEarmarkImage, CameraFill, ClockFill, GeoAltFill } from 'react-bootstrap-icons';
 
 // EXIF 데이터 정보 보여주는 컴포넌트
 function ShowExifData(props) {
-    const [ location, setLocation ] = useState(); // 위치 주소
-    useEffect(() => { setLocation(); }, [props.exifData]);
+    const [ location, setLocation ] = useState(null); // 위치 주소
+    useEffect(() => { setLocation(null); }, [props.exifData]); // 첫 마운트 시 초기화
     // EXIF 데이터가 없는 경우
     if(!props.exifData['EXIF']){
         return (
-            <div className="bg-dark text-white h-100 rounded">
-                <div className="align-middle p-5">
-                    <h3><FileEarmarkExcelFill/></h3>
-                    <span>사진에 EXIF 정보가 없습니다.</span>
-                </div>
-            </div>
+            <NoExifData/>
         )
     }
-    else {
+    else { // EXIF 데이터가 있는 경우
         return (
             <Card className="bg-dark text-white border-1 rounded" style={{ width: '100%' }}>
                     { props.exifData["GPSInfo"] &&
@@ -33,10 +29,10 @@ function ShowExifData(props) {
                         <tr>
                             <td><GeoAltFill/> 위치</td>
                             <td>{ location &&
-                                <span> {location.road_address ? location.road_address.address_name : location.address.address_name}<br/></span>
+                                    <span> {location.road_address ? location.road_address.address_name : location.address.address_name}<br/></span>
                                 }
                                 { props.exifData["GPSInfo"] &&
-                                <span> ({props.exifData["GPSInfo"][0]}, {props.exifData["GPSInfo"][1]})</span>
+                                    <span> ({props.exifData["GPSInfo"][0].toFixed(4)}, {props.exifData["GPSInfo"][1].toFixed(4)})</span>
                                 }
                             </td>
                         </tr>
