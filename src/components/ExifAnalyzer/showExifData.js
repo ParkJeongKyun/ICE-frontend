@@ -66,7 +66,7 @@ function ShowExifData(props) {
                         </tr>
                         <tr>
                             <td><FileEarmarkImage/> 크기</td>
-                            <td>{props.exifData['ImageWidth']}(너비), {props.exifData['ImageLength']}(높이)</td>
+                            <td>{ props.exifData['ImageWidth'] && props.exifData['ImageWidth'] + "(너비), " + props.exifData['ImageLength'] + "(높이)" }</td>
                         </tr>
                         <tr>
                             <td><FileEarmarkImage/> ID</td>

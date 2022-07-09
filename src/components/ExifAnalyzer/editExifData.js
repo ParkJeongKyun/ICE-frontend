@@ -10,7 +10,7 @@ import Card from 'react-bootstrap/Card';
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
 import { Table, Form } from 'react-bootstrap';
-import { FileEarmarkImage, CameraFill, ClockFill, GeoAltFill } from 'react-bootstrap-icons';
+import { FileEarmarkImage, CameraFill, ClockFill, GeoAltFill, Trash3Fill } from 'react-bootstrap-icons';
 
 // EXIF 데이터를 사용가가 수정할 수 있게하는 컴포넌트
 function EditExifData(props) {
@@ -40,15 +40,15 @@ function EditExifData(props) {
         }
         let val = value;
         // 날짜 포맷 수정
-        if(name.includes("Time")){ val = value.split("T")[0] + " "  + value.split("T")[1]; }
+        if(name.includes("Time")){ if(val){val = value.split("T")[0] + " "  + value.split("T")[1]; }}
         // 플래시 숫자만 입력가능하도록하기
-        if(name.includes("Flash")){ val = Number(val); }
+        if(name.includes("Flash")){ if(val != ""){ val = Number(val); }}
         setInputs({
           ...inputs,
           [name]: val
         });
-    },
-    [inputs]);
+    }, [inputs]);
+
     // 이미지 수정 요청
     const editImg = async () => {
         setLoading(true); // 로딩 시작
@@ -72,6 +72,14 @@ function EditExifData(props) {
         setLoading(false); // 로딩 종료
     }
 
+    // 위치 정보 지우기 
+    const delGPS = e => {
+        setInputs({
+            ...inputs,
+            ["GPSInfo"]: ""
+          });
+    }
+
     // 사용자 입력 툴팁
     const inputTooltip = props => (
         <Tooltip {...props}>영어, 숫자만 입력 가능</Tooltip>
@@ -81,6 +89,9 @@ function EditExifData(props) {
     );
     const inputTooltipGPS = props => (
         <Tooltip {...props}>클릭해서 위치 설정</Tooltip>
+    );
+    const inputTooltipDelGPS = props => (
+        <Tooltip {...props}>클릭해서 위치 지우기</Tooltip>
     );
     const inputTooltipDate = props => (
         <Tooltip {...props}>우측에 달력을 클릭해서 설정</Tooltip>
@@ -110,11 +121,15 @@ function EditExifData(props) {
                         <td><GeoAltFill/> 위치</td>
                         <td>
                             <OverlayTrigger placement="left" overlay={ inputTooltipGPS }>
-                            <Button size="sm" variant="light" onClick={e=>setShowSearchMap(true)} className="w-100 bg-white border">
-                                <GeoAltFill/>{ inputs["GPSInfo"] &&
-                                    "(" + inputs["GPSInfo"][0].toFixed(4) + ", " + inputs["GPSInfo"][1].toFixed(4) + ")" 
-                                    } 위치설정
-                            </Button></OverlayTrigger>
+                                <Button size="sm" variant="light" onClick={e=>setShowSearchMap(true)} className="w-75 bg-white border">
+                                    <GeoAltFill/>{ inputs["GPSInfo"] &&
+                                        "(" + inputs["GPSInfo"][0].toFixed(4) + ", " + inputs["GPSInfo"][1].toFixed(4) + ")" 
+                                        } 설정
+                                </Button>
+                            </OverlayTrigger>
+                            <OverlayTrigger placement="left" overlay={ inputTooltipDelGPS }>
+                                <Button size="sm" variant="dark" onClick={delGPS} className="w-25 border"><Trash3Fill/></Button>
+                            </OverlayTrigger>
                             { showSearchMap &&
                             <KakaomapSearCh exifData={ props.exifData } setShowSearchMap={ setShowSearchMap } showSearchMap={showSearchMap} setInputs={setInputs} inputs={inputs}/>
                             }
@@ -175,7 +190,7 @@ function EditExifData(props) {
                     </tr>
                     <tr>
                         <td><FileEarmarkImage/> 크기</td> 
-                        <td>{props.exifData['ImageWidth']}(너비), {props.exifData['ImageLength']}(높이)</td>
+                        <td>{ props.exifData['ImageWidth'] && props.exifData['ImageWidth'] + "(너비), " + props.exifData['ImageLength'] + "(높이)" }</td>
                     </tr>
                     <tr>
                         <td><FileEarmarkImage/> ID</td>

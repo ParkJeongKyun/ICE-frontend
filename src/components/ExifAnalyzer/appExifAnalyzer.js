@@ -74,7 +74,7 @@ function AppExifAnalyzer() {
                         height={200}
                         src={ uploadImg.url }
                       />
-                      <Figure.Caption className="text-secondary">
+                      <Figure.Caption className="text-info">
                         { uploadImg.name }
                       </Figure.Caption>
                       <Figure.Caption className="text-light">
