@@ -5,7 +5,6 @@ import { useDropzone } from 'react-dropzone';
 //Bootstrap
 import { CloudArrowUpFill } from 'react-bootstrap-icons';
 
-
 // 날짜 포매팅
 function convertDateFormat(date) {
   return date.toLocaleDateString().replace(/\./g, '').split(' ').map((v,i)=> i > 0 && v.length < 2 ? '0' + v : v).join('-') + " " + date.toTimeString().split(" ")[0];
@@ -38,6 +37,7 @@ function ImgDropzone(props) {
           "lastModifiedDate" : convertDateFormat(file[0].lastModifiedDate) // 마지막 수정시간
         }); // 이미지 이름, 썸네일, 마지막 수정 시간 동기화 
       }).catch((Error)=>{ console.log(Error); }); // 에러
+      props.setKey('analysis'); // 결과 화면으로 변경, 카카오맵 때문에 해줘야함
       props.setLoading(false); // 로딩 종료
     } else { props.setOverSize(true); } // 파일 사이즈 너무 큼
   }

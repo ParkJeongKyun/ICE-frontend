@@ -39,20 +39,20 @@ function AppExifAnalyzer() {
   const [ uploadImg, setUploadImg ] = useState(null); // 업로드 이미지
   const [ loading, setLoading ] = useState(false); // 로딩 여부
   const [ overSize, setOverSize ]  = useState(false); // 사이즈 초과 여부
+  const [ key, setKey ] = useState('analysis'); // 활성화 탭 키
 
   return (
     <Container>
       <Alert variant="info">
         <Alert.Heading><FileEarmarkImage/> 이미지 EXIF 분석/편집기</Alert.Heading>
         이미지 안에 있는 메타데이터(EXIF)를 분석해서 날짜, 위치, 카메라 정보 등을 보여줍니다.<br/>
-        수정하기 탭을 이용해서 이미지의 메타데이터(EXIF)를 수정해서 다운로드 할 수도 있습니다.
+        수정하기 탭을 이용해서 메타데이터(EXIF)를 수정할 수 있습니다.
         <hr />
         <p>
           <Snow2/> 분석/수정 가능한 이미지 포맷 : JPG, PNG<br/>
-          <Snow2/> EXIF 데이터는 쉽게 조작될 수 있으며 너무 신뢰해서는 안됩니다.<br/>
           <Snow2/> 일부 이미지는 EXIF 정보가 없을 수 있습니다.<br/>
-          <Snow2/> 위치 정보는 주소가 없는 경우 (위도, 경도)만 나옵니다.<br/>
-          <Snow2/> 주소가 해외인 경우 지도 사용이 불가능합니다.
+          <Snow2/> 위치 정보는 주소가 없는 경우 좌표(위도, 경도)만 나옵니다.<br/>
+          <Snow2/> 위치가 해외인 경우 지도 사용이 불가능합니다.
         </p>
       </Alert>
       <AlertDismissible/>
@@ -62,7 +62,7 @@ function AppExifAnalyzer() {
         <Container className='mt-1 mb-1 bg-dark rounded text-center'>
             <Row>
                 <Col md={4} className='p-3'>
-                  <ImgDropzone setExifData={ setExifData } setUploadImg={ setUploadImg } setLoading={ setLoading } setOverSize={ setOverSize }/>
+                  <ImgDropzone setExifData={ setExifData } setUploadImg={ setUploadImg } setLoading={ setLoading } setOverSize={ setOverSize } setKey={ setKey }/>
                   {
                     loading && <div className='mt-3 text-white'><h5>분석중</h5><Spinner animation="border" variant="info"/></div>
                   }
@@ -89,7 +89,7 @@ function AppExifAnalyzer() {
                 <Col md={8} className='p-3'>
                 {
                     uploadImg
-                      ? <Tab.Container id="left-tabs-example" defaultActiveKey="analysis">
+                      ? <Tab.Container id="exif-tab" activeKey={ key } onSelect={ (k) => setKey(k) }>
                           <Row>
                             <Col sm={12}>
                               <Nav variant="tabs" className="me-auto">
@@ -130,10 +130,10 @@ function AlertDismissible() {
       <Alert variant="danger" onClose={() => setShow(false)} dismissible>
         <Alert.Heading><Windows/> PC 또는 <Google/> Android 환경에서 사용을 권장합니다</Alert.Heading>
         <p>
-          <Apple/> 아이폰에 경우 보안상에 이유로 분석 기능이 제대로 동작하지 않습니다.<br/>
+          <Apple/> 아이폰에 경우 보안 때문에 분석 기능이 제대로 동작하지 않습니다.<br/>
           <Google/> 안드로이드도 내파일, 갤러리를 이용해서 업로드 하시면 제대로 동작하지 않습니다.<br/>
           <Google/> 모바일 크롬 이용시 찾아보기를 눌러서 파일을 업로드해주세요.<br/>
-          그렇지 않은 경우 일부 EXIF 데이터가 지워진 채로 업로드됩니다.
+          그렇지 않은 경우 일부 EXIF 데이터가 지워진 채로 업로드되어 분석 기능이 제대로 동작하지 않습니다.
         </p>
       </Alert>
     );

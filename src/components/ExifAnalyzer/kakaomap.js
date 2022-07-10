@@ -16,8 +16,7 @@ function Kakaomap(props) {
   }, [props.exifData]);
 
   const mapscript = () => {
-    let lat = props.exifData["GPSInfo"][0]; // 위도
-    let lon = props.exifData["GPSInfo"][1]; // 경도
+    let [ lat, lon ] = props.exifData["GPSInfo"];
     let container = document.getElementById("map");
     let options = {
       center: new kakao.maps.LatLng(lat, lon),
@@ -56,7 +55,6 @@ function Kakaomap(props) {
 
 
 
-
 // 카카오맵 검색 API
 function KakaomapSearCh(props) {
   // 오프캔버스 용
@@ -69,8 +67,8 @@ function KakaomapSearCh(props) {
 
   // 카카오맵
   const [ map, setMap ] = useState(); // 지도
-  const [ ps, setPs ] = useState(); // 장소 검색 객체
-  const [ markers, setMarkers ] =  useState(); // 마커들
+  const [ ps, setPs ] = useState(new kakao.maps.services.Places()); // 장소 검색 객체
+  const [ markers, setMarkers ] =  useState([]); // 마커들
   const [ infowindow, setInfowindow ] =  useState(); // 정보를 보여주는 인포윈도우
 
   // 선택한 위치
@@ -94,8 +92,6 @@ function KakaomapSearCh(props) {
     };
     // 카카오맵 만들기
     setMap(new kakao.maps.Map(container, options));
-    // 장소 검색 객체를 생성합니다
-    setPs(new kakao.maps.services.Places()); 
     // 마커리스트 만들기
     setMarkers([]);
     // 검색 결과 목록이나 마커를 클릭했을 때 장소명을 표출할 인포윈도우를 생성합니다
