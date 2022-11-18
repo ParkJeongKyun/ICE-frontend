@@ -3,33 +3,37 @@ import React, { useState, useCallback, useEffect } from 'react';
 import Terminal, { ColorMode, TerminalOutput } from 'react-terminal-ui';
 
 import { useWasm } from "react-wasm";
-import path1  from "../main.wasm";
+import mainWasmPath  from "../main.wasm";
 
-// supposing an "add.wasm" module that exports a single function "add"
-const ExampleComponent = () => {
+function SumComponent(props) {
   const {
     loading,
     error,
     data 
   } = useWasm({
-    url: path1
+    url: mainWasmPath
   });
   
-  if (loading) return "Loading...";
-  if (error) return "ERROR";
+  if (loading) return "연산중...";
+  if (error) return "에러!";
   
   const { module, instance } = data;
-  return <div>1 + 2 = {instance.exports.Sum(1, 2)}</div>;
+  return <div>{props.num} + {props.num} = {instance.exports.Sum(props.num, props.num)}</div>;
 };
 
 function TerminalController(props) {
   const [terminalLineData, setTerminalLineData] = useState([
-    <TerminalOutput>현재 Python 백엔드 API가 폐쇄 되었습니다. 업그레이드 후 찾아뵙겠습니다!</TerminalOutput>,
+    <TerminalOutput>신규 개발중입니다! 업그레이드 후 찾아뵙겠습니다!</TerminalOutput>,
   ]);
 
   const helper = useCallback( terminalInput => {
-    if(terminalInput == "안녕"){
-      setTerminalLineData(<TerminalOutput>안녕하세요!<ExampleComponent></ExampleComponent></TerminalOutput>);
+    const command = terminalInput.split(" ")[0]
+
+    if(command == "안녕"){
+      setTerminalLineData(<TerminalOutput>안녕하세요!</TerminalOutput>);
+    } else if (command == "sum") {
+      const command2 = parseInt(terminalInput.split(" ")[1])
+      setTerminalLineData(<SumComponent num={command2}/>);
     } else {
       setTerminalLineData(<TerminalOutput>알 수 없는 명령어에요!</TerminalOutput>);
     }

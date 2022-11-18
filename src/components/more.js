@@ -8,7 +8,7 @@ import Col from 'react-bootstrap/Col';
 
 import { Mailbox, FilePerson, Server, WrenchAdjustable, Github, Stars,
   MortarboardFill, ChatRightTextFill, FlagFill, PostcardFill, CalendarCheckFill,
-  EmojiWink, WrenchAdjustableCircleFill, BriefcaseFill, ArrowRightShort } from 'react-bootstrap-icons';
+  EmojiWink, WrenchAdjustableCircleFill, BriefcaseFill, ArrowRightShort, Award } from 'react-bootstrap-icons';
 
 // 더보기 페이지
 function More() {
@@ -19,9 +19,11 @@ function More() {
           <Alert variant="info">
             <Alert.Heading><Stars/> 안녕하세요!</Alert.Heading>
             <p>
-              이미지 분석 기능은 잠시 중지했습니다.
-              (파이썬 백엔드 API 서버 폐쇄 조치)
-              추가 기능과 아키텍쳐 교체 업그레이드 후 찾아뵙겠습니다!
+              -----------------------------<br/>
+              이미지 분석 기능은 잠시 중지했습니다.<br/>
+              (파이썬 백엔드 API 서버 폐쇄 조치 = GCP 사용 종료)<br/>
+              더욱 더 가볍고 새로운 신기술을 사용해 볼 예정입니다!<br/>
+              ----------------------------------
             </p>
             <p>
               무료 포렌식 웹 애플리케이션을 만들고 싶었습니다.<br/>
@@ -68,6 +70,15 @@ function More() {
               <WrenchAdjustableCircleFill/> (개인) ICE 무료 포렌식 웹 애플리케이션 개발 <ArrowRightShort/> 진행중<br/>
               <WrenchAdjustableCircleFill/> (기업) LG 화학 PlantAI Backend 개발 / ETL 데이터 엔지니어링 진행중
             </p>
+            <hr/>
+              <Award/> 정보처리산업기사<br/>
+              <Award/> 정보처리기능사<br/>
+              <Award/> 네트워크관리사2급<br/>
+              <Award/> 리눅스마스터2급<br/>
+
+            <p>
+
+            </p>
           </Alert>
         </Col>
         <Col md={6}>
@@ -100,16 +111,7 @@ function More() {
           <Alert variant="dark">
             <Alert.Heading><WrenchAdjustable/> 업데이트 예정</Alert.Heading>
             <p>
-              - 이미지 업로드 제한 크기 늘리기<br/>
-              - 사용자가 수정 값 입력 후 새로운 사진 업로드시 수정값도 동기화 시키기<br/>
-              - 플래시 정보 한글화<br/>
-              - 사이트 디자인 수정/편의성 업그레이드<br/>
-              - 현재 제공되는 분석/수정 가능한 데이터 외에 다른 EXIF 정보도 분석/수정 가능하게 구현<br/>
-              - 이미지 위치 수정시, 현재 위치, 지도 클릭 위치로 지정하는 기능 추가<br/>
-              - 이미지 EXIF 분석 외 다른 포렌식 툴 추가<br/>
-              - (선택) 댓글, 광고 추가<br/>
-              - 안드로이드앱 추가<br/>
-              - 메인/소개 페이지 추가
+                웹 포렌식 툴 추가 예정 With wasm compiled C++
             </p>
           </Alert>
         </Col>
@@ -120,7 +122,7 @@ function More() {
               <CalendarCheckFill/> 22.06.23 : 사이트 첫 배포<br/>
               <CalendarCheckFill/> 22.07.07 : EXIF 수정 기능 추가<br/>
               <CalendarCheckFill/> 22.08.01 : Backend Framework를 Flask에서 Fastapi로 변경<br/>
-              <CalendarCheckFill/> 22.11.15 : Backend API 폐쇄, 업그레이드 준비<br/>
+              <CalendarCheckFill/> 22.11.15 : Backend API 폐쇄, 단순화, 업그레이드 준비<br/>
             </p>
           </Alert>
         </Col>
