@@ -17,7 +17,7 @@ import MainPage from "./components/mainPage";
 import More from "./components/more";
 
 // For TEST
-// import AppExifAnalyzer from "./components/ExifAnalyzer/appExifAnalyzer";
+import AppExifAnalyzer from "./components/ExifAnalyzer/appExifAnalyzer";
 import ThreeTest from "./components/threeTest";
 
 
@@ -46,17 +46,15 @@ function App() {
           </Navbar.Collapse>
         </Container>
       </Navbar>
-
-      <Container className="mt-3">
-        <Routes>
-          <Route path="/" element={<MainPage/>} />
-          <Route path="/more" element={<More/>} />ThreeTest
+      <Routes>
+      {/* <Route path="/" element={<ThreeTest page={<MainPage/>}/>} /> */}
+          <Route path="/" element={<Container className="mt-3"><MainPage/></Container>} />
+          <Route path="/more" element={<Container className="mt-3"><More/></Container>} />
           {/* <Route path="/appExifAnalyzer" element={<AppExifAnalyzer/>} /> */}
-          <Route path="/appExifAnalyzer" element={<ThreeTest/>} />
-        </Routes>
-      </Container>
+          <Route path="/appExifAnalyzer" element={<ThreeTest page={<AppExifAnalyzer/>}/>} />
+      </Routes>
       
-      <footer className="footer mt-5 pt-4 text-center bg-dark text-white">
+      <footer className="footer mt-0 pt-5 text-center bg-dark text-white">
         <Container>
         <h4 className="text-light"><img
               src="logo.png"
