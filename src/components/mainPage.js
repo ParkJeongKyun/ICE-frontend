@@ -7,11 +7,9 @@ import HexComponent from "./hexComponent";
 function TerminalController(props) {
   const [terminalLineData, setTerminalLineData] = useState([
     <TerminalOutput>
-      신규 개발중입니다! 업그레이드 후 찾아뵙겠습니다!<br/>
-      현재 사용 가능한 명령어<br/>
-      hex [-l] [hex]<br/>
-      안녕<br/>
-      writeprotect<br/>      
+      <h5 class="text-info">신규 개발중입니다! 업그레이드 후 찾아뵙겠습니다!</h5>
+      [ 현재 사용 가능한 명령어 ]<br/>
+      hex [-l] [HEX_Value], 헥스 [-리틀] [16진수값], 안녕, writeprotect, 쓰기방지, sum [숫자1] [숫자2]
     </TerminalOutput>,
   ]);
 
@@ -43,10 +41,10 @@ function TerminalController(props) {
       setTerminalLineData(<TerminalOutput>안녕하세요!</TerminalOutput>);
     } else if (main_command == "sum") {
       setTerminalLineData(<SumComponent num1={option} num2={input}/>);
-    } else if (main_command == "hex") {
+    } else if (main_command == "hex" || main_command == "헥스") {
       let littleEndian = false;
       if (option != null) {
-        if (option == "-l") {
+        if (option == "-l" || option == "-리틀") {
           littleEndian = true;
         } else {
           setTerminalLineData(<TerminalOutput>{option}는 사용할수 없는 옵션입니다!</TerminalOutput>);
@@ -54,8 +52,17 @@ function TerminalController(props) {
         }
       }
       setTerminalLineData(<HexComponent hex={input} littleEndian={littleEndian}/>);
-    } else if (main_command == "writeprotect") {
-      setTerminalLineData(<TerminalOutput>reg add "HKLM\System\CurrentControlSet\Control\StorageDevicePolicies" /t Reg_dword /v WriteProtect /f /d 1</TerminalOutput>);
+    } else if (main_command == "writeprotect" || main_command == "쓰기방지") {
+      setTerminalLineData(
+        <TerminalOutput>
+          <span>관리자 권한 명령 프롬프트에서 아래 명령어를 입력하세요!</span><br/>
+          <span class="text-danger">reg add </span>
+          <span class="text-primary">"HKLM\System\CurrentControlSet\Control\StorageDevicePolicies" </span>
+          <span class="text-success">/t Reg_dword </span>
+          <span class="text-warning">/v WriteProtect </span>
+          <span class="text-info">/d 1 </span>
+          <span class="text-secondary">/f </span>
+        </TerminalOutput>);
     } else {
       setTerminalLineData(<TerminalOutput>명령어를 이해하지 못했어요!</TerminalOutput>);
     }

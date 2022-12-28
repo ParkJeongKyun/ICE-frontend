@@ -16,6 +16,11 @@ import { Snow, Mailbox, PostcardFill } from 'react-bootstrap-icons';
 import MainPage from "./components/mainPage";
 import More from "./components/more";
 
+// For TEST
+// import AppExifAnalyzer from "./components/ExifAnalyzer/appExifAnalyzer";
+import ThreeTest from "./components/threeTest";
+
+
 // 메인 앱
 function App() {
   return (
@@ -35,6 +40,7 @@ function App() {
           <Navbar.Toggle aria-controls="responsive-navbar-nav" />
           <Navbar.Collapse id="responsive-navbar-nav">
             <Nav className="me-auto">
+              <Nav.Link as={NavLink} to="/appExifAnalyzer">이미지 EXIF 분석</Nav.Link>
               <Nav.Link as={NavLink} to="/more">더보기</Nav.Link>
             </Nav>
           </Navbar.Collapse>
@@ -44,7 +50,9 @@ function App() {
       <Container className="mt-3">
         <Routes>
           <Route path="/" element={<MainPage/>} />
-          <Route path="/more" element={<More/>} />
+          <Route path="/more" element={<More/>} />ThreeTest
+          {/* <Route path="/appExifAnalyzer" element={<AppExifAnalyzer/>} /> */}
+          <Route path="/appExifAnalyzer" element={<ThreeTest/>} />
         </Routes>
       </Container>
       

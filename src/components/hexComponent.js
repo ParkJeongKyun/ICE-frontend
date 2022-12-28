@@ -20,20 +20,24 @@ function HexComponent(props) {
       let hex_to_ascii = "";
       for (const idx in hex_list) {hex_to_ascii += String.fromCharCode(parseInt(hex_list[idx], 16));}
   
-      setHex(hex_value);
+      setHex(hex_value.match(/.{1,2}/g).join("-"));
       setToDecimal(hex_to_decimal.toLocaleString('ko-KR'));
       setToBinary(hex_to_binary.match(/.{1,4}/g).join("-"));
       setToAscii(hex_to_ascii);
     }
-    }, [props.hex]);
+    }, [props.hex, props.littleEndian]);
   
     return (
       <div>
         <p>
-          16진수 = {hex}<br/>
-          10진수 = {toDecimal}<br/>
-          2진수 = {toBinary}<br/>
-          아스키 = {toAscii}<br/>
+        <span class="text-danger">[ 16진수 ]</span><br/>
+        <p>{hex}</p>
+        <span class="text-success">[ 10진수 ]</span><br/>
+        <p>{toDecimal}</p>
+        <span class="text-success">[ 2진수 ]</span><br/>
+        <p>{toBinary}</p>
+        <span class="text-info">[ 아스키 ]</span><br/>
+        <p>{toAscii}</p>
         </p>
       </div>
     )

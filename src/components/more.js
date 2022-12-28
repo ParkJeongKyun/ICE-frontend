@@ -71,10 +71,11 @@ function More() {
               <WrenchAdjustableCircleFill/> (기업) LG 화학 PlantAI Backend 개발 / ETL 데이터 엔지니어링 진행중
             </p>
             <hr/>
-              <Award/> 정보처리산업기사<br/>
-              <Award/> 정보처리기능사<br/>
-              <Award/> 네트워크관리사2급<br/>
-              <Award/> 리눅스마스터2급<br/>
+              <Award/> 디지털포렌식 전문가 2급 (2022)<br/>
+              <Award/> 정보처리산업기사 (2022)<br/>
+              <Award/> 정보처리기능사 (2019)<br/>
+              <Award/> 네트워크관리사2급 (2018)<br/>
+              <Award/> 리눅스마스터2급 (2018)<br/>
 
             <p>
 
@@ -111,7 +112,7 @@ function More() {
           <Alert variant="dark">
             <Alert.Heading><WrenchAdjustable/> 업데이트 예정</Alert.Heading>
             <p>
-                웹 포렌식 툴 추가 예정 With wasm compiled C++
+                수정 기능도 웹 어셈블리로 추가 예정, 터미널 업그레이드
             </p>
           </Alert>
         </Col>
@@ -122,7 +123,8 @@ function More() {
               <CalendarCheckFill/> 22.06.23 : 사이트 첫 배포<br/>
               <CalendarCheckFill/> 22.07.07 : EXIF 수정 기능 추가<br/>
               <CalendarCheckFill/> 22.08.01 : Backend Framework를 Flask에서 Fastapi로 변경<br/>
-              <CalendarCheckFill/> 22.11.15 : Backend API 폐쇄, 단순화, 업그레이드 준비<br/>
+              <CalendarCheckFill/> 22.11.15 : Backend API(in GCP) 폐쇄, 단순화, 업그레이드 준비<br/>
+              <CalendarCheckFill/> 22.12.24 : Python Backend를 C++를 컴파일한 웹어셈블리 파일로 대체<br/>
             </p>
           </Alert>
         </Col>
