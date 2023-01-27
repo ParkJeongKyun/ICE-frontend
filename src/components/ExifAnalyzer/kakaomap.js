@@ -12,11 +12,11 @@ import { GeoAltFill } from 'react-bootstrap-icons';
 // 카카오맵
 function Kakaomap(props) {
   useEffect(() => {
-    if(props.exifData["GPSInfo"]) {mapscript()};
-  }, [props.exifData]);
+    if(props.gps_info) {mapscript()};
+  }, [props.gps_info]);
 
   const mapscript = () => {
-    let [lat, lon] = props.exifData["GPSInfo"];
+    let [lat, lon] = props.gps_info;
     let container = document.getElementById("map");
     let options = {
       center: new kakao.maps.LatLng(lat, lon),
@@ -32,6 +32,7 @@ function Kakaomap(props) {
       // 정상적으로 검색이 완료됐으면 
        if (status === kakao.maps.services.Status.OK) {
         props.setLocation(result[0]); // 좌표로 주소 정보 얻어서 반환
+        // console.log(result[0]);
       }
     });   
     
@@ -75,8 +76,8 @@ function KakaomapSearCh(props) {
   const [selLocation, setSelLocation] = useState();
 
   useEffect(() => { // 첫 마운트 실행
-    if(props.exifData["GPSInfo"]) { mapscript( // 원래 GPS 정보가 있는경우
-      props.exifData["GPSInfo"][0], props.exifData["GPSInfo"][1] // 위도, 경도
+    if(props.gps_info) { mapscript( // 원래 GPS 정보가 있는경우
+      props.gps_info[0], props.gps_info[1] // 위도, 경도
     );} else { // 원래 GPS 정보가 없으면
       mapscript(
         37.56682420267543, 126.978652258823  // 서울시청, 기본

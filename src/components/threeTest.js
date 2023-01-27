@@ -46,7 +46,7 @@ function Model(props) {
 
  function ThreeTest(props) {
   return (
-    <Canvas camera={{ position: [0, 0, -6], fov: 55 }} style={{height:"85vh"}}>
+    <Canvas camera={{ position: [0, 0, -6], fov: 55 }} style={{height:"70vh"}}>
       <pointLight position={[10, 10, 10]} intensity={1.5} />
       <Suspense fallback={null}>
         <group rotation={[0, Math.PI, 0]} position={[0, -1, 10]}>

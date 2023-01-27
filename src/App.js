@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './styles/App.css';
 
 // for Routing
@@ -46,15 +46,17 @@ function App() {
           </Navbar.Collapse>
         </Container>
       </Navbar>
+
       <Routes>
       {/* <Route path="/" element={<ThreeTest page={<MainPage/>}/>} /> */}
           <Route path="/" element={<Container className="mt-3"><MainPage/></Container>} />
           <Route path="/more" element={<Container className="mt-3"><More/></Container>} />
           {/* <Route path="/appExifAnalyzer" element={<AppExifAnalyzer/>} /> */}
           <Route path="/appExifAnalyzer" element={<ThreeTest page={<AppExifAnalyzer/>}/>} />
+          <Route path="/TEST" element={<AppExifAnalyzer/>} />
       </Routes>
       
-      <footer className="footer mt-0 pt-5 text-center bg-dark text-white">
+      <footer className="footer p-3 text-center bg-dark text-white">
         <Container>
         <h4 className="text-light"><img
               src="logo.png"

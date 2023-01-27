@@ -1,12 +1,32 @@
-import React, { useCallback }  from 'react';
+import React, { useState, useEffect }  from 'react';
 
 import { Table } from 'react-bootstrap';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 
+import { Kakaomap } from "./kakaomap";
+
 function ShowExifData(props) {
+  const [gps_info, setGps_info] = useState(null); // 위치 주소
+  const [location, setLocation] = useState(null); // 위치 주소
   const exif_result = props.exif_result;
+
+  useEffect(() => {
+    if(exif_result.exif_gps_latitude && exif_result.exif_gps_longitude) {
+      setGps_info([exif_result.exif_gps_latitude, exif_result.exif_gps_longitude]);
+    }
+  }, [props.exif_result]);
+
   return (
+    <div>
+      {/* <Kakaomap exifData={props.exifData} setLocation={setLocation}/> */}
+      {
+        gps_info &&
+        <Kakaomap gps_info={gps_info} setLocation={setLocation}/>
+      }
+      { location &&
+        <span className='text-white'> {location.road_address ? location.road_address.address_name : location.address.address_name}<br/></span>
+      }
     <Table hover size="sm" variant="dark" className="mb-0 p-0 text-start round">
     <tbody>
     <InputConponent value={exif_result.exif_make} name="제조사"/>
@@ -48,6 +68,7 @@ function ShowExifData(props) {
       <InputConponent value={exif_result.exif_focal_plane_yres} name="초점 y"/>
     </tbody>
     </Table>
+  </div>
   );
 }
 
