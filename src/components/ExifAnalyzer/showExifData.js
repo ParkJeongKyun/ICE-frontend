@@ -29,7 +29,7 @@ function ShowExifData(props) {
       }
     <Table hover size="sm" variant="dark" className="mb-0 p-0 text-start round">
     <tbody>
-    <InputConponent value={exif_result.exif_make} name="제조사"/>
+      <InputConponent value={exif_result.exif_make} name="제조사"/>
       <InputConponent value={exif_result.exif_carmera_model} name="카메라 모델"/>
       <InputConponent value={exif_result.exif_software} name="소프트웨어"/>
       <InputConponent value={exif_result.exif_bit_per_sample} name="샘플당 비트 수"/>

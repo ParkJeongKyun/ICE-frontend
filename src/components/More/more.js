@@ -59,7 +59,7 @@ function InfoDeveloper() {
         <WrenchAdjustableCircleFill/> (참여) 코로나나우(<a target="_blank" href="https://coronanow.kr">coronanow.kr</a>) 웹사이트 백엔드 크롤러 개발 <ArrowRightShort/> 종료<br/>
         <WrenchAdjustableCircleFill/> (개인) ICE 무료 포렌식 웹 애플리케이션 개발 <ArrowRightShort/> 진행중<br/>
         <WrenchAdjustableCircleFill/> (기업) LG 화학 PlantAI Backend 개발 / ETL 데이터 엔지니어링 <ArrowRightShort/> 종료<br/>
-        <WrenchAdjustableCircleFill/> (기업) 지방재정 AI 분석 환경 구성 / ETL 데이터 엔지니어링 <ArrowRightShort/> 진행중
+        <WrenchAdjustableCircleFill/> (기업) 지방재정 AI 분석 환경 개발 / ETL 데이터 엔지니어링 <ArrowRightShort/> 진행중
       </p>
       </Alert>
       <hr/>
@@ -93,11 +93,17 @@ function InfoApplication() {
           <CalendarCheckFill/> 22.08.01 : Backend Framework를 Flask에서 Fastapi로 변경<br/>
           <CalendarCheckFill/> 22.11.15 : Backend API(Python, Nginx, GCP) 폐쇄, 단순화, 업그레이드 준비<br/>
           <CalendarCheckFill/> 22.12.24 : Python Backend를 웹어셈블리(C++를 컴파일한) 파일로 대체<br/>
+          <CalendarCheckFill/> 22.01.30 : 사이트 디자인 화면 업그레이드 개발중... 언제 마음에 들게 나올까요?<br/>
         </p>
       </Alert>
       <Alert variant="dark">
         <Alert.Heading><Stars/> 참고 소스 출처 </Alert.Heading>
         <p>
+          <CalendarCheckFill/><a target="_blank" className="text-dark" href="https://ko.reactjs.org/"> 리액트</a><br/>
+          <CalendarCheckFill/><a target="_blank" className="text-dark" href="https://getbootstrap.kr"> 부트스트랩</a><br/>
+          <CalendarCheckFill/><a target="_blank" className="text-dark" href="https://apis.map.kakao.com/"> 카카오맵</a><br/>
+          <CalendarCheckFill/><a target="_blank" className="text-dark" href="https://github.com/Devwares-Team/cdbreact-admin-template"> 대쉬보드 디자인/템플릿 참고</a><br/>
+          <CalendarCheckFill/> C++를 wasm으로 컴파일 하기 : <a target="_blank" className="text-dark" href="https://emscripten.org/">Emscripten</a><br/>
           <CalendarCheckFill/> C++ 모듈 참고 소스  : <a target="_blank" className="text-dark" href="https://github.com/mayanklahiri/easyexif"><Github/>Easyexif</a><br/>
           <CalendarCheckFill/> 노트북 모델 및 Three.js 참고 소스  : <a target="_blank" className="text-dark" href="https://codesandbox.io/s/9keg6">Mixing HTML and WebGL w/ occlusion</a><br/>
         </p>

@@ -23,7 +23,7 @@ function AppExifAnalyzer() {
 
   return (
     <Container>
-      아직 테스트 중입니다.
+      테스트용, 현재 화면 개발 중입니다.
       <Alert variant="info">
         <Alert.Heading><FileEarmarkImage/> 이미지 EXIF 분석기</Alert.Heading>
         이미지 안에 있는 메타데이터(EXIF)를 분석해서 날짜, 위치, 카메라 정보 등을 보여줍니다.<br/>
