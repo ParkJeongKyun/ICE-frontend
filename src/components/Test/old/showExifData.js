@@ -14,6 +14,7 @@ function ShowExifData(props) {
   useEffect(() => {
     if(exif_result.exif_gps_latitude && exif_result.exif_gps_longitude) {
       setGps_info([exif_result.exif_gps_latitude, exif_result.exif_gps_longitude]);
+      console.log(props.exif_result);
     }
   }, [props.exif_result]);
 

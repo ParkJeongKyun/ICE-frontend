@@ -1,8 +1,10 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import Terminal, { ColorMode, TerminalOutput } from 'react-terminal-ui';
 
+// Component
 import HexComponent from "./hexComponent";
 
+// 터미널 테스트
 function TerminalController(props) {
   const [terminalLineData, setTerminalLineData] = useState([
     <TerminalOutput>

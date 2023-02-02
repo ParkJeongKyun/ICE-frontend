@@ -1,4 +1,7 @@
 import React, { useEffect, useState } from 'react';
+import { NavLink } from "react-router-dom";
+
+// Bootstrap
 import {
   CDBSidebar,
   CDBSidebarHeader,
@@ -8,8 +11,9 @@ import {
   CDBSidebarSubMenu,
   CDBSidebarFooter
 } from 'cdbreact';
-import { NavLink } from "react-router-dom";
 
+
+// 사이드바 컴포넌트
 function IceSidebar() {
     const [toggle, setToggle] = useState(false);
 

@@ -5,12 +5,12 @@ import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import { Link, NavLink } from "react-router-dom";
-
 import { CDBNavbar } from "cdbreact";
 
+// Icon
 import { Snow, Mailbox, PostcardFill } from 'react-bootstrap-icons';
 
-
+// 네비게이션바 컴포넌트
 function IceNavbar() {
     return (
           <CDBNavbar expand="md" scrolling className="justify-content-start" style={{background: "#333", color: "#FFF", height:"80px"}}>

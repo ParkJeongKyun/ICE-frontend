@@ -1,7 +1,4 @@
 import React from 'react';
-import './styles/App.css';
-
-// for Routing
 import { HashRouter, Routes, Route } from "react-router-dom";
 
 // Bootstrap
@@ -17,7 +14,10 @@ import AppExifAnalyzer from "./components/ExifAnalyzer/appExifAnalyzer";
 import More from "./components/More/more";
 
 // For TEST
-import Test from "./components/Test/test"
+// import Test from "./components/Test/test"
+
+// Style
+import './styles/App.css';
 
 // 메인 앱
 function App() {
@@ -34,8 +34,8 @@ function App() {
           <div className="ice_container w-100">
             <Routes>
                 {/* <Route path="/" element={<MainPage/>}/> */}
-                {/* <Route path="/" element={<AppExifAnalyzer/>}/> */}
-                <Route path="/" element={<Test/>}/>
+                <Route path="/" element={<AppExifAnalyzer/>}/>
+                {/* <Route path="/" element={<Test/>}/> */}
                 <Route path="/more" element={<More/>} />
                 <Route path="/appExifAnalyzer" element={<AppExifAnalyzer/>} />
             </Routes>

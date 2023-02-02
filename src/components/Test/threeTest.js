@@ -3,6 +3,7 @@ import React, { Suspense, useRef } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { Html, Environment, useGLTF, ContactShadows, OrbitControls } from '@react-three/drei'
 
+// Style
 import "../styles/three_style.css"
 
 function Model(props) {

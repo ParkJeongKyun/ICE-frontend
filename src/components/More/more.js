@@ -6,6 +6,7 @@ import Alert from 'react-bootstrap/Alert';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 
+// Icon
 import { Mailbox, FilePerson, Server, WrenchAdjustable, Github, Stars,
   MortarboardFill, ChatRightTextFill, FlagFill, PostcardFill, CalendarCheckFill,
   EmojiWink, WrenchAdjustableCircleFill, BriefcaseFill, ArrowRightShort, Award } from 'react-bootstrap-icons';
@@ -102,6 +103,11 @@ function InfoApplication() {
           <CalendarCheckFill/><a target="_blank" className="text-dark" href="https://ko.reactjs.org/"> 리액트</a><br/>
           <CalendarCheckFill/><a target="_blank" className="text-dark" href="https://getbootstrap.kr"> 부트스트랩</a><br/>
           <CalendarCheckFill/><a target="_blank" className="text-dark" href="https://apis.map.kakao.com/"> 카카오맵</a><br/>
+          {/* react-dropzone https://react-dropzone.js.org */}
+          {/* cdb react https://www.npmjs.com/package/cdbreact */}
+          {/* react-terminal-ui https://www.npmjs.com/package/react-terminal-ui */}
+          {/* @react-three/drei https://www.npmjs.com/package/@react-three/drei */}
+          {/* three.js https://threejs.org */}
           <CalendarCheckFill/><a target="_blank" className="text-dark" href="https://github.com/Devwares-Team/cdbreact-admin-template"> 대쉬보드 디자인/템플릿 참고</a><br/>
           <CalendarCheckFill/> C++를 wasm으로 컴파일 하기 : <a target="_blank" className="text-dark" href="https://emscripten.org/">Emscripten</a><br/>
           <CalendarCheckFill/> C++ 모듈 참고 소스  : <a target="_blank" className="text-dark" href="https://github.com/mayanklahiri/easyexif"><Github/>Easyexif</a><br/>
