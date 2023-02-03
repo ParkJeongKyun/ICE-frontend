@@ -64,8 +64,7 @@ function AppExifAnalyzer() {
 
     return (
         <Deshbord exifData={exifData} setExifData={setExifData}/>
-    )
-
+    );
 }
 
 // 세부 정보
@@ -86,7 +85,7 @@ function Show_info(props) {
                 </h6>  
             </div>         
         </div>
-    )
+    );
 }
 
 // 대시 보드
@@ -95,7 +94,7 @@ function Deshbord(props) {
 
     return (
         <div className="dashboard d-flex w-100">
-          <div style={{flex:"1 1 auto", display:"flex", flexFlow:"column", height:"100%", overflowY:"hidden"}}>
+            <div style={{flex:"1 1 auto", display:"flex", flexFlow:"column", height:"100%", overflowY:"hidden"}}>
                 <div style={{height:"100%"}}>
                     <div className="d-flex card-section">
                         <div className="cards-container">
@@ -198,7 +197,7 @@ function Deshbord(props) {
                 </div>
             </div>
         </div>
-        )
+    );
 }
 
 export default AppExifAnalyzer;

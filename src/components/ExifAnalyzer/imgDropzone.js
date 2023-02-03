@@ -13,7 +13,7 @@ import { Instagram } from 'react-bootstrap-icons';
 const IceExifPromise = IceExif({
 	noInitialRun: true,
 	noExitRuntime: true
-})
+});
 
 // 주소 얻기
 const getAddress = (lat, lng) => {
@@ -30,12 +30,13 @@ const getAddress = (lat, lng) => {
       }
       geocoder.coord2Address(coord.getLng(), coord.getLat(), callback);
   });
-};
+}
 
 // 날짜 출력 형식 설정
 function convertDateFormat(date) {
   return date.toLocaleDateString().replace(/\./g, '').split(' ').map((v,i)=> i > 0 && v.length < 2 ? '0' + v : v).join('-') + " " + date.toTimeString().split(" ")[0];
 }
+
 // 날짜 출력 형식 설정2
 function convertDateFormat2(date_str) {
   try {
@@ -53,7 +54,6 @@ function convertDateFormat2(date_str) {
 // 이미지 드롭존 컴포넌트
 function ImgDropzone(props) {
   const [thumbnail, setThumbnail] = useState("");
-
 
   const onChangeImg = async (file) => {
       let exifData = {
@@ -104,21 +104,20 @@ function ImgDropzone(props) {
         "exif_focal_plane_xres": "",    // 초점 x
         "exif_focal_plane_yres": "",    // 초점 y
     }
-
     // Wasm 파일 없이 얻을 수 있는 정보(썸네일, 원본, 파일 이름, 마지막 수정 시간)
-    setThumbnail(URL.createObjectURL(file[0])); // 썸네일
+    setThumbnail(URL.createObjectURL(file)); // 썸네일
 
-    exifData["exif_file"] = file[0]; // 원본 파일
-    exifData["exif_filename"] = file[0].name; // 파일이름
-    exifData["exif_last_modified_datetime"] = convertDateFormat(file[0].lastModifiedDate); // 마지막 수정시간
+    exifData["exif_file"] = file; // 원본 파일
+    exifData["exif_filename"] = file.name; // 파일이름
+    exifData["exif_last_modified_datetime"] = convertDateFormat(file.lastModifiedDate); // 마지막 수정시간
 
     // 데이터 버퍼 얻기 (Wasm 파일에서 사용)
-    file[0].arrayBuffer().then(
+    file.arrayBuffer().then(
       data => {
         // Wasm 파일 이용 EXIF 메타 데이터 분석
         IceExifPromise.then ( mod => {
           // 데이터 복사 과정(Wasm에 직접적으로 보내지 않고 브라우저의 힙영역 이용)
-          let file_size = file[0].size;
+          let file_size = file.size;
           let offset = mod._malloc(file_size);
           let dataHeap = new Uint8Array(mod.HEAPU8.buffer, offset, file_size);
           let data_list = new Uint8Array(data);
@@ -147,27 +146,34 @@ function ImgDropzone(props) {
           }
         });
       }
-    )
+    );
   }
 
   // 이미지를 드롭 했을때 실행할 함수
   const onDrop = useCallback(acceptedFiles => {
-        onChangeImg(acceptedFiles);
+        if(acceptedFiles[0]) { // 이미지 파일만 있는 경우, 2개 이상인경우 첫번째 이미지 선택
+          onChangeImg(acceptedFiles[0]);
+        }
   }, []);
 
   // 허용 가능한 포맷
   const {getRootProps, getInputProps, isDragActive} = useDropzone({
     onDrop, accept: {
     'image/jpeg': [],
-    'image/png': []}});
+    'image/png': []}
+  });
 
   return (
-    <div className="rounded bg-secondary text-white d-flex justify-content-center align-items-center p-3"
+    <div className="rounded text-white d-flex justify-content-center align-items-center p-3"
     style={{
       cursor: "pointer",
       minHeight: "100px",
+      backgroundImage:"url('frozen3.png')",
+      backgroundSize: "cover",
       border: "0px dashed white",
-      borderRadius:"25px"
+      borderRadius:"25px",
+      fontWeight:"600",
+      textShadow: "-1px 0 black, 0 1px black, 1px 0 black, 0 -1px black"
     }}
     {...getRootProps()}>
       <input {...getInputProps()} />
@@ -181,13 +187,11 @@ function ImgDropzone(props) {
           />
           :
           <div>
-            <div>
               {
                 isDragActive ?
-                  <span>Drop <Instagram/></span> :
-                  <div>Click or Drop <Instagram/></div>
+                  <span>Drop</span> :
+                  <div>Click or Drop Here!</div>
               }
-            </div>
           </div>
       }
     </div>
