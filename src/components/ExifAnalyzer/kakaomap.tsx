@@ -1,13 +1,22 @@
 /* global kakao */
-import React, { useEffect, useState, useLayoutEffect } from "react";
+import React, { useLayoutEffect } from "react";
 
 // Style
 import '../../styles/map.css';
 
+
+/* Kakao Map */
+declare var kakao: any;
+
+interface Props {
+  latitude: string;
+  longitude: string;
+}
+
 // 카카오맵
-function Kakaomap(props) {
+function Kakaomap(props: Props) {
   useLayoutEffect(() => {
-    let [lat, lng] = props.gps_info;
+    let [lat, lng] = [props.latitude, props.longitude];
     if(lat && lng) { // GPS 정보가 정상인 경우
       try {
         // 맵 생성
@@ -17,10 +26,10 @@ function Kakaomap(props) {
         console.log(e);
       }
     }
-  }, [props.gps_info]);
+  }, [props]);
 
   // 맵 생성 스크립트
-  const mapscript = (lat, lng) => {
+  const mapscript = (lat: any, lng: any) => {
     let container = document.getElementById("map");
     let options = {
       center: new kakao.maps.LatLng(lat, lng),
