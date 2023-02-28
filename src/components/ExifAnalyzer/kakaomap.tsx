@@ -1,5 +1,5 @@
 /* global kakao */
-import React, { useLayoutEffect } from "react";
+import { useLayoutEffect } from "react";
 
 // Style
 import '../../styles/map.css';

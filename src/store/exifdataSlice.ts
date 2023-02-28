@@ -1,8 +1,9 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export interface Exifdata {
-  exif_file?: any,   // 원본 파일
+  exif_file?: File,   // 원본 파일
   exif_filename: string,    // 파일명
+  exif_filesize: string, // 파일 사이즈(바이트)
   exif_software: string,    // 소프트웨어
   exif_width: string,   // 너비
   exif_height: string,  // 높이
@@ -50,7 +51,8 @@ export interface Exifdata {
 
 export const initialStateExifdata: Exifdata = {
   // exif_file: "",
-  exif_filename: "",  
+  exif_filename: "",
+  exif_filesize: "",
   exif_software: "",  
   exif_width: "", 
   exif_height: "",

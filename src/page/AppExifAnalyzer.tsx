@@ -1,4 +1,4 @@
-import { useState } from 'react';
+// import { useState } from 'react';
 import useExifdata from "hooks/useExifdata";
 import ShowInfo from 'components/ExifAnalyzer/showExifdata';
 
@@ -32,6 +32,7 @@ function AppExifAnalyzer() {
                                 <div className="py-1 px-2 bg-grey rounded-circle"><Image/></div>
                             </div>
                             <ShowInfo value={exifdata.exif_filename} name="파일명"/>
+                            <ShowInfo value={exifdata.exif_filesize} name="파일크기" unit="Byte"/>
                             <ShowInfo value={exifdata.exif_software} name="소프트웨어"/>
                             <ShowInfo value={exifdata.exif_width} name="너비"/>
                             <ShowInfo value={exifdata.exif_height} name="높이"/>
