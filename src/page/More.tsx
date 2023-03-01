@@ -17,13 +17,7 @@ function More() {
                   <div className="cards-container2 w-100">
 
                   <div className="card-bg w-100 border shadow d-flex flex-column" style={{gridRow:"span 2"}}>
-                      <img
-                        alt="cardImg"
-                        className="img-fluid"
-                        style={{objectFit:"cover", maxHeight:"150px"}}
-                        src='frozen.jpg'
-                      />
-                      <img alt="cardImg" className="mx-auto border rounded-circle" style={{marginTop:"-5rem"}} width="130px" height="130px" src="kyun.jpg" />
+                      <img alt="cardImg" className="mx-auto border rounded-circle" style={{marginTop:"1.5rem"}} width="130px" height="130px" src="kyun.jpg" />
                       <div className="p-3 d-flex flex-column align-items-center mb-4 text-center">
                         <h4 style={{fontWeight:"600"}}>박정균(JeongKyun, Park)</h4>
                         <p>개발자, 디지털 포렌식 전문가 <img  alt="pol" width="17px" height="13px" style={{filter:"invert(100%)"}} src="pol.png"/><br/>(2001. 02. 23)</p>
@@ -122,7 +116,7 @@ function More() {
                             <ShowInfo main_text="Backend API(Python, Nginx, GCP) 폐쇄" sub_text="2022. 11. 15" side_text=""/>
                             <ShowInfo main_text="Backend API를 웹어셈블리(C++를 컴파일한) 파일로 대체" sub_text="2022. 12. 24" side_text=""/>
                             <ShowInfo main_text="디자인 화면 업그레이드" sub_text="2023. 01. 30" side_text=""/>
-                            <ShowInfo main_text="Typescript 적용 및 프론트엔드 리소스 변경" sub_text="2023. 02. 27" side_text=""/>
+                            <ShowInfo main_text="Typescript 적용 및 프론트엔드 리소스 업그레이드" sub_text="2023. 02. 27" side_text=""/>
                             <ShowInfo main_text="EXIF 분석 세부정보 및 EXIF 설명 페이지 추가 예정" sub_text="2023." side_text=""/>
                         </div>
                     </div>
