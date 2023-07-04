@@ -1,4 +1,6 @@
 import { Drawer } from "antd";
+import DotsIcon from "components/Icons/DotsIcon";
+import ListSearchIcon from "components/Icons/ListSearchIcon";
 import SnowfallComponent from "components/SnowfallComponent/SnowfallComponent";
 import ExifAnalyzer from "IceContainer/ExifAnalyzer/ExifAnalyzer";
 import { IceContainer } from "IceContainer/styles";
@@ -23,7 +25,9 @@ function App() {
         <ExifAnalyzer />
       </IceContainer>
       <IceRBContainer>
-        <IceRButton onClick={showDrawer}>+</IceRButton>
+        <IceRButton onClick={showDrawer}>
+          <ListSearchIcon />
+        </IceRButton>
       </IceRBContainer>
       <IceInfomation open={open} showDrawer={showDrawer} onClose={onClose} />
     </div>

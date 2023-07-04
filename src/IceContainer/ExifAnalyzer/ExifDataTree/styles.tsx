@@ -2,7 +2,7 @@ import styled from "styled-components";
 import { animated } from "@react-spring/web";
 
 export const Container = styled("div")`
-  border: 0.5px solid var(--ice-line-color);
+  border: 0.5px solid var(--container-line-color);
   font-family: "Roboto Mono";
   border-radius: 10px;
   width: 100%;
@@ -13,7 +13,8 @@ export const Container = styled("div")`
   padding-left: 10px;
   padding-right: 10px;
   padding-bottom: 5px;
-  background: var(--container-bg-color);
+  // background: var(--container-bg-color);
+  background-color: var(--ice-main-bg-color);
   overflow: hidden;
   font-size: var(--main-font-size);
   line-height: 21px;
@@ -34,8 +35,8 @@ export const Frame = styled("div")`
 
   overflow-x: hidden;
   vertical-align: middle;
-  color: var(--continaer-text-color);
-  fill: var(--continaer-text-color);
+  color: var(--container-text-color);
+  fill: var(--container-text-color);
   max-height: 100%;
 `;
 
@@ -47,7 +48,7 @@ export const Content = styled(animated.div)`
   will-change: transform, opacity, height;
   margin-left: 6px;
   padding: 0px 0px 0px 14px;
-  border-left: 1px dashed var(--continaer-text-color);
+  border-left: 1px dashed var(--container-text-color);
   overflow: hidden;
 `;
 

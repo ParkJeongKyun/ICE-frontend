@@ -11,5 +11,5 @@ export const LogoContainer = styled(Content)`
   justify-content: center;
   align-items: center;
   font-size: 35px;
-  color: var(--ice-line-color);
+  color: var(--container-line-color);
 `;

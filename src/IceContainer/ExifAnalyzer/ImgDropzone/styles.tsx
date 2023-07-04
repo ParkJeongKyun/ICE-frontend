@@ -9,11 +9,11 @@ export const IceDropzone = styled("div")`
   display: flex;
   justify-content: center;
   align-items: center;
-  border: 0.5px solid var(--ice-line-color);
-  color: var(--ice-line-color);
+  border: 0.5px solid var(--container-line-color);
+  color: var(--container-line-color);
 `;
 
 export const StyledImage = styled(Image)`
   max-height: 180px;
-  border: 0.5px solid var(--ice-line-color);
+  border: 0.5px solid var(--container-line-color);
 `;

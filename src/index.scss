@@ -5,14 +5,19 @@ body,
 #root {
   height: 100%;
   width: 100%;
+  // 메인 색
   --main-bg-color: #1e1e1e;
   --main-text-color: white;
+  --main-line-color: white;
   --main-font-size: 14px;
+  // 컨테이너 색
   --container-bg-color: rgba(255, 255, 255, 0.5);
-  --continaer-text-color: #1e1e1e;
+  --container-text-color: #1e1e1e;
+  --container-line-color: white;
+  // 강조 색
   --ice-main-color: rgb(0, 166, 237);
   --ice-main-bg-color: rgb(0, 166, 237, 0.1);
-  --ice-line-color: white;
+  --ice-line-color: rgb(0, 166, 237);
 }
 
 body {

@@ -9,7 +9,7 @@ export const IceContainer = styled(Layout)`
   overflow: auto;
   padding: 5px;
   background-color: var(--container-bg-color);
-  border: 0.5px solid var(--ice-line-color);
+  border: 0.5px solid var(--container-line-color);
   border-radius: 10px;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3); /* 그림자 효과 */
 
