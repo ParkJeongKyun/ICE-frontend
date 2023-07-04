@@ -19,3 +19,14 @@ export const IceRButton = styled(Button)`
   border: 2px solid var(--container-line-color);
   // border: none;
 `;
+
+export const IceCopy = styled("div")`
+  position: fixed;
+  color: var(--main-text-color);
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  bottom: 2%;
+  z-index: 9999;
+  opacity: 0.5;
+`;

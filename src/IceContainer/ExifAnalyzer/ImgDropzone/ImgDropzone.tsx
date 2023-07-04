@@ -107,10 +107,8 @@ export default function ImgDropzone({ setFile, setRows }: Props) {
             ) : (
               <div>
                 <Logo />
-                <div>클릭하거나 사진을 드롭하세요!</div>
                 <br />
-                <div>(현재 테스용 Demo 페이지 입니다)</div>
-                <div>문의 : dbzoseh84@gmail.com</div>
+                <div>이곳을 클릭 또는 여기에 이미지를 드롭 하세요!</div>
               </div>
             )}
           </div>

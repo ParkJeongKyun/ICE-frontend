@@ -6,7 +6,7 @@ import ExifAnalyzer from "IceContainer/ExifAnalyzer/ExifAnalyzer";
 import { IceContainer } from "IceContainer/styles";
 import IceInfomation from "IceInfomation/IceInfomation";
 import React, { useState } from "react";
-import { IceRBContainer, IceRButton } from "styles";
+import { IceCopy, IceRBContainer, IceRButton } from "styles";
 
 function App() {
   const [open, setOpen] = useState(false);
@@ -30,6 +30,11 @@ function App() {
         </IceRButton>
       </IceRBContainer>
       <IceInfomation open={open} showDrawer={showDrawer} onClose={onClose} />
+      <IceCopy>
+        <span>&copy; Jeongkyun-Park. All rights reserved.</span>
+        <br />
+        <span> dbzoseh84@gmail.com</span>
+      </IceCopy>
     </div>
   );
 }

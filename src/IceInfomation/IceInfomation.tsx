@@ -17,19 +17,23 @@ export default function IceInfomation({ open, showDrawer, onClose }: Props) {
       onClose={onClose}
       open={open}
     >
+      개발자
       <Card
         actions={[
-          <Tag color="#2db7f5">히히</Tag>,
-          <Tag color="#2db7f5">히히</Tag>,
-          <Tag color="#2db7f5">히히</Tag>,
+          <Tag color="#2db7f5">개발자</Tag>,
+          <Tag color="#2db7f5">디지털포렌식</Tag>,
+          <Tag color="#2db7f5">보안</Tag>,
         ]}
       >
         <Meta
           avatar={<Avatar size={100} src="kyun.jpg" />}
-          title="박정균(Park Jeong-Kyun)"
-          description="dbzoseh84@gmail.com"
+          title="박정균"
+          description="(Park Jeong-Kyun) dbzoseh84@gmail.com"
         />
       </Card>
+      아직 데모 페이지 테스트 중입니다.
+      <br />
+      추후 업데이트 예정
       <Space></Space>
     </IceDrawer>
   );
