@@ -1,0 +1,36 @@
+// 색지정 메인 스타일만 설정
+
+html,
+body,
+#root {
+  height: 100%;
+  width: 100%;
+  --main-bg-color: #1e1e1e;
+  --main-text-color: white;
+  --main-font-size: 14px;
+  --container-bg-color: rgba(255, 255, 255, 0.5);
+  --continaer-text-color: #1e1e1e;
+  --ice-main-color: rgb(0, 166, 237);
+  --ice-main-bg-color: rgb(0, 166, 237, 0.1);
+  --ice-line-color: white;
+}
+
+body {
+  // font-family: system-ui;
+  font-family: "Roboto Mono";
+  margin: 0;
+}
+
+.App {
+  height: 100%;
+  width: 100%;
+  background-color: var(--main-bg-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+*,
+*:after,
+*:before {
+  box-sizing: border-box;
+}
