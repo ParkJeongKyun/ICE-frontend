@@ -5,6 +5,7 @@ import { Container, Title, Frame, Content, toggle } from "./styles";
 import * as Icons from "./icons";
 import { ExifRow } from "types/types";
 import KakaoMap from "IceContainer/ExifAnalyzer/KakaoMap/KakaoMap";
+import { isValidLocation } from "utils/getAddress";
 
 function usePrevious<T>(value: T) {
   const ref = useRef<T>();
@@ -56,6 +57,7 @@ interface Props {
   rows: ExifRow[];
 }
 
+// EXIF 데이터 트리
 export default function ExifDataTree({ rows }: Props) {
   return (
     <>
@@ -82,14 +84,19 @@ export default function ExifDataTree({ rows }: Props) {
                     style={{ color: "var(--ice-main-color)" }}
                     defaultOpen
                   >
-                    {meta == "Location" && (
-                      <>
-                        <KakaoMap
-                          latitude={origindata.split(",")[0].trim()}
-                          longitude={origindata.split(",")[1].trim()}
-                        />
-                      </>
-                    )}
+                    {/* 아래 로직 수정 필요 */}
+                    {meta == "Location" &&
+                      isValidLocation(
+                        origindata.split(",")[0].trim(),
+                        origindata.split(",")[1].trim()
+                      ) && (
+                        <>
+                          <KakaoMap
+                            latitude={origindata.split(",")[0].trim()}
+                            longitude={origindata.split(",")[1].trim()}
+                          />
+                        </>
+                      )}
                     <Tree key={`${index}-data`} name={data}>
                       <Tree
                         key={`${index}-meta`}

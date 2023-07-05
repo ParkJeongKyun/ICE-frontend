@@ -2,7 +2,7 @@ import Logo from "components/Logo/Logo";
 import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { ExifRow } from "types/types";
-import { getAddress } from "utils/getAddress";
+import { getAddress, isValidLocation } from "utils/getAddress";
 import { IceDropzone, StyledImage } from "./styles";
 
 interface Props {
@@ -16,28 +16,37 @@ export default function ImgDropzone({ setFile, setRows }: Props) {
 
   /*** 클릭 & 드롭 이벤트 */
   const onDrop = async (acceptedFiles: File[]) => {
+    // 0번째만 읽기
     const inputImage = acceptedFiles[0];
+    // 썸네일용 URL 생성
     setThumbnail(URL.createObjectURL(inputImage)); // 썸네일
+
+    // 바이너리 데이터 얻기
     const binaryData = await inputImage.arrayBuffer();
     let input_data = new Uint8Array(binaryData);
+    // GO 웹 어셈블리 모듈에 입력
     const result = await window.goFunc(input_data);
 
+    // 원본 파일 저장
     setFile(inputImage);
+
+    // 결과가 없는 경우
     if (!result) {
       setRows([]);
       return;
     }
 
+    // 메타 데이터 파싱
     const meta: [
       {
-        tag: string;
-        comment: string;
-        data: string;
-        origindata: string;
-        type: string;
-        name: string;
-        unit: string;
-        example: any;
+        tag: string; // 영문 태그명
+        comment: string; // 주석
+        data: string; // 데이터
+        origindata: string; // 원본 데이터
+        type: string; // 타입
+        name: string; // 한글 태그명
+        unit: string; // 단위
+        example: any; // 예제값
       }
     ] = JSON.parse(result);
 
@@ -51,12 +60,15 @@ export default function ImgDropzone({ setFile, setRows }: Props) {
             if (tag === "Location") {
               // 좌표(위도, 경도) 데이터 가 있는 경우
               try {
-                const address = await getAddress(
-                  origindata.split(",")[0].trim(),
-                  origindata.split(",")[1].trim()
-                );
-                // 주소 설정
-                data = address;
+                const [lat, lng] = origindata
+                  .split(",")
+                  .map((value) => value.trim());
+                if (isValidLocation(lat, lng)) {
+                  // API로 주소값 얻기
+                  const address = await getAddress(lat, lng);
+                  // 주소값으로 변경
+                  data = address;
+                }
               } catch (error_msg) {
                 console.log(error_msg);
               }
@@ -102,14 +114,12 @@ export default function ImgDropzone({ setFile, setRows }: Props) {
           />
         ) : (
           <div>
+            <Logo />
+            <br />
             {isDragActive ? (
-              <span>Drop</span>
+              <div>여기에 드롭 해주세요!</div>
             ) : (
-              <div>
-                <Logo />
-                <br />
-                <div>이곳을 클릭 또는 여기에 이미지를 드롭 하세요!</div>
-              </div>
+              <div>이곳을 클릭 또는 여기에 이미지를 드롭 하세요!</div>
             )}
           </div>
         )}

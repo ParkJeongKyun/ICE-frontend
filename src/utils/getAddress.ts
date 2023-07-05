@@ -1,10 +1,15 @@
 /* global kakao */
 
+import { isValidNumber } from "./isValidNumber";
+
 /* Kakao Map */
 declare var kakao: any;
 
 /*** 카카오맵 API 이용 맵 데이터 얻기 */
-export const getAddress = (lat: string, lng: string): Promise<string> => {
+export const getAddress = (
+  lat: string | number,
+  lng: string | number
+): Promise<string> => {
   return new Promise((resolve, reject) => {
     let geocoder = new kakao.maps.services.Geocoder();
     let coord = new kakao.maps.LatLng(lat, lng);
@@ -21,3 +26,8 @@ export const getAddress = (lat: string, lng: string): Promise<string> => {
     geocoder.coord2Address(coord.getLng(), coord.getLat(), callback);
   });
 };
+
+// 위치값 유효성 검사
+export function isValidLocation(lat: unknown, lng: unknown) {
+  return isValidNumber(lat) && isValidNumber(lng);
+}

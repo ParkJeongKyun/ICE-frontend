@@ -13,7 +13,6 @@ export const Container = styled("div")`
   padding-left: 10px;
   padding-right: 10px;
   padding-bottom: 5px;
-  // background: var(--container-bg-color);
   background-color: var(--ice-main-bg-color);
   overflow: hidden;
   font-size: var(--main-font-size);

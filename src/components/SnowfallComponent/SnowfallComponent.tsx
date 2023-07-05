@@ -1,9 +1,17 @@
 import React from "react";
 import Snowfall from "react-snowfall";
 
-const SnowfallComponent: React.FC = () => {
+interface Props {
+  snowflakeCount: number;
+}
+
+const SnowfallComponent: React.FC<Props> = ({ snowflakeCount }) => {
   return (
-    <Snowfall snowflakeCount={150} radius={[0.3, 0.5]} speed={[0.3, 0.5]} />
+    <Snowfall
+      snowflakeCount={snowflakeCount}
+      radius={[0.3, 0.5]}
+      speed={[0.3, 0.5]}
+    />
   );
 };
 

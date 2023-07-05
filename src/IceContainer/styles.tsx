@@ -2,6 +2,7 @@ import { Layout } from "antd";
 import { Content } from "antd/es/layout/layout";
 import styled from "styled-components";
 
+// 메인 컨테이너
 export const IceContainer = styled(Layout)`
   width: 400px;
   max-height: 80vh;
@@ -28,6 +29,7 @@ export const IceContainer = styled(Layout)`
   }
 `;
 
+// 컨테이너 프레임
 export const IceFrame = styled(Content)`
   padding: 5px;
 `;

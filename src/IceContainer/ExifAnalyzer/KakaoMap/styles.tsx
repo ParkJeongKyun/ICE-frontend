@@ -1,6 +1,7 @@
 import { Image } from "antd";
 import styled from "styled-components";
 
+// 카카오 맵
 export const IceMapContainer = styled("div")`
   border-radius: 10px;
   width: 100%;

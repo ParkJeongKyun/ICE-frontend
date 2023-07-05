@@ -2,9 +2,6 @@
 import { useLayoutEffect } from "react";
 import { IceMap, IceMapContainer } from "./styles";
 
-// // Style
-// import "../../styles/map.css";
-
 /* Kakao Map */
 declare var kakao: any;
 
@@ -30,7 +27,7 @@ function KakaoMap(props: Props) {
 
   // 맵 생성 스크립트
   const mapscript = (lat: any, lng: any) => {
-    let container = document.getElementById("map");
+    let container = document.getElementById("IceLocaionMap");
     let options = {
       center: new kakao.maps.LatLng(lat, lng),
       level: 3,
@@ -53,7 +50,7 @@ function KakaoMap(props: Props) {
   return (
     <>
       <IceMapContainer>
-        <IceMap id="map" />
+        <IceMap id="IceLocaionMap" />
       </IceMapContainer>
     </>
   );
