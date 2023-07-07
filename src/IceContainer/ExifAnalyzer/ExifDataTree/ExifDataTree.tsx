@@ -67,21 +67,22 @@ export default function ExifDataTree({ rows }: Props) {
             {rows
               .filter((item) => item.data != "")
               .map((item, index) => {
-                const kor_name = item.name;
-                const data = item.data;
-                const origindata = item.origindata;
-                const meta = item.meta;
-
-                const type = item.type;
-                const unit = item.unit;
-                const comment = item.comment;
-                const example = item.example;
+                const {
+                  meta, // 영문 태그명
+                  name, // 한국어 태그명
+                  data, // 데이터
+                  origindata, // 원본 데이터
+                  type, // 타입
+                  unit, // 단위
+                  comment, // 주석
+                  example, // 예제값
+                } = item;
 
                 return (
                   <Tree
                     key={index}
-                    name={kor_name}
-                    style={{ color: "var(--ice-main-color)" }}
+                    name={name}
+                    // style={{ color: "var(--ice-main-color)" }}
                     defaultOpen
                   >
                     {/* 아래 로직 수정 필요 */}

@@ -1,4 +1,4 @@
-import { Button, Switch } from "antd";
+import { Button, FloatButton, Switch } from "antd";
 import styled from "styled-components";
 
 // 우고정
@@ -16,15 +16,14 @@ export const IceLBContainer = styled("div")`
 `;
 
 // 우버튼
-export const IceRButton = styled(Button)`
-  padding: 0px;
-  margin: 0px;
-  width: 30px;
-  height: 30px;
-  // background-color: transparent;
-  // border: none;
-  background-color: black;
-  border: 2px solid var(--container-line-color);
+export const IceRButton = styled(FloatButton.Group)`
+  & .ant-float-btn {
+    background-color: var(--ice-main-bg-color);
+  }
+  & .ant-float-btn-body {
+    background-color: var(--ice-main-bg-color);
+    border: 0.5px solid var(--container-line-color);
+  }
 `;
 
 // 좌 스위치

@@ -13,7 +13,7 @@ export default function IceInfomation({ open, showDrawer, onClose }: Props) {
   return (
     <IceDrawer
       // title={<Logo />}
-      placement="right"
+      placement="left"
       onClose={onClose}
       open={open}
     >

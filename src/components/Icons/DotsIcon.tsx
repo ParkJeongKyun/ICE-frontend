@@ -7,8 +7,8 @@ interface SvgIconProps {
 }
 
 const DotsIcon: React.FC<SvgIconProps> = ({
-  width = 24,
-  height = 24,
+  width = 18,
+  height = 18,
   color = "white",
 }) => (
   <svg
@@ -17,7 +17,7 @@ const DotsIcon: React.FC<SvgIconProps> = ({
     width={width}
     height={height}
     viewBox="0 0 24 24"
-    strokeWidth="1.5"
+    strokeWidth="2.5"
     stroke={color}
     fill="none"
     strokeLinecap="round"

@@ -7,8 +7,8 @@ interface SvgIconProps {
 }
 
 const SnowFlakeOffIcon: React.FC<SvgIconProps> = ({
-  width = 24,
-  height = 24,
+  width = 18,
+  height = 18,
   color = "white",
 }) => (
   <svg
