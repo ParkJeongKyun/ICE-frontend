@@ -9,7 +9,6 @@ body,
   --main-bg-color: #1e1e1e;
   --main-text-color: white;
   --main-line-color: white;
-  --main-font-size: 14px;
   // 컨테이너 색
   --container-bg-color: rgba(255, 255, 255, 0.5);
   --container-text-color: #1e1e1e;
@@ -18,6 +17,14 @@ body,
   --ice-main-color: rgb(0, 166, 237);
   --ice-main-bg-color: rgb(0, 166, 237, 0.1);
   --ice-line-color: rgb(0, 166, 237);
+
+  // 사이즈
+  --main-font-size: 14px;
+  --main-copy-font-size: 10px;
+  --main-border-size: 0.5px;
+  --container-width-size: 400px;
+  --container-dropzone-height-size: 200px;
+  --container-radius-size: 10px;
 }
 
 body {

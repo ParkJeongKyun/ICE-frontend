@@ -9,7 +9,7 @@ import ExifAnalyzer from "IceContainer/ExifAnalyzer/ExifAnalyzer";
 import { IceContainer } from "IceContainer/styles";
 import IceInfomation from "IceInfomation/IceInfomation";
 import React, { useState } from "react";
-import { IceCopy, IceRBContainer, IceRButton } from "styles";
+import { IceCopy, IceRButton } from "styles";
 
 function App() {
   // 눈 송이 개수
@@ -59,32 +59,30 @@ function App() {
         </IceCopy>
 
         {/* 우고정 부분 */}
-        <IceRBContainer>
-          {/* 플로팅 버튼 그룹*/}
-          <IceRButton
-            trigger="hover"
-            closeIcon={<XIcon color="var(--main-line-color)" />}
-            icon={<DotsIcon color="var(--main-line-color)" />}
-          >
-            {/* 플로팅 버튼 그룹들 */}
-            <FloatButton
-              tooltip={<div>배경 눈 설정</div>}
-              onClick={onChange}
-              icon={
-                snowflake ? (
-                  <SnowFlakeOffIcon color="var(--main-line-color)" />
-                ) : (
-                  <SnowFlakeIcon color="var(--main-line-color)" />
-                )
-              }
-            />
-            <FloatButton
-              tooltip={<div>사이트 정보</div>}
-              icon={<ProfileIcon color="var(--main-line-color)" />}
-              onClick={showDrawer}
-            />
-          </IceRButton>
-        </IceRBContainer>
+        {/* 플로팅 버튼 그룹*/}
+        <IceRButton
+          trigger="hover"
+          closeIcon={<XIcon color="var(--main-line-color)" />}
+          icon={<DotsIcon color="var(--main-line-color)" />}
+        >
+          {/* 플로팅 버튼 그룹들 */}
+          <FloatButton
+            tooltip={<div>배경 눈 설정</div>}
+            onClick={onChange}
+            icon={
+              snowflake ? (
+                <SnowFlakeOffIcon color="var(--main-line-color)" />
+              ) : (
+                <SnowFlakeIcon color="var(--main-line-color)" />
+              )
+            }
+          />
+          <FloatButton
+            tooltip={<div>사이트 정보</div>}
+            icon={<ProfileIcon color="var(--main-line-color)" />}
+            onClick={showDrawer}
+          />
+        </IceRButton>
 
         {/* 드로워 */}
         <IceInfomation open={open} showDrawer={showDrawer} onClose={onClose} />
