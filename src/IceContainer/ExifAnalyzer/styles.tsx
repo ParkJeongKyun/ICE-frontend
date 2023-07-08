@@ -4,9 +4,9 @@ import styled from "styled-components";
 
 // EXIF 정보 출력
 export const IceExifInfo = styled(Content)`
-  padding: 10px;
+  padding: var(--main-big-padding-size);
   margin: 0px;
-  margin-top: 10px;
+  margin-top: var(--main-big-padding-size);
   border-radius: var(--container-radius-size);
   background-color: var(--container-bg-color);
   border: var(--main-border-size) solid var(--container-line-color);
@@ -16,19 +16,19 @@ export const IceExifInfo = styled(Content)`
 export const IceImageInfo = styled(Card)`
   padding: 0px;
   margin: 0px;
-  margin-bottom: 10px;
+  margin-bottom: var(--main-big-padding-size);
   border-radius: var(--container-radius-size);
   background-color: var(--ice-main-bg-color);
   border: var(--main-border-size) solid var(--container-line-color);
 
   & .ant-card-body {
-    padding: 5px;
+    padding: var(--main-padding-size);
   }
 `;
 
 // 출력
 export const IceStatistic = styled(Statistic)`
-  padding: 5px;
+  padding: var(--main-padding-size);
   font-family: "Roboto Mono";
   & .ant-statistic-title {
     font-size: 11px;

@@ -8,7 +8,7 @@ export const IceContainer = styled(Layout)`
   max-height: 80vh;
   position: fixed;
   overflow: auto;
-  padding: 5px;
+  padding: var(--main-padding-size);
   background-color: var(--container-bg-color);
   border: var(--main-border-size) solid var(--container-line-color);
   border-radius: var(--container-radius-size);
@@ -29,5 +29,5 @@ export const IceContainer = styled(Layout)`
 
 // 컨테이너 프레임
 export const IceFrame = styled(Content)`
-  padding: 5px;
+  padding: var(--main-padding-size);
 `;

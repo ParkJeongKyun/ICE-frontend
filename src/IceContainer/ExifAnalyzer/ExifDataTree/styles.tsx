@@ -8,11 +8,11 @@ export const Container = styled("div")`
   width: 100%;
   height: 100%;
   margin: 0px;
-  margin-top: 5px;
+  margin-top: var(--main-padding-size);
   padding: 0px;
-  padding-left: 10px;
-  padding-right: 10px;
-  padding-bottom: 5px;
+  padding-left: var(--main-big-padding-size);
+  padding-right: var(--main-big-padding-size);
+  padding-bottom: var(--main-big-padding-size);
   background-color: var(--ice-main-bg-color);
   overflow: hidden;
   font-size: var(--main-font-size);
@@ -54,7 +54,7 @@ export const Content = styled(animated.div)`
 export const toggle = {
   width: "1em",
   height: "1em",
-  marginRight: 10,
+  marginRight: "var(--main-big-padding-size)",
   cursor: "pointer",
   verticalAlign: "middle",
 };
