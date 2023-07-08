@@ -29,13 +29,15 @@ export const IceImageInfo = styled(Card)`
 // 출력
 export const IceStatistic = styled(Statistic)`
   padding: var(--main-padding-size);
-  font-family: "Roboto Mono";
+  font-family: var(--main-font-family);
   & .ant-statistic-title {
-    font-size: 11px;
+    font-size: var(--container-font-size);
     color: var(--ice-main-color);
+    font-family: var(--main-font-family);
   }
   & .ant-statistic-content {
-    font-size: 14px;
+    font-size: var(--container-big-font-size);
     color: var(--ice-text-color);
+    font-family: var(--main-font-family);
   }
 `;

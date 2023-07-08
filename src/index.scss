@@ -19,18 +19,24 @@ body,
   --ice-line-color: rgb(0, 166, 237);
 
   // 사이즈
-  --main-font-size: 14px;
-  --main-copy-font-size: 10px;
   --main-border-size: 0.5px;
   --main-padding-size: 5px;
   --main-big-padding-size: 10px;
   --container-width-size: 400px;
-  --container-dropzone-height-size: 200px;
+  --container-frame-height-size: 200px;
+  --container-img-height-size: 180px;
   --container-radius-size: 10px;
+
+  // 폰트
+  --main-font-family: "Roboto Mono";
+  --main-font-size: 14px;
+  --main-copy-font-size: 10px;
+  --container-font-size: 11px;
+  --container-big-font-size: 14px;
 }
 
 body {
-  font-family: "Roboto Mono";
+  font-family: var(--main-font-family);
   margin: 0;
 }
 

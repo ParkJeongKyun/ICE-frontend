@@ -3,19 +3,19 @@ import { animated } from "@react-spring/web";
 
 export const Container = styled("div")`
   border: var(--main-border-size) solid var(--container-line-color);
-  font-family: "Roboto Mono";
+  font-family: var(--main-font-family);
   border-radius: var(--container-radius-size);
   width: 100%;
   height: 100%;
   margin: 0px;
-  margin-top: var(--main-padding-size);
+  margin-top: var(--main-big-padding-size);
   padding: 0px;
   padding-left: var(--main-big-padding-size);
   padding-right: var(--main-big-padding-size);
   padding-bottom: var(--main-big-padding-size);
   background-color: var(--ice-main-bg-color);
   overflow: hidden;
-  font-size: var(--main-font-size);
+  font-size: var(--container-big-font-size);
   line-height: 21px;
   --webkit-user-select: none;
   user-select: none;
@@ -45,9 +45,9 @@ export const Title = styled("span")`
 
 export const Content = styled(animated.div)`
   will-change: transform, opacity, height;
-  margin-left: 6px;
-  padding: 0px 0px 0px 14px;
-  border-left: var(--main-border-size) dashed var(--container-text-color);
+  margin-left: var(--main-padding-size);
+  padding: 0px 0px 0px var(--main-big-padding-size);
+  border-left: var(--main-border-size) dashed var(--container-line-color);
   overflow: hidden;
 `;
 

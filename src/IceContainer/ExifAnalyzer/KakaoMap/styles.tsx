@@ -5,7 +5,7 @@ import styled from "styled-components";
 export const IceMapContainer = styled("div")`
   border-radius: var(--container-radius-size);
   width: 100%;
-  height: 200px;
+  height: var(--container-img-height-size);
   padding: var(--main-big-padding-size);
 `;
 
