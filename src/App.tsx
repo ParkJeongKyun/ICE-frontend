@@ -8,7 +8,7 @@ import SnowfallComponent from "components/SnowfallComponent/SnowfallComponent";
 import ExifAnalyzer from "IceContainer/ExifAnalyzer/ExifAnalyzer";
 import { IceContainer } from "IceContainer/styles";
 import IceInfomation from "IceInfomation/IceInfomation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { IceCopy, IceRButton } from "styles";
 
 function App() {
@@ -28,6 +28,8 @@ function App() {
   // 눈 송이 끄기
   const onChange = () => {
     setSnowflake((prev) => {
+      // 로컬 스토리지에 snowflake 값 저장
+      localStorage.setItem("snowflake", String(!prev));
       return !prev;
     });
   };
@@ -39,6 +41,14 @@ function App() {
       colorPrimary: "rgb(0, 166, 237)",
     },
   };
+
+  // 로컬 스토리지에서 snowflake 값 불러오기
+  useEffect(() => {
+    const storedSnowflake = localStorage.getItem("snowflake");
+    if (storedSnowflake !== null) {
+      setSnowflake(storedSnowflake === "true");
+    }
+  }, []);
 
   return (
     <ConfigProvider theme={theme}>
