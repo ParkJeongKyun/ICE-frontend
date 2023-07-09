@@ -1,4 +1,6 @@
 import { ConfigProvider, FloatButton, Radio } from "antd";
+import IceModal from "components/IceModal/IceModal";
+import BoxIcon from "components/Icons/BoxIcon";
 import DotsIcon from "components/Icons/DotsIcon";
 import ProfileIcon from "components/Icons/ProfileIcon";
 import SnowFlakeIcon from "components/Icons/SnowFlakeIcon";
@@ -16,7 +18,19 @@ function App() {
   const [snowflake, setSnowflake] = useState(true);
   // 드로워 옵션
   const [open, setOpen] = useState(false);
+  // 모달 옵션
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
+  //테마
+  const theme = {
+    token: {
+      // 메인 테마 설정
+      colorPrimary: "rgb(0, 166, 237)",
+    },
+  };
+  // ==========================
+
+  // 드로워 핸들러
   const showDrawer = () => {
     setOpen(true);
   };
@@ -24,6 +38,23 @@ function App() {
   const onClose = () => {
     setOpen(false);
   };
+  // ==========================
+
+  // 모달 핸들러
+  const showModal = () => {
+    setIsModalOpen((prev) => {
+      return !prev;
+    });
+  };
+
+  const handleOk = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
+  // ==========================
 
   // 눈 송이 끄기
   const onChange = () => {
@@ -33,14 +64,7 @@ function App() {
       return !prev;
     });
   };
-
-  //테마
-  const theme = {
-    token: {
-      // 메인 테마 설정
-      colorPrimary: "rgb(0, 166, 237)",
-    },
-  };
+  // ==========================
 
   // 로컬 스토리지에서 snowflake 값 불러오기
   useEffect(() => {
@@ -49,6 +73,7 @@ function App() {
       setSnowflake(storedSnowflake === "true");
     }
   }, []);
+  // ==========================
 
   return (
     <ConfigProvider theme={theme}>
@@ -88,6 +113,11 @@ function App() {
             }
           />
           <FloatButton
+            tooltip={<div>테스트용 모달</div>}
+            icon={<BoxIcon color="var(--main-line-color)" />}
+            onClick={showModal}
+          />
+          <FloatButton
             tooltip={<div>사이트 정보</div>}
             icon={<ProfileIcon color="var(--main-line-color)" />}
             onClick={showDrawer}
@@ -96,6 +126,16 @@ function App() {
 
         {/* 드로워 */}
         <IceInfomation open={open} showDrawer={showDrawer} onClose={onClose} />
+
+        {/* 모달 */}
+        <IceModal
+          title="모달 테스트"
+          open={isModalOpen}
+          onOk={handleOk}
+          onCancel={handleCancel}
+        >
+          <div>히히</div>
+        </IceModal>
       </div>
     </ConfigProvider>
   );
