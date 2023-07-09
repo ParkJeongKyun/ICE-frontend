@@ -7,7 +7,7 @@ export const IceModalS = styled(Modal)`
   & .ant-modal-content {
     padding: 0px;
 
-    background-color: var(--container-bg-color) !important;
+    background-color: var(--ice-main-bg-color) !important;
     border: var(--main-border-size) solid var(--container-line-color);
     color: var(--container-line-color);
     border-radius: var(--container-radius-size);
@@ -30,7 +30,7 @@ export const IceModalS = styled(Modal)`
   & .ant-modal-footer {
     display: none;
     button {
-      background-color: var(--container-bg-color) !important;
+      background-color: var(--ice-main-bg-color) !important;
       border: var(--main-border-size) solid var(--container-line-color);
       color: var(--container-line-color);
     }

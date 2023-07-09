@@ -1,7 +1,9 @@
 import { Tabs, TabsProps } from "antd";
 import { useState } from "react";
 import DeveloperInfo from "./DeveloperInfo/DeveloperInfo";
+import SourceInfo from "./SourceInfo/SourceInfo";
 import { IceDrawer, IceTabs } from "./styles";
+import UpdateHistory from "./UpdateHistory/UpdateHistory";
 
 interface Props {
   open: boolean;
@@ -19,12 +21,12 @@ export default function IceInfomation({ open, showDrawer, onClose }: Props) {
     {
       key: "2",
       label: `업데이트`,
-      children: `업데이트`,
+      children: <UpdateHistory />,
     },
     {
       key: "3",
-      label: `소스출처`,
-      children: `소스 출처`,
+      label: `참고소스출처`,
+      children: <SourceInfo />,
     },
   ];
   return (
