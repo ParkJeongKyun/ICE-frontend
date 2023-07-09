@@ -32,12 +32,12 @@ export const IceStatistic = styled(Statistic)`
   font-family: var(--main-font-family);
   & .ant-statistic-title {
     font-size: var(--container-font-size);
-    color: var(--ice-main-color);
+    color: var(--container-highlight-color);
     font-family: var(--main-font-family);
   }
   & .ant-statistic-content {
     font-size: var(--container-big-font-size);
-    color: var(--ice-text-color);
+    color: var(--container-text-color);
     font-family: var(--main-font-family);
   }
 `;

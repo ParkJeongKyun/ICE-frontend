@@ -11,8 +11,9 @@ body,
   --main-line-color: white;
   // 컨테이너 색
   --container-bg-color: rgba(255, 255, 255, 0.5);
-  --container-text-color: #1e1e1e;
+  --container-text-color: white;
   --container-line-color: white;
+  --container-highlight-color: black;
   // 강조 색
   --ice-main-color: rgb(0, 166, 237);
   --ice-main-bg-color: rgb(0, 166, 237, 0.1);
@@ -31,7 +32,7 @@ body,
   --main-font-family: "Roboto Mono";
   --main-font-size: 14px;
   --main-copy-font-size: 10px;
-  --container-font-size: 11px;
+  --container-font-size: 9px;
   --container-big-font-size: 14px;
 }
 

@@ -35,7 +35,7 @@ export const Frame = styled("div")`
   overflow-x: hidden;
   vertical-align: middle;
   color: var(--container-text-color);
-  fill: var(--container-text-color);
+  fill: var(--container-line-color);
   max-height: 100%;
 `;
 

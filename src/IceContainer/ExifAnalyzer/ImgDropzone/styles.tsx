@@ -11,6 +11,8 @@ export const IceDropzone = styled("div")`
   align-items: center;
   border: var(--main-border-size) solid var(--container-line-color);
   color: var(--container-line-color);
+  font-size: var(--container-big-font-size);
+  font-family: var(--main-font-family);
 `;
 
 export const StyledImage = styled(Image)`

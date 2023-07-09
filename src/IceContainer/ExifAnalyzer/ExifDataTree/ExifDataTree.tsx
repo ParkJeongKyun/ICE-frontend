@@ -82,7 +82,7 @@ export default function ExifDataTree({ rows }: Props) {
                   <Tree
                     key={index}
                     name={name}
-                    // style={{ color: "var(--ice-main-color)" }}
+                    style={{ color: "var(--container-highlight-color)" }}
                     defaultOpen
                   >
                     {/* 아래 로직 수정 필요 */}
