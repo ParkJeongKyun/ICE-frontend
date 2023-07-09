@@ -1,4 +1,4 @@
-import { Tabs } from "antd";
+import { Tabs, TabsProps } from "antd";
 import { useState } from "react";
 import DeveloperInfo from "./DeveloperInfo/DeveloperInfo";
 import { IceDrawer, IceTabs } from "./styles";
@@ -10,7 +10,23 @@ interface Props {
 }
 
 export default function IceInfomation({ open, showDrawer, onClose }: Props) {
-  const [activeTab, setActiveTab] = useState("tab1");
+  const items: TabsProps["items"] = [
+    {
+      key: "1",
+      label: `개발자`,
+      children: <DeveloperInfo />,
+    },
+    {
+      key: "2",
+      label: `업데이트`,
+      children: `업데이트`,
+    },
+    {
+      key: "3",
+      label: `소스출처`,
+      children: `소스 출처`,
+    },
+  ];
   return (
     <IceDrawer
       placement="left"
@@ -19,17 +35,7 @@ export default function IceInfomation({ open, showDrawer, onClose }: Props) {
       footer={null}
       open={open}
     >
-      <IceTabs type="card" activeKey={activeTab} onChange={setActiveTab}>
-        <Tabs.TabPane tab="개발자" key="tab1">
-          <DeveloperInfo />
-        </Tabs.TabPane>
-        <Tabs.TabPane tab="업데이트" key="tab2">
-          업데이트트
-        </Tabs.TabPane>
-        <Tabs.TabPane tab="참고출처" key="tab3">
-          참고소스 출처
-        </Tabs.TabPane>
-      </IceTabs>
+      <IceTabs type="card" defaultActiveKey="1" items={items} />
     </IceDrawer>
   );
 }
