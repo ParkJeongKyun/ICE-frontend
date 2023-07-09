@@ -1,7 +1,7 @@
-import { Avatar, Card, Space, Tag } from "antd";
-import Meta from "antd/es/card/Meta";
-import Logo from "components/Logo/Logo";
-import { IceDrawer } from "./styles";
+import { Tabs } from "antd";
+import { useState } from "react";
+import DeveloperInfo from "./DeveloperInfo/DeveloperInfo";
+import { IceDrawer, IceTabs } from "./styles";
 
 interface Props {
   open: boolean;
@@ -10,31 +10,26 @@ interface Props {
 }
 
 export default function IceInfomation({ open, showDrawer, onClose }: Props) {
+  const [activeTab, setActiveTab] = useState("tab1");
   return (
     <IceDrawer
-      // title={<Logo />}
       placement="left"
       onClose={onClose}
+      closable={false} // 클로즈 버튼 제거
+      footer={null}
       open={open}
     >
-      개발자
-      <Card
-        actions={[
-          <Tag color="#2db7f5">개발자</Tag>,
-          <Tag color="#2db7f5">디지털포렌식</Tag>,
-          <Tag color="#2db7f5">보안</Tag>,
-        ]}
-      >
-        <Meta
-          avatar={<Avatar size={100} src="kyun.jpg" />}
-          title="박정균"
-          description="(Park Jeong-Kyun) dbzoseh84@gmail.com"
-        />
-      </Card>
-      아직 데모 페이지 테스트 중입니다.
-      <br />
-      추후 업데이트 예정
-      <Space></Space>
+      <IceTabs type="card" activeKey={activeTab} onChange={setActiveTab}>
+        <Tabs.TabPane tab="개발자" key="tab1">
+          <DeveloperInfo />
+        </Tabs.TabPane>
+        <Tabs.TabPane tab="업데이트" key="tab2">
+          업데이트트
+        </Tabs.TabPane>
+        <Tabs.TabPane tab="참고출처" key="tab3">
+          참고소스 출처
+        </Tabs.TabPane>
+      </IceTabs>
     </IceDrawer>
   );
 }

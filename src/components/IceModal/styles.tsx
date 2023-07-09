@@ -3,7 +3,10 @@ import styled from "styled-components";
 
 // 모달
 export const IceModalS = styled(Modal)`
+  max-width: var(--container-width-size);
   & .ant-modal-content {
+    padding: 0px;
+
     background-color: var(--container-bg-color) !important;
     border: var(--main-border-size) solid var(--container-line-color);
     color: var(--container-line-color);
@@ -15,9 +18,13 @@ export const IceModalS = styled(Modal)`
   }
 
   & .ant-modal-title {
+    padding: var(--modal-padding-size);
     color: var(--container-line-color);
-    padding-bottom: var(--main-big-padding-size);
     border-bottom: var(--main-border-size) solid var(--container-line-color);
+  }
+
+  & .ant-modal-body {
+    padding: var(--modal-padding-size);
   }
 
   & .ant-modal-footer {
