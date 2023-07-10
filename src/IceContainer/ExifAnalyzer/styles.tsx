@@ -7,7 +7,9 @@ export const IceExifInfo = styled(Content)`
   padding: var(--main-big-padding-size);
   margin: 0px;
   margin-top: var(--main-big-padding-size);
+
   border-radius: var(--container-radius-size);
+
   background-color: var(--container-bg-color);
   border: var(--main-border-size) solid var(--container-line-color);
 `;
@@ -17,7 +19,9 @@ export const IceImageInfo = styled(Card)`
   padding: 0px;
   margin: 0px;
   margin-bottom: var(--main-big-padding-size);
+
   border-radius: var(--container-radius-size);
+
   background-color: var(--ice-main-bg-color);
   border: var(--main-border-size) solid var(--container-line-color);
 
@@ -31,13 +35,15 @@ export const IceStatistic = styled(Statistic)`
   padding: var(--main-padding-size);
   font-family: var(--main-font-family);
   & .ant-statistic-title {
+    font-family: var(--main-font-family);
+
     font-size: var(--container-font-size);
     color: var(--container-highlight-color);
-    font-family: var(--main-font-family);
   }
   & .ant-statistic-content {
+    font-family: var(--main-font-family);
+
     font-size: var(--container-big-font-size);
     color: var(--container-text-color);
-    font-family: var(--main-font-family);
   }
 `;

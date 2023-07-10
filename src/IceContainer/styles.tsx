@@ -4,15 +4,19 @@ import styled from "styled-components";
 
 // 메인 컨테이너
 export const IceContainer = styled(Layout)`
+  position: fixed;
+
   width: var(--container-width-size);
   max-height: 80vh;
-  position: fixed;
+
   overflow: auto;
   padding: var(--main-padding-size);
-  background-color: var(--container-bg-color);
-  border: var(--main-border-size) solid var(--container-line-color);
+
   border-radius: var(--container-radius-size);
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3); /* 그림자 효과 */
+
+  background-color: var(--container-bg-color);
+  border: var(--main-border-size) solid var(--container-line-color);
 
   /* 스크롤바 스타일 지정 */
   &::-webkit-scrollbar {

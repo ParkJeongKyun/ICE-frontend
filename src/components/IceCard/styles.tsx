@@ -3,9 +3,10 @@ import styled from "styled-components";
 
 // 메인 컨테이너
 export const IceCard = styled(Card)`
+  border-radius: var(--container-radius-size);
+
   background-color: var(--container-bg-color);
   border: var(--main-border-size) solid var(--container-line-color);
-  border-radius: var(--container-radius-size);
   color: var(--container-text-color);
 
   & .ant-card-body {

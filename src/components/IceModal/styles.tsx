@@ -7,10 +7,11 @@ export const IceModalS = styled(Modal)`
   & .ant-modal-content {
     padding: 0px;
 
+    border-radius: var(--container-radius-size);
+
     background-color: var(--ice-main-bg-color) !important;
     border: var(--main-border-size) solid var(--container-line-color);
     color: var(--container-line-color);
-    border-radius: var(--container-radius-size);
   }
 
   & .ant-modal-header {
