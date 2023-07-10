@@ -7,6 +7,7 @@ import SnowFlakeIcon from "components/Icons/SnowFlakeIcon";
 import SnowFlakeOffIcon from "components/Icons/SnowFlakeOffIcon";
 import XIcon from "components/Icons/XIcon";
 import SnowfallComponent from "components/SnowfallComponent/SnowfallComponent";
+import IceBase64 from "IceBase64/IceBase64";
 import ExifAnalyzer from "IceContainer/ExifAnalyzer/ExifAnalyzer";
 import { IceContainer } from "IceContainer/styles";
 import IceInfomation from "IceInfomation/IceInfomation";
@@ -134,7 +135,7 @@ function App() {
           onOk={handleOk}
           onCancel={handleCancel}
         >
-          <div>히히</div>
+          <IceBase64 />
         </IceModal>
       </div>
     </ConfigProvider>

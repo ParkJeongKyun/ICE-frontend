@@ -1,4 +1,4 @@
-import { Card, Col, Row, Statistic } from "antd";
+import { Card } from "antd";
 import { Content } from "antd/es/layout/layout";
 import styled from "styled-components";
 
@@ -27,23 +27,5 @@ export const IceImageInfo = styled(Card)`
 
   & .ant-card-body {
     padding: var(--main-padding-size);
-  }
-`;
-
-// 출력
-export const IceStatistic = styled(Statistic)`
-  padding: var(--main-padding-size);
-  font-family: var(--main-font-family);
-  & .ant-statistic-title {
-    font-family: var(--main-font-family);
-
-    font-size: var(--container-font-size);
-    color: var(--container-highlight-color);
-  }
-  & .ant-statistic-content {
-    font-family: var(--main-font-family);
-
-    font-size: var(--container-big-font-size);
-    color: var(--container-text-color);
   }
 `;

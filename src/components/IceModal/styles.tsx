@@ -1,4 +1,4 @@
-import { Drawer, Modal } from "antd";
+import { Modal } from "antd";
 import styled from "styled-components";
 
 // 모달

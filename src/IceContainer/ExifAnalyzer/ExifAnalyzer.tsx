@@ -5,7 +5,8 @@ import ImgDropzone from "./ImgDropzone/ImgDropzone";
 import { IceFrame } from "IceContainer/styles";
 import { getDate } from "utils/getDate";
 import { getBytes } from "utils/getBytes";
-import { IceExifInfo, IceImageInfo, IceStatistic } from "./styles";
+import { IceExifInfo, IceImageInfo } from "./styles";
+import { IceStatistic } from "components/IceStatistic/styles";
 
 // 세부 정보
 export default function ExifAnalyzer() {

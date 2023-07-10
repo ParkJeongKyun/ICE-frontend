@@ -6,7 +6,7 @@ export const IceDrawer = styled(Drawer)`
   min-width: var(--container-width-size);
   max-width: var(--container-width-size);
 
-  background-color: var(--ice-main-bg-color) !important;
+  background-color: var(--container-bg-color) !important;
   border: var(--main-border-size) solid var(--container-line-color);
   color: var(--container-text-color);
 
@@ -39,7 +39,7 @@ export const IceTabs = styled(Tabs)`
   }
   & .ant-tabs-tab-active {
     // background-color: transparent !important;
-    background-color: var(--ice-main-bg-color) !important;
+    background-color: var(--container-bg-color) !important;
   }
   & .ant-tabs-tab-btn {
     border-radius: 0px !important;
