@@ -3,15 +3,21 @@ import { IceTextArea } from "components/IceTextArea/styles";
 import React, { useState } from "react";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 
+// Base64 인/디코더
 export default function IceBase64() {
+  //  입력 텍스트
   const [inputText, setInputText] = useState("");
+  // 인코딩 텍스트
   const [encodedText, setEncodedText] = useState("");
+  // 디코딩 텍스트
   const [decodedText, setDecodedText] = useState("");
 
+  // input 변경감지
   const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInputText(event.target.value);
   };
 
+  //  Base64 인코딩 함수
   const encodeBase64 = () => {
     try {
       const encoder = new TextEncoder();
@@ -25,6 +31,7 @@ export default function IceBase64() {
     }
   };
 
+  // Base64 디코딩 함수
   const decodeBase64 = () => {
     try {
       const decoded = atob(inputText);
@@ -40,7 +47,7 @@ export default function IceBase64() {
   return (
     <div>
       <div>
-        <label>Input Text:</label>
+        <label>Input Text</label>
         <IceTextArea
           value={inputText}
           onChange={handleInputChange}

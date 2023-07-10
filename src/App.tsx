@@ -114,7 +114,7 @@ function App() {
             }
           />
           <FloatButton
-            tooltip={<div>테스트용 모달</div>}
+            tooltip={<div>Base64 인/디코더</div>}
             icon={<BoxIcon color="var(--main-line-color)" />}
             onClick={showModal}
           />
@@ -130,7 +130,7 @@ function App() {
 
         {/* 모달 */}
         <IceModal
-          title="모달 테스트"
+          title="Base64 인/디코더"
           open={isModalOpen}
           onOk={handleOk}
           onCancel={handleCancel}
