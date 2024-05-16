@@ -1,11 +1,11 @@
-import React, { useRef, useState, useEffect } from "react";
-import { useSpring, a } from "@react-spring/web";
-import useMeasure from "react-use-measure";
-import { Container, Title, Frame, Content, toggle } from "./styles";
-import * as Icons from "./icons";
-import { ExifRow } from "types/types";
-import KakaoMap from "IceContainer/ExifAnalyzer/KakaoMap/KakaoMap";
-import { isValidLocation } from "utils/getAddress";
+import React, { useRef, useState, useEffect } from 'react';
+import { useSpring, a } from '@react-spring/web';
+import useMeasure from 'react-use-measure';
+import { Container, Title, Frame, Content, toggle } from './styles';
+import * as Icons from './icons';
+import { ExifRow } from 'types';
+import KakaoMap from 'components/IceContainer/ExifAnalyzer/KakaoMap/KakaoMap';
+import { isValidLocation } from 'utils/getAddress';
 
 function usePrevious<T>(value: T) {
   const ref = useRef<T>();
@@ -32,7 +32,7 @@ const Tree = React.memo<
   });
   // @ts-ignore
   const Icon =
-    Icons[`${children ? (isOpen ? "Minus" : "Plus") : "Close"}SquareO`];
+    Icons[`${children ? (isOpen ? 'Minus' : 'Plus') : 'Close'}SquareO`];
   return (
     <Frame>
       <Icon
@@ -44,7 +44,7 @@ const Tree = React.memo<
       <Content
         style={{
           opacity,
-          height: isOpen && previous === isOpen ? "auto" : height,
+          height: isOpen && previous === isOpen ? 'auto' : height,
         }}
       >
         <a.div ref={ref} style={{ y }} children={children} />
@@ -65,7 +65,7 @@ export default function ExifDataTree({ rows }: Props) {
         {rows.length > 0 ? (
           <Tree name="이미지 EXIF 메타데이터" defaultOpen>
             {rows
-              .filter((item) => item.data != "")
+              .filter((item) => item.data != '')
               .map((item, index) => {
                 const {
                   meta, // 영문 태그명
@@ -82,42 +82,42 @@ export default function ExifDataTree({ rows }: Props) {
                   <Tree
                     key={index}
                     name={name}
-                    style={{ color: "var(--container-highlight-color)" }}
+                    style={{ color: 'var(--container-highlight-color)' }}
                     defaultOpen
                   >
                     {/* 아래 로직 수정 필요 */}
-                    {meta == "Location" &&
+                    {meta == 'Location' &&
                       isValidLocation(
-                        origindata.split(",")[0].trim(),
-                        origindata.split(",")[1].trim()
+                        origindata.split(',')[0].trim(),
+                        origindata.split(',')[1].trim()
                       ) && (
                         <>
                           <KakaoMap
-                            latitude={origindata.split(",")[0].trim()}
-                            longitude={origindata.split(",")[1].trim()}
+                            latitude={origindata.split(',')[0].trim()}
+                            longitude={origindata.split(',')[1].trim()}
                           />
                         </>
                       )}
                     <Tree key={`${index}-data`} name={data}>
                       <Tree
                         key={`${index}-meta`}
-                        name={"[영문] " + meta}
+                        name={'[영문] ' + meta}
                       ></Tree>
                       <Tree
                         key={`${index}-comment`}
-                        name={"[설명] " + comment}
+                        name={'[설명] ' + comment}
                       ></Tree>
                       <Tree
                         key={`${index}-type`}
-                        name={"[타입] " + (type || "없음")}
+                        name={'[타입] ' + (type || '없음')}
                       ></Tree>
                       <Tree
                         key={`${index}-unit`}
-                        name={"[단위] " + (unit || "없음")}
+                        name={'[단위] ' + (unit || '없음')}
                       ></Tree>
                       <Tree
                         key={`${index}-origindata`}
-                        name={"[원본] " + origindata}
+                        name={'[원본] ' + origindata}
                       ></Tree>
                       {example && (
                         <Tree
@@ -128,7 +128,7 @@ export default function ExifDataTree({ rows }: Props) {
                           {Object.keys(example).map((key, index) => (
                             <Tree
                               key={`${index}-example-${index}`}
-                              name={key + " = " + example[key]}
+                              name={key + ' = ' + example[key]}
                             ></Tree>
                           ))}
                         </Tree>

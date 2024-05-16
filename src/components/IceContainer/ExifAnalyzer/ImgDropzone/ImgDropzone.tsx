@@ -1,9 +1,9 @@
-import Logo from "components/Logo/Logo";
-import { useCallback, useState } from "react";
-import { useDropzone } from "react-dropzone";
-import { ExifRow } from "types/types";
-import { getAddress, isValidLocation } from "utils/getAddress";
-import { IceDropzone, StyledImage } from "./styles";
+import Logo from 'components/common/Logo/Logo';
+import { useCallback, useState } from 'react';
+import { useDropzone } from 'react-dropzone';
+import { ExifRow } from 'types';
+import { getAddress, isValidLocation } from 'utils/getAddress';
+import { IceDropzone, StyledImage } from './styles';
 
 interface Props {
   setFile: React.Dispatch<React.SetStateAction<File | undefined>>;
@@ -12,7 +12,7 @@ interface Props {
 
 export default function ImgDropzone({ setFile, setRows }: Props) {
   // 썸네일
-  const [thumbnail, setThumbnail] = useState("");
+  const [thumbnail, setThumbnail] = useState('');
 
   /*** 클릭 & 드롭 이벤트 */
   const onDrop = async (acceptedFiles: File[]) => {
@@ -57,11 +57,11 @@ export default function ImgDropzone({ setFile, setRows }: Props) {
             { tag, comment, data, origindata, name, type, unit, example },
             index
           ) => {
-            if (tag === "Location") {
+            if (tag === 'Location') {
               // 좌표(위도, 경도) 데이터 가 있는 경우
               try {
                 const [lat, lng] = origindata
-                  .split(",")
+                  .split(',')
                   .map((value) => value.trim());
                 if (isValidLocation(lat, lng)) {
                   // API로 주소값 얻기
@@ -94,8 +94,8 @@ export default function ImgDropzone({ setFile, setRows }: Props) {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
-      "image/jpeg": [],
-      "image/png": [],
+      'image/jpeg': [],
+      'image/png': [],
     },
   });
 

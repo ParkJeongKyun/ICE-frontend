@@ -1,16 +1,16 @@
-import { IceButton } from "components/IceButton/styles";
-import { IceTextArea } from "components/IceTextArea/styles";
-import React, { useState } from "react";
-import { CopyToClipboard } from "react-copy-to-clipboard";
+import { IceButton } from 'components/common/IceButton/styles';
+import { IceTextArea } from 'components/common/IceTextArea/styles';
+import React, { useState } from 'react';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
 
 // Base64 인/디코더
 export default function IceBase64() {
   //  입력 텍스트
-  const [inputText, setInputText] = useState("");
+  const [inputText, setInputText] = useState('');
   // 인코딩 텍스트
-  const [encodedText, setEncodedText] = useState("");
+  const [encodedText, setEncodedText] = useState('');
   // 디코딩 텍스트
-  const [decodedText, setDecodedText] = useState("");
+  const [decodedText, setDecodedText] = useState('');
 
   // input 변경감지
   const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -27,7 +27,7 @@ export default function IceBase64() {
       setEncodedText(base64);
     } catch (error) {
       //   console.error("Failed to encode Base64:", error);
-      setEncodedText("");
+      setEncodedText('');
     }
   };
 
@@ -40,7 +40,7 @@ export default function IceBase64() {
       setDecodedText(decodedText);
     } catch (error) {
       //   console.error("Invalid Base64 string");
-      setDecodedText("");
+      setDecodedText('');
     }
   };
 

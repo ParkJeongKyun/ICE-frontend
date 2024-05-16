@@ -1,12 +1,12 @@
-import ExifDataTree from "./ExifDataTree/ExifDataTree";
-import React, { useEffect, useState } from "react";
-import { ExifRow } from "types/types";
-import ImgDropzone from "./ImgDropzone/ImgDropzone";
-import { IceFrame } from "IceContainer/styles";
-import { getDate } from "utils/getDate";
-import { getBytes } from "utils/getBytes";
-import { IceExifInfo, IceImageInfo } from "./styles";
-import { IceStatistic } from "components/IceStatistic/styles";
+import ExifDataTree from './ExifDataTree/ExifDataTree';
+import React, { useEffect, useState } from 'react';
+import { ExifRow } from 'types';
+import ImgDropzone from './ImgDropzone/ImgDropzone';
+import { IceFrame } from 'components/IceContainer/styles';
+import { getDate } from 'utils/getDate';
+import { getBytes } from 'utils/getBytes';
+import { IceExifInfo, IceImageInfo } from './styles';
+import { IceStatistic } from 'components/common/IceStatistic/styles';
 
 // 세부 정보
 export default function ExifAnalyzer() {
@@ -20,7 +20,7 @@ export default function ExifAnalyzer() {
     const loadWebAssembly = async () => {
       const go = new Go();
       const wasmModule = await WebAssembly.instantiateStreaming(
-        fetch("wasm/main.wasm"),
+        fetch('wasm/main.wasm'),
         go.importObject
       );
       go.run(wasmModule.instance);
