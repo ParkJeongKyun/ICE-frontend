@@ -1,7 +1,7 @@
 import { Avatar, Card, Tag } from 'antd';
 import Meta from 'antd/es/card/Meta';
-import { IceAvatar } from 'components/common/IceAvatar/styles';
-import { IceCard } from 'components/common/IceCard/styles';
+import { IceAvatar } from 'components/common/old/IceAvatar/styles';
+import { IceCard } from 'components/common/old/IceCard/styles';
 
 export default function DeveloperInfo() {
   return (

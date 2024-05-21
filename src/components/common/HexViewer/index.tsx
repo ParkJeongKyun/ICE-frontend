@@ -1,6 +1,13 @@
 import React, { useState } from 'react';
 import { FixedSizeList as List, ListChildComponentProps } from 'react-window';
-import styled from 'styled-components';
+import {
+  HexByte,
+  HexCell,
+  OffsetCell,
+  Row,
+  TextByte,
+  TextCell,
+} from './index.styles';
 
 interface HexViewerProps {
   arrayBuffer: ArrayBuffer;
@@ -57,14 +64,14 @@ const HexRow: React.FC<ListChildComponentProps<HexRowProps>> = ({
         ))}
       </HexCell>
       <TextCell>
-        {textRow.map((h, i) => (
+        {textRow.map((t, i) => (
           <TextByte
             key={i}
             onMouseEnter={() => setHoveredHex(i)}
             onMouseLeave={() => setHoveredHex(null)}
-            className={`${hoveredHex === i ? 'hovered' : ''} ${h == '.' ? 'isDot' : ''}`}
+            className={`${hoveredHex === i ? 'hovered' : ''} ${t == '.' ? 'isDot' : ''}`}
           >
-            {h}
+            {t}
           </TextByte>
         ))}
       </TextCell>
@@ -91,52 +98,3 @@ const HexViewer: React.FC<HexViewerProps> = ({ arrayBuffer }) => {
 };
 
 export default HexViewer;
-
-// Styled components
-const Row = styled.div`
-  display: flex;
-  font-family: monospace;
-`;
-
-const OffsetCell = styled.div`
-  width: 80px;
-  color: white;
-  &:hover {
-    background-color: #e6f7ff;
-  }
-`;
-
-const HexCell = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  width: 320px;
-`;
-
-const TextCell = styled.div`
-  width: 160px;
-`;
-
-const HexByte = styled.span`
-  display: inline-block;
-  width: 2ch;
-  margin: 2px;
-  text-align: center;
-  color: white;
-  &.hovered {
-    background-color: #e6f7ff;
-  }
-`;
-
-const TextByte = styled.span`
-  display: inline-block;
-  width: 1ch;
-  margin: 1px;
-  text-align: center;
-  color: blue;
-  &.hovered {
-    background-color: #e6f7ff;
-  }
-  &.isDot {
-    color: white;
-  }
-`;

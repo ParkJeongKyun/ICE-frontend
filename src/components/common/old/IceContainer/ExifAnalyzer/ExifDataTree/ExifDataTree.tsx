@@ -4,7 +4,7 @@ import useMeasure from 'react-use-measure';
 import { Container, Title, Frame, Content, toggle } from './styles';
 import * as Icons from './icons';
 import { ExifRow } from 'types';
-import KakaoMap from 'components/IceContainer/ExifAnalyzer/KakaoMap/KakaoMap';
+import KakaoMap from 'components/common/old/IceContainer/ExifAnalyzer/KakaoMap/KakaoMap';
 import { isValidLocation } from 'utils/getAddress';
 
 function usePrevious<T>(value: T) {

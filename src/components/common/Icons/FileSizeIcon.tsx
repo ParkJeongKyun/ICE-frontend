@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 interface SvgIconProps {
   width?: number;
@@ -9,7 +9,7 @@ interface SvgIconProps {
 const FileSizeIcon: React.FC<SvgIconProps> = ({
   width = 18,
   height = 18,
-  color = "white",
+  color = 'white',
 }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"

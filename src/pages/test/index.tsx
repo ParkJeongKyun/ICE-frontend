@@ -1,10 +1,10 @@
 import { FloatButton } from 'antd';
-import IceBase64 from 'components/IceBase64/IceBase64';
-import ExifAnalyzer from 'components/IceContainer/ExifAnalyzer/ExifAnalyzer';
-import { IceContainer } from 'components/IceContainer/styles';
-import IceInfomation from 'components/IceInfomation/IceInfomation';
-import SnowfallComponent from 'components/SnowfallComponent/SnowfallComponent';
-import IceModal from 'components/common/IceModal/IceModal';
+import IceBase64 from 'components/common/old/IceBase64/IceBase64';
+import ExifAnalyzer from 'components/common/old/IceContainer/ExifAnalyzer/ExifAnalyzer';
+import { IceContainer } from 'components/common/old/IceContainer/styles';
+import IceInfomation from 'components/common/old/IceInfomation/IceInfomation';
+import SnowfallComponent from 'components/common/old/SnowfallComponent/SnowfallComponent';
+import IceModal from 'components/common/old/IceModal/IceModal';
 import BoxIcon from 'components/common/Icons/BoxIcon';
 import DotsIcon from 'components/common/Icons/DotsIcon';
 import ProfileIcon from 'components/common/Icons/ProfileIcon';

@@ -1,4 +1,4 @@
-import Logo from 'components/common/Logo/Logo';
+import Logo from 'components/common/old/Logo/Logo';
 import { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { ExifRow } from 'types';
@@ -47,7 +47,7 @@ export default function ImgDropzone({ setFile, setRows }: Props) {
         name: string; // 한글 태그명
         unit: string; // 단위
         example: any; // 예제값
-      }
+      },
     ] = JSON.parse(result);
 
     setRows(

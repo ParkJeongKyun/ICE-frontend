@@ -2,11 +2,11 @@ import ExifDataTree from './ExifDataTree/ExifDataTree';
 import React, { useEffect, useState } from 'react';
 import { ExifRow } from 'types';
 import ImgDropzone from './ImgDropzone/ImgDropzone';
-import { IceFrame } from 'components/IceContainer/styles';
+import { IceFrame } from 'components/common/old/IceContainer/styles';
 import { getDate } from 'utils/getDate';
 import { getBytes } from 'utils/getBytes';
 import { IceExifInfo, IceImageInfo } from './styles';
-import { IceStatistic } from 'components/common/IceStatistic/styles';
+import { IceStatistic } from 'components/common/old/IceStatistic/styles';
 
 // 세부 정보
 export default function ExifAnalyzer() {

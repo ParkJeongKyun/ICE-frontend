@@ -1,11 +1,11 @@
+import MainLayout from 'layouts';
 import HomePage from 'pages';
 import { Navigate, Outlet, useRoutes } from 'react-router-dom';
 
 const RouterList = () => {
   return useRoutes([
     {
-      // element: <MainLayout />,
-      // element: <></>,
+      element: <MainLayout />,
       children: [
         // 홈
         {

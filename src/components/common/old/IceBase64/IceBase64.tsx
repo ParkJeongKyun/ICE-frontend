@@ -1,5 +1,5 @@
-import { IceButton } from 'components/common/IceButton/styles';
-import { IceTextArea } from 'components/common/IceTextArea/styles';
+import { IceButton } from 'components/common/old/IceButton/styles';
+import { IceTextArea } from 'components/common/old/IceTextArea/styles';
 import React, { useState } from 'react';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 
