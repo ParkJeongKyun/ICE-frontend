@@ -1,5 +1,5 @@
-import { Button, FloatButton, Switch } from "antd";
-import styled from "styled-components";
+import { Button, FloatButton, Switch } from 'antd';
+import styled from 'styled-components';
 
 // 우버튼
 export const IceRButton = styled(FloatButton.Group)`
@@ -16,7 +16,7 @@ export const IceRButton = styled(FloatButton.Group)`
 `;
 
 // 중단 고정 저작권
-export const IceCopy = styled("div")`
+export const IceCopy = styled('div')`
   position: fixed;
   color: var(--main-text-color);
   justify-content: center;

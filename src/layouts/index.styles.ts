@@ -1,4 +1,4 @@
-import { Image, Layout } from 'antd';
+import { Image, Layout, Tabs } from 'antd';
 import Sider from 'antd/es/layout/Sider';
 import { Content, Footer, Header } from 'antd/es/layout/layout';
 import styled from 'styled-components';
@@ -13,11 +13,14 @@ export const IceMainLayout = styled(Layout)`
   overflow: hidden; /* 스크롤 숨기기 */
 `;
 
+// 로고
+export const LogoDiv = styled.div`
+  padding-top: 2px;
+`;
+
 export const LogoImage = styled(Image)`
   max-height: 18px;
   min-height: 18px;
-  /* padding-top: 1px; */
-  /* padding-right: 5px; */
 `;
 
 // 헤더
@@ -70,7 +73,23 @@ export const IceContent = styled(Content)`
   background-color: var(--main-bg-color);
   color: var(--main-color);
   overflow: auto; /* 내용이 넘치면 스크롤 생기도록 */
+
+  .ant-tabs-tab {
+    padding-top: 2px !important;
+    padding-bottom: 2px !important;
+  }
+
+  .ant-tabs-nav::before {
+    border-color: var(--main-line-color);
+  }
+
+  .ant-tabs-content {
+    height: 100%;
+  }
 `;
+
+// 탭 부분
+export const IceTab = styled(Tabs)``;
 
 // 오른쪽 사이드바
 export const IceRightSider = styled(Sider)`
