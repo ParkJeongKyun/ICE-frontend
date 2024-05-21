@@ -11,23 +11,53 @@ import {
   LogoDiv,
   LogoImage,
 } from './index.styles';
-import { useRef, useState } from 'react';
+import { ChangeEvent, useRef, useState } from 'react';
+import HexViewer from 'components/common/HexViewer';
 
 type TargetKey = React.MouseEvent | React.KeyboardEvent | string;
 
-const defaultPanes = new Array(2).fill(null).map((_, index) => {
-  const id = String(index + 1);
-  return {
-    label: `Tab ${id}`,
-    children: `Content of Tab Pane ${index + 1}`,
-    key: id,
-  };
-});
+interface ArrayBufferMap {
+  [key: string]: ArrayBuffer | null;
+}
 
 const MainLayout: React.FC = () => {
-  const [activeKey, setActiveKey] = useState(defaultPanes[0].key);
-  const [items, setItems] = useState(defaultPanes);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [arrayBuffers, setArrayBuffers] = useState<ArrayBufferMap>({});
+  const [activeKey, setActiveKey] = useState<string | null>(null);
+  const [items, setItems] = useState<
+    { label: string; children: React.ReactNode; key: string }[]
+  >([]);
   const newTabIndex = useRef(0);
+
+  const handleOpenClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click(); // 클릭 이벤트를 트리거하여 파일 선택 다이얼로그 열기
+    }
+  };
+
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const arrayBuffer = event.target?.result;
+        if (arrayBuffer instanceof ArrayBuffer) {
+          const newActiveKey = `newTab${newTabIndex.current++}`;
+          const newTab = {
+            label: file.name,
+            children: (
+              <>{arrayBuffer && <HexViewer arrayBuffer={arrayBuffer} />}</>
+            ),
+            key: newActiveKey,
+          };
+          setItems([...items, newTab]);
+          setActiveKey(newActiveKey);
+          setArrayBuffers({ ...arrayBuffers, [newActiveKey]: arrayBuffer });
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+  };
 
   const onChange = (key: string) => {
     setActiveKey(key);
@@ -40,6 +70,7 @@ const MainLayout: React.FC = () => {
       { label: 'New Tab', children: 'New Tab Pane', key: newActiveKey },
     ]);
     setActiveKey(newActiveKey);
+    setArrayBuffers({ ...arrayBuffers, [newActiveKey]: null });
   };
 
   const remove = (targetKey: TargetKey) => {
@@ -52,7 +83,10 @@ const MainLayout: React.FC = () => {
         ];
       setActiveKey(key);
     }
+    const newArrayBuffers = { ...arrayBuffers };
+    delete newArrayBuffers[targetKey as string];
     setItems(newPanes);
+    setArrayBuffers(newArrayBuffers);
   };
 
   const onEdit = (targetKey: TargetKey, action: 'add' | 'remove') => {
@@ -69,7 +103,13 @@ const MainLayout: React.FC = () => {
         <LogoDiv>
           <LogoImage src={'pullLogo.png'} preview={false} />
         </LogoDiv>
-        <BigMenuBtn onClick={() => {}} text="Open" />
+        <input
+          type="file"
+          ref={fileInputRef}
+          style={{ display: 'none' }}
+          onChange={handleFileChange}
+        />
+        <BigMenuBtn onClick={handleOpenClick} text="Open" />
         <BigMenuBtn onClick={() => {}} text="Save" />
         <BigMenuBtn onClick={() => {}} text="Help" />
         <BigMenuBtn onClick={() => {}} text="About" />
@@ -80,7 +120,7 @@ const MainLayout: React.FC = () => {
           <IceTabs
             hideAdd
             onChange={onChange}
-            activeKey={activeKey}
+            activeKey={activeKey || undefined}
             type="editable-card"
             onEdit={onEdit}
             items={items}

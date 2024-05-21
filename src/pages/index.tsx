@@ -1,4 +1,3 @@
-import FileUploader from 'components/common/FileUploader';
 import HexViewer from 'components/common/HexViewer';
 import { useState } from 'react';
 
@@ -8,7 +7,6 @@ const HomePage: React.FC = () => {
   return (
     <div className="App">
       <h1>Hex Viewer</h1>
-      <FileUploader onFileSelect={setArrayBuffer} />
       {arrayBuffer && <HexViewer arrayBuffer={arrayBuffer} />}
     </div>
   );

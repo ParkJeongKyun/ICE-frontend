@@ -82,10 +82,6 @@ export const IceContent = styled(Content)`
   .ant-tabs-nav::before {
     border-color: var(--main-line-color);
   }
-
-  .ant-tabs-content {
-    height: 100%;
-  }
 `;
 
 // 탭 부분
