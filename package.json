@@ -23,6 +23,7 @@
     "react-snowfall": "^1.2.1",
     "react-spring": "^9.7.1",
     "react-use-measure": "^2.1.1",
+    "react-virtualized-auto-sizer": "^1.0.24",
     "react-window": "^1.8.10",
     "sass": "^1.63.6",
     "styled-components": "^6.0.0-rc.3",

@@ -72,8 +72,7 @@ export const IceLeftSider = styled(Sider)`
 export const IceContent = styled(Content)`
   background-color: var(--main-bg-color);
   color: var(--main-color);
-  overflow: auto; /* 내용이 넘치면 스크롤 생기도록 */
-
+  height: 100%;
   .ant-tabs-tab {
     padding-top: 2px !important;
     padding-bottom: 2px !important;
@@ -81,6 +80,15 @@ export const IceContent = styled(Content)`
 
   .ant-tabs-nav::before {
     border-color: var(--main-line-color);
+  }
+  .ant-tabs {
+    height: 100%;
+  }
+  .ant-tabs-content {
+    height: 100%;
+    > div {
+      height: 100%;
+    }
   }
 `;
 

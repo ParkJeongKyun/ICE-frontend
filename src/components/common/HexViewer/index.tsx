@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { FixedSizeList as List, ListChildComponentProps } from 'react-window';
+import AutoSizer, { Size } from 'react-virtualized-auto-sizer';
 import {
   HexByte,
   HexCell,
@@ -85,15 +86,19 @@ const HexViewer: React.FC<HexViewerProps> = ({ arrayBuffer }) => {
   const rowCount = Math.ceil(bytes.length / bytesPerRow);
 
   return (
-    <List
-      height={600}
-      itemCount={rowCount}
-      itemSize={25}
-      width={800}
-      itemData={{ bytes, bytesPerRow }}
-    >
-      {HexRow}
-    </List>
+    <AutoSizer>
+      {({ height, width }: Size) => (
+        <List
+          height={height}
+          width={width}
+          itemCount={rowCount}
+          itemSize={25}
+          itemData={{ bytes, bytesPerRow }}
+        >
+          {HexRow}
+        </List>
+      )}
+    </AutoSizer>
   );
 };
 
