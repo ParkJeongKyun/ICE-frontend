@@ -30,15 +30,19 @@ body,
   --container-radius-size: 10px;
 
   // 폰트
-  --main-font-family: "Roboto Mono";
+  --main-font-family: '';
   --main-font-size: 14px;
   --main-copy-font-size: 10px;
   --container-font-size: 9px;
   --container-big-font-size: 14px;
 }
 
+* {
+  // font-family: var(--main-font-family);
+}
+
 body {
-  font-family: var(--main-font-family);
+  // font-family: var(--main-font-family);
   margin: 0;
 
   // 모달 외부 클릭을 가능하도록 설정
