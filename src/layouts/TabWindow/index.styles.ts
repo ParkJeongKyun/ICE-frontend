@@ -10,6 +10,7 @@ export const TabWindowContainer = styled.div`
 export const TabsContainer = styled.div`
   display: flex;
   overflow-x: auto;
+  border-bottom: 1px solid var(--main-line-color);
 `;
 
 export const Tab = styled.div<{ $active: boolean }>`
@@ -17,6 +18,7 @@ export const Tab = styled.div<{ $active: boolean }>`
   font-size: 11px;
   font-weight: 700;
   padding: 5px 10px 5px 15px;
+  border-right: 1px solid var(--main-line-color);
   /* height: 12px; */
   cursor: pointer;
   border-bottom: ${(props) =>

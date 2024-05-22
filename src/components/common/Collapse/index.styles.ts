@@ -21,4 +21,6 @@ export const Title = styled.div`
 export const CollapseContent = styled.div`
   padding: 10px;
   border-bottom: 1px solid var(--main-line-color);
+  overflow: hidden; /* 텍스트 오버플로우를 숨김 */
+  text-overflow: ellipsis;
 `;

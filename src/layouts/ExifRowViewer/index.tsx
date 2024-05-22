@@ -17,7 +17,18 @@ const ExifRowViewer: React.FC<Props> = ({ activeKey, datas }) => {
         {activeItem?.rows && (
           <Collapse
             title="EXIF"
-            children={JSON.stringify(activeItem.rows)}
+            children={
+              <>
+                {activeItem.rows.map((item) => (
+                  <>
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                      <div>{item.name}</div>
+                      <div>{item.data}</div>
+                    </div>
+                  </>
+                ))}
+              </>
+            }
             open
           />
         )}
