@@ -13,6 +13,7 @@ import { useEffect, useRef, useState } from 'react';
 import { ExifRow } from 'types';
 import MenuBtnZone from './MenuBtnZone';
 import TabWindow from './TabWindow';
+import ExifRowViewer from './ExifRowViewer';
 
 export type TabKey = number;
 
@@ -69,7 +70,9 @@ const MainLayout: React.FC = () => {
       </IceHeader>
 
       <IceLayout>
-        <IceLeftSider />
+        <IceLeftSider>
+          <ExifRowViewer activeKey={activeKey} datas={datas} />
+        </IceLeftSider>
         <IceContent>
           <TabWindow
             items={items}
