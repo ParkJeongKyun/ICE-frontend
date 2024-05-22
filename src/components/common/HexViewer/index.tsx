@@ -10,7 +10,7 @@ import {
   TextCell,
 } from './index.styles';
 
-interface HexViewerProps {
+interface Props {
   arrayBuffer: ArrayBuffer;
 }
 
@@ -25,7 +25,7 @@ const byteToChar = (byte: number): string => {
   return '.';
 };
 
-const HexViewer: React.FC<HexViewerProps> = ({ arrayBuffer }) => {
+const HexViewer: React.FC<Props> = ({ arrayBuffer }) => {
   const bytesPerRow = 16;
   const buffer = useMemo(() => new Uint8Array(arrayBuffer), [arrayBuffer]);
   const rowCount = Math.ceil(buffer.length / bytesPerRow);
