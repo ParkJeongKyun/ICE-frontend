@@ -22,7 +22,10 @@ export interface TabItem {
   key: TabKey;
 }
 
-export type TabData = Map<number, { rows: ExifRow[]; buffer: ArrayBuffer }>;
+export type TabData = Map<
+  number,
+  { rows: ExifRow[] | null; buffer: ArrayBuffer }
+>;
 
 const MainLayout: React.FC = () => {
   const newTabIndex = useRef(0);
@@ -43,6 +46,12 @@ const MainLayout: React.FC = () => {
 
     loadWebAssembly();
   }, []);
+
+  console.log('============================');
+  console.log('item', items);
+  console.log('datas', datas);
+  console.log('newTabIndex.current', newTabIndex.current);
+  console.log('activeKey', activeKey);
 
   return (
     <IceMainLayout>
@@ -66,6 +75,8 @@ const MainLayout: React.FC = () => {
             items={items}
             activeKey={activeKey}
             setActiveKey={setActiveKey}
+            setDatas={setDatas}
+            setItems={setItems}
           />
         </IceContent>
         <IceRightSider />

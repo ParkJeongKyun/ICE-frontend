@@ -3,6 +3,7 @@ import { TabData, TabItem, TabKey } from 'layouts';
 import { ChangeEvent, useRef } from 'react';
 import styled from 'styled-components';
 import MenuBtn from './MenuBtn';
+import { ExifRow } from 'types';
 
 interface Props {
   newTabIndex: React.MutableRefObject<number>;
@@ -24,12 +25,14 @@ const MenuBtnZone: React.FC<Props> = ({
     }
   };
 
+  // 탭을 추가하고 데이터를 저장하는 함수
   const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onload = async (event) => {
         const arrayBuffer = event.target?.result;
+        let parsedRows: ExifRow[] | null = null;
         if (arrayBuffer instanceof ArrayBuffer) {
           const newActiveKey = newTabIndex.current++;
           const newTab = {
@@ -42,59 +45,69 @@ const MenuBtnZone: React.FC<Props> = ({
           setItems((prev) => [...prev, newTab]);
           setActiveKey(newActiveKey);
 
-          const input_data = new Uint8Array(arrayBuffer);
-          const result = await window.goFunc(input_data);
+          if (file.type.startsWith('image/')) {
+            const input_data = new Uint8Array(arrayBuffer);
+            const result = await window.goFunc(input_data);
+            if (result) {
+              const meta: [
+                {
+                  tag: string;
+                  comment: string;
+                  data: string;
+                  origindata: string;
+                  type: string;
+                  name: string;
+                  unit: string;
+                  example: any;
+                },
+              ] = JSON.parse(result);
 
-          if (!result) {
-            return;
-          }
-
-          const meta: [
-            {
-              tag: string;
-              comment: string;
-              data: string;
-              origindata: string;
-              type: string;
-              name: string;
-              unit: string;
-              example: any;
-            },
-          ] = JSON.parse(result);
-
-          const parsedRows = await Promise.all(
-            meta.map(
-              async (
-                { tag, comment, data, origindata, name, type, unit, example },
-                index
-              ) => {
-                if (tag === 'Location') {
-                  try {
-                    const [lat, lng] = origindata
-                      .split(',')
-                      .map((value) => value.trim());
-                    // if (isValidLocation(lat, lng)) {
-                    //   const address = await getAddress(lat, lng);
-                    //   data = address;
-                    // }
-                  } catch (error_msg) {
-                    console.log(error_msg);
-                  }
-                }
-                return {
-                  id: index + 1,
-                  meta: tag,
-                  comment,
-                  data,
-                  origindata,
-                  name,
-                  type,
-                  unit,
-                  example,
-                };
+              if (meta) {
+                parsedRows = await Promise.all(
+                  meta.map(
+                    async (
+                      {
+                        tag,
+                        comment,
+                        data,
+                        origindata,
+                        name,
+                        type,
+                        unit,
+                        example,
+                      },
+                      index
+                    ) => {
+                      if (tag === 'Location') {
+                        try {
+                          const [lat, lng] = origindata
+                            .split(',')
+                            .map((value) => value.trim());
+                          // if (isValidLocation(lat, lng)) {
+                          //   const address = await getAddress(lat, lng);
+                          //   data = address;
+                          // }
+                        } catch (error_msg) {
+                          console.log(error_msg);
+                        }
+                      }
+                      return {
+                        id: index + 1,
+                        meta: tag,
+                        comment,
+                        data,
+                        origindata,
+                        name,
+                        type,
+                        unit,
+                        example,
+                      };
+                    }
+                  )
+                );
               }
-            )
-          );
+            }
+          }
 
           setDatas(
             (prevDatas) =>
@@ -108,6 +121,10 @@ const MenuBtnZone: React.FC<Props> = ({
         }
       };
       reader.readAsArrayBuffer(file);
+      // 파일 선택 input 초기화
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ''; // value를 빈 문자열("")로 설정하여 초기화합니다.
+      }
     }
   };
 

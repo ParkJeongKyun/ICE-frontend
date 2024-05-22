@@ -5,50 +5,31 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { TabItem, TabKey } from 'layouts';
-import styled from 'styled-components';
+import { TabData, TabItem, TabKey } from 'layouts';
+import {
+  CloseBtn,
+  Tab,
+  TabContentContainer,
+  TabWindowContainer,
+  TabsContainer,
+} from './index.styles';
 
 interface Props {
   items: TabItem[];
   activeKey: TabKey;
   setActiveKey: React.Dispatch<React.SetStateAction<TabKey>>;
+  setDatas: React.Dispatch<React.SetStateAction<TabData>>;
+  setItems: React.Dispatch<React.SetStateAction<TabItem[]>>;
 }
 
-// 스타일드 컴포넌트
-const TabWindowContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-`;
-
-const TabsContainer = styled.div`
-  display: flex;
-`;
-
-const Tab = styled.div<{ $active: boolean }>`
-  font-size: 11px;
-  font-weight: 700;
-  padding: 5px 15px;
-  cursor: pointer;
-  border-bottom: ${(props) =>
-    props.$active ? '2px solid var(--ice-main-color)' : 'none'};
-  color: ${(props) =>
-    props.$active ? 'var(--ice-main-color)' : 'var(--main-color)'};
-  &:hover {
-    color: var(--ice-main-color);
-    background-color: var(--main-hover-color);
-  }
-`;
-
-const TabContentContainer = styled.div`
-  flex-grow: 1; // 남는 부분을 전부 차지
-  padding: 0px;
-  overflow: auto; // 콘텐츠가 많을 경우 스크롤
-  min-width: 570px;
-`;
-
 // TabWindow 컴포넌트
-const TabWindow: React.FC<Props> = ({ items, activeKey, setActiveKey }) => {
+const TabWindow: React.FC<Props> = ({
+  items,
+  activeKey,
+  setActiveKey,
+  setDatas,
+  setItems,
+}) => {
   const [scrollPositions, setScrollPositions] = useState<Map<TabKey, number>>(
     new Map()
   );
@@ -65,6 +46,33 @@ const TabWindow: React.FC<Props> = ({ items, activeKey, setActiveKey }) => {
       setActiveKey(key);
     },
     [activeKey, setActiveKey]
+  );
+
+  const handleTabClose = useCallback(
+    (key: TabKey) => {
+      // 삭제하려는 탭의 인덱스를 찾습니다.
+      const index = items.findIndex((item) => item.key === key);
+      if (index !== -1) {
+        // 탭을 제거합니다.
+        const newItems = [...items];
+        newItems.splice(index, 1);
+        setItems(newItems);
+
+        // 삭제된 탭이 활성화된 탭인 경우, 새로운 활성화된 탭을 선택합니다.
+        if (key === activeKey) {
+          const newActiveKey = newItems[index]?.key || 0;
+          setActiveKey(newActiveKey);
+        }
+
+        // Datas에서도 해당 항목을 제거합니다.
+        setDatas((prevDatas) => {
+          const newDatas = new Map(prevDatas);
+          newDatas.delete(key);
+          return newDatas;
+        });
+      }
+    },
+    [activeKey, items, setActiveKey, setDatas, setItems]
   );
 
   const activeItem = useMemo(
@@ -84,13 +92,15 @@ const TabWindow: React.FC<Props> = ({ items, activeKey, setActiveKey }) => {
     <TabWindowContainer>
       <TabsContainer>
         {items.map((item) => (
-          <Tab
-            key={item.key}
-            $active={item.key === activeKey}
-            onClick={() => handleTabClick(item.key)}
-          >
-            {item.label}
-          </Tab>
+          <div key={item.key}>
+            <Tab
+              $active={item.key === activeKey}
+              onClick={() => handleTabClick(item.key)}
+            >
+              {item.label}
+              <CloseBtn onClick={() => handleTabClose(item.key)} />
+            </Tab>
+          </div>
         ))}
       </TabsContainer>
       <TabContentContainer ref={contentContainerRef}>
