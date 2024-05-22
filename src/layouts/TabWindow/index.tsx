@@ -60,7 +60,7 @@ const TabWindow: React.FC<Props> = ({
 
         // 삭제된 탭이 활성화된 탭인 경우, 새로운 활성화된 탭을 선택합니다.
         if (key === activeKey) {
-          const newActiveKey = newItems[index]?.key || 0;
+          const newActiveKey = newItems[index - 1]?.key || 0;
           setActiveKey(newActiveKey);
         }
 
@@ -98,7 +98,14 @@ const TabWindow: React.FC<Props> = ({
               onClick={() => handleTabClick(item.key)}
             >
               {item.label}
-              <CloseBtn onClick={() => handleTabClose(item.key)} />
+              <CloseBtn
+                onClick={(e) => {
+                  // 탭 활성화 이벤트 방어
+                  e.stopPropagation();
+                  // 탭 닫기
+                  handleTabClose(item.key);
+                }}
+              />
             </Tab>
           </div>
         ))}
