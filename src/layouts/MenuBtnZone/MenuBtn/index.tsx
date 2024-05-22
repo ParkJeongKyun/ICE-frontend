@@ -5,7 +5,7 @@ interface Props {
   text: string;
 }
 
-const BigMenuBtn: React.FC<Props> = ({ onClick, text }) => {
+const MenuBtn: React.FC<Props> = ({ onClick, text }) => {
   return <BtnDiv onClick={onClick}>{text}</BtnDiv>;
 };
 
@@ -13,6 +13,7 @@ const BtnDiv = styled.div`
   margin: 2px 1px 2px 1px;
   padding: 2px 4px 2px 4px;
   font-weight: 600;
+  font-size: 12px;
   &:hover {
     cursor: pointer;
     color: var(--ice-main-color);
@@ -21,4 +22,4 @@ const BtnDiv = styled.div`
   }
 `;
 
-export default BigMenuBtn;
+export default MenuBtn;
