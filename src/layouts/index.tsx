@@ -82,7 +82,9 @@ const MainLayout: React.FC = () => {
         <IceRightSider />
       </IceLayout>
 
-      <IceFooter></IceFooter>
+      <IceFooter>
+        © 2024 Park Jeong-kyun (dbzoseh84@gmail.com). All rights reserved.
+      </IceFooter>
     </IceMainLayout>
   );
 };

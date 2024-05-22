@@ -38,11 +38,12 @@ export const IceHeader = styled.div`
 // 푸터
 export const IceFooter = styled.div`
   height: 24px; /* 기본 푸터 높이 조정 */
-  padding: 0px 50px 24px 50px;
+  padding: 2px 5px 2px 5px;
   background-color: var(--main-bg-color);
-  color: var(--main-color);
+  color: var(--main-line-color);
   border-top: 1px solid var(--main-line-color);
   border-bottom: 1px solid var(--main-line-color);
+  font-size: 10px;
 `;
 
 // 중간 컨텐츠 레이아웃
