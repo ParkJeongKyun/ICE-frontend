@@ -90,7 +90,7 @@ const TabWindow: React.FC<Props> = ({
 
   return (
     <TabWindowContainer>
-      <TabsContainer>
+      <TabsContainer $empty={items.length <= 0}>
         {items.map((item) => (
           <div key={item.key}>
             <Tab

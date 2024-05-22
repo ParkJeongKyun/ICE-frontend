@@ -7,10 +7,11 @@ export const TabWindowContainer = styled.div`
   height: 100%;
 `;
 
-export const TabsContainer = styled.div`
+export const TabsContainer = styled.div<{ $empty: boolean }>`
   display: flex;
   overflow-x: auto;
-  border-bottom: 1px solid var(--main-line-color);
+  border-bottom: ${(props) =>
+    props.$empty ? 'none' : '1px solid var(--main-line-color)'};
 `;
 
 export const Tab = styled.div<{ $active: boolean }>`
