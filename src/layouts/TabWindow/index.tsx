@@ -1,4 +1,10 @@
-import React, { useCallback, useMemo } from 'react';
+import React, {
+  useCallback,
+  useMemo,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { TabItem, TabKey } from 'layouts';
 import styled from 'styled-components';
 
@@ -17,34 +23,48 @@ const TabWindowContainer = styled.div`
 
 const TabsContainer = styled.div`
   display: flex;
-  border-bottom: 1px solid #ccc;
 `;
 
-const Tab = styled.div<{ active: boolean }>`
-  padding: 10px 20px;
+const Tab = styled.div<{ $active: boolean }>`
+  font-size: 11px;
+  font-weight: 700;
+  padding: 5px 15px;
   cursor: pointer;
-  border-bottom: ${(props) => (props.active ? '2px solid #1890ff' : 'none')};
-  color: ${(props) => (props.active ? '#1890ff' : '#000')};
+  border-bottom: ${(props) =>
+    props.$active ? '2px solid var(--ice-main-color)' : 'none'};
+  color: ${(props) =>
+    props.$active ? 'var(--ice-main-color)' : 'var(--main-color)'};
   &:hover {
-    color: #1890ff;
+    color: var(--ice-main-color);
+    background-color: var(--main-hover-color);
   }
 `;
 
 const TabContentContainer = styled.div`
   flex-grow: 1; // 남는 부분을 전부 차지
-  padding: 20px;
-  border: 1px solid #ccc;
-  border-top: none;
+  padding: 0px;
   overflow: auto; // 콘텐츠가 많을 경우 스크롤
+  min-width: 570px;
 `;
 
 // TabWindow 컴포넌트
 const TabWindow: React.FC<Props> = ({ items, activeKey, setActiveKey }) => {
+  const [scrollPositions, setScrollPositions] = useState<Map<TabKey, number>>(
+    new Map()
+  );
+  const contentContainerRef = useRef<HTMLDivElement>(null);
+
   const handleTabClick = useCallback(
     (key: TabKey) => {
+      if (contentContainerRef.current) {
+        // 현재 탭의 스크롤 위치 저장
+        setScrollPositions((prev) =>
+          new Map(prev).set(activeKey, contentContainerRef.current!.scrollTop)
+        );
+      }
       setActiveKey(key);
     },
-    [setActiveKey]
+    [activeKey, setActiveKey]
   );
 
   const activeItem = useMemo(
@@ -52,20 +72,30 @@ const TabWindow: React.FC<Props> = ({ items, activeKey, setActiveKey }) => {
     [items, activeKey]
   );
 
+  // 스크롤 위치 복원
+  useEffect(() => {
+    if (contentContainerRef.current) {
+      contentContainerRef.current.scrollTop =
+        scrollPositions.get(activeKey) || 0;
+    }
+  }, [activeKey, scrollPositions]);
+
   return (
     <TabWindowContainer>
       <TabsContainer>
         {items.map((item) => (
           <Tab
             key={item.key}
-            active={item.key === activeKey}
+            $active={item.key === activeKey}
             onClick={() => handleTabClick(item.key)}
           >
             {item.label}
           </Tab>
         ))}
       </TabsContainer>
-      <TabContentContainer>{activeItem?.children}</TabContentContainer>
+      <TabContentContainer ref={contentContainerRef}>
+        {activeItem?.children}
+      </TabContentContainer>
     </TabWindowContainer>
   );
 };

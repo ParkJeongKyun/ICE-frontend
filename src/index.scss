@@ -28,6 +28,7 @@ body,
   /* Chrome, Safari, Edge, Opera */
   ::-webkit-scrollbar {
     width: 8px; /* 스크롤바 너비 */
+    height: 8px; /* Scrollbar 높이 */
   }
 
   ::-webkit-scrollbar-thumb {
