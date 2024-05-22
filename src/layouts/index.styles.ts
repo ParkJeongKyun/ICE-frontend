@@ -61,7 +61,7 @@ export const IceLeftSider = styled.div`
   color: var(--main-color);
   border-right: 1px solid var(--main-line-color);
   overflow: auto; /* 내용이 넘치면 스크롤 생기도록 */
-  width: 200px; /* 사이드바 너비 조정 */
+  width: 400px; /* 사이드바 너비 조정 */
 `;
 
 // 중간 부분
@@ -78,5 +78,5 @@ export const IceRightSider = styled.div`
   color: var(--main-color);
   border-left: 1px solid var(--main-line-color);
   overflow: auto; /* 내용이 넘치면 스크롤 생기도록 */
-  width: 200px; /* 사이드바 너비 조정 */
+  width: 300px; /* 사이드바 너비 조정 */
 `;

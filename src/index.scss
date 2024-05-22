@@ -14,26 +14,20 @@ body,
   --main-color: white;
   --main-line-color: #494949;
 
-  // 컨테이너 색
-  --container-bg-color: rgb(73, 80, 100);
-  --container-text-color: white;
-  --container-line-color: white;
-  --container-highlight-color: black;
   // 강조 색
   --ice-main-color: rgb(0, 166, 237);
-  --ice-main-bg-color: rgb(0, 166, 237, 0.1);
-  --ice-line-color: rgb(0, 166, 237);
 
-  /* 수직 스크롤바 */
-  /* Chrome, Safari, Edge, Opera */
+  // 수직 스크롤바
+  // Chrome, Safari, Edge, Opera
   ::-webkit-scrollbar {
-    width: 8px; /* 스크롤바 너비 */
+    width: 12px; /* 스크롤바 너비 */
     height: 8px; /* Scrollbar 높이 */
+    background-color: var(--main-hover-color);
   }
 
   ::-webkit-scrollbar-thumb {
     background-color: #888; /* 스크롤바 색상 */
-    border-radius: 4px; /* 스크롤바 모서리 둥글게 */
+    // border-radius: 4px; /* 스크롤바 모서리 둥글게 */
   }
 
   ::-webkit-scrollbar-thumb:hover {

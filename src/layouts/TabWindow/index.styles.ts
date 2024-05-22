@@ -9,7 +9,7 @@ export const TabWindowContainer = styled.div`
 
 export const TabsContainer = styled.div`
   display: flex;
-  overflow-x: scroll;
+  overflow-x: auto;
 `;
 
 export const Tab = styled.div<{ $active: boolean }>`
