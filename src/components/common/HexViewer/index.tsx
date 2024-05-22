@@ -54,7 +54,12 @@ const HexViewer: React.FC<HexViewerProps> = ({ arrayBuffer }) => {
 
     bytes.forEach((byte: number, i: number) => {
       hexRow.push(<HexByte key={i}>{byteToHex(byte)}</HexByte>);
-      textRow.push(<TextByte key={i}>{byteToChar(byte)}</TextByte>);
+      const str = byteToChar(byte);
+      textRow.push(
+        <TextByte key={i} className={`${str == '.' && 'isDot'}`}>
+          {str}
+        </TextByte>
+      );
     });
 
     return (

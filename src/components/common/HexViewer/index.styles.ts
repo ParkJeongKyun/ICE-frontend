@@ -7,10 +7,7 @@ export const Row = styled.div`
 
 export const OffsetCell = styled.div`
   width: 80px;
-  color: white;
-  &:hover {
-    background-color: #e6f7ff;
-  }
+  color: var(--ice-main-color);
 `;
 
 export const HexCell = styled.div`
@@ -28,9 +25,8 @@ export const HexByte = styled.span`
   width: 2ch;
   margin: 2px;
   text-align: center;
-  color: white;
   &.hovered {
-    background-color: #e6f7ff;
+    background-color: var(--main-hover-color);
   }
 `;
 
@@ -39,11 +35,11 @@ export const TextByte = styled.span`
   width: 1ch;
   margin: 1px;
   text-align: center;
-  color: blue;
+  color: var(--ice-main-color);
   &.hovered {
-    background-color: #e6f7ff;
+    background-color: var(--main-hover-color);
   }
   &.isDot {
-    color: white;
+    color: var(--main-line-color);
   }
 `;
