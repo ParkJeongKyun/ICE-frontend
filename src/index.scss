@@ -20,14 +20,13 @@ body,
   // 수직 스크롤바
   // Chrome, Safari, Edge, Opera
   ::-webkit-scrollbar {
-    width: 12px; /* 스크롤바 너비 */
-    height: 8px; /* Scrollbar 높이 */
-    background-color: var(--main-hover-color);
+    width: 5px; /* 스크롤바 너비 */
+    height: 5px; /* Scrollbar 높이 */
+    background-color: rgba(255, 255, 255, 0.1);
   }
 
   ::-webkit-scrollbar-thumb {
-    background-color: #888; /* 스크롤바 색상 */
-    // border-radius: 4px; /* 스크롤바 모서리 둥글게 */
+    background-color: rgba(255, 255, 255, 0.3); /* 스크롤바 색상 */
   }
 
   ::-webkit-scrollbar-thumb:hover {

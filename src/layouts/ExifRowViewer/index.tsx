@@ -1,7 +1,7 @@
 import Collapse from 'components/common/Collapse';
 import { TabData, TabKey } from 'layouts';
 import React, { useMemo } from 'react';
-import { ViewerDiv } from './index.styles';
+import { CellDiv, ContentDiv, ViewerDiv } from './index.styles';
 
 interface Props {
   activeKey: TabKey;
@@ -21,10 +21,10 @@ const ExifRowViewer: React.FC<Props> = ({ activeKey, datas }) => {
               <>
                 {activeItem.rows.map((item) => (
                   <>
-                    <div style={{ display: 'flex', gap: '10px' }}>
-                      <div>{item.name}</div>
-                      <div>{item.data}</div>
-                    </div>
+                    <ContentDiv>
+                      <CellDiv isHeader>{item.name}</CellDiv>
+                      <CellDiv>{item.data}</CellDiv>
+                    </ContentDiv>
                   </>
                 ))}
               </>

@@ -8,7 +8,7 @@ export const CollapseContainer = styled.div`
 export const CollapseHeader = styled.div`
   display: flex;
   justify-content: space-between;
-  padding: 10px;
+  padding: 5px 10px 5px 10px;
   cursor: pointer;
   border-bottom: 1px solid var(--main-line-color);
 `;
