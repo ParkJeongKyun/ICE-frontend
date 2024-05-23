@@ -5,6 +5,8 @@ import {
   CollapseHeader,
   Title,
 } from './index.styles';
+import MinusIcon from '../Icons/MinusIcon';
+import PlusIcon from '../Icons/PlusIcon';
 
 interface CollapseProps {
   title: string;
@@ -22,8 +24,14 @@ const Collapse: React.FC<CollapseProps> = ({ title, children, open }) => {
   return (
     <CollapseContainer>
       <CollapseHeader onClick={toggleCollapse}>
+        <div>
+          {isOpen ? (
+            <MinusIcon height={14} width={14} color={`var(--main-color)`} />
+          ) : (
+            <PlusIcon height={14} width={14} color={`var(--main-color)`} />
+          )}
+        </div>
         <Title>{title}</Title>
-        <div>{isOpen ? '-' : '+'}</div>
       </CollapseHeader>
       {isOpen && <CollapseContent>{children}</CollapseContent>}
     </CollapseContainer>
