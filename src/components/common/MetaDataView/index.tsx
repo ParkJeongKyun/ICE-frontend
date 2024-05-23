@@ -1,7 +1,4 @@
 import { ExifRow } from 'types';
-import ExifDataTree from '../old/IceContainer/ExifAnalyzer/ExifDataTree/ExifDataTree';
-import { Collapse } from 'antd';
-import CollapsePanel from 'antd/es/collapse/CollapsePanel';
 
 interface Props {
   exifRow: ExifRow[];

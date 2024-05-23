@@ -1,8 +1,7 @@
-import { Image } from "antd";
-import styled from "styled-components";
+import styled from 'styled-components';
 
 // 카카오 맵
-export const IceMapContainer = styled("div")`
+export const IceMapContainer = styled('div')`
   width: 100%;
   height: var(--container-img-height-size);
 
@@ -11,7 +10,7 @@ export const IceMapContainer = styled("div")`
   border-radius: var(--container-radius-size);
 `;
 
-export const IceMap = styled("div")`
+export const IceMap = styled('div')`
   width: 100%;
   height: 100%;
 
