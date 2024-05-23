@@ -13,9 +13,15 @@ interface CollapseProps {
   title: string;
   children: React.ReactNode;
   open?: boolean;
+  removePadding?: boolean; // 새로운 옵션 추가
 }
 
-const Collapse: React.FC<CollapseProps> = ({ title, children, open }) => {
+const Collapse: React.FC<CollapseProps> = ({
+  title,
+  children,
+  open,
+  removePadding,
+}) => {
   const [isOpen, setIsOpen] = useState(open);
 
   const toggleCollapse = () => {
@@ -34,8 +40,14 @@ const Collapse: React.FC<CollapseProps> = ({ title, children, open }) => {
         </CollapsIconDiv>
         <Title>{title}</Title>
       </CollapseHeader>
-      {isOpen && <CollapseContent>{children}</CollapseContent>}
+      {isOpen && (
+        <CollapseContent $removePadding={removePadding}>
+          {/* removePadding 옵션 전달 */}
+          {children}
+        </CollapseContent>
+      )}
     </CollapseContainer>
   );
 };
+
 export default Collapse;

@@ -73,6 +73,7 @@ const ExifRowViewer: React.FC<Props> = ({ activeKey, datas }) => {
             </>
           }
           open
+          removePadding
         />
       )}
       {activeItem?.rows && (
