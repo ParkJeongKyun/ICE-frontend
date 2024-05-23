@@ -66,12 +66,10 @@ const ExifRowViewer: React.FC<Props> = ({ activeKey, datas }) => {
           title="Map"
           children={
             <>
-              <ThumbDiv>
-                <KakaoMap
-                  latitude={activeItem?.location.lat || ''}
-                  longitude={activeItem?.location.lng || ''}
-                />
-              </ThumbDiv>
+              <KakaoMap
+                latitude={activeItem?.location.lat || ''}
+                longitude={activeItem?.location.lng || ''}
+              />
             </>
           }
           open

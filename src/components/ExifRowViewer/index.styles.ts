@@ -16,7 +16,7 @@ export const ThumbDiv = styled.div`
 `;
 
 export const Thumbnail = styled.img`
-  max-height: 200px;
+  max-height: 150px;
 `;
 
 export const CellHeaderDiv = styled.div`
