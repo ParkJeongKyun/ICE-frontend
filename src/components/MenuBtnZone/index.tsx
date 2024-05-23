@@ -34,6 +34,8 @@ const MenuBtnZone: React.FC<Props> = ({
         const arrayBuffer = event.target?.result;
         let parsedRows: ExifRow[] | null = null;
         let thumbnail: string = '';
+        let lat: string = 'NaN';
+        let lng: string = 'NaN';
         if (arrayBuffer instanceof ArrayBuffer) {
           const newActiveKey = newTabIndex.current++;
           const newTab = {
@@ -82,7 +84,7 @@ const MenuBtnZone: React.FC<Props> = ({
                     ) => {
                       if (tag === 'Location') {
                         try {
-                          const [lat, lng] = origindata
+                          [lat, lng] = origindata
                             .split(',')
                             .map((value) => value.trim());
                           if (isValidLocation(lat, lng)) {
@@ -119,6 +121,10 @@ const MenuBtnZone: React.FC<Props> = ({
                     name: file.name,
                     lastModified: file.lastModified,
                     size: file.size,
+                  },
+                  location: {
+                    lat: lat,
+                    lng: lng,
                   },
                   thumbnail: thumbnail,
                   rows: parsedRows,

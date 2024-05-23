@@ -11,6 +11,8 @@ import {
 import { TabData, TabKey } from 'types';
 import { getDate } from 'utils/getDate';
 import { getBytes } from 'utils/getBytes';
+import { isValidLocation } from 'utils/getAddress';
+import KakaoMap from 'components/KakaoMap/KakaoMap';
 
 interface Props {
   activeKey: TabKey;
@@ -54,6 +56,22 @@ const ExifRowViewer: React.FC<Props> = ({ activeKey, datas }) => {
                 <CellHeaderDiv>Size</CellHeaderDiv>
                 <CellBodyDiv>{getBytes(activeItem.fileinfo.size)}</CellBodyDiv>
               </ContentDiv>
+            </>
+          }
+          open
+        />
+      )}
+      {isValidLocation(activeItem?.location.lat, activeItem?.location.lng) && (
+        <Collapse
+          title="Map"
+          children={
+            <>
+              <ThumbDiv>
+                <KakaoMap
+                  latitude={activeItem?.location.lat || ''}
+                  longitude={activeItem?.location.lng || ''}
+                />
+              </ThumbDiv>
             </>
           }
           open
