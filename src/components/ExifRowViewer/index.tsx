@@ -4,6 +4,8 @@ import {
   CellBodyDiv,
   CellHeaderDiv,
   ContentDiv,
+  ThumbDiv,
+  Thumbnail,
   ViewerDiv,
 } from './index.styles';
 import { TabData, TabKey } from 'types';
@@ -20,6 +22,19 @@ const ExifRowViewer: React.FC<Props> = ({ activeKey, datas }) => {
 
   return (
     <ViewerDiv>
+      {activeItem?.thumbnail && (
+        <Collapse
+          title="Thumbnail"
+          children={
+            <>
+              <ThumbDiv>
+                <Thumbnail src={activeItem?.thumbnail} />
+              </ThumbDiv>
+            </>
+          }
+          open
+        />
+      )}
       {activeItem?.fileinfo && (
         <Collapse
           title="File Info"

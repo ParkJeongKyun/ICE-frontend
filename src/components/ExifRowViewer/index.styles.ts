@@ -10,6 +10,15 @@ export const ContentDiv = styled.div`
   margin-bottom: 5px;
 `;
 
+export const ThumbDiv = styled.div`
+  text-align: center;
+  align-items: center;
+`;
+
+export const Thumbnail = styled.img`
+  max-height: 200px;
+`;
+
 export const CellHeaderDiv = styled.div`
   text-align: left;
   font-size: 12px;
