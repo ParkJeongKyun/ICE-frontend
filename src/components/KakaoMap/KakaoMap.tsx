@@ -1,6 +1,7 @@
 /* global kakao */
-import { useLayoutEffect } from "react";
-import { IceMap, IceMapContainer } from "./styles";
+import { useLayoutEffect } from 'react';
+import { IceMap, IceMapContainer } from './styles';
+import { isValidLocation } from 'utils/getAddress';
 
 /* Kakao Map */
 declare var kakao: any;
@@ -11,23 +12,22 @@ interface Props {
 }
 
 // 카카오맵
-function KakaoMap(props: Props) {
+const KakaoMap: React.FC<Props> = ({ latitude, longitude }) => {
   useLayoutEffect(() => {
-    let [lat, lng] = [props.latitude, props.longitude];
-    if (lat && lng) {
+    if (isValidLocation(latitude, longitude)) {
       // GPS 정보가 정상인 경우
       try {
         // 맵 생성
-        mapscript(lat, lng);
+        mapscript(latitude, longitude);
       } catch (e) {
         console.log(e);
       }
     }
-  }, [props]);
+  }, [latitude, longitude]);
 
   // 맵 생성 스크립트
   const mapscript = (lat: any, lng: any) => {
-    let container = document.getElementById("IceLocaionMap");
+    let container = document.getElementById('IceLocaionMap');
     let options = {
       center: new kakao.maps.LatLng(lat, lng),
       level: 3,
@@ -54,6 +54,6 @@ function KakaoMap(props: Props) {
       </IceMapContainer>
     </>
   );
-}
+};
 
 export default KakaoMap;
