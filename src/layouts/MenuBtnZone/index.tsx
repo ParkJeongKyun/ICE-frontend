@@ -1,4 +1,4 @@
-import HexViewer from 'components/common/HexViewer';
+import HexViewer from 'components/HexViewer';
 import { TabData, TabItem, TabKey } from 'layouts';
 import { ChangeEvent, useRef } from 'react';
 import styled from 'styled-components';
