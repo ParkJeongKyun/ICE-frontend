@@ -35,16 +35,13 @@ export const Tab = styled.div<{ $active: boolean }>`
 `;
 
 export const CloseBtn = styled.div`
-  margin-left: 10px;
-  &::before {
-    content: 'X';
-    cursor: pointer;
-    color: var(--main-color);
-    font-size: 10px;
-    font-weight: 700;
-  }
-  &:hover::before {
-    color: var(--ice-main-color);
+  margin-left: 5px;
+  display: flex;
+  align-items: center;
+  &:hover {
+    svg {
+      stroke: var(--ice-main-color); // 호버 시 아이콘 컬러 변경
+    }
   }
 `;
 

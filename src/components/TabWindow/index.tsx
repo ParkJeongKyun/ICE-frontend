@@ -13,6 +13,7 @@ import {
   TabWindowContainer,
   TabsContainer,
 } from './index.styles';
+import XIcon from 'components/common/Icons/XIcon';
 
 interface Props {
   items: TabItem[];
@@ -105,7 +106,9 @@ const TabWindow: React.FC<Props> = ({
                   // 탭 닫기
                   handleTabClose(item.key);
                 }}
-              />
+              >
+                <XIcon height={13} width={13} color={`var(--main-color)`} />
+              </CloseBtn>
             </Tab>
           </div>
         ))}
