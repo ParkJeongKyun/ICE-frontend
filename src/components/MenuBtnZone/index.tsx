@@ -2,7 +2,7 @@ import HexViewer from 'components/HexViewer';
 import { TabData, TabItem, TabKey } from 'layouts';
 import { ChangeEvent, useRef } from 'react';
 import styled from 'styled-components';
-import MenuBtn from './MenuBtn';
+import MenuBtn from '../common/MenuBtn';
 import { ExifRow } from 'types';
 
 interface Props {
@@ -143,6 +143,7 @@ const MenuBtnZone: React.FC<Props> = ({
 const Div = styled.div`
   display: flex;
   gap: 10px;
+  margin-top: 2px;
 `;
 
 const FileInput = styled.input`

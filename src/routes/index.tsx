@@ -15,10 +15,10 @@ const RouterList = () => {
       ],
     },
     // Not Found Page
-    // {
-    //   path: '*',
-    //   element: <Navigate to="/page-not-found" />,
-    // },
+    {
+      path: '*',
+      element: <Navigate to="/" />,
+    },
   ]);
 };
 

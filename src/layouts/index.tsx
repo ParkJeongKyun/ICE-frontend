@@ -11,9 +11,9 @@ import {
 } from './index.styles';
 import { useEffect, useRef, useState } from 'react';
 import { ExifRow } from 'types';
-import MenuBtnZone from './MenuBtnZone';
-import TabWindow from './TabWindow';
-import ExifRowViewer from './ExifRowViewer';
+import MenuBtnZone from '../components/MenuBtnZone';
+import TabWindow from '../components/TabWindow';
+import ExifRowViewer from '../components/ExifRowViewer';
 
 export type TabKey = number;
 

@@ -13,7 +13,8 @@ export const IceMainLayout = styled.div`
 
 // 로고
 export const LogoDiv = styled.div`
-  padding-top: 2px;
+  display: flex;
+  align-items: center;
 `;
 
 export const LogoImage = styled.img`
