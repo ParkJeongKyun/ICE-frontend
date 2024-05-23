@@ -1,9 +1,6 @@
 import styled from 'styled-components';
 
-export const CollapseContainer = styled.div`
-  border-radius: 5px;
-  margin-bottom: 10px;
-`;
+export const CollapseContainer = styled.div``;
 
 export const CollapseHeader = styled.div`
   display: flex;
