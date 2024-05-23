@@ -63,5 +63,10 @@ export interface TabItem {
 
 export type TabData = Map<
   number,
-  { fileinfo: fileinfo; rows: ExifRow[] | null; buffer: ArrayBuffer }
+  {
+    fileinfo: fileinfo;
+    thumbnail: string;
+    rows: ExifRow[] | null;
+    buffer: ArrayBuffer;
+  }
 >;

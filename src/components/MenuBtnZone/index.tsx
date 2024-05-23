@@ -33,6 +33,7 @@ const MenuBtnZone: React.FC<Props> = ({
       reader.onload = async (event) => {
         const arrayBuffer = event.target?.result;
         let parsedRows: ExifRow[] | null = null;
+        let thumbnail: string = '';
         if (arrayBuffer instanceof ArrayBuffer) {
           const newActiveKey = newTabIndex.current++;
           const newTab = {
@@ -46,6 +47,7 @@ const MenuBtnZone: React.FC<Props> = ({
           setActiveKey(newActiveKey);
 
           if (file.type.startsWith('image/')) {
+            thumbnail = URL.createObjectURL(file);
             const input_data = new Uint8Array(arrayBuffer);
             const result = await window.goFunc(input_data);
             if (result) {
@@ -118,6 +120,7 @@ const MenuBtnZone: React.FC<Props> = ({
                     lastModified: file.lastModified,
                     size: file.size,
                   },
+                  thumbnail: thumbnail,
                   rows: parsedRows,
                   buffer: arrayBuffer,
                 })
