@@ -7,15 +7,20 @@ export const CollapseContainer = styled.div`
 
 export const CollapseHeader = styled.div`
   display: flex;
-  justify-content: space-between;
-  padding: 5px 10px 5px 10px;
+  padding: 4px 15px 4px 15px;
   cursor: pointer;
   border-bottom: 1px solid var(--main-line-color);
+  &:hover {
+    background-color: var(--main-hover-color);
+  }
 `;
 
+export const CollapsIconDiv = styled.div``;
+
 export const Title = styled.div`
-  font-weight: bold;
-  font-size: 14px;
+  font-weight: 600;
+  font-size: 13px;
+  margin-left: 10px;
 `;
 
 export const CollapseContent = styled.div`

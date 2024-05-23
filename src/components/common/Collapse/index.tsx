@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import {
+  CollapsIconDiv,
   CollapseContainer,
   CollapseContent,
   CollapseHeader,
@@ -24,13 +25,13 @@ const Collapse: React.FC<CollapseProps> = ({ title, children, open }) => {
   return (
     <CollapseContainer>
       <CollapseHeader onClick={toggleCollapse}>
-        <div>
+        <CollapsIconDiv>
           {isOpen ? (
-            <MinusIcon height={14} width={14} color={`var(--main-color)`} />
+            <MinusIcon height={13} width={13} color={`var(--main-color)`} />
           ) : (
-            <PlusIcon height={14} width={14} color={`var(--main-color)`} />
+            <PlusIcon height={13} width={13} color={`var(--main-color)`} />
           )}
-        </div>
+        </CollapsIconDiv>
         <Title>{title}</Title>
       </CollapseHeader>
       {isOpen && <CollapseContent>{children}</CollapseContent>}
