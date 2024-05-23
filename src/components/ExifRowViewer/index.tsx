@@ -1,6 +1,11 @@
 import Collapse from 'components/common/Collapse';
 import React, { useMemo } from 'react';
-import { CellDiv, ContentDiv, ViewerDiv } from './index.styles';
+import {
+  CellBodyDiv,
+  CellHeaderDiv,
+  ContentDiv,
+  ViewerDiv,
+} from './index.styles';
 import { TabData, TabKey } from 'types';
 import { getDate } from 'utils/getDate';
 import { getBytes } from 'utils/getBytes';
@@ -22,16 +27,20 @@ const ExifRowViewer: React.FC<Props> = ({ activeKey, datas }) => {
             children={
               <>
                 <ContentDiv>
-                  <CellDiv isHeader>Name</CellDiv>
-                  <CellDiv>{activeItem.fileinfo.name}</CellDiv>
+                  <CellHeaderDiv>Name</CellHeaderDiv>
+                  <CellBodyDiv>{activeItem.fileinfo.name}</CellBodyDiv>
                 </ContentDiv>
                 <ContentDiv>
-                  <CellDiv isHeader>LastModified</CellDiv>
-                  <CellDiv>{getDate(activeItem.fileinfo.lastModified)}</CellDiv>
+                  <CellHeaderDiv>LastModified</CellHeaderDiv>
+                  <CellBodyDiv>
+                    {getDate(activeItem.fileinfo.lastModified)}
+                  </CellBodyDiv>
                 </ContentDiv>
                 <ContentDiv>
-                  <CellDiv isHeader>Size</CellDiv>
-                  <CellDiv>{getBytes(activeItem.fileinfo.size)}</CellDiv>
+                  <CellHeaderDiv>Size</CellHeaderDiv>
+                  <CellBodyDiv>
+                    {getBytes(activeItem.fileinfo.size)}
+                  </CellBodyDiv>
                 </ContentDiv>
               </>
             }
@@ -43,11 +52,11 @@ const ExifRowViewer: React.FC<Props> = ({ activeKey, datas }) => {
             title="Exif Data"
             children={
               <>
-                {activeItem.rows.map((item) => (
+                {activeItem.rows.map((item, index) => (
                   <>
                     <ContentDiv>
-                      <CellDiv isHeader>{item.name}</CellDiv>
-                      <CellDiv>{item.data}</CellDiv>
+                      <CellHeaderDiv>{item.name.split('(')[0]}</CellHeaderDiv>
+                      <CellBodyDiv>{item.data}</CellBodyDiv>
                     </ContentDiv>
                   </>
                 ))}

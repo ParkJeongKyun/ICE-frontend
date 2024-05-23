@@ -7,10 +7,19 @@ export const ViewerDiv = styled.div`
 export const ContentDiv = styled.div`
   display: flex;
   gap: 5px;
+  margin-bottom: 5px;
 `;
 
-export const CellDiv = styled.div<{ isHeader?: boolean }>`
+export const CellHeaderDiv = styled.div`
   text-align: left;
-  font-size: 14px;
-  min-width: 50%;
+  font-size: 12px;
+  min-width: 40%;
+  font-weight: 500;
+`;
+
+export const CellBodyDiv = styled.div`
+  text-align: left;
+  font-size: 12px;
+  min-width: 60%;
+  color: var(--ice-main-color);
 `;
