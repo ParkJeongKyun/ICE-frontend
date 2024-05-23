@@ -1,9 +1,8 @@
 import HexViewer from 'components/HexViewer';
-import { TabData, TabItem, TabKey } from 'layouts';
 import { ChangeEvent, useRef } from 'react';
 import styled from 'styled-components';
 import MenuBtn from '../common/MenuBtn';
-import { ExifRow } from 'types';
+import { ExifRow, TabData, TabItem, TabKey } from 'types';
 
 interface Props {
   newTabIndex: React.MutableRefObject<number>;
@@ -113,6 +112,11 @@ const MenuBtnZone: React.FC<Props> = ({
             (prevDatas) =>
               new Map(
                 prevDatas.set(newActiveKey, {
+                  fileinfo: {
+                    name: file.name,
+                    lastModified: file.lastModified,
+                    size: file.size,
+                  },
                   rows: parsedRows,
                   buffer: arrayBuffer,
                 })

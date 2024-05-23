@@ -10,23 +10,10 @@ import {
   LogoImage,
 } from './index.styles';
 import { useEffect, useRef, useState } from 'react';
-import { ExifRow } from 'types';
+import { ExifRow, TabData, TabItem, TabKey, fileinfo } from 'types';
 import MenuBtnZone from '../components/MenuBtnZone';
 import TabWindow from '../components/TabWindow';
 import ExifRowViewer from '../components/ExifRowViewer';
-
-export type TabKey = number;
-
-export interface TabItem {
-  label: string;
-  children: React.ReactNode;
-  key: TabKey;
-}
-
-export type TabData = Map<
-  number,
-  { rows: ExifRow[] | null; buffer: ArrayBuffer }
->;
 
 const MainLayout: React.FC = () => {
   const newTabIndex = useRef(0);

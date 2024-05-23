@@ -45,3 +45,23 @@ export interface ExifRow {
 interface example {
   [key: string]: string;
 }
+
+// 파일 정보
+export interface fileinfo {
+  name: string;
+  lastModified: number;
+  size: number;
+}
+
+export type TabKey = number;
+
+export interface TabItem {
+  label: string;
+  children: React.ReactNode;
+  key: TabKey;
+}
+
+export type TabData = Map<
+  number,
+  { fileinfo: fileinfo; rows: ExifRow[] | null; buffer: ArrayBuffer }
+>;

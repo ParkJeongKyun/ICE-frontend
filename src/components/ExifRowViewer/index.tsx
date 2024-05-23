@@ -1,7 +1,9 @@
 import Collapse from 'components/common/Collapse';
-import { TabData, TabKey } from 'layouts';
 import React, { useMemo } from 'react';
 import { CellDiv, ContentDiv, ViewerDiv } from './index.styles';
+import { TabData, TabKey } from 'types';
+import { getDate } from 'utils/getDate';
+import { getBytes } from 'utils/getBytes';
 
 interface Props {
   activeKey: TabKey;
@@ -14,9 +16,31 @@ const ExifRowViewer: React.FC<Props> = ({ activeKey, datas }) => {
   return (
     <>
       <ViewerDiv>
+        {activeItem?.fileinfo && (
+          <Collapse
+            title="File Info"
+            children={
+              <>
+                <ContentDiv>
+                  <CellDiv isHeader>Name</CellDiv>
+                  <CellDiv>{activeItem.fileinfo.name}</CellDiv>
+                </ContentDiv>
+                <ContentDiv>
+                  <CellDiv isHeader>LastModified</CellDiv>
+                  <CellDiv>{getDate(activeItem.fileinfo.lastModified)}</CellDiv>
+                </ContentDiv>
+                <ContentDiv>
+                  <CellDiv isHeader>Size</CellDiv>
+                  <CellDiv>{getBytes(activeItem.fileinfo.size)}</CellDiv>
+                </ContentDiv>
+              </>
+            }
+            open
+          />
+        )}
         {activeItem?.rows && (
           <Collapse
-            title="EXIF"
+            title="Exif Data"
             children={
               <>
                 {activeItem.rows.map((item) => (

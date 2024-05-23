@@ -5,7 +5,6 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { TabData, TabItem, TabKey } from 'layouts';
 import {
   CloseBtn,
   Tab,
@@ -14,6 +13,7 @@ import {
   TabsContainer,
 } from './index.styles';
 import XIcon from 'components/common/Icons/XIcon';
+import { TabData, TabItem, TabKey } from 'types';
 
 interface Props {
   items: TabItem[];
