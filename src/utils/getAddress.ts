@@ -1,6 +1,6 @@
 /* global kakao */
 
-import { isValidNumber } from "./isValidNumber";
+import { isValidNumber } from './isValidNumber';
 
 /* Kakao Map */
 declare var kakao: any;

@@ -3,6 +3,7 @@ import { ChangeEvent, useRef } from 'react';
 import styled from 'styled-components';
 import MenuBtn from '../common/MenuBtn';
 import { ExifRow, TabData, TabItem, TabKey } from 'types';
+import { getAddress, isValidLocation } from 'utils/getAddress';
 
 interface Props {
   newTabIndex: React.MutableRefObject<number>;
@@ -82,10 +83,10 @@ const MenuBtnZone: React.FC<Props> = ({
                           const [lat, lng] = origindata
                             .split(',')
                             .map((value) => value.trim());
-                          // if (isValidLocation(lat, lng)) {
-                          //   const address = await getAddress(lat, lng);
-                          //   data = address;
-                          // }
+                          if (isValidLocation(lat, lng)) {
+                            const address = await getAddress(lat, lng);
+                            data = address;
+                          }
                         } catch (error_msg) {
                           console.log(error_msg);
                         }
