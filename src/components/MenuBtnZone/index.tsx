@@ -137,8 +137,8 @@ const MenuBtnZone: React.FC<Props> = ({
       {/* 파일 업로드 */}
       <MenuBtn onClick={handleOpenClick} text="Open" />
       <FileInput type="file" ref={fileInputRef} onChange={handleFileChange} />
-      <MenuBtn onClick={() => {}} text="Save" />
-      <MenuBtn onClick={() => {}} text="Help" />
+      <MenuBtn onClick={() => {}} text="Save" disabled />
+      <MenuBtn onClick={() => {}} text="Help" disabled />
       <MenuBtn onClick={() => {}} text="About" />
     </Div>
   );
