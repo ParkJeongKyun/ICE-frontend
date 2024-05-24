@@ -107,7 +107,7 @@ const TabWindow: React.FC<Props> = ({
                   handleTabClose(item.key);
                 }}
               >
-                <XIcon height={13} width={13} color={`var(--main-color)`} />
+                <XIcon height={13} width={13} />
               </CloseBtn>
             </Tab>
           </div>

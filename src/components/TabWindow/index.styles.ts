@@ -38,6 +38,9 @@ export const CloseBtn = styled.div`
   margin-left: 5px;
   display: flex;
   align-items: center;
+  svg {
+    stroke: var(--main-line-color);
+  }
   &:hover {
     svg {
       stroke: var(--ice-main-color); // 호버 시 아이콘 컬러 변경
