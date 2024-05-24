@@ -116,7 +116,7 @@ const MainLayout: React.FC = () => {
             setItems={setItems}
           />
         </IceContent>
-        <IceRightSider />
+        {/* <IceRightSider /> */}
       </IceLayout>
 
       <IceFooter>
