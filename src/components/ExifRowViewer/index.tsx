@@ -43,17 +43,17 @@ const ExifRowViewer: React.FC<Props> = ({ activeKey, datas }) => {
           children={
             <>
               <ContentDiv>
-                <CellHeaderDiv>Name</CellHeaderDiv>
+                <CellHeaderDiv>파일명</CellHeaderDiv>
                 <CellBodyDiv>{activeItem.fileinfo.name}</CellBodyDiv>
               </ContentDiv>
               <ContentDiv>
-                <CellHeaderDiv>LastModified</CellHeaderDiv>
+                <CellHeaderDiv>마지막 수정 시간</CellHeaderDiv>
                 <CellBodyDiv>
                   {getDate(activeItem.fileinfo.lastModified)}
                 </CellBodyDiv>
               </ContentDiv>
               <ContentDiv>
-                <CellHeaderDiv>Size</CellHeaderDiv>
+                <CellHeaderDiv>크기</CellHeaderDiv>
                 <CellBodyDiv>{getBytes(activeItem.fileinfo.size)}</CellBodyDiv>
               </ContentDiv>
             </>
