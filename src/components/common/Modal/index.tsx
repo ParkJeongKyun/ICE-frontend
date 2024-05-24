@@ -12,12 +12,21 @@ export interface ModalProps {
   isOpen: boolean;
   onClose?: () => void;
   children?: React.ReactNode;
+  top?: string;
+  left?: string;
 }
 
-const Modal: React.FC<ModalProps> = ({ title, isOpen, onClose, children }) => {
+const Modal: React.FC<ModalProps> = ({
+  title,
+  isOpen,
+  onClose,
+  children,
+  top,
+  left,
+}) => {
   return (
     <ModalContainer $isOpen={isOpen}>
-      <ModalContent>
+      <ModalContent $top={top || '50%'} $left={left || '50%'}>
         <ModalHeader>
           <div>{title}</div>
           <CloseBtn onClick={onClose}>
