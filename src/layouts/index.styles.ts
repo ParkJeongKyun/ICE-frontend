@@ -27,7 +27,6 @@ export const IceHeader = styled.div`
   display: flex;
   gap: 5px;
   /* 위 | 오른쪽 | 아래 | 왼쪽 */
-  margin: 0 5px 0 5px;
   padding: 0 5px 0 5px;
   height: 27px;
   line-height: 15px;
