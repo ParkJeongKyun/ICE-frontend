@@ -19,14 +19,14 @@ const ICEMarkDown: React.FC<Props> = ({ markdownText }) => {
 export default ICEMarkDown;
 
 const MarkdownContainer = styled.div`
-  min-width: 600px;
-  max-height: 400px;
   overflow-y: auto;
   text-align: left;
   padding: 10px;
   margin: 0 auto;
   border: 1px solid var(--main-line-color);
   border-radius: 4px;
+  height: 50vh;
+  max-height: 500px;
 `;
 
 export const MarkDownDiv = styled.div`

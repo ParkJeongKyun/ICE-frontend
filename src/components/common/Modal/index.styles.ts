@@ -22,6 +22,8 @@ export const ModalContent = styled.div<{ $top: string; $left: string }>`
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   border-radius: 4px;
   border: 1px solid var(--main-line-color);
+  width: 80vw;
+  max-width: 800px;
 `;
 
 export const ModalHeader = styled.div`
