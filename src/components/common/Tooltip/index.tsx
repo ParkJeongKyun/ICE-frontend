@@ -38,7 +38,7 @@ const TooltipText = styled.div`
   /* max-width: 120px; */
   background-color: var(--main-hover-color);
   border: 1px solid var(--main-hover-line-color);
-  color: var(--main-hover-line-color);
+  color: var(--main-color);
   text-align: center;
   border-radius: 4px;
   padding: 5px 5px;

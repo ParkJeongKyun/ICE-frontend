@@ -25,6 +25,9 @@ export const CellHeaderDiv = styled.div`
   font-size: 12px;
   min-width: 40%;
   font-weight: 500;
+  &:hover {
+    background-color: var(--main-hover-color);
+  }
 `;
 
 export const CellBodyDiv = styled.div`
@@ -32,4 +35,7 @@ export const CellBodyDiv = styled.div`
   font-size: 12px;
   min-width: 60%;
   color: var(--ice-main-color);
+  &:hover {
+    background-color: var(--main-hover-color);
+  }
 `;
