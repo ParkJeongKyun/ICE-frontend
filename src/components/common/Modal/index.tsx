@@ -9,7 +9,7 @@ export interface ModalProps {
 
 const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
   return (
-    <ModalContainer isOpen={isOpen}>
+    <ModalContainer $isOpen={isOpen}>
       <ModalContent>
         <CloseButton onClick={onClose}>X</CloseButton>
         {children}

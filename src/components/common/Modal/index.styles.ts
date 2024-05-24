@@ -1,8 +1,7 @@
 import styled from 'styled-components';
-import { ModalProps } from '.';
 
-export const ModalContainer = styled.div<ModalProps>`
-  display: ${({ isOpen }) => (isOpen ? 'block' : 'none')};
+export const ModalContainer = styled.div<{ $isOpen: boolean }>`
+  display: ${({ $isOpen }) => ($isOpen ? 'block' : 'none')};
   position: fixed;
   top: 0;
   left: 0;

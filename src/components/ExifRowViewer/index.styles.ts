@@ -17,6 +17,7 @@ export const ThumbDiv = styled.div`
 
 export const Thumbnail = styled.img`
   max-height: 150px;
+  border: 1px solid var(--main-line-color);
 `;
 
 export const CellHeaderDiv = styled.div`
