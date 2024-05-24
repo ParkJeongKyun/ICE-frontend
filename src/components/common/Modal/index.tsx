@@ -21,7 +21,7 @@ const Modal: React.FC<ModalProps> = ({ title, isOpen, onClose, children }) => {
         <ModalHeader>
           <div>{title}</div>
           <CloseBtn onClick={onClose}>
-            <XIcon height={25} width={25} />
+            <XIcon height={20} width={20} />
           </CloseBtn>
         </ModalHeader>
         {children}
