@@ -10,6 +10,7 @@ interface Props {
   setDatas: React.Dispatch<React.SetStateAction<TabData>>;
   setItems: React.Dispatch<React.SetStateAction<TabItem[]>>;
   setActiveKey: React.Dispatch<React.SetStateAction<TabKey>>;
+  openModal: (key: string) => void;
 }
 
 const MenuBtnZone: React.FC<Props> = ({
@@ -17,6 +18,7 @@ const MenuBtnZone: React.FC<Props> = ({
   setDatas,
   setItems,
   setActiveKey,
+  openModal,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const handleOpenClick = () => {
@@ -148,8 +150,13 @@ const MenuBtnZone: React.FC<Props> = ({
       <MenuBtn onClick={handleOpenClick} text="Open" />
       <FileInput type="file" ref={fileInputRef} onChange={handleFileChange} />
       <MenuBtn onClick={() => {}} text="Save" disabled />
-      <MenuBtn onClick={() => {}} text="Help" disabled />
-      <MenuBtn onClick={() => {}} text="About" />
+      <MenuBtn onClick={() => {}} text="Help" />
+      <MenuBtn
+        onClick={() => {
+          openModal('first');
+        }}
+        text="About"
+      />
     </Div>
   );
 };

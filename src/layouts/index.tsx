@@ -9,17 +9,42 @@ import {
   LogoDiv,
   LogoImage,
 } from './index.styles';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { ExifRow, TabData, TabItem, TabKey, fileinfo } from 'types';
 import MenuBtnZone from '../components/MenuBtnZone';
 import TabWindow from '../components/TabWindow';
 import ExifRowViewer from '../components/ExifRowViewer';
+import Modal from 'components/common/Modal';
 
 const MainLayout: React.FC = () => {
   const newTabIndex = useRef(0);
   const [activeKey, setActiveKey] = useState<TabKey>(0);
   const [datas, setDatas] = useState<TabData>(new Map());
   const [items, setItems] = useState<TabItem[]>([]);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalContentKey, setModalContentKey] = useState<string | null>(null);
+
+  const openModal = (key: string) => {
+    setModalContentKey(key);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setModalContentKey(null);
+  };
+
+  const modalContent = useMemo(() => {
+    switch (modalContentKey) {
+      case 'first':
+        return <div>First Modal Content</div>;
+      case 'second':
+        return <div>Second Modal Content</div>;
+      default:
+        return null;
+    }
+  }, [modalContentKey]);
 
   // GO 웹 어셈블리 모듈 로드
   useEffect(() => {
@@ -35,6 +60,7 @@ const MainLayout: React.FC = () => {
     loadWebAssembly();
   }, []);
 
+  // 테스트용 콘솔 출력
   console.log('============================');
   console.log('item', items);
   console.log('datas', datas);
@@ -53,6 +79,7 @@ const MainLayout: React.FC = () => {
           setDatas={setDatas}
           setItems={setItems}
           setActiveKey={setActiveKey}
+          openModal={openModal}
         />
       </IceHeader>
 
@@ -75,6 +102,10 @@ const MainLayout: React.FC = () => {
       <IceFooter>
         © 2024 Park Jeong-kyun (dbzoseh84@gmail.com). All rights reserved.
       </IceFooter>
+
+      <Modal isOpen={isModalOpen} onClose={closeModal}>
+        {modalContent}
+      </Modal>
     </IceMainLayout>
   );
 };
