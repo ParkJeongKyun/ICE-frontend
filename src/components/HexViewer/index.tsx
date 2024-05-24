@@ -1,9 +1,9 @@
 import React, { useMemo } from 'react';
-import { List } from 'react-virtualized';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import {
   HexByte,
   HexCell,
+  ListDiv,
   OffsetCell,
   Row,
   TextByte,
@@ -74,7 +74,7 @@ const HexViewer: React.FC<Props> = ({ arrayBuffer }) => {
   return (
     <AutoSizer>
       {({ height, width }: { height: number; width: number }) => (
-        <List
+        <ListDiv
           width={width}
           height={height}
           rowCount={rowCount}

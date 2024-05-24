@@ -5,11 +5,14 @@ export const TabWindowContainer = styled.div`
   display: flex;
   flex-direction: column;
   height: 100%;
+  width: 100%;
+  min-width: 570px;
 `;
 
 export const TabsContainer = styled.div<{ $empty: boolean }>`
   display: flex;
   overflow-x: auto;
+  width: 100%;
   border-bottom: ${(props) =>
     props.$empty ? 'none' : '1px solid var(--main-line-color)'};
 `;
@@ -59,5 +62,4 @@ export const TabContentContainer = styled.div`
   flex-grow: 1; // 남는 부분을 전부 차지
   padding: 0px;
   overflow: auto; // 콘텐츠가 많을 경우 스크롤
-  min-width: 570px;
 `;

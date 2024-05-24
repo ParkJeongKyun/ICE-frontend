@@ -1,4 +1,10 @@
+import { List } from 'react-virtualized';
 import styled from 'styled-components';
+
+export const ListDiv = styled(List)`
+  padding-top: 10px;
+  padding-bottom: 10px;
+`;
 
 export const Row = styled.div`
   display: flex;
