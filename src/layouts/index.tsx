@@ -17,32 +17,36 @@ import ExifRowViewer from '../components/ExifRowViewer';
 import Modal from 'components/common/Modal';
 
 const MainLayout: React.FC = () => {
+  // Tab 데이터
   const newTabIndex = useRef(0);
   const [activeKey, setActiveKey] = useState<TabKey>(0);
   const [datas, setDatas] = useState<TabData>(new Map());
   const [items, setItems] = useState<TabItem[]>([]);
-
+  // Modal 데이터
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalContentKey, setModalContentKey] = useState<string | null>(null);
 
+  // 모달 Open 이벤트
   const openModal = (key: string) => {
     setModalContentKey(key);
     setIsModalOpen(true);
   };
 
+  // 모달 Close 이벤트
   const closeModal = () => {
     setIsModalOpen(false);
     setModalContentKey(null);
   };
 
-  const modalContent = useMemo(() => {
+  // 모달 데이터
+  const [modalTitle, modalContent] = useMemo(() => {
     switch (modalContentKey) {
       case 'first':
-        return <div>First Modal Content</div>;
+        return [<>1234</>, <div>First Modal Content</div>];
       case 'second':
-        return <div>Second Modal Content</div>;
+        return ['5678', <div>Second Modal Content</div>];
       default:
-        return null;
+        return [null, null];
     }
   }, [modalContentKey]);
 
@@ -103,7 +107,7 @@ const MainLayout: React.FC = () => {
         © 2024 Park Jeong-kyun (dbzoseh84@gmail.com). All rights reserved.
       </IceFooter>
 
-      <Modal isOpen={isModalOpen} onClose={closeModal}>
+      <Modal title={modalTitle} isOpen={isModalOpen} onClose={closeModal}>
         {modalContent}
       </Modal>
     </IceMainLayout>
