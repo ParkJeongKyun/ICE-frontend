@@ -74,6 +74,7 @@ export const MarkDownDiv = styled.div`
   /* Styling for lists */
   ul,
   ol {
+    padding-left: 20px;
     margin-left: 2px;
     margin-bottom: 5px;
   }
