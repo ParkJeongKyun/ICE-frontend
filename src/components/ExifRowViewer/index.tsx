@@ -13,6 +13,7 @@ import { getDate } from 'utils/getDate';
 import { getBytes } from 'utils/getBytes';
 import { isValidLocation } from 'utils/getAddress';
 import KakaoMap from 'components/KakaoMap/KakaoMap';
+import Tooltip from 'components/common/Tooltip';
 
 interface Props {
   activeKey: TabKey;
@@ -83,8 +84,14 @@ const ExifRowViewer: React.FC<Props> = ({ activeKey, datas }) => {
             <>
               {activeItem.rows.map((item, index) => (
                 <ContentDiv key={`${index}-info`}>
-                  <CellHeaderDiv>{item.name.split('(')[0]}</CellHeaderDiv>
-                  <CellBodyDiv>{item.data}</CellBodyDiv>
+                  <CellHeaderDiv>
+                    <Tooltip text={item.meta}>
+                      {item.name.split('(')[0]}
+                    </Tooltip>
+                  </CellHeaderDiv>
+                  <CellBodyDiv>
+                    <Tooltip text={item.origindata}>{item.data}</Tooltip>
+                  </CellBodyDiv>
                 </ContentDiv>
               ))}
             </>
