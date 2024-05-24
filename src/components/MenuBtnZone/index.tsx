@@ -150,10 +150,15 @@ const MenuBtnZone: React.FC<Props> = ({
       <MenuBtn onClick={handleOpenClick} text="Open" />
       <FileInput type="file" ref={fileInputRef} onChange={handleFileChange} />
       <MenuBtn onClick={() => {}} text="Save" disabled />
-      <MenuBtn onClick={() => {}} text="Help" />
       <MenuBtn
         onClick={() => {
-          openModal('first');
+          openModal('help');
+        }}
+        text="Help"
+      />
+      <MenuBtn
+        onClick={() => {
+          openModal('about');
         }}
         text="About"
       />

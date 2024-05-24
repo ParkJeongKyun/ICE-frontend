@@ -10,11 +10,13 @@ import {
   LogoImage,
 } from './index.styles';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ExifRow, TabData, TabItem, TabKey, fileinfo } from 'types';
+import { TabData, TabItem, TabKey } from 'types';
 import MenuBtnZone from '../components/MenuBtnZone';
 import TabWindow from '../components/TabWindow';
 import ExifRowViewer from '../components/ExifRowViewer';
 import Modal from 'components/common/Modal';
+import AboutMD from 'components/markdown/AboutMD';
+import HelpMD from 'components/markdown/HelpMD';
 
 const MainLayout: React.FC = () => {
   // Tab 데이터
@@ -41,10 +43,24 @@ const MainLayout: React.FC = () => {
   // 모달 데이터
   const [modalTitle, modalContent] = useMemo(() => {
     switch (modalContentKey) {
-      case 'first':
-        return [<>1234</>, <div>First Modal Content</div>];
-      case 'second':
-        return ['5678', <div>Second Modal Content</div>];
+      case 'about':
+        return [
+          <>
+            <b>사이트 정보</b>
+          </>,
+          <>
+            <AboutMD />
+          </>,
+        ];
+      case 'help':
+        return [
+          <>
+            <b>도움말</b>
+          </>,
+          <>
+            <HelpMD />
+          </>,
+        ];
       default:
         return [null, null];
     }
@@ -65,11 +81,11 @@ const MainLayout: React.FC = () => {
   }, []);
 
   // 테스트용 콘솔 출력
-  console.log('============================');
-  console.log('item', items);
-  console.log('datas', datas);
-  console.log('newTabIndex.current', newTabIndex.current);
-  console.log('activeKey', activeKey);
+  // console.log('============================');
+  // console.log('item', items);
+  // console.log('datas', datas);
+  // console.log('newTabIndex.current', newTabIndex.current);
+  // console.log('activeKey', activeKey);
 
   return (
     <IceMainLayout>
