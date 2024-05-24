@@ -18,7 +18,7 @@ export const Tab = styled.div<{ $active: boolean }>`
   display: flex;
   font-size: 11px;
   font-weight: 700;
-  padding: 5px 10px 5px 15px;
+  padding: 5px 5px 5px 10px;
   border-right: 1px solid var(--main-line-color);
   /* height: 12px; */
   cursor: pointer;
@@ -29,17 +29,24 @@ export const Tab = styled.div<{ $active: boolean }>`
   &:hover {
     color: var(--ice-main-color);
     background-color: var(--main-hover-color);
+    ${(props) =>
+      props.$active
+        ? ''
+        : 'border-bottom: 2px solid var(--main-hover-line-color);'};
+    svg {
+      stroke: var(--main-hover-line-color);
+    }
   }
   /* 텍스트가 너무 길어질 때 ...으로 대체되도록 설정 */
   white-space: nowrap; /* 줄 바꿈 방지 */
 `;
 
-export const CloseBtn = styled.div`
+export const CloseBtn = styled.div<{ $active: boolean }>`
   margin-left: 5px;
   display: flex;
   align-items: center;
   svg {
-    stroke: var(--main-line-color);
+    stroke: ${(props) => (props.$active ? 'var(--main-line-color)' : 'none')};
   }
   &:hover {
     svg {

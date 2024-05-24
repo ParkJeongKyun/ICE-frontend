@@ -100,6 +100,7 @@ const TabWindow: React.FC<Props> = ({
             >
               {item.label}
               <CloseBtn
+                $active={item.key === activeKey}
                 onClick={(e) => {
                   // 탭 활성화 이벤트 방어
                   e.stopPropagation();
@@ -107,7 +108,7 @@ const TabWindow: React.FC<Props> = ({
                   handleTabClose(item.key);
                 }}
               >
-                <XIcon height={13} width={13} />
+                <XIcon height={15} width={15} />
               </CloseBtn>
             </Tab>
           </div>
