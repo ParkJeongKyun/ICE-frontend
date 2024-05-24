@@ -1,17 +1,29 @@
 import React from 'react';
-import { CloseButton, ModalContainer, ModalContent } from './index.styles';
+import {
+  ModalContainer,
+  ModalContent,
+  ModalHeader,
+  CloseBtn,
+} from './index.styles';
+import XIcon from '../Icons/XIcon';
 
 export interface ModalProps {
+  title?: React.ReactNode;
   isOpen: boolean;
   onClose?: () => void;
   children?: React.ReactNode;
 }
 
-const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
+const Modal: React.FC<ModalProps> = ({ title, isOpen, onClose, children }) => {
   return (
     <ModalContainer $isOpen={isOpen}>
       <ModalContent>
-        <CloseButton onClick={onClose}>X</CloseButton>
+        <ModalHeader>
+          <div>{title}</div>
+          <CloseBtn onClick={onClose}>
+            <XIcon height={25} width={25} />
+          </CloseBtn>
+        </ModalHeader>
         {children}
       </ModalContent>
     </ModalContainer>
