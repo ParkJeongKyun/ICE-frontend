@@ -62,21 +62,22 @@ const ExifRowViewer: React.FC<Props> = ({ activeKey, datas }) => {
           open
         />
       )}
-      {isValidLocation(activeItem?.location.lat, activeItem?.location.lng) && (
-        <Collapse
-          title="Map"
-          children={
-            <>
-              <KakaoMap
-                latitude={activeItem?.location.lat || ''}
-                longitude={activeItem?.location.lng || ''}
-              />
-            </>
-          }
-          open
-          removePadding
-        />
-      )}
+      {activeItem?.location.address &&
+        isValidLocation(activeItem?.location.lat, activeItem?.location.lng) && (
+          <Collapse
+            title="Map"
+            children={
+              <>
+                <KakaoMap
+                  latitude={activeItem?.location.lat || ''}
+                  longitude={activeItem?.location.lng || ''}
+                />
+              </>
+            }
+            open
+            removePadding
+          />
+        )}
       {activeItem?.rows && (
         <Collapse
           title="Exif Data"

@@ -66,7 +66,7 @@ export type TabData = Map<
   {
     fileinfo: fileinfo;
     thumbnail: string;
-    location: { lat: string; lng: string };
+    location: { lat: string; lng: string; address: string };
     rows: ExifRow[] | null;
     buffer: ArrayBuffer;
   }

@@ -38,6 +38,7 @@ const MenuBtnZone: React.FC<Props> = ({
         let thumbnail: string = '';
         let lat: string = 'NaN';
         let lng: string = 'NaN';
+        let address: string = '';
         if (arrayBuffer instanceof ArrayBuffer) {
           const newActiveKey = newTabIndex.current++;
           const newTab = {
@@ -90,7 +91,7 @@ const MenuBtnZone: React.FC<Props> = ({
                             .split(',')
                             .map((value) => value.trim());
                           if (isValidLocation(lat, lng)) {
-                            const address = await getAddress(lat, lng);
+                            address = await getAddress(lat, lng);
                             data = address;
                           }
                         } catch (error_msg) {
@@ -127,6 +128,7 @@ const MenuBtnZone: React.FC<Props> = ({
                   location: {
                     lat: lat,
                     lng: lng,
+                    address: address,
                   },
                   thumbnail: thumbnail,
                   rows: parsedRows,

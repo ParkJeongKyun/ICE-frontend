@@ -16,6 +16,7 @@ export const ThumbDiv = styled.div`
 `;
 
 export const Thumbnail = styled.img`
+  max-width: 380px;
   max-height: 150px;
   border: 1px solid var(--main-line-color);
 `;
