@@ -78,4 +78,9 @@ export const MarkDownDiv = styled.div`
     margin-left: 2px;
     margin-bottom: 5px;
   }
+
+  img {
+    max-width: 100%;
+    border: 1px solid var(--main-line-color);
+  }
 `;
