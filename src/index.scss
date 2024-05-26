@@ -34,4 +34,9 @@ body,
   ::-webkit-scrollbar-thumb:hover {
     background-color: #555; /* 마우스 호버시 스크롤바 색상 */
   }
+
+  /* styles.css */
+  .disable-select {
+    user-select: none;
+  }
 }

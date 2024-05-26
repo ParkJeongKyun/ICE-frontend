@@ -17,6 +17,7 @@ import ExifRowViewer from '../components/ExifRowViewer';
 import Modal from 'components/common/Modal';
 import AboutMD from 'components/markdown/AboutMD';
 import HelpMD from 'components/markdown/HelpMD';
+import Resizable from 'react-resizable-layout';
 
 const MainLayout: React.FC = () => {
   // Tab 데이터
@@ -80,6 +81,15 @@ const MainLayout: React.FC = () => {
     loadWebAssembly();
   }, []);
 
+  // Add and remove class to disable text selection during resizing
+  const handleResizeStart = () => {
+    document.body.classList.add('disable-select');
+  };
+
+  const handleResizeEnd = () => {
+    document.body.classList.remove('disable-select');
+  };
+
   // 테스트용 콘솔 출력
   // console.log('============================');
   // console.log('item', items);
@@ -103,20 +113,39 @@ const MainLayout: React.FC = () => {
         />
       </IceHeader>
 
-      <IceLayout>
-        <IceLeftSider>
-          <ExifRowViewer activeKey={activeKey} datas={datas} />
-        </IceLeftSider>
-        <IceContent>
-          <TabWindow
-            items={items}
-            activeKey={activeKey}
-            setActiveKey={setActiveKey}
-            setDatas={setDatas}
-            setItems={setItems}
-          />
-        </IceContent>
-        {/* <IceRightSider /> */}
+      <IceLayout style={{ display: 'flex', height: '100%' }}>
+        <Resizable
+          axis={'x'}
+          onResizeStart={handleResizeStart}
+          onResizeEnd={handleResizeEnd}
+        >
+          {({ position, separatorProps }) => (
+            <>
+              <IceLeftSider style={{ width: position, maxWidth: '400px' }}>
+                <ExifRowViewer activeKey={activeKey} datas={datas} />
+              </IceLeftSider>
+              <div
+                {...separatorProps}
+                style={{
+                  width: '1px',
+                  cursor: 'col-resize',
+                  backgroundColor: 'var(--main-line-color)',
+                  zIndex: 1,
+                }}
+              />
+              <IceContent style={{ flex: 1 }}>
+                <TabWindow
+                  items={items}
+                  activeKey={activeKey}
+                  setActiveKey={setActiveKey}
+                  setDatas={setDatas}
+                  setItems={setItems}
+                />
+              </IceContent>
+              {/* <IceRightSider /> */}
+            </>
+          )}
+        </Resizable>
       </IceLayout>
 
       <IceFooter>
