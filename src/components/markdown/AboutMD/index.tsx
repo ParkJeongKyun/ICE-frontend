@@ -24,6 +24,8 @@ const txt = `
 ## 소스 코드
   - [Github](https://github.com/ParkJeongKyun/ICE-frontend)
 
+## 도움받은 레파지토리
+
 ## 업데이트 예정
   - 디자인 개편
   - HexViewer UI 수정

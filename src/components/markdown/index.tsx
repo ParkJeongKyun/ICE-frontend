@@ -6,11 +6,39 @@ export interface Props {
   markdownText: string;
 }
 
+// 링크 랜더링 커스텀
+interface LinkRendererProps {
+  href?: string;
+  children?: React.ReactNode;
+}
+
+// 이미지 랜더링 커스텀
+interface ImageRendererProps {
+  src?: string;
+  alt?: string;
+}
+
 const ICEMarkDown: React.FC<Props> = ({ markdownText }) => {
+  const ImageRenderer: React.FC<ImageRendererProps> = ({ src, alt }) => {
+    return <img src={src} alt={alt} />;
+  };
+
+  const LinkRenderer: React.FC<LinkRendererProps> = ({ href, children }) => (
+    <a href={href} target="_blank" rel="noopener noreferrer">
+      {children}
+    </a>
+  );
+
+  const components = {
+    // LinkRenderer를 JSX 요소로 사용할 수 있는 타입으로 명시적으로 지정
+    a: (props: LinkRendererProps) => <LinkRenderer {...props} />,
+    img: (props: ImageRendererProps) => <ImageRenderer {...props} />,
+  };
+
   return (
     <MarkdownContainer>
       <MarkDownDiv>
-        <Markdown>{markdownText}</Markdown>
+        <Markdown components={components}>{markdownText}</Markdown>
       </MarkDownDiv>
     </MarkdownContainer>
   );
