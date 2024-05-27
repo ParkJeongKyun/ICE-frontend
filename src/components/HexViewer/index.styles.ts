@@ -9,6 +9,8 @@ export const ListDiv = styled(List)`
 export const Row = styled.div`
   display: flex;
   font-family: monospace;
+  text-align: center;
+  align-items: center;
 `;
 
 export const OffsetCell = styled.div`
