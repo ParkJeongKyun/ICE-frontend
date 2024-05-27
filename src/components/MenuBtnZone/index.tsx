@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import MenuBtn from '../common/MenuBtn';
 import { ExifRow, TabData, TabItem, TabKey } from 'types';
 import { getAddress, isValidLocation } from 'utils/getAddress';
+import Tooltip from 'components/common/Tooltip';
 
 interface Props {
   newTabIndex: React.MutableRefObject<number>;
@@ -151,7 +152,12 @@ const MenuBtnZone: React.FC<Props> = ({
       {/* 파일 업로드 */}
       <MenuBtn onClick={handleOpenClick} text="Open" />
       <FileInput type="file" ref={fileInputRef} onChange={handleFileChange} />
-      <MenuBtn onClick={() => {}} text="Save" disabled />
+      <Tooltip text="기능 추가 업데이트 예정">
+        <MenuBtn onClick={() => {}} text="Save" disabled />
+      </Tooltip>
+      <Tooltip text="기능 추가 업데이트 예정">
+        <MenuBtn onClick={() => {}} text="Tools" disabled />
+      </Tooltip>
       <MenuBtn
         onClick={() => {
           openModal('help');
