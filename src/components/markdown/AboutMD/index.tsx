@@ -8,18 +8,8 @@ const txt = `
   - dbzoseh84@gmail.com
   - 디지털 포렌식, 보안, 웹
 
-## 릴리즈 노트
+  [haha](/markdown/relase)
 
-### v2024.05.24-demo
-  - 사이트 디자인 웹앱 형식으로 리뉴얼
-  - HexViewer 추가
-
-## 기술 스택
-  - Typescript
-  - Javascript
-  - Go
-  - React
-  - WASM
 
 ## 소스 코드
   - [Github](https://github.com/ParkJeongKyun/ICE-frontend)
@@ -37,10 +27,30 @@ const txt = `
   - 모바일 디자인 추가
 `;
 
+const reltext = `
+## 릴리즈 노트
+
+### v2024.05.24-demo
+  - 사이트 디자인 웹앱 형식으로 리뉴얼
+  - HexViewer 추가
+
+## 기술 스택
+  - Typescript
+  - Javascript
+  - Go
+  - React
+  - WASM
+`;
+
 const AboutMD: React.FC = () => {
   return (
     <>
-      <ICEMarkDown markdownText={txt} />
+      <ICEMarkDown
+        defaultText={txt}
+        childTexts={{
+          relase: reltext,
+        }}
+      />
     </>
   );
 };

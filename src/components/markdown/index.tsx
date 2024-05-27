@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Markdown from 'react-markdown';
 import styled from 'styled-components';
 
 export interface Props {
-  markdownText: string;
+  defaultText: string;
+  childTexts?: { [key: string]: string };
 }
 
 // 링크 랜더링 커스텀
@@ -18,25 +19,59 @@ interface ImageRendererProps {
   alt?: string;
 }
 
-const ICEMarkDown: React.FC<Props> = ({ markdownText }) => {
+const ICEMarkDown: React.FC<Props> = ({ defaultText, childTexts }) => {
+  const [markdownText, setMarkdownText] = useState<string>(defaultText);
+
+  // 기본 텍스트로 변경
+  const setDefaultText = () => {
+    setMarkdownText(defaultText);
+  };
+
+  // 자식 텍스트로 변경
+  const setChildText = (key: string) => {
+    if (key && childTexts && childTexts[key]) {
+      setMarkdownText(childTexts[key]);
+    }
+  };
+
+  // 이미지 태그 커스텀 랜더링
   const ImageRenderer: React.FC<ImageRendererProps> = ({ src, alt }) => {
     return <img src={src} alt={alt} />;
   };
 
-  const LinkRenderer: React.FC<LinkRendererProps> = ({ href, children }) => (
-    <a href={href} target="_blank" rel="noopener noreferrer">
-      {children}
-    </a>
-  );
+  // 링크 태그 커스텀 랜더링
+  const LinkRenderer: React.FC<LinkRendererProps> = ({ href, children }) => {
+    // 마크다운 링크
+    return href?.startsWith('/markdown/') ? (
+      <MarkDownLink
+        onClick={() => {
+          setChildText(href.split('/markdown/')[1] || '');
+        }}
+      >
+        {children}
+      </MarkDownLink>
+    ) : (
+      // 실제 링크
+      <a href={href} target="_blank" rel="noopener noreferrer">
+        {children}
+      </a>
+    );
+  };
 
+  // 커스텀 컴포넌트
   const components = {
-    // LinkRenderer를 JSX 요소로 사용할 수 있는 타입으로 명시적으로 지정
+    // 링크
     a: (props: LinkRendererProps) => <LinkRenderer {...props} />,
+    // 이미지
     img: (props: ImageRendererProps) => <ImageRenderer {...props} />,
   };
 
   return (
     <MarkdownContainer>
+      {/* 기본 텍스트로 변경 */}
+      {markdownText != defaultText && (
+        <SetDefaultBtn onClick={setDefaultText}>돌아가기</SetDefaultBtn>
+      )}
       <MarkDownDiv>
         <Markdown components={components}>{markdownText}</Markdown>
       </MarkDownDiv>
@@ -46,6 +81,7 @@ const ICEMarkDown: React.FC<Props> = ({ markdownText }) => {
 
 export default ICEMarkDown;
 
+// 메인 컨테이너
 const MarkdownContainer = styled.div`
   overflow-y: auto;
   text-align: left;
@@ -57,6 +93,23 @@ const MarkdownContainer = styled.div`
   max-height: 500px;
 `;
 
+// 기본 텍스트로 변경 버튼
+const SetDefaultBtn = styled.div`
+  color: var(--ice-main-color);
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+`;
+
+// 마크다운 링크
+const MarkDownLink = styled.span`
+  color: var(--ice-main-color);
+  text-decoration: underline;
+  cursor: pointer;
+`;
+
+// 마크다운 컨테이너
 export const MarkDownDiv = styled.div`
   font-size: 12px;
   line-height: 1.6;

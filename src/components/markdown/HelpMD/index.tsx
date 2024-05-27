@@ -31,7 +31,7 @@ const txt = `
 const HelpMD: React.FC = () => {
   return (
     <>
-      <ICEMarkDown markdownText={txt} />
+      <ICEMarkDown defaultText={txt} />
     </>
   );
 };
