@@ -1,3 +1,4 @@
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   IceContent,
   IceFooter,
@@ -8,8 +9,8 @@ import {
   IceRightSider,
   LogoDiv,
   LogoImage,
+  Separator,
 } from './index.styles';
-import { useEffect, useMemo, useRef, useState } from 'react';
 import { TabData, TabItem, TabKey } from 'types';
 import MenuBtnZone from '../components/MenuBtnZone';
 import TabWindow from '../components/TabWindow';
@@ -17,7 +18,7 @@ import ExifRowViewer from '../components/ExifRowViewer';
 import Modal from 'components/common/Modal';
 import AboutMD from 'components/markdown/AboutMD';
 import HelpMD from 'components/markdown/HelpMD';
-import Resizable from 'react-resizable-layout';
+import Resizable, { useResizable } from 'react-resizable-layout';
 
 const MainLayout: React.FC = () => {
   // Tab 데이터
@@ -90,12 +91,15 @@ const MainLayout: React.FC = () => {
     document.body.classList.remove('disable-select');
   };
 
-  // 테스트용 콘솔 출력
-  // console.log('============================');
-  // console.log('item', items);
-  // console.log('datas', datas);
-  // console.log('newTabIndex.current', newTabIndex.current);
-  // console.log('activeKey', activeKey);
+  const minLeftSiderWidth = 100;
+  const { position: leftSidePostion, separatorProps: leftSideSepProps } =
+    useResizable({
+      axis: 'x',
+      initial: minLeftSiderWidth * 3,
+      max: minLeftSiderWidth * 5,
+      onResizeStart: handleResizeStart,
+      onResizeEnd: handleResizeEnd,
+    });
 
   return (
     <IceMainLayout>
@@ -113,39 +117,26 @@ const MainLayout: React.FC = () => {
         />
       </IceHeader>
 
-      <IceLayout style={{ display: 'flex', height: '100%' }}>
-        <Resizable
-          axis={'x'}
-          onResizeStart={handleResizeStart}
-          onResizeEnd={handleResizeEnd}
+      <IceLayout>
+        <IceLeftSider
+          style={{
+            width: Math.max(leftSidePostion, minLeftSiderWidth),
+            display: leftSidePostion < minLeftSiderWidth ? 'none' : 'block',
+          }}
         >
-          {({ position, separatorProps }) => (
-            <>
-              <IceLeftSider style={{ width: position, maxWidth: '400px' }}>
-                <ExifRowViewer activeKey={activeKey} datas={datas} />
-              </IceLeftSider>
-              <div
-                {...separatorProps}
-                style={{
-                  width: '1px',
-                  cursor: 'col-resize',
-                  backgroundColor: 'var(--main-line-color)',
-                  zIndex: 1,
-                }}
-              />
-              <IceContent style={{ flex: 1 }}>
-                <TabWindow
-                  items={items}
-                  activeKey={activeKey}
-                  setActiveKey={setActiveKey}
-                  setDatas={setDatas}
-                  setItems={setItems}
-                />
-              </IceContent>
-              {/* <IceRightSider /> */}
-            </>
-          )}
-        </Resizable>
+          <ExifRowViewer activeKey={activeKey} datas={datas} />
+        </IceLeftSider>
+        <Separator {...leftSideSepProps} />
+        <IceContent>
+          <TabWindow
+            items={items}
+            activeKey={activeKey}
+            setActiveKey={setActiveKey}
+            setDatas={setDatas}
+            setItems={setItems}
+          />
+        </IceContent>
+        {/* <IceRightSider /> */}
       </IceLayout>
 
       <IceFooter>

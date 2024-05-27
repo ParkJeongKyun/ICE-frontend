@@ -11,12 +11,13 @@ export const ContentDiv = styled.div`
 `;
 
 export const ThumbDiv = styled.div`
+  width: 100%;
   text-align: center;
   align-items: center;
 `;
 
 export const Thumbnail = styled.img`
-  max-width: 380px;
+  max-width: 100%;
   max-height: 150px;
   border: 1px solid var(--main-line-color);
 `;

@@ -55,12 +55,31 @@ export const IceLayout = styled.div`
   display: flex;
 `;
 
+// 크기 조절 바
+export const Separator = styled.div`
+  width: 1px;
+  cursor: col-resize;
+  background-color: var(--main-line-color);
+  position: relative;
+  z-index: 1;
+
+  &:hover::before {
+    background-color: var(--ice-main-color);
+    content: '';
+    height: 100%;
+    left: -1.5px; /* Adjust this value to center the thicker line */
+    position: absolute;
+    top: 0;
+    width: 5px;
+    z-index: -1; /* Ensure the pseudo-element is behind the actual separator */
+  }
+`;
+
 // 왼쪽 사이드바
 export const IceLeftSider = styled.div`
   background-color: var(--main-bg-color);
   color: var(--main-color);
   overflow: auto; /* 내용이 넘치면 스크롤 생기도록 */
-  width: 400px; /* 사이드바 너비 조정 */
 `;
 
 // 중간 부분
