@@ -117,7 +117,7 @@ export const IceContent = styled.div`
   display: block;
   background-color: var(--main-bg-color);
   color: var(--main-color);
-  overflow: auto;
+  overflow: hidden;
   flex-grow: 1;
 `;
 

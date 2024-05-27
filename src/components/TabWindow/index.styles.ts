@@ -6,6 +6,7 @@ export const TabWindowContainer = styled.div`
   flex-direction: column;
   height: 100%;
   width: 100%;
+  overflow: hidden;
   min-width: 570px;
 `;
 
@@ -61,5 +62,5 @@ export const CloseBtn = styled.div<{ $active: boolean }>`
 export const TabContentContainer = styled.div`
   flex-grow: 1; // 남는 부분을 전부 차지
   padding: 0px;
-  overflow: auto; // 콘텐츠가 많을 경우 스크롤
+  overflow: hidden; // 콘텐츠가 많을 경우 스크롤
 `;
