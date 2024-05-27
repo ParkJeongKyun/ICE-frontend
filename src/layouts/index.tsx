@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
+  FlexGrow,
   IceContent,
   IceFooter,
   IceHeader,
@@ -82,33 +83,28 @@ const MainLayout: React.FC = () => {
     loadWebAssembly();
   }, []);
 
-  // Add and remove class to disable text selection during resizing
-  const handleResizeStart = () => {
-    document.body.classList.add('disable-select');
-  };
-
-  const handleResizeEnd = () => {
-    document.body.classList.remove('disable-select');
-  };
-
-  const minLeftSiderWidth = 100;
-  const { position: leftSidePostion, separatorProps: leftSideSepProps } =
-    useResizable({
-      axis: 'x',
-      initial: minLeftSiderWidth * 3.5,
-      max: minLeftSiderWidth * 5,
-      onResizeStart: handleResizeStart,
-      onResizeEnd: handleResizeEnd,
-    });
-  const { position: contentPostion, separatorProps: contentSepProps } =
-    useResizable({
-      axis: 'x',
-      onResizeStart: handleResizeStart,
-      onResizeEnd: handleResizeEnd,
-    });
+  const minSiderWidth = 100;
+  const {
+    isDragging: isLeftSideDragging,
+    position: leftSidePostion,
+    separatorProps: leftSideSepProps,
+  } = useResizable({
+    axis: 'x',
+    initial: minSiderWidth * 3.5,
+    max: minSiderWidth * 5,
+  });
+  const {
+    isDragging: isRightSideDragging,
+    position: rightSidePostion,
+    separatorProps: rightSideSepProps,
+  } = useResizable({
+    axis: 'x',
+    reverse: true,
+    max: minSiderWidth * 3,
+  });
 
   return (
-    <IceMainLayout>
+    <IceMainLayout $isResizing={isLeftSideDragging || isRightSideDragging}>
       <IceHeader>
         <LogoDiv>
           <LogoImage src={'pullLogo.png'} />
@@ -126,28 +122,36 @@ const MainLayout: React.FC = () => {
       <IceLayout>
         <IceLeftSider
           style={{
-            width: Math.max(leftSidePostion, minLeftSiderWidth),
-            display: leftSidePostion < minLeftSiderWidth ? 'none' : 'block',
+            width: `${leftSidePostion}px`,
+            display: leftSidePostion < minSiderWidth ? 'none' : 'block',
           }}
         >
           <ExifRowViewer activeKey={activeKey} datas={datas} />
         </IceLeftSider>
-        <Separator {...leftSideSepProps} />
-        <IceContent
-          style={{
-            width: contentPostion - leftSidePostion,
-          }}
-        >
-          <TabWindow
-            items={items}
-            activeKey={activeKey}
-            setActiveKey={setActiveKey}
-            setDatas={setDatas}
-            setItems={setItems}
+        <Separator {...leftSideSepProps} $isResizing={isLeftSideDragging} />
+
+        <FlexGrow>
+          <IceContent>
+            <TabWindow
+              items={items}
+              activeKey={activeKey}
+              setActiveKey={setActiveKey}
+              setDatas={setDatas}
+              setItems={setItems}
+            />
+          </IceContent>
+          <Separator
+            {...rightSideSepProps}
+            $reverse={true}
+            $isResizing={isRightSideDragging}
           />
-        </IceContent>
-        <Separator {...contentSepProps} />
-        <IceRightSider />
+          <IceRightSider
+            style={{
+              width: `${rightSidePostion}px`,
+              display: rightSidePostion < minSiderWidth ? 'none' : 'block',
+            }}
+          />
+        </FlexGrow>
       </IceLayout>
 
       <IceFooter>

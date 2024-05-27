@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 // 메인 레이아웃
-export const IceMainLayout = styled.div`
+export const IceMainLayout = styled.div<{ $isResizing: boolean }>`
   height: 100vh;
   background-color: var(--main-bg-color);
   color: var(--main-color);
@@ -9,6 +9,8 @@ export const IceMainLayout = styled.div`
   overflow: hidden; /* 스크롤 숨기기 */
   display: flex;
   flex-direction: column;
+  /* 리사이즈 중일때는 선택 불가 */
+  ${(props) => (props.$isResizing ? 'user-select: none;' : '')};
 `;
 
 // 로고
@@ -50,13 +52,16 @@ export const IceFooter = styled.div`
 export const IceLayout = styled.div`
   background-color: var(--main-bg-color);
   color: var(--main-color);
-  flex: 1; /* 중간 컨텐츠 레이아웃이 남은 공간을 차지하도록 */
+  flex: 1;
   overflow: hidden; /* 스크롤 숨기기 */
   display: flex;
 `;
 
 // 크기 조절 바
-export const Separator = styled.div`
+export const Separator = styled.div<{
+  $reverse?: boolean;
+  $isResizing: boolean;
+}>`
   width: 1px;
   cursor: col-resize;
   background-color: var(--main-line-color);
@@ -67,32 +72,60 @@ export const Separator = styled.div`
     background-color: var(--ice-main-color);
     content: '';
     height: 100%;
-    left: -1.5px; /* Adjust this value to center the thicker line */
+    ${(props) => (props.$reverse ? 'right: 1.5px;' : 'left: -1.5px;')};
     position: absolute;
     top: 0;
     width: 5px;
     z-index: -1; /* Ensure the pseudo-element is behind the actual separator */
   }
+
+  /* 리사이즈 중일때 스타일 */
+  ${(props) =>
+    props.$isResizing &&
+    `
+    &::before {
+      background-color: var(--ice-main-color);
+      content: '';
+      height: 100%;
+      ${props.$reverse ? 'right: 1.5px;' : 'left: -1.5px;'};
+      position: absolute;
+      top: 0;
+      width: 5px;
+      z-index: -1; /* Ensure the pseudo-element is behind the actual separator */
+    }
+  `}
 `;
 
 // 왼쪽 사이드바
 export const IceLeftSider = styled.div`
+  display: grid;
   background-color: var(--main-bg-color);
   color: var(--main-color);
   overflow: auto; /* 내용이 넘치면 스크롤 생기도록 */
+  flex-shrink: 0;
+`;
+
+// 크기조절을 위한 div
+export const FlexGrow = styled.div`
+  display: flex;
+  flex-grow: 1;
+  overflow: hidden;
 `;
 
 // 중간 부분
 export const IceContent = styled.div`
+  display: block;
   background-color: var(--main-bg-color);
   color: var(--main-color);
-  overflow: auto; /* 내용이 넘치면 스크롤 생기도록 */
-  width: 100%;
+  overflow: auto;
+  flex-grow: 1;
 `;
 
 // 오른쪽 사이드바
 export const IceRightSider = styled.div`
+  display: grid;
   background-color: var(--main-bg-color);
   color: var(--main-color);
   overflow: auto; /* 내용이 넘치면 스크롤 생기도록 */
+  flex-shrink: 0;
 `;
