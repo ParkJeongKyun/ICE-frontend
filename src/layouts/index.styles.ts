@@ -101,7 +101,7 @@ export const IceLeftSider = styled.div`
   display: grid;
   background-color: var(--main-bg-color);
   color: var(--main-color);
-  overflow: auto; /* 내용이 넘치면 스크롤 생기도록 */
+  overflow: hidden; /* 내용이 넘치면 스크롤 생기도록 */
   flex-shrink: 0;
 `;
 
@@ -126,6 +126,6 @@ export const IceRightSider = styled.div`
   display: grid;
   background-color: var(--main-bg-color);
   color: var(--main-color);
-  overflow: auto; /* 내용이 넘치면 스크롤 생기도록 */
+  overflow: hidden; /* 내용이 넘치면 스크롤 생기도록 */
   flex-shrink: 0;
 `;
