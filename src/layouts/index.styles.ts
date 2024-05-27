@@ -86,11 +86,8 @@ export const IceLeftSider = styled.div`
 export const IceContent = styled.div`
   background-color: var(--main-bg-color);
   color: var(--main-color);
-  flex: 1; /* 중간 부분이 남은 공간을 차지하도록 */
   overflow: auto; /* 내용이 넘치면 스크롤 생기도록 */
-  border-left: 1px solid var(--main-line-color);
-  border-right: 1px solid var(--main-line-color);
-  max-width: 650px;
+  width: 100%;
 `;
 
 // 오른쪽 사이드바
@@ -98,5 +95,4 @@ export const IceRightSider = styled.div`
   background-color: var(--main-bg-color);
   color: var(--main-color);
   overflow: auto; /* 내용이 넘치면 스크롤 생기도록 */
-  width: 300px; /* 사이드바 너비 조정 */
 `;

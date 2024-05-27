@@ -18,7 +18,7 @@ import ExifRowViewer from '../components/ExifRowViewer';
 import Modal from 'components/common/Modal';
 import AboutMD from 'components/markdown/AboutMD';
 import HelpMD from 'components/markdown/HelpMD';
-import Resizable, { useResizable } from 'react-resizable-layout';
+import { useResizable } from 'react-resizable-layout';
 
 const MainLayout: React.FC = () => {
   // Tab 데이터
@@ -95,8 +95,14 @@ const MainLayout: React.FC = () => {
   const { position: leftSidePostion, separatorProps: leftSideSepProps } =
     useResizable({
       axis: 'x',
-      initial: minLeftSiderWidth * 3,
+      initial: minLeftSiderWidth * 3.5,
       max: minLeftSiderWidth * 5,
+      onResizeStart: handleResizeStart,
+      onResizeEnd: handleResizeEnd,
+    });
+  const { position: contentPostion, separatorProps: contentSepProps } =
+    useResizable({
+      axis: 'x',
       onResizeStart: handleResizeStart,
       onResizeEnd: handleResizeEnd,
     });
@@ -127,7 +133,11 @@ const MainLayout: React.FC = () => {
           <ExifRowViewer activeKey={activeKey} datas={datas} />
         </IceLeftSider>
         <Separator {...leftSideSepProps} />
-        <IceContent>
+        <IceContent
+          style={{
+            width: contentPostion - leftSidePostion,
+          }}
+        >
           <TabWindow
             items={items}
             activeKey={activeKey}
@@ -136,7 +146,8 @@ const MainLayout: React.FC = () => {
             setItems={setItems}
           />
         </IceContent>
-        {/* <IceRightSider /> */}
+        <Separator {...contentSepProps} />
+        <IceRightSider />
       </IceLayout>
 
       <IceFooter>
