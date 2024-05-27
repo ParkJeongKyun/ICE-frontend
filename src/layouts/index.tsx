@@ -103,8 +103,10 @@ const MainLayout: React.FC = () => {
     max: minSiderWidth * 3,
   });
 
+  const isResizing = isLeftSideDragging || isRightSideDragging;
+
   return (
-    <IceMainLayout $isResizing={isLeftSideDragging || isRightSideDragging}>
+    <IceMainLayout $isResizing={isResizing}>
       <IceHeader>
         <LogoDiv>
           <LogoImage src={'pullLogo.png'} />
