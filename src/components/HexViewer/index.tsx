@@ -4,6 +4,7 @@ import {
   HexByte,
   HexCell,
   ListDiv,
+  OffsetByte,
   OffsetCell,
   Row,
   TextByte,
@@ -75,6 +76,13 @@ const HexViewer: React.FC<Props> = ({ arrayBuffer }) => {
   }) => {
     const { offset, bytes, start } = getRowData({ index });
 
+    const selected =
+      isDragging &&
+      startByteIndex !== null &&
+      endByteIndex !== null &&
+      start <= Math.max(startByteIndex, endByteIndex) &&
+      start + bytesPerRow - 1 >= Math.min(startByteIndex, endByteIndex);
+
     const hexRow: JSX.Element[] = [];
     const textRow: JSX.Element[] = [];
 
@@ -112,7 +120,9 @@ const HexViewer: React.FC<Props> = ({ arrayBuffer }) => {
 
     return (
       <Row key={key} style={style}>
-        <OffsetCell>{offset}</OffsetCell>
+        <OffsetCell>
+          <OffsetByte $selected={selected}>{offset}</OffsetByte>
+        </OffsetCell>
         <HexCell>{hexRow}</HexCell>
         <TextCell>{textRow}</TextCell>
       </Row>
