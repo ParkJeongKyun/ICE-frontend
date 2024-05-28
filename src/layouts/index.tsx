@@ -103,6 +103,7 @@ const MainLayout: React.FC = () => {
     separatorProps: rightSideSepProps,
   } = useResizable({
     axis: 'x',
+    initial: minSiderWidth * 2.5,
     reverse: true,
     max: minSiderWidth * 3,
   });
@@ -130,12 +131,21 @@ const MainLayout: React.FC = () => {
         <IceLeftSider
           style={{
             width: `${leftSidePostion}px`,
-            display: leftSidePostion < minSiderWidth ? 'none' : 'block',
+            display:
+              leftSidePostion < minSiderWidth || items.length <= 0
+                ? 'none'
+                : 'block',
           }}
         >
           <ExifRowViewer activeKey={activeKey} datas={datas} />
         </IceLeftSider>
-        <Separator {...leftSideSepProps} $isResizing={isLeftSideDragging} />
+        <Separator
+          {...leftSideSepProps}
+          $isResizing={isLeftSideDragging}
+          style={{
+            display: items.length <= 0 ? 'none' : 'block',
+          }}
+        />
 
         <FlexGrow>
           <IceContent>
@@ -151,11 +161,17 @@ const MainLayout: React.FC = () => {
             {...rightSideSepProps}
             $reverse={true}
             $isResizing={isRightSideDragging}
+            style={{
+              display: items.length <= 0 ? 'none' : 'block',
+            }}
           />
           <IceRightSider
             style={{
               width: `${rightSidePostion}px`,
-              display: rightSidePostion < minSiderWidth ? 'none' : 'block',
+              display:
+                rightSidePostion < minSiderWidth || items.length <= 0
+                  ? 'none'
+                  : 'block',
             }}
           >
             <Searcher hexViewerRef={hexViewerRef} />
