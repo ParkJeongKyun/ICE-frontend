@@ -63,6 +63,7 @@ export const HexByte = styled.span<{ $isEven: boolean; $selected: boolean }>`
   padding: 3px 2px;
   text-align: center;
   width: 2ch;
+
   /* 텍스트 색변경 */
   ${(props) =>
     props.$isEven ? 'color: var(--main-color);' : 'color: var(--main-color_1);'}
