@@ -1,4 +1,10 @@
-import React, { useMemo, useState, useCallback } from 'react';
+import React, {
+  useMemo,
+  useState,
+  useCallback,
+  forwardRef,
+  useImperativeHandle,
+} from 'react';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import {
   HexByte,
@@ -10,9 +16,14 @@ import {
   TextByte,
   TextCell,
 } from './index.styles';
+import { List } from 'react-virtualized';
 
 interface Props {
   arrayBuffer: ArrayBuffer;
+}
+
+export interface HexViewerRef {
+  scrollToRowByOffset: (offset: string) => void;
 }
 
 const byteToHex = (byte: number): string => {
@@ -26,7 +37,13 @@ const byteToChar = (byte: number): string => {
   return '.';
 };
 
-const HexViewer: React.FC<Props> = ({ arrayBuffer }) => {
+const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
+  { arrayBuffer },
+  ref
+) => {
+  // 가상 테이블 레퍼런스
+  const listRef = React.useRef<List>(null);
+
   // 드래그 관련 변수
   const [isDragging, setIsDragging] = useState(false);
   const [startByteIndex, setStartByteIndex] = useState<number | null>(null);
@@ -34,6 +51,7 @@ const HexViewer: React.FC<Props> = ({ arrayBuffer }) => {
 
   // 분할용 변수
   const bytesPerRow = 16;
+  const rowHeight = 22;
   const buffer = useMemo(() => new Uint8Array(arrayBuffer), [arrayBuffer]);
   const rowCount = Math.ceil(buffer.length / bytesPerRow);
 
@@ -128,6 +146,22 @@ const HexViewer: React.FC<Props> = ({ arrayBuffer }) => {
     );
   };
 
+  useImperativeHandle(ref, () => ({
+    scrollToRowByOffset: (offset: string) => {
+      if (offset.trim()) {
+        // 16진수 오프셋을 10진수 바이트 인덱스로 변환
+        const byteOffset = parseInt(offset, 16);
+        if (byteOffset) {
+          // 해당 바이트 오프셋에 해당하는 행 인덱스로 변환
+          const rowIndex = Math.floor(byteOffset / bytesPerRow);
+          listRef.current?.scrollToRow(rowIndex);
+          setStartByteIndex(rowIndex * bytesPerRow);
+          setEndByteIndex(rowIndex * bytesPerRow + bytesPerRow - 1);
+        }
+      }
+    },
+  }));
+
   return (
     <AutoSizer>
       {({ height, width }: { height: number; width: number }) => (
@@ -135,12 +169,13 @@ const HexViewer: React.FC<Props> = ({ arrayBuffer }) => {
           width={width}
           height={height}
           rowCount={rowCount}
-          rowHeight={22} // 각 행의 높이를 22으로 고정
+          rowHeight={rowHeight} // 각 행의 높이를 22으로 고정
           rowRenderer={rowRenderer}
+          ref={listRef}
         />
       )}
     </AutoSizer>
   );
 };
 
-export default HexViewer;
+export default React.forwardRef(HexViewer);

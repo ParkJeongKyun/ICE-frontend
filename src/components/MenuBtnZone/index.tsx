@@ -1,4 +1,4 @@
-import HexViewer from 'components/HexViewer';
+import HexViewer, { HexViewerRef } from 'components/HexViewer';
 import { ChangeEvent, useRef } from 'react';
 import styled from 'styled-components';
 import MenuBtn from '../common/MenuBtn';
@@ -21,6 +21,7 @@ const MenuBtnZone: React.FC<Props> = ({
   setActiveKey,
   openModal,
 }) => {
+  const hexViewerRef = useRef<HexViewerRef>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const handleOpenClick = () => {
     if (fileInputRef.current) {
@@ -45,7 +46,11 @@ const MenuBtnZone: React.FC<Props> = ({
           const newTab = {
             label: file.name,
             children: (
-              <>{arrayBuffer && <HexViewer arrayBuffer={arrayBuffer} />}</>
+              <>
+                {arrayBuffer && (
+                  <HexViewer arrayBuffer={arrayBuffer} ref={hexViewerRef} />
+                )}
+              </>
             ),
             key: newActiveKey,
           };
