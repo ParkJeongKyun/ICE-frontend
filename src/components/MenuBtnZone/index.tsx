@@ -1,5 +1,5 @@
 import HexViewer, { HexViewerRef } from 'components/HexViewer';
-import { ChangeEvent, useRef } from 'react';
+import { ChangeEvent, Ref, useRef } from 'react';
 import styled from 'styled-components';
 import MenuBtn from '../common/MenuBtn';
 import { ExifRow, TabData, TabItem, TabKey } from 'types';
@@ -7,6 +7,7 @@ import { getAddress, isValidLocation } from 'utils/getAddress';
 import Tooltip from 'components/common/Tooltip';
 
 interface Props {
+  hexViewerRef: Ref<HexViewerRef>;
   newTabIndex: React.MutableRefObject<number>;
   setDatas: React.Dispatch<React.SetStateAction<TabData>>;
   setItems: React.Dispatch<React.SetStateAction<TabItem[]>>;
@@ -15,13 +16,13 @@ interface Props {
 }
 
 const MenuBtnZone: React.FC<Props> = ({
+  hexViewerRef,
   newTabIndex,
   setDatas,
   setItems,
   setActiveKey,
   openModal,
 }) => {
-  const hexViewerRef = useRef<HexViewerRef>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const handleOpenClick = () => {
     if (fileInputRef.current) {

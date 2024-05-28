@@ -20,8 +20,12 @@ import Modal from 'components/common/Modal';
 import AboutMD from 'components/markdown/AboutMD';
 import HelpMD from 'components/markdown/HelpMD';
 import { useResizable } from 'react-resizable-layout';
+import Searcher from 'components/Searcher';
+import { HexViewerRef } from 'components/HexViewer';
 
 const MainLayout: React.FC = () => {
+  // Hex뷰어 Ref
+  const hexViewerRef = useRef<HexViewerRef>(null);
   // Tab 데이터
   const newTabIndex = useRef(0);
   const [activeKey, setActiveKey] = useState<TabKey>(0);
@@ -113,6 +117,7 @@ const MainLayout: React.FC = () => {
         </LogoDiv>
 
         <MenuBtnZone
+          hexViewerRef={hexViewerRef}
           newTabIndex={newTabIndex}
           setDatas={setDatas}
           setItems={setItems}
@@ -152,7 +157,9 @@ const MainLayout: React.FC = () => {
               width: `${rightSidePostion}px`,
               display: rightSidePostion < minSiderWidth ? 'none' : 'block',
             }}
-          />
+          >
+            <Searcher hexViewerRef={hexViewerRef} />
+          </IceRightSider>
         </FlexGrow>
       </IceLayout>
 
