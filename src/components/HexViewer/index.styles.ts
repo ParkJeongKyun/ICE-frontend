@@ -2,8 +2,7 @@ import { List } from 'react-virtualized';
 import styled from 'styled-components';
 
 export const ListDiv = styled(List)`
-  padding-top: 10px;
-  padding-bottom: 10px;
+  padding: 10px;
   /* 선택 비활성화 */
   user-select: none;
 `;
@@ -13,28 +12,32 @@ export const Row = styled.div`
   font-family: monospace;
   text-align: center;
   align-items: center;
+  gap: 0px 10px;
 `;
 
 export const OffsetCell = styled.div`
-  width: 80px;
   color: var(--ice-main-color);
 `;
 
 export const HexCell = styled.div`
   display: flex;
   flex-wrap: wrap;
-  width: 320px;
+  text-align: center;
+  align-items: center;
 `;
 
 export const TextCell = styled.div`
-  width: 160px;
+  display: flex;
+  text-align: center;
+  align-items: center;
 `;
 
 export const HexByte = styled.span<{ $selected: boolean }>`
   cursor: text;
   display: inline-block;
+  min-height: 17px;
   width: 2ch;
-  margin: 2px;
+  padding: 2px;
   text-align: center;
 
   /* 선택된 셀 */
@@ -42,15 +45,18 @@ export const HexByte = styled.span<{ $selected: boolean }>`
     props.$selected &&
     `
       background-color: var(--main-hover-color);
-      color: var(--ice-main-color)`}
+      color: var(--ice-main-color)
+    `}
 `;
 
 export const TextByte = styled.span<{ $isDot: boolean; $selected: boolean }>`
   cursor: text;
   display: inline-block;
+  min-height: 17px;
   width: 1ch;
-  margin: 1px;
+  padding: 2px 1px;
   text-align: center;
+
   /* 선택된 셀 */
   ${(props) => props.$selected && 'background-color: var(--main-hover-color);'}
   /* 점인 경우 */
