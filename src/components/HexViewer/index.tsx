@@ -77,7 +77,6 @@ const HexViewer: React.FC<Props> = ({ arrayBuffer }) => {
     const { offset, bytes, start } = getRowData({ index });
 
     const selected =
-      isDragging &&
       startByteIndex !== null &&
       endByteIndex !== null &&
       start <= Math.max(startByteIndex, endByteIndex) &&
@@ -89,7 +88,6 @@ const HexViewer: React.FC<Props> = ({ arrayBuffer }) => {
     bytes.forEach((byte: number, i: number) => {
       const byteIndex = start + i;
       const selected =
-        isDragging &&
         byteIndex >= Math.min(startByteIndex!, endByteIndex!) &&
         byteIndex <= Math.max(startByteIndex!, endByteIndex!);
       hexRow.push(
