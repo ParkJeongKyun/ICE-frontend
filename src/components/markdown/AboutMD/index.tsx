@@ -1,11 +1,17 @@
 import ICEMarkDown from '..';
 
 const txt = `
-# v2024.05.07-demo
+
+안녕하세요! 사이트 개발자 균입니다. 😎   
+방문해주셔서 감사합니다.     
+제가 만든 사이트가 누군가에게 도움이 되었으면 좋겠네요.    
+항상 건강하세요! 😁
+# 현재 버전 : v2024.05.29-demo
+
 ## 개발자 
 박정균 (Park Jeong-Kyun)
   - 2001. 02. 23
-  - 한국(ROK, Republic of Korea), 서울(Seoul)
+  - 한국(ROK, Republic of Korea), 서울(Seoul), 대구(Deagu)
   - dbzoseh84@gmail.com
   - 디지털 포렌식, 보안, 웹
 
@@ -29,13 +35,18 @@ const txt = `
 const relase_txt = `
 ## 릴리즈 노트
 
-### v2024.05.07-demo
+### v2024.05.29-demo
+  - 헥스 뷰어 디자인 수정
+  - 헥스 뷰어 오프셋 검색 기능
+  - 헥스 뷰어 선택 기능 추가
+
+### v2024.05.27-demo
   - 레아아웃 조절 기능 추가
   - 마크다운 뷰어 기능 수정
 
 ### v2024.05.24-demo
   - 사이트 디자인 웹앱 형식으로 리뉴얼
-  - HexViewer 기능 추가
+  - 헥스 뷰어 기능 추가
 
 ### v2023.07.10
   - 구글 애널리틱스 추가
