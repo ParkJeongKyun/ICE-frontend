@@ -9,7 +9,9 @@ export const ListDiv = styled(List)`
 
 export const Row = styled.div`
   display: flex;
+  flex-wrap: nowrap;
   font-family: monospace;
+  font-weight: 600;
   text-align: center;
   align-items: center;
   gap: 0px 10px;
@@ -17,22 +19,22 @@ export const Row = styled.div`
 
 export const OffsetCell = styled.div`
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   text-align: center;
   align-items: center;
 `;
 
 export const HexCell = styled.div`
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   text-align: center;
-  width: 288px;
+  width: 320px;
   align-items: center;
 `;
 
 export const TextCell = styled.div`
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   text-align: center;
   align-items: center;
 `;
@@ -41,35 +43,37 @@ export const OffsetByte = styled.span<{ $selected: boolean }>`
   cursor: text;
   display: inline-block;
   min-height: 17px;
-  padding: 2px;
+  padding: 3px;
   text-align: center;
 
-  color: var(--ice-main-color_1);
-  font-weight: 400;
+  color: var(--ice-main-color_3);
   /* 선택된 셀 */
   ${(props) =>
     props.$selected &&
     `
       background-color: var(--main-hover-color);
-      color: var(--ice-main-color);
+      // color: var(--ice-main-color);
     `}
 `;
 
-export const HexByte = styled.span<{ $selected: boolean }>`
+export const HexByte = styled.span<{ $isEven: boolean; $selected: boolean }>`
   cursor: text;
   display: inline-block;
   min-height: 17px;
-  padding: 2px;
+  padding: 3px 2px;
   text-align: center;
   width: 2ch;
+  /* 텍스트 색변경 */
+  ${(props) =>
+    props.$isEven ? 'color: var(--main-color);' : 'color: var(--main-color_1);'}
 
   /* 선택된 셀 */
   ${(props) =>
     props.$selected &&
     `
-      background-color: var(--main-hover-color);
-      color: var(--ice-main-color)
-    `}
+    background-color: var(--main-hover-color);
+    color: var(--ice-main-color)
+  `}
 `;
 
 export const TextByte = styled.span<{ $isDot: boolean; $selected: boolean }>`
@@ -77,20 +81,20 @@ export const TextByte = styled.span<{ $isDot: boolean; $selected: boolean }>`
   display: inline-block;
   min-height: 17px;
   width: 1ch;
-  padding: 2px 1px;
+  padding: 3px 1px;
   text-align: center;
 
   /* 점인 경우 */
   ${(props) =>
     props.$isDot
       ? 'color: var(--main-disabled-color);'
-      : 'color: var(--ice-main-color_3);'}
+      : 'color: var(--main-color);'}
 
   /* 선택된 셀 */
   ${(props) =>
     props.$selected &&
     `
       background-color: var(--main-hover-color);
-      color: var(--ice-main-color)
+      color: var(--ice-main-color_2)
     `}
 `;

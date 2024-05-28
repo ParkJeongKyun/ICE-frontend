@@ -95,6 +95,7 @@ const HexViewer: React.FC<Props> = ({ arrayBuffer }) => {
       hexRow.push(
         <HexByte
           key={i}
+          $isEven={i % 2 === 0}
           $selected={selected}
           onMouseDown={() => handleMouseDown(byteIndex)}
           onMouseEnter={() => handleMouseMove(byteIndex)}
@@ -136,7 +137,7 @@ const HexViewer: React.FC<Props> = ({ arrayBuffer }) => {
           width={width}
           height={height}
           rowCount={rowCount}
-          rowHeight={30} // 각 행의 높이를 30으로 고정
+          rowHeight={22} // 각 행의 높이를 22으로 고정
           rowRenderer={rowRenderer}
         />
       )}
