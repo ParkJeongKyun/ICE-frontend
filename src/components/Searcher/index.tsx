@@ -1,5 +1,5 @@
 import Collapse from 'components/common/Collapse';
-import React, { Ref, useMemo } from 'react';
+import React from 'react';
 import {
   ContainerDiv,
   SearchDiv,
@@ -15,14 +15,18 @@ interface Props {
 const Searcher: React.FC<Props> = ({ hexViewerRef }) => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const inputValue = e.target.value;
-    const hexRegex = /^[0-9a-fA-F]*$/; // 허용할 문자열 정규표현식
+    const hexRegex = /^[0-9a-fA-F]*$/;
 
-    // 입력값이 허용할 문자열 정규표현식과 일치하지 않으면 입력을 막습니다.
-    if (!hexRegex.test(inputValue)) {
-      e.preventDefault();
-    } else {
-      hexViewerRef.current?.scrollToRowByOffset(inputValue);
-    }
+    const filteredValue = inputValue
+      .split('') // 문자열을 배열로 변환
+      .filter((char) => hexRegex.test(char)) // 정규표현식과 일치하는 문자만 필터링
+      .join(''); // 배열을 문자열로 다시 결합
+
+    // 필터링된 문자열을 입력값으로 설정합니다.
+    e.target.value = filteredValue;
+
+    // HexViewerRef로 스크롤 처리 등 추가 작업 수행 가능
+    hexViewerRef.current?.scrollToRowByOffset(filteredValue);
   };
 
   return (
@@ -33,7 +37,11 @@ const Searcher: React.FC<Props> = ({ hexViewerRef }) => {
           <>
             <SearchDiv>
               <SearchLabel>Offset</SearchLabel>
-              <SearchInput onChange={handleInputChange} />
+              <SearchInput
+                onChange={handleInputChange}
+                maxLength={8}
+                onFocus={handleInputChange}
+              />
             </SearchDiv>
           </>
         }
