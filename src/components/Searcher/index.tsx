@@ -14,20 +14,26 @@ interface Props {
 }
 
 const Searcher: React.FC<Props> = ({ hexViewerRef }) => {
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const inputValue = e.target.value;
+  const filterInput = (inputValue: string) => {
     const hexRegex = /^[0-9a-fA-F]*$/;
+    return inputValue.replace(new RegExp(`[^${hexRegex.source}]`, 'g'), '');
+  };
 
-    const filteredValue = inputValue
-      .split('') // 문자열을 배열로 변환
-      .filter((char) => hexRegex.test(char)) // 정규표현식과 일치하는 문자만 필터링
-      .join(''); // 배열을 문자열로 다시 결합
+  const handleInputChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputValue = filterInput(e.target.value);
+    const findIndex = await hexViewerRef.current?.findByOffset(inputValue);
+    if (findIndex)
+      hexViewerRef.current?.scrollToIndex(findIndex.index, findIndex.offset);
+  };
 
-    // 필터링된 문자열을 입력값으로 설정합니다.
-    e.target.value = filteredValue;
-
-    // HexViewerRef로 스크롤 처리 등 추가 작업 수행 가능
-    hexViewerRef.current?.scrollToRowByOffset(filteredValue);
+  const handleInputChange2 = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputValue = filterInput(e.target.value);
+    const findIndexs = await hexViewerRef.current?.findAllByHex(inputValue);
+    if (findIndexs && findIndexs.length > 0)
+      hexViewerRef.current?.scrollToIndex(
+        findIndexs[0].index,
+        findIndexs[0].offset
+      );
   };
 
   return (
@@ -44,6 +50,12 @@ const Searcher: React.FC<Props> = ({ hexViewerRef }) => {
                   maxLength={8}
                   onFocus={handleInputChange}
                 />
+              </SearchData>
+            </SearchDiv>
+            <SearchDiv>
+              <SearchLabel>Hex</SearchLabel>
+              <SearchData>
+                <SearchInput maxLength={8} onBlur={handleInputChange2} />
               </SearchData>
             </SearchDiv>
           </>

@@ -17,13 +17,21 @@ import {
   TextCell,
 } from './index.styles';
 import { List } from 'react-virtualized';
+import { boyerMooreSearchAll } from 'utils/byteSearch';
 
 interface Props {
   arrayBuffer: ArrayBuffer;
 }
 
+export interface IndexInfo {
+  index: number;
+  offset: number;
+}
+
 export interface HexViewerRef {
-  scrollToRowByOffset: (offset: string) => void;
+  findByOffset: (offset: string) => Promise<IndexInfo | null>;
+  findAllByHex: (hex: string) => Promise<IndexInfo[] | null>;
+  scrollToIndex: (rowIndex: number, offset: number) => void;
 }
 
 const byteToHex = (byte: number): string => {
@@ -136,7 +144,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
     });
 
     return (
-      <Row key={key} style={style}>
+      <Row key={offset} style={style}>
         <OffsetCell>
           <OffsetByte $selected={selected}>{offset}</OffsetByte>
         </OffsetCell>
@@ -146,21 +154,55 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
     );
   };
 
-  useImperativeHandle(ref, () => ({
-    scrollToRowByOffset: (offset: string) => {
+  useImperativeHandle(ref, () => {
+    // 오프셋 검색
+    const findByOffset = async (offset: string): Promise<IndexInfo | null> => {
       if (offset.trim()) {
-        // 16진수 오프셋을 10진수 바이트 인덱스로 변환
         const byteOffset = parseInt(offset, 16);
         if (byteOffset) {
-          // 해당 바이트 오프셋에 해당하는 행 인덱스로 변환
-          const rowIndex = Math.floor(byteOffset / bytesPerRow);
-          listRef.current?.scrollToRow(rowIndex);
-          setStartByteIndex(rowIndex * bytesPerRow);
-          setEndByteIndex(rowIndex * bytesPerRow + bytesPerRow - 1);
+          return {
+            index: byteOffset,
+            offset: bytesPerRow,
+          };
         }
       }
-    },
-  }));
+      return null;
+    };
+    // 헥스 값으로 찾기
+    const findAllByHex = async (hex: string): Promise<IndexInfo[] | null> => {
+      if (hex.trim()) {
+        try {
+          const pattern = new Uint8Array(
+            hex.match(/.{1,2}/g)?.map((byte) => parseInt(byte, 16)) || []
+          );
+          const result = boyerMooreSearchAll(buffer, pattern).map((item) => {
+            return {
+              index: item,
+              offset: pattern.length,
+            };
+          });
+
+          if (result.length > 0) return result;
+        } catch (e) {
+          return null;
+        }
+      }
+      return null;
+    };
+    // 해당 위치로 스크롤 및 선택하기
+    const scrollToIndex = (index: number, offset: number): void => {
+      const rowIndex = Math.floor(index / bytesPerRow);
+      listRef.current?.scrollToRow(rowIndex);
+      setStartByteIndex(index);
+      setEndByteIndex(index + offset - 1);
+    };
+
+    return {
+      findByOffset,
+      findAllByHex,
+      scrollToIndex,
+    };
+  });
 
   return (
     <AutoSizer>
