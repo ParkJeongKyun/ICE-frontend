@@ -17,7 +17,7 @@ import {
   TextCell,
 } from './index.styles';
 import { List } from 'react-virtualized';
-import { boyerMooreSearchAll } from 'utils/byteSearch';
+import { findPatternIndices } from 'utils/byteSearch';
 
 interface Props {
   arrayBuffer: ArrayBuffer;
@@ -175,7 +175,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
           const pattern = new Uint8Array(
             hex.match(/.{1,2}/g)?.map((byte) => parseInt(byte, 16)) || []
           );
-          const result = boyerMooreSearchAll(buffer, pattern).map((item) => {
+          const result = findPatternIndices(buffer, pattern).map((item) => {
             return {
               index: item,
               offset: pattern.length,
@@ -184,6 +184,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
 
           if (result.length > 0) return result;
         } catch (e) {
+          console.log(e);
           return null;
         }
       }

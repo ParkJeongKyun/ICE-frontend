@@ -1,76 +1,54 @@
-const createBadCharacterTable = (pattern: Uint8Array): number[] => {
-  const table = new Array(256).fill(pattern.length);
-  for (let i = 0; i < pattern.length - 1; i++) {
-    table[pattern[i]] = pattern.length - 1 - i;
-  }
-  return table;
-};
-
-const createGoodSuffixTable = (pattern: Uint8Array): number[] => {
-  const m = pattern.length;
-  const table = new Array(m).fill(m);
-  let lastPrefixIndex = m;
-
-  for (let i = m - 1; i >= 0; i--) {
-    if (isPrefix(pattern, i + 1)) {
-      lastPrefixIndex = i + 1;
-    }
-    table[m - 1 - i] = lastPrefixIndex - i + m - 1;
-  }
-
-  for (let i = 0; i < m - 1; i++) {
-    const slen = suffixLength(pattern, i);
-    table[slen] = m - 1 - i + slen;
-  }
-
-  return table;
-};
-
-const isPrefix = (pattern: Uint8Array, p: number): boolean => {
-  for (let i = p, j = 0; i < pattern.length - p; i++, j++) {
-    if (pattern[i] !== pattern[j]) {
-      return false;
-    }
-  }
-  return true;
-};
-
-const suffixLength = (pattern: Uint8Array, p: number): number => {
+function computeLPSArray(pattern: Uint8Array): number[] {
+  const lps: number[] = [];
+  lps[0] = 0;
   let len = 0;
-  for (
-    let i = p, j = pattern.length - 1;
-    i >= 0 && pattern[i] === pattern[j];
-    i--, j--
-  ) {
-    len++;
+  let i = 1;
+  while (i < pattern.length) {
+    if (pattern[i] === pattern[len]) {
+      len++;
+      lps[i] = len;
+      i++;
+    } else {
+      if (len !== 0) {
+        len = lps[len - 1];
+      } else {
+        lps[i] = 0;
+        i++;
+      }
+    }
   }
-  return len;
-};
+  return lps;
+}
 
-export const boyerMooreSearchAll = (
+// Knuth-Morris-Pratt(KMP) 알고리즘 이용
+export function findPatternIndices(
   array: Uint8Array,
   pattern: Uint8Array
-): number[] => {
-  const badCharTable = createBadCharacterTable(pattern);
-  const goodSuffixTable = createGoodSuffixTable(pattern);
-  const results: number[] = [];
-  let i = 0;
+): number[] {
+  const indices: number[] = [];
+  if (pattern.length === 0) return indices;
 
-  while (i <= array.length - pattern.length) {
-    let j = pattern.length - 1;
-    while (j >= 0 && pattern[j] === array[i + j]) {
-      j--;
+  const lps = computeLPSArray(pattern);
+  let i = 0; // index for array[]
+  let j = 0; // index for pattern[]
+  let count = 0; // count of pattern occurrences
+  while (i < array.length) {
+    if (pattern[j] === array[i]) {
+      i++;
+      j++;
     }
-    if (j < 0) {
-      results.push(i);
-      i +=
-        i + pattern.length < array.length
-          ? pattern.length - goodSuffixTable[0]
-          : 1;
-    } else {
-      i += Math.max(goodSuffixTable[j], j - badCharTable[array[i + j]]);
+    if (j === pattern.length) {
+      indices.push(i - j);
+      j = lps[j - 1];
+      count++;
+      if (count === 100) break; // Stop searching if maximum occurrences reached
+    } else if (i < array.length && pattern[j] !== array[i]) {
+      if (j !== 0) {
+        j = lps[j - 1];
+      } else {
+        i++;
+      }
     }
   }
-
-  return results;
-};
+  return indices;
+}

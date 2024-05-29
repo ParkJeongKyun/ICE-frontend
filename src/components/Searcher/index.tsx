@@ -21,19 +21,19 @@ const Searcher: React.FC<Props> = ({ hexViewerRef }) => {
 
   const handleInputChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const inputValue = filterInput(e.target.value);
-    const findIndex = await hexViewerRef.current?.findByOffset(inputValue);
-    if (findIndex)
-      hexViewerRef.current?.scrollToIndex(findIndex.index, findIndex.offset);
+    await hexViewerRef.current?.findByOffset(inputValue).then((res) => {
+      console.log(res);
+      if (res) hexViewerRef.current?.scrollToIndex(res.index, res.offset);
+    });
   };
 
   const handleInputChange2 = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const inputValue = filterInput(e.target.value);
-    const findIndexs = await hexViewerRef.current?.findAllByHex(inputValue);
-    if (findIndexs && findIndexs.length > 0)
-      hexViewerRef.current?.scrollToIndex(
-        findIndexs[0].index,
-        findIndexs[0].offset
-      );
+    await hexViewerRef.current?.findAllByHex(inputValue).then((res) => {
+      console.log(res);
+      if (res && res.length > 0)
+        hexViewerRef.current?.scrollToIndex(res[0].index, res[0].offset);
+    });
   };
 
   return (
