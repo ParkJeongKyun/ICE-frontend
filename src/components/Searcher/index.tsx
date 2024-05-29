@@ -1,5 +1,5 @@
 import Collapse from 'components/common/Collapse';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ButtonDiv,
   ContainerDiv,
@@ -19,65 +19,78 @@ interface Props {
 const Searcher: React.FC<Props> = ({ hexViewerRef }) => {
   const [results, setResults] = useState<IndexInfo[]>([]);
   const [currentIndex, setCurrentIndex] = useState<number>(-1);
+  const [searchType, setSearchType] = useState<'offset' | 'hex'>('offset');
 
   const filterInput = (inputValue: string) => {
     const hexRegex = /^[0-9a-fA-F]*$/;
     return inputValue.replace(new RegExp(`[^${hexRegex.source}]`, 'g'), '');
   };
 
-  const handleInputChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const inputValue = filterInput(e.target.value);
-    await searchByOffset(inputValue);
-  };
+  const searchByOffset = useCallback(
+    async (inputValue: string) => {
+      const res = await hexViewerRef.current?.findByOffset(inputValue);
+      if (res) setResults([res]);
+      else setResults([]);
+    },
+    [hexViewerRef]
+  );
 
-  const handleInputChange2 = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const inputValue = filterInput(e.target.value);
-    await searchByHex(inputValue);
-  };
+  const searchByHex = useCallback(
+    async (inputValue: string) => {
+      const res = await hexViewerRef.current?.findAllByHex(inputValue);
+      setResults(res || []);
+    },
+    [hexViewerRef]
+  );
 
-  const searchByOffset = async (inputValue: string) => {
-    const res = await hexViewerRef.current?.findByOffset(inputValue);
-    if (res) setResults([res]);
-    else setResults([]);
-  };
+  const handleInputChange = useCallback(
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const inputValue = filterInput(e.target.value);
+      setSearchType('offset');
+      await searchByOffset(inputValue);
+    },
+    [searchByOffset]
+  );
 
-  const searchByHex = async (inputValue: string) => {
-    const res = await hexViewerRef.current?.findAllByHex(inputValue);
-    setResults(res || []);
-  };
+  const handleInputChange2 = useCallback(
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const inputValue = filterInput(e.target.value);
+      setSearchType('hex');
+      await searchByHex(inputValue);
+    },
+    [searchByHex]
+  );
 
-  const handlePrevButtonClick = () => {
-    if (currentIndex > 0) {
-      setCurrentIndex(currentIndex - 1);
-    } else {
-      setCurrentIndex(results.length - 1);
-    }
-  };
+  const handlePrevButtonClick = useCallback(() => {
+    setCurrentIndex((prevIndex) =>
+      prevIndex > 0 ? prevIndex - 1 : results.length - 1
+    );
+  }, [results.length]);
 
-  const handleNextButtonClick = () => {
-    if (currentIndex < results.length - 1) {
-      setCurrentIndex(currentIndex + 1);
-    } else {
-      setCurrentIndex(0);
-    }
-  };
+  const handleNextButtonClick = useCallback(() => {
+    setCurrentIndex((prevIndex) =>
+      prevIndex < results.length - 1 ? prevIndex + 1 : 0
+    );
+  }, [results.length]);
+
+  const currentResult = useMemo(
+    () => results[currentIndex],
+    [results, currentIndex]
+  );
 
   useEffect(() => {
-    if (results.length > 0) {
-      setCurrentIndex(0);
-    } else {
-      setCurrentIndex(-1);
-    }
+    if (results.length > 0) setCurrentIndex(0);
+    else setCurrentIndex(-1);
   }, [results]);
 
   useEffect(() => {
     if (currentIndex !== -1 && results.length > 0) {
       hexViewerRef.current?.scrollToIndex(
-        results[currentIndex].index,
-        results[currentIndex].offset
+        currentResult?.index || 0,
+        currentResult?.offset || 0
       );
     }
-  }, [currentIndex]);
+  }, [currentIndex, currentResult, hexViewerRef]);
 
   return (
     <ContainerDiv>
@@ -98,12 +111,26 @@ const Searcher: React.FC<Props> = ({ hexViewerRef }) => {
             <SearchDiv>
               <SearchLabel>Hex</SearchLabel>
               <SearchData>
-                <SearchInput maxLength={8} onBlur={handleInputChange2} />
+                <SearchInput
+                  maxLength={8}
+                  onBlur={handleInputChange2}
+                  onFocus={() => setSearchType('hex')}
+                />
               </SearchData>
             </SearchDiv>
             <SearchDiv>
               <ResultDiv>
-                총 {results.length}개의 결과 중 {currentIndex + 1}번째
+                {results.length === 0 && searchType === 'offset' && (
+                  <div>No results found for the provided offset.</div>
+                )}
+                {results.length === 0 && searchType === 'hex' && (
+                  <div>No results found for the provided hex value.</div>
+                )}
+                {results.length > 0 && (
+                  <>
+                    총 {results.length}개의 결과 중 {currentIndex + 1}번째
+                  </>
+                )}
               </ResultDiv>
               <ButtonDiv>
                 <IndexBtn
