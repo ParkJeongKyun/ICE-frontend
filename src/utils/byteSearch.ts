@@ -32,6 +32,7 @@ export function findPatternIndices(
   let i = 0; // index for array[]
   let j = 0; // index for pattern[]
   let count = 0; // count of pattern occurrences
+  const maxCount = 1000;
   while (i < array.length) {
     if (pattern[j] === array[i]) {
       i++;
@@ -41,7 +42,7 @@ export function findPatternIndices(
       indices.push(i - j);
       j = lps[j - 1];
       count++;
-      if (count === 100) break; // Stop searching if maximum occurrences reached
+      if (count === maxCount) break; // Stop searching if maximum occurrences reached
     } else if (i < array.length && pattern[j] !== array[i]) {
       if (j !== 0) {
         j = lps[j - 1];

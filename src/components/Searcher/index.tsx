@@ -1,7 +1,10 @@
 import Collapse from 'components/common/Collapse';
 import React, { useEffect, useState } from 'react';
 import {
+  ButtonDiv,
   ContainerDiv,
+  IndexBtn,
+  ResultDiv,
   SearchData,
   SearchDiv,
   SearchInput,
@@ -79,23 +82,6 @@ const Searcher: React.FC<Props> = ({ hexViewerRef }) => {
         children={
           <>
             <SearchDiv>
-              {results.length}
-              <button
-                onClick={handlePrevButtonClick}
-                disabled={currentIndex === 0 || currentIndex === -1}
-              >
-                Prev
-              </button>
-              <button
-                onClick={handleNextButtonClick}
-                disabled={
-                  currentIndex === results.length - 1 || currentIndex === -1
-                }
-              >
-                Next
-              </button>
-            </SearchDiv>
-            <SearchDiv>
               <SearchLabel>Offset</SearchLabel>
               <SearchData>
                 <SearchInput
@@ -110,6 +96,27 @@ const Searcher: React.FC<Props> = ({ hexViewerRef }) => {
               <SearchData>
                 <SearchInput maxLength={8} onBlur={handleInputChange2} />
               </SearchData>
+            </SearchDiv>
+            <SearchDiv>
+              <ResultDiv>
+                {results.length}개의 결과 중 {currentIndex}번째
+              </ResultDiv>
+              <ButtonDiv>
+                <IndexBtn
+                  onClick={handlePrevButtonClick}
+                  $display={currentIndex === 0 || currentIndex === -1}
+                >
+                  Prev
+                </IndexBtn>
+                <IndexBtn
+                  onClick={handleNextButtonClick}
+                  $display={
+                    currentIndex === results.length - 1 || currentIndex === -1
+                  }
+                >
+                  Next
+                </IndexBtn>
+              </ButtonDiv>
             </SearchDiv>
           </>
         }

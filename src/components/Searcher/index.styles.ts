@@ -11,15 +11,18 @@ export const SearchDiv = styled.div`
   text-align: center;
   align-items: center;
   gap: 5px;
+  justify-content: space-between;
 `;
 
 export const SearchLabel = styled.div`
   /* font-weight: 600; */
+  width: 20%;
   font-size: 12px;
+  text-align: start;
 `;
 
 export const SearchData = styled.div`
-  flex-grow: 1;
+  width: 80%;
 `;
 
 export const SearchInput = styled.input`
@@ -34,4 +37,27 @@ export const SearchInput = styled.input`
   &:hover {
     outline: 1.5px solid var(--main-hover-line-color);
   }
+`;
+
+export const ResultDiv = styled.div`
+  font-size: 11px;
+`;
+
+export const ButtonDiv = styled.div`
+  align-items: end;
+`;
+
+export const IndexBtn = styled.div<{ $display: boolean }>`
+  margin: 2px 1px 2px 1px;
+  padding: 2px 4px 2px 4px;
+  border-radius: 5px;
+  font-weight: 600;
+  font-size: 12px;
+  color: var(--main-color);
+  &:hover {
+    cursor: pointer;
+    color: var(--ice-main-color);
+    background-color: var(--main-hover-color);
+  }
+  display: ${(props) => (props.$display ? `none` : 'inline-flex')};
 `;
