@@ -1,5 +1,5 @@
 import Collapse from 'components/common/Collapse';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   ContainerDiv,
   SearchData,
@@ -7,13 +7,16 @@ import {
   SearchInput,
   SearchLabel,
 } from './index.styles';
-import { HexViewerRef } from 'components/HexViewer';
+import { HexViewerRef, IndexInfo } from 'components/HexViewer';
 
 interface Props {
   hexViewerRef: React.RefObject<HexViewerRef>;
 }
 
 const Searcher: React.FC<Props> = ({ hexViewerRef }) => {
+  const [results, setResults] = useState<IndexInfo[]>([]);
+  const [currentIndex, setCurrentIndex] = useState<number>(-1);
+
   const filterInput = (inputValue: string) => {
     const hexRegex = /^[0-9a-fA-F]*$/;
     return inputValue.replace(new RegExp(`[^${hexRegex.source}]`, 'g'), '');
@@ -21,20 +24,53 @@ const Searcher: React.FC<Props> = ({ hexViewerRef }) => {
 
   const handleInputChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const inputValue = filterInput(e.target.value);
-    await hexViewerRef.current?.findByOffset(inputValue).then((res) => {
-      console.log(res);
-      if (res) hexViewerRef.current?.scrollToIndex(res.index, res.offset);
-    });
+    await searchByOffset(inputValue);
   };
 
   const handleInputChange2 = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const inputValue = filterInput(e.target.value);
-    await hexViewerRef.current?.findAllByHex(inputValue).then((res) => {
-      console.log(res);
-      if (res && res.length > 0)
-        hexViewerRef.current?.scrollToIndex(res[0].index, res[0].offset);
-    });
+    await searchByHex(inputValue);
   };
+
+  const searchByOffset = async (inputValue: string) => {
+    const res = await hexViewerRef.current?.findByOffset(inputValue);
+    if (res) setResults([res]);
+    else setResults([]);
+  };
+
+  const searchByHex = async (inputValue: string) => {
+    const res = await hexViewerRef.current?.findAllByHex(inputValue);
+    setResults(res || []);
+  };
+
+  const handlePrevButtonClick = () => {
+    if (currentIndex > 0) {
+      setCurrentIndex(currentIndex - 1);
+    }
+  };
+
+  const handleNextButtonClick = () => {
+    if (currentIndex < results.length - 1) {
+      setCurrentIndex(currentIndex + 1);
+    }
+  };
+
+  useEffect(() => {
+    if (results.length > 0) {
+      setCurrentIndex(0);
+    } else {
+      setCurrentIndex(-1);
+    }
+  }, [results]);
+
+  useEffect(() => {
+    if (currentIndex !== -1 && results.length > 0) {
+      hexViewerRef.current?.scrollToIndex(
+        results[currentIndex].index,
+        results[currentIndex].offset
+      );
+    }
+  }, [currentIndex]);
 
   return (
     <ContainerDiv>
@@ -42,6 +78,23 @@ const Searcher: React.FC<Props> = ({ hexViewerRef }) => {
         title="Search"
         children={
           <>
+            <SearchDiv>
+              {results.length}
+              <button
+                onClick={handlePrevButtonClick}
+                disabled={currentIndex === 0 || currentIndex === -1}
+              >
+                Prev
+              </button>
+              <button
+                onClick={handleNextButtonClick}
+                disabled={
+                  currentIndex === results.length - 1 || currentIndex === -1
+                }
+              >
+                Next
+              </button>
+            </SearchDiv>
             <SearchDiv>
               <SearchLabel>Offset</SearchLabel>
               <SearchData>
