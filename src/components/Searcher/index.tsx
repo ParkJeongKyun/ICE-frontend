@@ -19,7 +19,9 @@ interface Props {
 const Searcher: React.FC<Props> = ({ hexViewerRef }) => {
   const [results, setResults] = useState<IndexInfo[]>([]);
   const [currentIndex, setCurrentIndex] = useState<number>(-1);
-  const [searchType, setSearchType] = useState<'offset' | 'hex'>('offset');
+  const [searchType, setSearchType] = useState<'offset' | 'hex' | 'ascii'>(
+    'offset'
+  );
 
   const filterInput = (inputValue: string) => {
     const hexRegex = /^[0-9a-fA-F]*$/;
@@ -43,6 +45,14 @@ const Searcher: React.FC<Props> = ({ hexViewerRef }) => {
     [hexViewerRef]
   );
 
+  const searchByAscii = useCallback(
+    async (inputValue: string) => {
+      const res = await hexViewerRef.current?.findAllByAsciiText(inputValue);
+      setResults(res || []);
+    },
+    [hexViewerRef]
+  );
+
   const handleInputChange = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
       const inputValue = filterInput(e.target.value);
@@ -59,6 +69,14 @@ const Searcher: React.FC<Props> = ({ hexViewerRef }) => {
       await searchByHex(inputValue);
     },
     [searchByHex]
+  );
+  const handleInputChange3 = useCallback(
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const inputValue = filterInput(e.target.value);
+      setSearchType('ascii');
+      await searchByAscii(inputValue);
+    },
+    [searchByAscii]
   );
 
   const handlePrevButtonClick = useCallback(() => {
@@ -119,13 +137,18 @@ const Searcher: React.FC<Props> = ({ hexViewerRef }) => {
               </SearchData>
             </SearchDiv>
             <SearchDiv>
+              <SearchLabel>ASCII</SearchLabel>
+              <SearchData>
+                <SearchInput
+                  maxLength={8}
+                  onBlur={handleInputChange3}
+                  onFocus={() => setSearchType('ascii')}
+                />
+              </SearchData>
+            </SearchDiv>
+            <SearchDiv>
               <ResultDiv>
-                {results.length === 0 && searchType === 'offset' && (
-                  <div>No results found for the provided offset.</div>
-                )}
-                {results.length === 0 && searchType === 'hex' && (
-                  <div>No results found for the provided hex value.</div>
-                )}
+                {results.length === 0 && <div>검색 결과 없음</div>}
                 {results.length > 0 && (
                   <>
                     총 {results.length}개의 결과 중 {currentIndex + 1}번째

@@ -1,4 +1,9 @@
-function computeLPSArray(pattern: Uint8Array): number[] {
+// ASCII 문자열을 바이트 배열로 변환하는 함수
+export const asciiToBytes = (text: string): Uint8Array => {
+  return new Uint8Array(Array.from(text).map((char) => char.charCodeAt(0)));
+};
+
+export function computeLPSArray(pattern: Uint8Array): number[] {
   const lps: number[] = [];
   lps[0] = 0;
   let len = 0;

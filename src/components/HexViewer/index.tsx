@@ -17,7 +17,7 @@ import {
   TextCell,
 } from './index.styles';
 import { List } from 'react-virtualized';
-import { findPatternIndices } from 'utils/byteSearch';
+import { asciiToBytes, findPatternIndices } from 'utils/byteSearch';
 
 interface Props {
   arrayBuffer: ArrayBuffer;
@@ -31,6 +31,7 @@ export interface IndexInfo {
 export interface HexViewerRef {
   findByOffset: (offset: string) => Promise<IndexInfo | null>;
   findAllByHex: (hex: string) => Promise<IndexInfo[] | null>;
+  findAllByAsciiText: (text: string) => Promise<IndexInfo[] | null>;
   scrollToIndex: (rowIndex: number, offset: number) => void;
 }
 
@@ -190,6 +191,29 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
       }
       return null;
     };
+    // ASCII 텍스트로 찾는 함수
+    const findAllByAsciiText = async (
+      text: string
+    ): Promise<IndexInfo[] | null> => {
+      if (text.trim()) {
+        try {
+          const pattern = asciiToBytes(text);
+          const result = findPatternIndices(buffer, pattern).map((item) => {
+            return {
+              index: item,
+              offset: pattern.length,
+            };
+          });
+
+          if (result.length > 0) return result;
+        } catch (e) {
+          console.log(e);
+          return null;
+        }
+      }
+      return null;
+    };
+
     // 해당 위치로 스크롤 및 선택하기
     const scrollToIndex = (index: number, offset: number): void => {
       const rowIndex = Math.floor(index / bytesPerRow);
@@ -201,6 +225,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
     return {
       findByOffset,
       findAllByHex,
+      findAllByAsciiText,
       scrollToIndex,
     };
   });
