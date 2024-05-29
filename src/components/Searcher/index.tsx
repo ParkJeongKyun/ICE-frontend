@@ -49,12 +49,16 @@ const Searcher: React.FC<Props> = ({ hexViewerRef }) => {
   const handlePrevButtonClick = () => {
     if (currentIndex > 0) {
       setCurrentIndex(currentIndex - 1);
+    } else {
+      setCurrentIndex(results.length - 1);
     }
   };
 
   const handleNextButtonClick = () => {
     if (currentIndex < results.length - 1) {
       setCurrentIndex(currentIndex + 1);
+    } else {
+      setCurrentIndex(0);
     }
   };
 
@@ -99,22 +103,20 @@ const Searcher: React.FC<Props> = ({ hexViewerRef }) => {
             </SearchDiv>
             <SearchDiv>
               <ResultDiv>
-                {results.length}개의 결과 중 {currentIndex}번째
+                총 {results.length}개의 결과 중 {currentIndex + 1}번째
               </ResultDiv>
               <ButtonDiv>
                 <IndexBtn
                   onClick={handlePrevButtonClick}
-                  $display={currentIndex === 0 || currentIndex === -1}
+                  $disabled={currentIndex === -1}
                 >
-                  Prev
+                  prev
                 </IndexBtn>
                 <IndexBtn
                   onClick={handleNextButtonClick}
-                  $display={
-                    currentIndex === results.length - 1 || currentIndex === -1
-                  }
+                  $disabled={currentIndex === -1}
                 >
-                  Next
+                  next
                 </IndexBtn>
               </ButtonDiv>
             </SearchDiv>
