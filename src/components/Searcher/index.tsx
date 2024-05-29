@@ -2,6 +2,7 @@ import Collapse from 'components/common/Collapse';
 import React from 'react';
 import {
   ContainerDiv,
+  SearchData,
   SearchDiv,
   SearchInput,
   SearchLabel,
@@ -37,11 +38,13 @@ const Searcher: React.FC<Props> = ({ hexViewerRef }) => {
           <>
             <SearchDiv>
               <SearchLabel>Offset</SearchLabel>
-              <SearchInput
-                onChange={handleInputChange}
-                maxLength={8}
-                onFocus={handleInputChange}
-              />
+              <SearchData>
+                <SearchInput
+                  onChange={handleInputChange}
+                  maxLength={8}
+                  onFocus={handleInputChange}
+                />
+              </SearchData>
             </SearchDiv>
           </>
         }
