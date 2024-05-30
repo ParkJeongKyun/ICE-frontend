@@ -1,5 +1,11 @@
 import Collapse from 'components/common/Collapse';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useReducer,
+  useState,
+} from 'react';
 import {
   ButtonDiv,
   ContainerDiv,
@@ -26,28 +32,56 @@ interface SearchResult {
   currentIndex: number;
 }
 
+interface SearchState {
+  [key: string]: SearchResult;
+}
+
+const initialState: SearchState = {};
+
+type Action =
+  | { type: 'SET_RESULTS'; key: TabKey; results: IndexInfo[] }
+  | { type: 'SET_CURRENT_INDEX'; key: TabKey; index: number };
+
+const reducer = (state: SearchState, action: Action): SearchState => {
+  switch (action.type) {
+    case 'SET_RESULTS':
+      return {
+        ...state,
+        [action.key]: {
+          results: action.results,
+          currentIndex: action.results.length > 0 ? 0 : -1,
+        },
+      };
+    case 'SET_CURRENT_INDEX':
+      return {
+        ...state,
+        [action.key]: {
+          ...state[action.key],
+          currentIndex: action.index,
+        },
+      };
+    default:
+      return state;
+  }
+};
+
+const filterInput = (inputValue: string, type: 'offset' | 'hex' | 'ascii') => {
+  switch (type) {
+    case 'offset':
+    case 'hex':
+      return inputValue.replace(/[^0-9a-fA-F]/g, '');
+    case 'ascii':
+      return inputValue.replace(/[^\x00-\x7F]/g, '');
+    default:
+      return inputValue;
+  }
+};
+
 const Searcher: React.FC<Props> = ({ hexViewerRef, activeKey }) => {
-  const [searchResults, setSearchResults] = useState<{
-    [key: TabKey]: SearchResult;
-  }>({});
+  const [searchResults, dispatch] = useReducer(reducer, initialState);
   const [searchType, setSearchType] = useState<'offset' | 'hex' | 'ascii'>(
     'offset'
   );
-
-  const filterInput = (
-    inputValue: string,
-    type: 'offset' | 'hex' | 'ascii'
-  ) => {
-    switch (type) {
-      case 'offset':
-      case 'hex':
-        return inputValue.replace(/[^0-9a-fA-F]/g, '');
-      case 'ascii':
-        return inputValue.replace(/[^\x00-\x7F]/g, '');
-      default:
-        return inputValue;
-    }
-  };
 
   const search = useCallback(
     async (inputValue: string, type: 'offset' | 'hex' | 'ascii') => {
@@ -62,10 +96,7 @@ const Searcher: React.FC<Props> = ({ hexViewerRef, activeKey }) => {
         results =
           (await hexViewerRef.current.findAllByAsciiText(inputValue)) || [];
       }
-      setSearchResults((prev) => ({
-        ...prev,
-        [activeKey]: { results, currentIndex: results.length > 0 ? 0 : -1 },
-      }));
+      dispatch({ type: 'SET_RESULTS', key: activeKey, results });
     },
     [hexViewerRef, activeKey]
   );
@@ -99,32 +130,27 @@ const Searcher: React.FC<Props> = ({ hexViewerRef, activeKey }) => {
   );
 
   const handlePrevButtonClick = useCallback(() => {
-    setSearchResults((prev) => {
-      const currentIndex = prev[activeKey].currentIndex;
-      const newIndex =
-        currentIndex > 0
-          ? currentIndex - 1
-          : prev[activeKey].results.length - 1;
-      return {
-        ...prev,
-        [activeKey]: { ...prev[activeKey], currentIndex: newIndex },
-      };
+    dispatch({
+      type: 'SET_CURRENT_INDEX',
+      key: activeKey,
+      index:
+        searchResults[activeKey].currentIndex > 0
+          ? searchResults[activeKey].currentIndex - 1
+          : searchResults[activeKey].results.length - 1,
     });
-  }, [activeKey]);
+  }, [activeKey, searchResults]);
 
   const handleNextButtonClick = useCallback(() => {
-    setSearchResults((prev) => {
-      const currentIndex = prev[activeKey].currentIndex;
-      const newIndex =
-        currentIndex < prev[activeKey].results.length - 1
-          ? currentIndex + 1
-          : 0;
-      return {
-        ...prev,
-        [activeKey]: { ...prev[activeKey], currentIndex: newIndex },
-      };
+    dispatch({
+      type: 'SET_CURRENT_INDEX',
+      key: activeKey,
+      index:
+        searchResults[activeKey].currentIndex <
+        searchResults[activeKey].results.length - 1
+          ? searchResults[activeKey].currentIndex + 1
+          : 0,
     });
-  }, [activeKey]);
+  }, [activeKey, searchResults]);
 
   const currentResult = useMemo(() => {
     return (
