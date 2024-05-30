@@ -28,11 +28,13 @@ interface Props {
   activeKey: TabKey;
 }
 
+type TSearchType = 'offset' | 'hex' | 'ascii';
+
 interface SearchResult {
   results: IndexInfo[];
   currentIndex: number;
   inputValue: string;
-  searchType: 'offset' | 'hex' | 'ascii';
+  searchType: TSearchType;
 }
 
 interface SearchState {
@@ -47,7 +49,7 @@ type Action =
       key: TabKey;
       results: IndexInfo[];
       inputValue: string;
-      searchType: 'offset' | 'hex' | 'ascii';
+      searchType: TSearchType;
     }
   | { type: 'SET_CURRENT_INDEX'; key: TabKey; index: number }
   | { type: 'RESET_RESULTS' };
@@ -79,7 +81,7 @@ const reducer = (state: SearchState, action: Action): SearchState => {
   }
 };
 
-const filterInput = (inputValue: string, type: 'offset' | 'hex' | 'ascii') => {
+const filterInput = (inputValue: string, type: TSearchType) => {
   switch (type) {
     case 'offset':
     case 'hex':
@@ -93,13 +95,11 @@ const filterInput = (inputValue: string, type: 'offset' | 'hex' | 'ascii') => {
 
 const Searcher: React.FC<Props> = ({ hexViewerRef, activeKey }) => {
   const [searchResults, dispatch] = useReducer(reducer, initialState);
-  const [searchType, setSearchType] = useState<'offset' | 'hex' | 'ascii'>(
-    'offset'
-  );
+  const [searchType, setSearchType] = useState<TSearchType>('offset');
   const [inputValue, setInputValue] = useState('');
 
   const search = useCallback(
-    async (inputValue: string, type: 'offset' | 'hex' | 'ascii') => {
+    async (inputValue: string, type: TSearchType) => {
       if (!hexViewerRef.current) return;
       let results: IndexInfo[] = [];
       if (type === 'offset') {
@@ -141,7 +141,7 @@ const Searcher: React.FC<Props> = ({ hexViewerRef, activeKey }) => {
 
   const handleSearchTypeChange = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {
-      setSearchType(e.target.value as 'offset' | 'hex' | 'ascii');
+      setSearchType(e.target.value as TSearchType);
     },
     []
   );
@@ -224,7 +224,7 @@ const Searcher: React.FC<Props> = ({ hexViewerRef, activeKey }) => {
                 value={inputValue}
                 onChange={handleInputChange}
                 onKeyDown={handleInputKeyPress}
-                maxLength={searchType === 'ascii' ? 50 : 8}
+                maxLength={searchType === 'offset' ? 8 : 50}
                 placeholder={`Enter ${searchType} value`}
               />
             </Tooltip>
