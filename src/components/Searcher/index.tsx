@@ -126,32 +126,6 @@ const Searcher: React.FC<Props> = ({ hexViewerRef }) => {
         title="Search"
         children={
           <>
-            <ResultDiv>
-              <TextDiv>
-                <Result>
-                  {results.length === 0 && <>검색 결과 없음</>}
-                  {results.length > 0 && (
-                    <>
-                      총 {results.length}개의 결과 중 {currentIndex + 1}번째
-                    </>
-                  )}
-                </Result>
-              </TextDiv>
-              <ButtonDiv>
-                <IndexBtn
-                  onClick={handlePrevButtonClick}
-                  $disabled={currentIndex === -1}
-                >
-                  PREV
-                </IndexBtn>
-                <IndexBtn
-                  onClick={handleNextButtonClick}
-                  $disabled={currentIndex === -1}
-                >
-                  NEXT
-                </IndexBtn>
-              </ButtonDiv>
-            </ResultDiv>
             <SearchDiv>
               <SearchLabel>Offset</SearchLabel>
               <SearchData>
@@ -189,6 +163,41 @@ const Searcher: React.FC<Props> = ({ hexViewerRef }) => {
                 </Tooltip>
               </SearchData>
             </SearchDiv>
+            {results.length > 0 && (
+              <ResultDiv>
+                <TextDiv>
+                  <Result>
+                    <>
+                      <Tooltip text="최대 1000개까지 검색">
+                        총{' '}
+                        <span style={{ color: 'var(--ice-main-color_1)' }}>
+                          {results.length}
+                        </span>
+                        개의 결과 중{' '}
+                        <span style={{ color: 'var(--ice-main-color)' }}>
+                          {currentIndex + 1}
+                        </span>
+                        번째
+                      </Tooltip>
+                    </>
+                  </Result>
+                </TextDiv>
+                <ButtonDiv>
+                  <IndexBtn
+                    onClick={handlePrevButtonClick}
+                    $disabled={currentIndex === -1 || results.length === 1}
+                  >
+                    PREV
+                  </IndexBtn>
+                  <IndexBtn
+                    onClick={handleNextButtonClick}
+                    $disabled={currentIndex === -1 || results.length === 1}
+                  >
+                    NEXT
+                  </IndexBtn>
+                </ButtonDiv>
+              </ResultDiv>
+            )}
           </>
         }
         open
