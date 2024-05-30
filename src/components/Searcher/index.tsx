@@ -31,6 +31,8 @@ interface Props {
 interface SearchResult {
   results: IndexInfo[];
   currentIndex: number;
+  inputValue: string;
+  searchType: 'offset' | 'hex' | 'ascii';
 }
 
 interface SearchState {
@@ -40,7 +42,13 @@ interface SearchState {
 const initialState: SearchState = {};
 
 type Action =
-  | { type: 'SET_RESULTS'; key: TabKey; results: IndexInfo[] }
+  | {
+      type: 'SET_RESULTS';
+      key: TabKey;
+      results: IndexInfo[];
+      inputValue: string;
+      searchType: 'offset' | 'hex' | 'ascii';
+    }
   | { type: 'SET_CURRENT_INDEX'; key: TabKey; index: number }
   | { type: 'RESET_RESULTS' };
 
@@ -52,6 +60,8 @@ const reducer = (state: SearchState, action: Action): SearchState => {
         [action.key]: {
           results: action.results,
           currentIndex: action.results.length > 0 ? 0 : -1,
+          inputValue: action.inputValue,
+          searchType: action.searchType,
         },
       };
     case 'SET_CURRENT_INDEX':
@@ -101,7 +111,13 @@ const Searcher: React.FC<Props> = ({ hexViewerRef, activeKey }) => {
         results =
           (await hexViewerRef.current.findAllByAsciiText(inputValue)) || [];
       }
-      dispatch({ type: 'SET_RESULTS', key: activeKey, results });
+      dispatch({
+        type: 'SET_RESULTS',
+        key: activeKey,
+        results,
+        inputValue,
+        searchType,
+      });
     },
     [hexViewerRef, activeKey]
   );
@@ -176,7 +192,11 @@ const Searcher: React.FC<Props> = ({ hexViewerRef, activeKey }) => {
   }, [currentResult, hexViewerRef]);
 
   useEffect(() => {
-    if (inputValue) search(inputValue, searchType);
+    if (
+      (inputValue && inputValue != searchResults[activeKey]?.inputValue) ||
+      searchType != searchResults[activeKey]?.searchType
+    )
+      search(inputValue, searchType);
   }, [activeKey, search]);
 
   useEffect(() => {
