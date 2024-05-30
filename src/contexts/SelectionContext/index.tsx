@@ -10,6 +10,7 @@ import React, {
 interface SelectionRange {
   start: number | null;
   end: number | null;
+  arrayBuffer: ArrayBuffer | null;
 }
 
 // 컨텍스트 생성
@@ -29,6 +30,7 @@ export const SelectionProvider: React.FC<{ children: React.ReactNode }> = ({
   const [selectionRange, setSelectionRange] = useState<SelectionRange>({
     start: null,
     end: null,
+    arrayBuffer: null,
   });
 
   return (

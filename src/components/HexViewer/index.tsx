@@ -72,6 +72,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
     setSelectionRange({
       start: byteIndex,
       end: byteIndex,
+      arrayBuffer: buffer.slice(byteIndex, byteIndex + 1),
     });
   }, []);
 
@@ -81,6 +82,9 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
         setSelectionRange({
           start: selectionRange.start,
           end: byteIndex,
+          arrayBuffer: selectionRange.start
+            ? buffer.slice(selectionRange.start, byteIndex + 1)
+            : null,
         });
       }
     },
@@ -228,6 +232,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
       setSelectionRange({
         start: index,
         end: index + offset - 1,
+        arrayBuffer: buffer.slice(index, index + offset),
       });
     };
 
