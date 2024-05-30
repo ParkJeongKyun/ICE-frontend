@@ -14,14 +14,22 @@ import {
 } from './index.styles';
 import { HexViewerRef, IndexInfo } from 'components/HexViewer';
 import Tooltip from 'components/common/Tooltip';
+import { TabKey } from 'types';
 
 interface Props {
   hexViewerRef: React.RefObject<HexViewerRef>;
+  activeKey: TabKey;
 }
 
-const Searcher: React.FC<Props> = ({ hexViewerRef }) => {
-  const [results, setResults] = useState<IndexInfo[]>([]);
-  const [currentIndex, setCurrentIndex] = useState<number>(-1);
+interface SearchResult {
+  results: IndexInfo[];
+  currentIndex: number;
+}
+
+const Searcher: React.FC<Props> = ({ hexViewerRef, activeKey }) => {
+  const [searchResults, setSearchResults] = useState<{
+    [key: TabKey]: SearchResult;
+  }>({});
   const [searchType, setSearchType] = useState<'offset' | 'hex' | 'ascii'>(
     'offset'
   );
@@ -30,48 +38,36 @@ const Searcher: React.FC<Props> = ({ hexViewerRef }) => {
     inputValue: string,
     type: 'offset' | 'hex' | 'ascii'
   ) => {
-    let filteredInput: string;
     switch (type) {
-      case 'offset': {
-        filteredInput = inputValue.replace(/[^0-9a-fA-F]/g, '');
-        break;
-      }
-      case 'hex': {
-        filteredInput = inputValue.replace(/[^0-9a-fA-F]/g, '');
-        break;
-      }
-      case 'ascii': {
-        filteredInput = inputValue.replace(/[^\x00-\x7F]/g, '');
-        break;
-      }
+      case 'offset':
+      case 'hex':
+        return inputValue.replace(/[^0-9a-fA-F]/g, '');
+      case 'ascii':
+        return inputValue.replace(/[^\x00-\x7F]/g, '');
+      default:
+        return inputValue;
     }
-
-    return filteredInput;
   };
 
   const search = useCallback(
     async (inputValue: string, type: 'offset' | 'hex' | 'ascii') => {
       if (!hexViewerRef.current) return;
-
-      switch (type) {
-        case 'offset': {
-          const res = await hexViewerRef.current.findByOffset(inputValue);
-          setResults(res ? [res] : []);
-          break;
-        }
-        case 'hex': {
-          const res = await hexViewerRef.current.findAllByHex(inputValue);
-          setResults(res || []);
-          break;
-        }
-        case 'ascii': {
-          const res = await hexViewerRef.current.findAllByAsciiText(inputValue);
-          setResults(res || []);
-          break;
-        }
+      let results: IndexInfo[] = [];
+      if (type === 'offset') {
+        const res = await hexViewerRef.current.findByOffset(inputValue);
+        results = res ? [res] : [];
+      } else if (type === 'hex') {
+        results = (await hexViewerRef.current.findAllByHex(inputValue)) || [];
+      } else if (type === 'ascii') {
+        results =
+          (await hexViewerRef.current.findAllByAsciiText(inputValue)) || [];
       }
+      setSearchResults((prev) => ({
+        ...prev,
+        [activeKey]: { results, currentIndex: results.length > 0 ? 0 : -1 },
+      }));
     },
-    [hexViewerRef]
+    [hexViewerRef, activeKey]
   );
 
   const handleInputChange = useCallback(
@@ -79,13 +75,12 @@ const Searcher: React.FC<Props> = ({ hexViewerRef }) => {
       e: React.ChangeEvent<HTMLInputElement>,
       type: 'offset' | 'hex' | 'ascii'
     ) => {
-      const inputValue = e.target.value;
-      const filteredValue = filterInput(inputValue, type);
-      e.target.value = filteredValue;
-      if (!filteredValue) return;
+      const inputValue = filterInput(e.target.value, type);
+      e.target.value = inputValue;
+      if (!inputValue) return;
       setSearchType(type);
       if (type === 'offset') {
-        await search(filteredValue, type);
+        await search(inputValue, type);
       }
     },
     [search]
@@ -94,129 +89,138 @@ const Searcher: React.FC<Props> = ({ hexViewerRef }) => {
   const handleInputKeyPress = useCallback(
     async (e: React.KeyboardEvent<HTMLInputElement>, type: 'hex' | 'ascii') => {
       if (e.key === 'Enter') {
-        const inputValue = e.currentTarget.value;
-        const filteredValue = filterInput(inputValue, type);
-        if (!filteredValue) return;
+        const inputValue = filterInput(e.currentTarget.value, type);
+        if (!inputValue) return;
         setSearchType(type);
-        await search(filteredValue, type);
+        await search(inputValue, type);
       }
     },
     [search]
   );
 
   const handlePrevButtonClick = useCallback(() => {
-    setCurrentIndex((prevIndex) =>
-      prevIndex > 0 ? prevIndex - 1 : results.length - 1
-    );
-  }, [results.length]);
+    setSearchResults((prev) => {
+      const currentIndex = prev[activeKey].currentIndex;
+      const newIndex =
+        currentIndex > 0
+          ? currentIndex - 1
+          : prev[activeKey].results.length - 1;
+      return {
+        ...prev,
+        [activeKey]: { ...prev[activeKey], currentIndex: newIndex },
+      };
+    });
+  }, [activeKey]);
 
   const handleNextButtonClick = useCallback(() => {
-    setCurrentIndex((prevIndex) =>
-      prevIndex < results.length - 1 ? prevIndex + 1 : 0
+    setSearchResults((prev) => {
+      const currentIndex = prev[activeKey].currentIndex;
+      const newIndex =
+        currentIndex < prev[activeKey].results.length - 1
+          ? currentIndex + 1
+          : 0;
+      return {
+        ...prev,
+        [activeKey]: { ...prev[activeKey], currentIndex: newIndex },
+      };
+    });
+  }, [activeKey]);
+
+  const currentResult = useMemo(() => {
+    return (
+      searchResults[activeKey]?.results[
+        searchResults[activeKey]?.currentIndex
+      ] || null
     );
-  }, [results.length]);
-
-  const currentResult = useMemo(
-    () => results[currentIndex],
-    [results, currentIndex]
-  );
+  }, [searchResults, activeKey]);
 
   useEffect(() => {
-    if (results.length > 0) setCurrentIndex(0);
-    else setCurrentIndex(-1);
-  }, [results]);
-
-  useEffect(() => {
-    if (currentIndex !== -1 && results.length > 0) {
+    if (currentResult) {
       hexViewerRef.current?.scrollToIndex(
-        currentResult?.index || 0,
-        currentResult?.offset || 0
+        currentResult.index,
+        currentResult.offset
       );
     }
-  }, [currentIndex, currentResult, hexViewerRef]);
+  }, [currentResult, hexViewerRef]);
 
   return (
     <ContainerDiv>
-      <Collapse
-        title="Search"
-        children={
-          <>
-            <SearchDiv>
-              <SearchLabel>Offset</SearchLabel>
-              <SearchData>
-                <SearchInput
-                  onChange={(e) => handleInputChange(e, 'offset')}
-                  maxLength={8}
-                  onFocus={() => setSearchType('offset')}
-                />
-              </SearchData>
-            </SearchDiv>
-            <SearchDiv>
-              <SearchLabel>Hex</SearchLabel>
-
-              <SearchData>
-                <Tooltip text="Enter시 검색">
-                  <SearchInput
-                    maxLength={8}
-                    onChange={(e) => handleInputChange(e, 'hex')}
-                    onFocus={() => setSearchType('hex')}
-                    onKeyDown={(e) => handleInputKeyPress(e, 'hex')}
-                  />
-                </Tooltip>
-              </SearchData>
-            </SearchDiv>
-            <SearchDiv>
-              <SearchLabel>ASCII</SearchLabel>
-              <SearchData>
-                <Tooltip text="Enter시 검색">
-                  <SearchInput
-                    maxLength={50}
-                    onChange={(e) => handleInputChange(e, 'ascii')}
-                    onFocus={() => setSearchType('ascii')}
-                    onKeyDown={(e) => handleInputKeyPress(e, 'ascii')}
-                  />
-                </Tooltip>
-              </SearchData>
-            </SearchDiv>
-            {results.length > 0 && (
-              <ResultDiv>
-                <TextDiv>
-                  <Result>
+      <Collapse title="Search" open>
+        <SearchDiv>
+          <SearchLabel>Offset</SearchLabel>
+          <SearchData>
+            <SearchInput
+              onChange={(e) => handleInputChange(e, 'offset')}
+              maxLength={8}
+              onFocus={() => setSearchType('offset')}
+            />
+          </SearchData>
+        </SearchDiv>
+        <SearchDiv>
+          <SearchLabel>Hex</SearchLabel>
+          <SearchData>
+            <Tooltip text="Enter시 검색">
+              <SearchInput
+                maxLength={8}
+                onChange={(e) => handleInputChange(e, 'hex')}
+                onFocus={() => setSearchType('hex')}
+                onKeyDown={(e) => handleInputKeyPress(e, 'hex')}
+              />
+            </Tooltip>
+          </SearchData>
+        </SearchDiv>
+        <SearchDiv>
+          <SearchLabel>ASCII</SearchLabel>
+          <SearchData>
+            <Tooltip text="Enter시 검색">
+              <SearchInput
+                maxLength={50}
+                onChange={(e) => handleInputChange(e, 'ascii')}
+                onFocus={() => setSearchType('ascii')}
+                onKeyDown={(e) => handleInputKeyPress(e, 'ascii')}
+              />
+            </Tooltip>
+          </SearchData>
+        </SearchDiv>
+        {searchResults[activeKey]?.results.length > 0 && (
+          <ResultDiv>
+            <TextDiv>
+              <Result>
+                <Tooltip text="최대 1000개까지 검색">
+                  총{' '}
+                  <span style={{ color: 'var(--ice-main-color_1)' }}>
+                    {searchResults[activeKey].results.length}
+                  </span>
+                  개의 결과
+                  {searchResults[activeKey].results.length > 1 && (
                     <>
-                      <Tooltip text="최대 1000개까지 검색">
-                        총{' '}
-                        <span style={{ color: 'var(--ice-main-color_1)' }}>
-                          {results.length}
-                        </span>
-                        개의 결과 중{' '}
-                        <span style={{ color: 'var(--ice-main-color)' }}>
-                          {currentIndex + 1}
-                        </span>
-                        번째
-                      </Tooltip>
+                      중{' '}
+                      <span style={{ color: 'var(--ice-main-color)' }}>
+                        {searchResults[activeKey].currentIndex + 1}
+                      </span>
+                      번째
                     </>
-                  </Result>
-                </TextDiv>
-                <ButtonDiv>
-                  <IndexBtn
-                    onClick={handlePrevButtonClick}
-                    $disabled={currentIndex === -1 || results.length === 1}
-                  >
-                    PREV
-                  </IndexBtn>
-                  <IndexBtn
-                    onClick={handleNextButtonClick}
-                    $disabled={currentIndex === -1 || results.length === 1}
-                  >
-                    NEXT
-                  </IndexBtn>
-                </ButtonDiv>
-              </ResultDiv>
-            )}
-          </>
-        }
-        open
-      />
+                  )}
+                </Tooltip>
+              </Result>
+            </TextDiv>
+            <ButtonDiv>
+              <IndexBtn
+                onClick={handlePrevButtonClick}
+                $disabled={searchResults[activeKey].results.length <= 1}
+              >
+                PREV
+              </IndexBtn>
+              <IndexBtn
+                onClick={handleNextButtonClick}
+                $disabled={searchResults[activeKey].results.length <= 1}
+              >
+                NEXT
+              </IndexBtn>
+            </ButtonDiv>
+          </ResultDiv>
+        )}
+      </Collapse>
     </ContainerDiv>
   );
 };

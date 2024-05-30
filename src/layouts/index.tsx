@@ -176,7 +176,7 @@ const MainLayout: React.FC = () => {
                     : 'block',
               }}
             >
-              <Searcher hexViewerRef={hexViewerRef} />
+              <Searcher hexViewerRef={hexViewerRef} activeKey={activeKey} />
             </IceRightSider>
           </FlexGrow>
         </IceLayout>
