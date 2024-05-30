@@ -11,6 +11,7 @@ import {
   SearchLabel,
 } from './index.styles';
 import { HexViewerRef, IndexInfo } from 'components/HexViewer';
+import Tooltip from 'components/common/Tooltip';
 
 interface Props {
   hexViewerRef: React.RefObject<HexViewerRef>;
@@ -23,60 +24,67 @@ const Searcher: React.FC<Props> = ({ hexViewerRef }) => {
     'offset'
   );
 
-  const filterInput = (inputValue: string) => {
-    const hexRegex = /^[0-9a-fA-F]*$/;
-    return inputValue.replace(new RegExp(`[^${hexRegex.source}]`, 'g'), '');
+  const filterInput = (
+    inputValue: string,
+    type: 'offset' | 'hex' | 'ascii'
+  ) => {
+    if (type === 'ascii') return inputValue; // ASCII는 필터링하지 않음
+    return inputValue.replace(/[^0-9a-fA-F]/g, '');
   };
 
-  const searchByOffset = useCallback(
-    async (inputValue: string) => {
-      const res = await hexViewerRef.current?.findByOffset(inputValue);
-      if (res) setResults([res]);
-      else setResults([]);
-    },
-    [hexViewerRef]
-  );
+  const search = useCallback(
+    async (inputValue: string, type: 'offset' | 'hex' | 'ascii') => {
+      if (!hexViewerRef.current) return;
 
-  const searchByHex = useCallback(
-    async (inputValue: string) => {
-      const res = await hexViewerRef.current?.findAllByHex(inputValue);
-      setResults(res || []);
-    },
-    [hexViewerRef]
-  );
-
-  const searchByAscii = useCallback(
-    async (inputValue: string) => {
-      const res = await hexViewerRef.current?.findAllByAsciiText(inputValue);
-      setResults(res || []);
+      switch (type) {
+        case 'offset': {
+          const res = await hexViewerRef.current.findByOffset(inputValue);
+          setResults(res ? [res] : []);
+          break;
+        }
+        case 'hex': {
+          const res = await hexViewerRef.current.findAllByHex(inputValue);
+          setResults(res || []);
+          break;
+        }
+        case 'ascii': {
+          const res = await hexViewerRef.current.findAllByAsciiText(inputValue);
+          setResults(res || []);
+          break;
+        }
+      }
     },
     [hexViewerRef]
   );
 
   const handleInputChange = useCallback(
-    async (e: React.ChangeEvent<HTMLInputElement>) => {
-      const inputValue = filterInput(e.target.value);
-      setSearchType('offset');
-      await searchByOffset(inputValue);
+    async (
+      e: React.ChangeEvent<HTMLInputElement>,
+      type: 'offset' | 'hex' | 'ascii'
+    ) => {
+      const inputValue = e.target.value;
+      const filteredValue = filterInput(inputValue, type);
+      e.target.value = filteredValue;
+      if (!filteredValue) return;
+      setSearchType(type);
+      if (type === 'offset') {
+        await search(filteredValue, type);
+      }
     },
-    [searchByOffset]
+    [search]
   );
 
-  const handleInputChange2 = useCallback(
-    async (e: React.ChangeEvent<HTMLInputElement>) => {
-      const inputValue = filterInput(e.target.value);
-      setSearchType('hex');
-      await searchByHex(inputValue);
+  const handleInputKeyPress = useCallback(
+    async (e: React.KeyboardEvent<HTMLInputElement>, type: 'hex' | 'ascii') => {
+      if (e.key === 'Enter') {
+        const inputValue = e.currentTarget.value;
+        const filteredValue = filterInput(inputValue, type);
+        if (!filteredValue) return;
+        setSearchType(type);
+        await search(filteredValue, type);
+      }
     },
-    [searchByHex]
-  );
-  const handleInputChange3 = useCallback(
-    async (e: React.ChangeEvent<HTMLInputElement>) => {
-      const inputValue = filterInput(e.target.value);
-      setSearchType('ascii');
-      await searchByAscii(inputValue);
-    },
-    [searchByAscii]
+    [search]
   );
 
   const handlePrevButtonClick = useCallback(() => {
@@ -120,30 +128,37 @@ const Searcher: React.FC<Props> = ({ hexViewerRef }) => {
               <SearchLabel>Offset</SearchLabel>
               <SearchData>
                 <SearchInput
-                  onChange={handleInputChange}
+                  onChange={(e) => handleInputChange(e, 'offset')}
                   maxLength={8}
-                  onFocus={handleInputChange}
+                  onFocus={() => setSearchType('offset')}
                 />
               </SearchData>
             </SearchDiv>
             <SearchDiv>
               <SearchLabel>Hex</SearchLabel>
+
               <SearchData>
-                <SearchInput
-                  maxLength={8}
-                  onBlur={handleInputChange2}
-                  onFocus={() => setSearchType('hex')}
-                />
+                <Tooltip text="Enter시 검색">
+                  <SearchInput
+                    maxLength={8}
+                    onChange={(e) => handleInputChange(e, 'hex')}
+                    onFocus={() => setSearchType('hex')}
+                    onKeyDown={(e) => handleInputKeyPress(e, 'hex')}
+                  />
+                </Tooltip>
               </SearchData>
             </SearchDiv>
             <SearchDiv>
               <SearchLabel>ASCII</SearchLabel>
               <SearchData>
-                <SearchInput
-                  maxLength={8}
-                  onBlur={handleInputChange3}
-                  onFocus={() => setSearchType('ascii')}
-                />
+                <Tooltip text="Enter시 검색">
+                  <SearchInput
+                    maxLength={50}
+                    onChange={(e) => handleInputChange(e, 'ascii')}
+                    onFocus={() => setSearchType('ascii')}
+                    onKeyDown={(e) => handleInputKeyPress(e, 'ascii')}
+                  />
+                </Tooltip>
               </SearchData>
             </SearchDiv>
             <SearchDiv>

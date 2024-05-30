@@ -16,7 +16,6 @@ export const SearchDiv = styled.div`
 `;
 
 export const SearchLabel = styled.div`
-  /* font-weight: 600; */
   width: 20%;
   font-size: 12px;
   text-align: start;
@@ -31,12 +30,14 @@ export const SearchInput = styled.input`
   color: var(--main-color);
   background-color: var(--main-bg-color);
   border: none;
-  border: 1px solid var(--main-line-color);
+  border-bottom: 1px solid var(--main-line-color);
   box-sizing: border-box;
-  transition: border-color 0.3s ease;
+  font-size: 12px;
+  min-height: 25px;
   &:focus,
   &:hover {
-    outline: 1.5px solid var(--main-hover-line-color);
+    outline: none;
+    background-color: var(--main-hover-color_1);
   }
 `;
 

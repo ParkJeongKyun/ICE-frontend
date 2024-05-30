@@ -12,7 +12,7 @@ const Tooltip: React.FC<TooltipProps> = ({ text, children }) => {
   const handleMouseEnter = (e: React.MouseEvent<HTMLDivElement>) => {
     const { left, top, width, height } =
       e.currentTarget.getBoundingClientRect();
-    setTooltipPosition({ left: left + width, top: top + height });
+    setTooltipPosition({ left: left + width / 2, top: top + height });
   };
 
   return (
@@ -28,6 +28,7 @@ const Tooltip: React.FC<TooltipProps> = ({ text, children }) => {
 };
 
 const TooltipWrapper = styled.div`
+  width: 100%;
   position: relative;
   display: inline-block;
   cursor: pointer;
@@ -35,9 +36,8 @@ const TooltipWrapper = styled.div`
 
 const TooltipText = styled.div`
   visibility: hidden;
-  /* max-width: 120px; */
-  background-color: var(--main-hover-color);
-  border: 1px solid var(--main-hover-line-color);
+  background-color: var(--main-bg-color);
+  border: 1px solid var(--main-line-color);
   color: var(--main-color);
   text-align: center;
   border-radius: 4px;
@@ -47,10 +47,9 @@ const TooltipText = styled.div`
   opacity: 0;
   transition: opacity 0.3s;
   font-size: 12px;
-
   ${TooltipWrapper}:hover & {
     visibility: visible;
-    opacity: 1;
+    opacity: 0.8;
   }
 `;
 
