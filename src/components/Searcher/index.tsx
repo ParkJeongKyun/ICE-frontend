@@ -4,11 +4,13 @@ import {
   ButtonDiv,
   ContainerDiv,
   IndexBtn,
+  Result,
   ResultDiv,
   SearchData,
   SearchDiv,
   SearchInput,
   SearchLabel,
+  TextDiv,
 } from './index.styles';
 import { HexViewerRef, IndexInfo } from 'components/HexViewer';
 import Tooltip from 'components/common/Tooltip';
@@ -124,6 +126,32 @@ const Searcher: React.FC<Props> = ({ hexViewerRef }) => {
         title="Search"
         children={
           <>
+            <ResultDiv>
+              <TextDiv>
+                <Result>
+                  {results.length === 0 && <>검색 결과 없음</>}
+                  {results.length > 0 && (
+                    <>
+                      총 {results.length}개의 결과 중 {currentIndex + 1}번째
+                    </>
+                  )}
+                </Result>
+              </TextDiv>
+              <ButtonDiv>
+                <IndexBtn
+                  onClick={handlePrevButtonClick}
+                  $disabled={currentIndex === -1}
+                >
+                  PREV
+                </IndexBtn>
+                <IndexBtn
+                  onClick={handleNextButtonClick}
+                  $disabled={currentIndex === -1}
+                >
+                  NEXT
+                </IndexBtn>
+              </ButtonDiv>
+            </ResultDiv>
             <SearchDiv>
               <SearchLabel>Offset</SearchLabel>
               <SearchData>
@@ -160,30 +188,6 @@ const Searcher: React.FC<Props> = ({ hexViewerRef }) => {
                   />
                 </Tooltip>
               </SearchData>
-            </SearchDiv>
-            <SearchDiv>
-              <ResultDiv>
-                {results.length === 0 && <div>검색 결과 없음</div>}
-                {results.length > 0 && (
-                  <>
-                    총 {results.length}개의 결과 중 {currentIndex + 1}번째
-                  </>
-                )}
-              </ResultDiv>
-              <ButtonDiv>
-                <IndexBtn
-                  onClick={handlePrevButtonClick}
-                  $disabled={currentIndex === -1}
-                >
-                  prev
-                </IndexBtn>
-                <IndexBtn
-                  onClick={handleNextButtonClick}
-                  $disabled={currentIndex === -1}
-                >
-                  next
-                </IndexBtn>
-              </ButtonDiv>
             </SearchDiv>
           </>
         }

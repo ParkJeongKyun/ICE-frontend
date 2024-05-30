@@ -160,7 +160,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
     const findByOffset = async (offset: string): Promise<IndexInfo | null> => {
       if (offset.trim()) {
         const byteOffset = parseInt(offset, 16);
-        if (byteOffset) {
+        if (byteOffset >= 0 && byteOffset < buffer.length) {
           return {
             index: byteOffset,
             offset: bytesPerRow,

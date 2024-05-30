@@ -12,7 +12,8 @@ export const SearchDiv = styled.div`
   align-items: center;
   gap: 5px;
   justify-content: space-between;
-  margin-top: 5px;
+  padding-top: 4px;
+  padding-bottom: 4px;
 `;
 
 export const SearchLabel = styled.div`
@@ -44,21 +45,34 @@ export const SearchInput = styled.input`
 export const ResultDiv = styled.div`
   font-size: 10px;
   display: flex;
-  align-items: end;
   text-align: center;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+export const TextDiv = styled.div`
+  display: flex;
+  min-height: 25px;
+  align-items: start;
+`;
+
+export const Result = styled.div`
+  margin: 2px 0px 2px 0px;
+  padding: 2px 0px 2px 0px;
 `;
 
 export const ButtonDiv = styled.div`
   display: flex;
-  align-items: end;
+  min-height: 25px;
+  align-items: start;
 `;
 
 export const IndexBtn = styled.div<{ $disabled?: boolean }>`
   margin: 2px 1px 2px 1px;
   padding: 2px 4px 2px 4px;
-  border-radius: 5px;
+  border-radius: 2.5px;
   font-weight: 600;
-  font-size: 12px;
+  font-size: 10px;
   color: var(--main-color);
   border: 1px solid var(--main-line-color);
   &:hover {
