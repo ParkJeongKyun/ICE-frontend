@@ -17,6 +17,7 @@ import {
   SearchInput,
   SearchLabel,
   TextDiv,
+  SearchSelect,
 } from './index.styles';
 import { HexViewerRef, IndexInfo } from 'components/HexViewer';
 import Tooltip from 'components/common/Tooltip';
@@ -41,7 +42,7 @@ const initialState: SearchState = {};
 type Action =
   | { type: 'SET_RESULTS'; key: TabKey; results: IndexInfo[] }
   | { type: 'SET_CURRENT_INDEX'; key: TabKey; index: number }
-  | { type: 'RESET_RESULTS'; key: TabKey };
+  | { type: 'RESET_RESULTS' };
 
 const reducer = (state: SearchState, action: Action): SearchState => {
   switch (action.type) {
@@ -62,13 +63,7 @@ const reducer = (state: SearchState, action: Action): SearchState => {
         },
       };
     case 'RESET_RESULTS':
-      return {
-        ...state,
-        [action.key]: {
-          results: [],
-          currentIndex: -1,
-        },
-      };
+      return initialState;
     default:
       return state;
   }
@@ -91,6 +86,7 @@ const Searcher: React.FC<Props> = ({ hexViewerRef, activeKey }) => {
   const [searchType, setSearchType] = useState<'offset' | 'hex' | 'ascii'>(
     'offset'
   );
+  const [inputValue, setInputValue] = useState('');
 
   const search = useCallback(
     async (inputValue: string, type: 'offset' | 'hex' | 'ascii') => {
@@ -111,31 +107,27 @@ const Searcher: React.FC<Props> = ({ hexViewerRef, activeKey }) => {
   );
 
   const handleInputChange = useCallback(
-    async (
-      e: React.ChangeEvent<HTMLInputElement>,
-      type: 'offset' | 'hex' | 'ascii'
-    ) => {
-      const inputValue = filterInput(e.target.value, type);
-      e.target.value = inputValue;
-      if (!inputValue) return;
-      setSearchType(type);
-      if (type === 'offset') {
-        await search(inputValue, type);
-      }
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const filteredValue = filterInput(e.target.value, searchType);
+      setInputValue(filteredValue);
     },
-    [search]
+    [searchType]
   );
 
   const handleInputKeyPress = useCallback(
-    async (e: React.KeyboardEvent<HTMLInputElement>, type: 'hex' | 'ascii') => {
-      if (e.key === 'Enter') {
-        const inputValue = filterInput(e.currentTarget.value, type);
-        if (!inputValue) return;
-        setSearchType(type);
-        await search(inputValue, type);
+    async (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Enter' && inputValue) {
+        await search(inputValue, searchType);
       }
     },
-    [search]
+    [inputValue, search, searchType]
+  );
+
+  const handleSearchTypeChange = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      setSearchType(e.target.value as 'offset' | 'hex' | 'ascii');
+    },
+    []
   );
 
   const handlePrevButtonClick = useCallback(() => {
@@ -162,10 +154,8 @@ const Searcher: React.FC<Props> = ({ hexViewerRef, activeKey }) => {
   }, [activeKey, searchResults]);
 
   const handleResetButtonClick = useCallback(() => {
-    dispatch({
-      type: 'RESET_RESULTS',
-      key: activeKey,
-    });
+    dispatch({ type: 'RESET_RESULTS' });
+    setInputValue('');
   }, [activeKey]);
 
   const currentResult = useMemo(() => {
@@ -185,41 +175,37 @@ const Searcher: React.FC<Props> = ({ hexViewerRef, activeKey }) => {
     }
   }, [currentResult, hexViewerRef]);
 
+  useEffect(() => {
+    if (inputValue) search(inputValue, searchType);
+  }, [activeKey, search]);
+
+  useEffect(() => {
+    setInputValue('');
+  }, [searchType]);
+
   return (
     <ContainerDiv>
       <Collapse title="Search" open>
         <SearchDiv>
-          <SearchLabel>Offset</SearchLabel>
+          <SearchLabel>타입</SearchLabel>
           <SearchData>
-            <SearchInput
-              onChange={(e) => handleInputChange(e, 'offset')}
-              maxLength={8}
-              onFocus={() => setSearchType('offset')}
-            />
+            <SearchSelect value={searchType} onChange={handleSearchTypeChange}>
+              <option value="offset">Offset</option>
+              <option value="hex">Hex</option>
+              <option value="ascii">ASCII</option>
+            </SearchSelect>
           </SearchData>
         </SearchDiv>
         <SearchDiv>
-          <SearchLabel>Hex</SearchLabel>
+          <SearchLabel>검색어</SearchLabel>
           <SearchData>
-            <Tooltip text="Enter시 검색">
+            <Tooltip text="Enter to search">
               <SearchInput
-                maxLength={8}
-                onChange={(e) => handleInputChange(e, 'hex')}
-                onFocus={() => setSearchType('hex')}
-                onKeyDown={(e) => handleInputKeyPress(e, 'hex')}
-              />
-            </Tooltip>
-          </SearchData>
-        </SearchDiv>
-        <SearchDiv>
-          <SearchLabel>ASCII</SearchLabel>
-          <SearchData>
-            <Tooltip text="Enter시 검색">
-              <SearchInput
-                maxLength={50}
-                onChange={(e) => handleInputChange(e, 'ascii')}
-                onFocus={() => setSearchType('ascii')}
-                onKeyDown={(e) => handleInputKeyPress(e, 'ascii')}
+                value={inputValue}
+                onChange={handleInputChange}
+                onKeyDown={handleInputKeyPress}
+                maxLength={searchType === 'ascii' ? 50 : 8}
+                placeholder={`Enter ${searchType} value`}
               />
             </Tooltip>
           </SearchData>
@@ -228,7 +214,7 @@ const Searcher: React.FC<Props> = ({ hexViewerRef, activeKey }) => {
           <ResultDiv>
             <TextDiv>
               <Result>
-                <Tooltip text="최대 1000개까지 검색">
+                <Tooltip text="Maximum 1000 results">
                   <IndexBtn onClick={handleResetButtonClick}>X</IndexBtn>총{' '}
                   <span style={{ color: 'var(--ice-main-color_1)' }}>
                     {searchResults[activeKey].results.length}

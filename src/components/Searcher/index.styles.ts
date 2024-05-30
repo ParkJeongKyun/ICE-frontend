@@ -6,6 +6,14 @@ export const ContainerDiv = styled.div`
   overflow-y: auto;
 `;
 
+export const SearchSelect = styled.select`
+  width: 100%;
+  outline: none;
+  color: var(--main-color);
+  border: 1px solid var(--main-line-color);
+  background-color: var(--main-bg-color);
+`;
+
 export const SearchDiv = styled.div`
   display: flex;
   text-align: center;
