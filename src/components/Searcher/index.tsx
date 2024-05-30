@@ -40,7 +40,8 @@ const initialState: SearchState = {};
 
 type Action =
   | { type: 'SET_RESULTS'; key: TabKey; results: IndexInfo[] }
-  | { type: 'SET_CURRENT_INDEX'; key: TabKey; index: number };
+  | { type: 'SET_CURRENT_INDEX'; key: TabKey; index: number }
+  | { type: 'RESET_RESULTS'; key: TabKey };
 
 const reducer = (state: SearchState, action: Action): SearchState => {
   switch (action.type) {
@@ -58,6 +59,14 @@ const reducer = (state: SearchState, action: Action): SearchState => {
         [action.key]: {
           ...state[action.key],
           currentIndex: action.index,
+        },
+      };
+    case 'RESET_RESULTS':
+      return {
+        ...state,
+        [action.key]: {
+          results: [],
+          currentIndex: -1,
         },
       };
     default:
@@ -152,6 +161,13 @@ const Searcher: React.FC<Props> = ({ hexViewerRef, activeKey }) => {
     });
   }, [activeKey, searchResults]);
 
+  const handleResetButtonClick = useCallback(() => {
+    dispatch({
+      type: 'RESET_RESULTS',
+      key: activeKey,
+    });
+  }, [activeKey]);
+
   const currentResult = useMemo(() => {
     return (
       searchResults[activeKey]?.results[
@@ -213,7 +229,7 @@ const Searcher: React.FC<Props> = ({ hexViewerRef, activeKey }) => {
             <TextDiv>
               <Result>
                 <Tooltip text="최대 1000개까지 검색">
-                  총{' '}
+                  <IndexBtn onClick={handleResetButtonClick}>X</IndexBtn>총{' '}
                   <span style={{ color: 'var(--ice-main-color_1)' }}>
                     {searchResults[activeKey].results.length}
                   </span>
