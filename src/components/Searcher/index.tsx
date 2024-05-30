@@ -30,8 +30,23 @@ const Searcher: React.FC<Props> = ({ hexViewerRef }) => {
     inputValue: string,
     type: 'offset' | 'hex' | 'ascii'
   ) => {
-    if (type === 'ascii') return inputValue; // ASCII는 필터링하지 않음
-    return inputValue.replace(/[^0-9a-fA-F]/g, '');
+    let filteredInput: string;
+    switch (type) {
+      case 'offset': {
+        filteredInput = inputValue.replace(/[^0-9a-fA-F]/g, '');
+        break;
+      }
+      case 'hex': {
+        filteredInput = inputValue.replace(/[^0-9a-fA-F]/g, '');
+        break;
+      }
+      case 'ascii': {
+        filteredInput = inputValue.replace(/[^\x00-\x7F]/g, '');
+        break;
+      }
+    }
+
+    return filteredInput;
   };
 
   const search = useCallback(
