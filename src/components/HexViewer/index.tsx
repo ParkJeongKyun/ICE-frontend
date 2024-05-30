@@ -18,6 +18,7 @@ import {
 } from './index.styles';
 import { List } from 'react-virtualized';
 import { asciiToBytes, findPatternIndices } from 'utils/byteSearch';
+import { useSelection } from 'contexts/SelectionContext';
 
 interface Props {
   arrayBuffer: ArrayBuffer;
@@ -55,8 +56,9 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
 
   // 드래그 관련 변수
   const [isDragging, setIsDragging] = useState(false);
-  const [startByteIndex, setStartByteIndex] = useState<number | null>(null);
-  const [endByteIndex, setEndByteIndex] = useState<number | null>(null);
+  const { selectionRange, setSelectionRange } = useSelection();
+
+  const { start: startIndex, end: endIndex } = selectionRange;
 
   // 분할용 변수
   const bytesPerRow = 16;
@@ -67,14 +69,19 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
   // 마우스 이벤트
   const handleMouseDown = useCallback((byteIndex: number) => {
     setIsDragging(true);
-    setStartByteIndex(byteIndex);
-    setEndByteIndex(byteIndex);
+    setSelectionRange({
+      start: byteIndex,
+      end: byteIndex,
+    });
   }, []);
 
   const handleMouseMove = useCallback(
     (byteIndex: number) => {
       if (isDragging) {
-        setEndByteIndex(byteIndex);
+        setSelectionRange({
+          start: selectionRange.start,
+          end: byteIndex,
+        });
       }
     },
     [isDragging]
@@ -104,10 +111,10 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
     const { offset, bytes, start } = getRowData({ index });
 
     const selected =
-      startByteIndex !== null &&
-      endByteIndex !== null &&
-      start <= Math.max(startByteIndex, endByteIndex) &&
-      start + bytesPerRow - 1 >= Math.min(startByteIndex, endByteIndex);
+      startIndex !== null &&
+      endIndex !== null &&
+      start <= Math.max(startIndex, endIndex) &&
+      start + bytesPerRow - 1 >= Math.min(startIndex, endIndex);
 
     const hexRow: JSX.Element[] = [];
     const textRow: JSX.Element[] = [];
@@ -115,8 +122,8 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
     bytes.forEach((byte: number, i: number) => {
       const byteIndex = start + i;
       const selected =
-        byteIndex >= Math.min(startByteIndex!, endByteIndex!) &&
-        byteIndex <= Math.max(startByteIndex!, endByteIndex!);
+        byteIndex >= Math.min(startIndex!, endIndex!) &&
+        byteIndex <= Math.max(startIndex!, endIndex!);
       hexRow.push(
         <HexByte
           key={i}
@@ -218,8 +225,10 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
     const scrollToIndex = (index: number, offset: number): void => {
       const rowIndex = Math.floor(index / bytesPerRow);
       listRef.current?.scrollToRow(rowIndex);
-      setStartByteIndex(index);
-      setEndByteIndex(index + offset - 1);
+      setSelectionRange({
+        start: index,
+        end: index + offset - 1,
+      });
     };
 
     return {

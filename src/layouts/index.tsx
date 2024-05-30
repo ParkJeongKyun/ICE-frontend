@@ -22,6 +22,7 @@ import HelpMD from 'components/markdown/HelpMD';
 import { useResizable } from 'react-resizable-layout';
 import Searcher from 'components/Searcher';
 import { HexViewerRef } from 'components/HexViewer';
+import { SelectionProvider } from 'contexts/SelectionContext';
 
 const MainLayout: React.FC = () => {
   // Hex뷰어 Ref
@@ -111,82 +112,84 @@ const MainLayout: React.FC = () => {
   const isResizing = isLeftSideDragging || isRightSideDragging;
 
   return (
-    <IceMainLayout $isResizing={isResizing}>
-      <IceHeader>
-        <LogoDiv>
-          <LogoImage src={'pullLogo.png'} />
-        </LogoDiv>
+    <SelectionProvider>
+      <IceMainLayout $isResizing={isResizing}>
+        <IceHeader>
+          <LogoDiv>
+            <LogoImage src={'pullLogo.png'} />
+          </LogoDiv>
 
-        <MenuBtnZone
-          hexViewerRef={hexViewerRef}
-          newTabIndex={newTabIndex}
-          setDatas={setDatas}
-          setItems={setItems}
-          setActiveKey={setActiveKey}
-          openModal={openModal}
-        />
-      </IceHeader>
-
-      <IceLayout>
-        <IceLeftSider
-          style={{
-            width: `${leftSidePostion}px`,
-            display:
-              leftSidePostion < minSiderWidth || items.length <= 0
-                ? 'none'
-                : 'block',
-          }}
-        >
-          <ExifRowViewer activeKey={activeKey} datas={datas} />
-        </IceLeftSider>
-        <Separator
-          {...leftSideSepProps}
-          $isResizing={isLeftSideDragging}
-          style={{
-            display: items.length <= 0 ? 'none' : 'block',
-          }}
-        />
-
-        <FlexGrow>
-          <IceContent>
-            <TabWindow
-              items={items}
-              activeKey={activeKey}
-              setActiveKey={setActiveKey}
-              setDatas={setDatas}
-              setItems={setItems}
-            />
-          </IceContent>
-          <Separator
-            {...rightSideSepProps}
-            $reverse={true}
-            $isResizing={isRightSideDragging}
-            style={{
-              display: items.length <= 0 ? 'none' : 'block',
-            }}
+          <MenuBtnZone
+            hexViewerRef={hexViewerRef}
+            newTabIndex={newTabIndex}
+            setDatas={setDatas}
+            setItems={setItems}
+            setActiveKey={setActiveKey}
+            openModal={openModal}
           />
-          <IceRightSider
+        </IceHeader>
+
+        <IceLayout>
+          <IceLeftSider
             style={{
-              width: `${rightSidePostion}px`,
+              width: `${leftSidePostion}px`,
               display:
-                rightSidePostion < minSiderWidth || items.length <= 0
+                leftSidePostion < minSiderWidth || items.length <= 0
                   ? 'none'
                   : 'block',
             }}
           >
-            <Searcher hexViewerRef={hexViewerRef} />
-          </IceRightSider>
-        </FlexGrow>
-      </IceLayout>
+            <ExifRowViewer activeKey={activeKey} datas={datas} />
+          </IceLeftSider>
+          <Separator
+            {...leftSideSepProps}
+            $isResizing={isLeftSideDragging}
+            style={{
+              display: items.length <= 0 ? 'none' : 'block',
+            }}
+          />
 
-      <IceFooter>
-        © 2024 Park Jeong-kyun (dbzoseh84@gmail.com). All rights reserved.
-      </IceFooter>
+          <FlexGrow>
+            <IceContent>
+              <TabWindow
+                items={items}
+                activeKey={activeKey}
+                setActiveKey={setActiveKey}
+                setDatas={setDatas}
+                setItems={setItems}
+              />
+            </IceContent>
+            <Separator
+              {...rightSideSepProps}
+              $reverse={true}
+              $isResizing={isRightSideDragging}
+              style={{
+                display: items.length <= 0 ? 'none' : 'block',
+              }}
+            />
+            <IceRightSider
+              style={{
+                width: `${rightSidePostion}px`,
+                display:
+                  rightSidePostion < minSiderWidth || items.length <= 0
+                    ? 'none'
+                    : 'block',
+              }}
+            >
+              <Searcher hexViewerRef={hexViewerRef} />
+            </IceRightSider>
+          </FlexGrow>
+        </IceLayout>
 
-      <Modal title={modalTitle} isOpen={isModalOpen} onClose={closeModal}>
-        {modalContent}
-      </Modal>
-    </IceMainLayout>
+        <IceFooter>
+          © 2024 Park Jeong-kyun (dbzoseh84@gmail.com). All rights reserved.
+        </IceFooter>
+
+        <Modal title={modalTitle} isOpen={isModalOpen} onClose={closeModal}>
+          {modalContent}
+        </Modal>
+      </IceMainLayout>
+    </SelectionProvider>
   );
 };
 
