@@ -120,10 +120,11 @@ const MainLayout: React.FC = () => {
     return (
       <>
         <span style={{ color: 'var(--ice-main-color)' }}>{deciaml}</span>
-        {'(0x'}
-        <span style={{ color: 'var(--ice-main-color_2)' }}>
-          {deciaml.toString(16).toUpperCase()}
+        {'('}
+        <span style={{ color: 'var(--ice-main-color)', fontWeight: '600' }}>
+          {'0x'}
         </span>
+        {deciaml.toString(16).toUpperCase()}
         {`)`}
       </>
     );
