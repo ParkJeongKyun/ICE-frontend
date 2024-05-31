@@ -26,6 +26,12 @@ export const ModalContent = styled.div<{ $top: string; $left: string }>`
   max-width: 800px;
 `;
 
+export const ChildDiv = styled.div`
+  height: 50vh;
+  max-height: 500px;
+  border: 1px solid var(--main-line-color);
+`;
+
 export const ModalHeader = styled.div`
   display: flex;
   justify-content: space-between;

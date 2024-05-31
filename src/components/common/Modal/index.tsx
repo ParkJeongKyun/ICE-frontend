@@ -4,6 +4,7 @@ import {
   ModalContent,
   ModalHeader,
   CloseBtn,
+  ChildDiv,
 } from './index.styles';
 import XIcon from '../Icons/XIcon';
 
@@ -33,7 +34,7 @@ const Modal: React.FC<ModalProps> = ({
             <XIcon height={20} width={20} />
           </CloseBtn>
         </ModalHeader>
-        {children}
+        <ChildDiv>{children}</ChildDiv>
       </ModalContent>
     </ModalContainer>
   );

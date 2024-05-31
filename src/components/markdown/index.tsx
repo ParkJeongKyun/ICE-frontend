@@ -85,12 +85,7 @@ export default ICEMarkDown;
 const MarkdownContainer = styled.div`
   overflow-y: auto;
   text-align: left;
-  padding: 10px;
-  margin: 0 auto;
-  border: 1px solid var(--main-line-color);
-  border-radius: 4px;
-  height: 50vh;
-  max-height: 500px;
+  height: 100%;
 `;
 
 // 기본 텍스트로 변경 버튼
@@ -111,25 +106,25 @@ const MarkDownLink = styled.span`
 
 // 마크다운 컨테이너
 export const MarkDownDiv = styled.div`
+  padding-left: 15px;
+  padding-right: 15px;
+  padding-bottom: 15px;
   font-size: 12px;
   line-height: 1.6;
 
   /* Styling for headings */
   h1 {
     font-size: 18px;
-    margin-top: 10px;
     border-bottom: 1.5px solid var(--main-line-color);
   }
 
   h2 {
     font-size: 16px;
-    margin-top: 10px;
     border-bottom: 1.5px solid var(--main-line-color);
   }
 
   h3 {
     font-size: 14px;
-    margin-top: 10px;
     border-bottom: 1.5px solid var(--main-line-color);
   }
 
@@ -149,7 +144,6 @@ export const MarkDownDiv = styled.div`
 
   code {
     font-family: 'Courier New', Courier, monospace;
-    font-size: 10px;
   }
 
   /* Styling for lists */
