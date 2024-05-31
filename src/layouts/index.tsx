@@ -187,7 +187,9 @@ const MainLayout: React.FC = () => {
 
       <IceFooter>
         <SelectInfo>
-          {startIndex && endIndex && `${startIndex} ~ ${endIndex} 선택됨`}
+          {startIndex != null &&
+            endIndex != null &&
+            `선택됨: 오프셋(0x): ${startIndex.toString(16).toUpperCase()}범위(0x): ${startIndex.toString(16).toUpperCase()}-${endIndex.toString(16).toUpperCase()} 길이(0x): ${(endIndex - startIndex + 1).toString(16).toUpperCase()}`}
         </SelectInfo>
         <IceCopyRight>
           © 2024 Park Jeong-kyun (dbzoseh84@gmail.com). All rights reserved.

@@ -79,12 +79,21 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
   const handleMouseMove = useCallback(
     (byteIndex: number) => {
       if (isDragging) {
+        let start: number | null;
+        let end: number | null;
+
+        // 뒤에서 앞으로 선택하는 경우
+        if (Number(selectionRange.start) > byteIndex) {
+          start = byteIndex;
+          end = selectionRange.start;
+        } else {
+          start = selectionRange.start;
+          end = byteIndex;
+        }
         setSelectionRange({
-          start: selectionRange.start,
-          end: byteIndex,
-          arrayBuffer: selectionRange.start
-            ? buffer.slice(selectionRange.start, byteIndex + 1)
-            : null,
+          start: start,
+          end: end,
+          arrayBuffer: start && end ? buffer.slice(start, end + 1) : null,
         });
       }
     },

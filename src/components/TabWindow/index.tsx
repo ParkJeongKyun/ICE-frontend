@@ -32,20 +32,11 @@ const TabWindow: React.FC<Props> = ({
   setDatas,
   setItems,
 }) => {
-  const [scrollPositions, setScrollPositions] = useState<Map<TabKey, number>>(
-    new Map()
-  );
   const contentContainerRef = useRef<HTMLDivElement>(null);
   const { setSelectionRange } = useSelection();
 
   const handleTabClick = useCallback(
     (key: TabKey) => {
-      if (contentContainerRef.current) {
-        // 현재 탭의 스크롤 위치 저장
-        setScrollPositions((prev) =>
-          new Map(prev).set(activeKey, contentContainerRef.current!.scrollTop)
-        );
-      }
       setActiveKey(key);
     },
     [activeKey, setActiveKey]
@@ -90,14 +81,6 @@ const TabWindow: React.FC<Props> = ({
     () => items.find((item) => item.key === activeKey),
     [items, activeKey]
   );
-
-  // 스크롤 위치 복원
-  useEffect(() => {
-    if (contentContainerRef.current) {
-      contentContainerRef.current.scrollTop =
-        scrollPositions.get(activeKey) || 0;
-    }
-  }, [activeKey, scrollPositions]);
 
   return (
     <TabWindowContainer>
