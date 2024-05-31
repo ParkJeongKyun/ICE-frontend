@@ -41,10 +41,26 @@ const byteToHex = (byte: number): string => {
 };
 
 const byteToChar = (byte: number): string => {
-  if (byte >= 32 && byte <= 126) {
-    return String.fromCharCode(byte);
+  const decoder = new TextDecoder('windows-1252'); // ANSI에 해당하는 인코딩 사용
+  const byteArr = new Uint8Array([byte]);
+
+  try {
+    const char = decoder.decode(byteArr);
+    const code = char.charCodeAt(0);
+
+    // ASCII 프린트 가능한 문자 및 확장된 ANSI 프린트 가능한 문자 확인
+    if (
+      (code >= 0x20 && code <= 0x7e) || // ASCII printable characters
+      (code >= 0xa0 && code <= 0xff) // Extended ANSI printable characters
+    ) {
+      return char;
+    }
+  } catch (e) {
+    // 디코딩에 실패하면 무시하고 '.' 반환
   }
-  return '.';
+
+  // 범위 내 바이트 값에 대해 '.' 반환
+  return '.'; // Non-printable characters
 };
 
 const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
