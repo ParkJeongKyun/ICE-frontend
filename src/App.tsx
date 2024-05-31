@@ -1,10 +1,13 @@
+import { SelectionProvider } from 'contexts/SelectionContext';
 import { BrowserRouter } from 'react-router-dom';
 import RouterList from 'routes';
 
 function App() {
   return (
     <BrowserRouter>
-      <RouterList />
+      <SelectionProvider>
+        <RouterList />
+      </SelectionProvider>
     </BrowserRouter>
   );
 }

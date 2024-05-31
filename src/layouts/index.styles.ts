@@ -39,13 +39,22 @@ export const IceHeader = styled.div`
 
 // 푸터
 export const IceFooter = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
   height: 24px; /* 기본 푸터 높이 조정 */
-  padding: 2px 5px 2px 5px;
+  padding: 0px 5px 0px 5px;
   background-color: var(--main-bg-color);
-  color: var(--main-line-color);
   border-top: 1px solid var(--main-line-color);
   border-bottom: 1px solid var(--main-line-color);
   font-size: 10px;
+`;
+
+export const SelectInfo = styled.div``;
+
+export const IceCopyRight = styled.div`
+  color: var(--main-line-color);
 `;
 
 // 중간 컨텐츠 레이아웃

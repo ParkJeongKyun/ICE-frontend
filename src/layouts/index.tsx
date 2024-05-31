@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   FlexGrow,
   IceContent,
+  IceCopyRight,
   IceFooter,
   IceHeader,
   IceLayout,
@@ -10,6 +11,7 @@ import {
   IceRightSider,
   LogoDiv,
   LogoImage,
+  SelectInfo,
   Separator,
 } from './index.styles';
 import { TabData, TabItem, TabKey } from 'types';
@@ -22,7 +24,7 @@ import HelpMD from 'components/markdown/HelpMD';
 import { useResizable } from 'react-resizable-layout';
 import Searcher from 'components/Searcher';
 import { HexViewerRef } from 'components/HexViewer';
-import { SelectionProvider } from 'contexts/SelectionContext';
+import { useSelection } from 'contexts/SelectionContext';
 
 const MainLayout: React.FC = () => {
   // Hex뷰어 Ref
@@ -35,6 +37,9 @@ const MainLayout: React.FC = () => {
   // Modal 데이터
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalContentKey, setModalContentKey] = useState<string | null>(null);
+  // 선택된 셀 정보
+  const { selectionRange, setSelectionRange } = useSelection();
+  const { start: startIndex, end: endIndex } = selectionRange;
 
   // 모달 Open 이벤트
   const openModal = (key: string) => {
@@ -112,84 +117,87 @@ const MainLayout: React.FC = () => {
   const isResizing = isLeftSideDragging || isRightSideDragging;
 
   return (
-    <SelectionProvider>
-      <IceMainLayout $isResizing={isResizing}>
-        <IceHeader>
-          <LogoDiv>
-            <LogoImage src={'pullLogo.png'} />
-          </LogoDiv>
+    <IceMainLayout $isResizing={isResizing}>
+      <IceHeader>
+        <LogoDiv>
+          <LogoImage src={'pullLogo.png'} />
+        </LogoDiv>
 
-          <MenuBtnZone
-            hexViewerRef={hexViewerRef}
-            newTabIndex={newTabIndex}
-            setDatas={setDatas}
-            setItems={setItems}
-            setActiveKey={setActiveKey}
-            openModal={openModal}
-          />
-        </IceHeader>
+        <MenuBtnZone
+          hexViewerRef={hexViewerRef}
+          newTabIndex={newTabIndex}
+          setDatas={setDatas}
+          setItems={setItems}
+          setActiveKey={setActiveKey}
+          openModal={openModal}
+        />
+      </IceHeader>
 
-        <IceLayout>
-          <IceLeftSider
-            style={{
-              width: `${leftSidePostion}px`,
-              display:
-                leftSidePostion < minSiderWidth || items.length <= 0
-                  ? 'none'
-                  : 'block',
-            }}
-          >
-            <ExifRowViewer activeKey={activeKey} datas={datas} />
-          </IceLeftSider>
+      <IceLayout>
+        <IceLeftSider
+          style={{
+            width: `${leftSidePostion}px`,
+            display:
+              leftSidePostion < minSiderWidth || items.length <= 0
+                ? 'none'
+                : 'block',
+          }}
+        >
+          <ExifRowViewer activeKey={activeKey} datas={datas} />
+        </IceLeftSider>
+        <Separator
+          {...leftSideSepProps}
+          $isResizing={isLeftSideDragging}
+          style={{
+            display: items.length <= 0 ? 'none' : 'block',
+          }}
+        />
+
+        <FlexGrow>
+          <IceContent>
+            <TabWindow
+              items={items}
+              activeKey={activeKey}
+              setActiveKey={setActiveKey}
+              setDatas={setDatas}
+              setItems={setItems}
+            />
+          </IceContent>
           <Separator
-            {...leftSideSepProps}
-            $isResizing={isLeftSideDragging}
+            {...rightSideSepProps}
+            $reverse={true}
+            $isResizing={isRightSideDragging}
             style={{
               display: items.length <= 0 ? 'none' : 'block',
             }}
           />
+          <IceRightSider
+            style={{
+              width: `${rightSidePostion}px`,
+              display:
+                rightSidePostion < minSiderWidth || items.length <= 0
+                  ? 'none'
+                  : 'block',
+            }}
+          >
+            <Searcher hexViewerRef={hexViewerRef} activeKey={activeKey} />
+          </IceRightSider>
+        </FlexGrow>
+      </IceLayout>
 
-          <FlexGrow>
-            <IceContent>
-              <TabWindow
-                items={items}
-                activeKey={activeKey}
-                setActiveKey={setActiveKey}
-                setDatas={setDatas}
-                setItems={setItems}
-              />
-            </IceContent>
-            <Separator
-              {...rightSideSepProps}
-              $reverse={true}
-              $isResizing={isRightSideDragging}
-              style={{
-                display: items.length <= 0 ? 'none' : 'block',
-              }}
-            />
-            <IceRightSider
-              style={{
-                width: `${rightSidePostion}px`,
-                display:
-                  rightSidePostion < minSiderWidth || items.length <= 0
-                    ? 'none'
-                    : 'block',
-              }}
-            >
-              <Searcher hexViewerRef={hexViewerRef} activeKey={activeKey} />
-            </IceRightSider>
-          </FlexGrow>
-        </IceLayout>
-
-        <IceFooter>
+      <IceFooter>
+        <SelectInfo>
+          {startIndex && endIndex && `${startIndex} ~ ${endIndex} 선택됨`}
+        </SelectInfo>
+        <IceCopyRight>
           © 2024 Park Jeong-kyun (dbzoseh84@gmail.com). All rights reserved.
-        </IceFooter>
+        </IceCopyRight>
+      </IceFooter>
 
-        <Modal title={modalTitle} isOpen={isModalOpen} onClose={closeModal}>
-          {modalContent}
-        </Modal>
-      </IceMainLayout>
-    </SelectionProvider>
+      <Modal title={modalTitle} isOpen={isModalOpen} onClose={closeModal}>
+        {modalContent}
+      </Modal>
+    </IceMainLayout>
   );
 };
 
