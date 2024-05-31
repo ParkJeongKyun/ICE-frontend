@@ -109,7 +109,8 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
         setSelectionRange({
           start: start,
           end: end,
-          arrayBuffer: start && end ? buffer.slice(start, end + 1) : null,
+          arrayBuffer:
+            start != null && end != null ? buffer.slice(start, end + 1) : null,
         });
       }
     },
