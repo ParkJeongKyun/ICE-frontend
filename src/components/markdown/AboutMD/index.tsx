@@ -8,7 +8,7 @@ const txt = `
 항상 건강하세요! 😁
 # 현재 버전 : v2024.05.29-demo
 
-## 개발자 
+## [개발자](/About)
 박정균 (Park Jeong-Kyun)
   - 2001. 02. 23
   - 한국(ROK, Republic of Korea), 서울(Seoul), 대구(Deagu)
