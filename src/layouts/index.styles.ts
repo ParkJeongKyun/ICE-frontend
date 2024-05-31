@@ -10,7 +10,7 @@ export const IceMainLayout = styled.div<{ $isResizing: boolean }>`
   display: flex;
   flex-direction: column;
   /* 리사이즈 중일때는 선택 불가 */
-  ${(props) => (props.$isResizing ? 'user-select: none;' : '')};
+  ${(props) => (props.$isResizing ? 'user-select: none;' : '')}
 `;
 
 // 로고
@@ -42,8 +42,10 @@ export const IceFooter = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: nowrap;
+  overflow: hidden;
 
-  height: 24px; /* 기본 푸터 높이 조정 */
+  height: 25px; /* 기본 푸터 높이 조정 */
   padding: 0px 5px 0px 5px;
   background-color: var(--main-bg-color);
   border-top: 1px solid var(--main-line-color);
@@ -51,7 +53,16 @@ export const IceFooter = styled.div`
   font-size: 10px;
 `;
 
-export const SelectInfo = styled.div``;
+export const SelectInfo = styled.div`
+  display: flex;
+  flex-wrap: nowrap;
+  font-size: 12px;
+  > hr {
+    width: 0px;
+    height: 5px;
+    padding-left: 2px;
+  }
+`;
 
 export const IceCopyRight = styled.div`
   color: var(--main-line-color);

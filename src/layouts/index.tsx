@@ -116,6 +116,19 @@ const MainLayout: React.FC = () => {
 
   const isResizing = isLeftSideDragging || isRightSideDragging;
 
+  const showHex = (deciaml: number) => {
+    return (
+      <>
+        <span style={{ color: 'var(--ice-main-color)' }}>{deciaml}</span>
+        {'(0x'}
+        <span style={{ color: 'var(--ice-main-color_2)' }}>
+          {deciaml.toString(16).toUpperCase()}
+        </span>
+        {`)`}
+      </>
+    );
+  };
+
   return (
     <IceMainLayout $isResizing={isResizing}>
       <IceHeader>
@@ -187,9 +200,18 @@ const MainLayout: React.FC = () => {
 
       <IceFooter>
         <SelectInfo>
-          {startIndex != null &&
-            endIndex != null &&
-            `선택됨: 오프셋(0x): ${startIndex.toString(16).toUpperCase()}범위(0x): ${startIndex.toString(16).toUpperCase()}-${endIndex.toString(16).toUpperCase()} 길이(0x): ${(endIndex - startIndex + 1).toString(16).toUpperCase()}`}
+          {startIndex != null && endIndex != null && (
+            <>
+              {`선택됨: 오프셋: `}
+              {showHex(startIndex)}
+              {` 범위: `}
+              {showHex(startIndex)}
+              {`-`}
+              {showHex(endIndex)}
+              {` 길이: `}
+              {showHex(endIndex - startIndex + 1)}
+            </>
+          )}
         </SelectInfo>
         <IceCopyRight>
           © 2024 Park Jeong-kyun (dbzoseh84@gmail.com). All rights reserved.
