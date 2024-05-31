@@ -9,7 +9,7 @@ import React, {
 import {
   ButtonDiv,
   ContainerDiv,
-  IndexBtn,
+  SearchBtn,
   Result,
   ResultDiv,
   SearchData,
@@ -18,10 +18,12 @@ import {
   SearchLabel,
   TextDiv,
   SearchSelect,
+  ResetBtn,
 } from './index.styles';
 import { HexViewerRef, IndexInfo } from 'components/HexViewer';
 import Tooltip from 'components/common/Tooltip';
 import { TabKey } from 'types';
+import XIcon from 'components/common/Icons/XIcon';
 
 interface Props {
   hexViewerRef: React.RefObject<HexViewerRef>;
@@ -235,7 +237,7 @@ const Searcher: React.FC<Props> = ({ hexViewerRef, activeKey }) => {
             <TextDiv>
               <Result>
                 <Tooltip text="Maximum 1000 results">
-                  <IndexBtn onClick={handleResetButtonClick}>X</IndexBtn>총{' '}
+                  총{' '}
                   <span style={{ color: 'var(--ice-main-color_1)' }}>
                     {searchResults[activeKey].results.length}
                   </span>
@@ -249,22 +251,25 @@ const Searcher: React.FC<Props> = ({ hexViewerRef, activeKey }) => {
                       번째
                     </>
                   )}
+                  <ResetBtn onClick={handleResetButtonClick}>
+                    <XIcon height={10} width={10} />
+                  </ResetBtn>
                 </Tooltip>
               </Result>
             </TextDiv>
             <ButtonDiv>
-              <IndexBtn
+              <SearchBtn
                 onClick={handlePrevButtonClick}
                 $disabled={searchResults[activeKey].results.length <= 1}
               >
                 PREV
-              </IndexBtn>
-              <IndexBtn
+              </SearchBtn>
+              <SearchBtn
                 onClick={handleNextButtonClick}
                 $disabled={searchResults[activeKey].results.length <= 1}
               >
                 NEXT
-              </IndexBtn>
+              </SearchBtn>
             </ButtonDiv>
           </ResultDiv>
         )}

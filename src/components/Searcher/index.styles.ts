@@ -75,7 +75,7 @@ export const ButtonDiv = styled.div`
   align-items: end;
 `;
 
-export const IndexBtn = styled.div<{ $disabled?: boolean }>`
+export const SearchBtn = styled.div<{ $disabled?: boolean }>`
   margin: 2px 1px 2px 1px;
   padding: 2px 4px 2px 4px;
   border-radius: 2.5px;
@@ -89,4 +89,18 @@ export const IndexBtn = styled.div<{ $disabled?: boolean }>`
     background-color: var(--main-hover-color);
   }
   display: ${(props) => (props.$disabled ? `none` : 'inline-flex')};
+`;
+
+export const ResetBtn = styled.div`
+  display: inline-flex;
+  margin: 2px 1px 2px 1px;
+  padding: 2px 4px 2px 4px;
+  svg {
+    stroke: var(--main-color);
+  }
+  &:hover {
+    svg {
+      stroke: var(--ice-main-color); // 호버 시 아이콘 컬러 변경
+    }
+  }
 `;
