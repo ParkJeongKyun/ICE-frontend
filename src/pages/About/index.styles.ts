@@ -5,7 +5,7 @@ export const MainContainer = styled.div`
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background-color: #4f5a5a;
+  background-color: var(--main-bg-color_1);
 `;
 
 export const Container = styled.div`
@@ -30,7 +30,7 @@ export const LaptopContainer = styled.div`
 `;
 
 export const DemoContainer = styled.div`
-  background-color: #fff;
+  background-color: var(--main-bg-color);
   border-top-left-radius: 20px;
   border-top-right-radius: 20px;
   overflow: hidden;
@@ -40,7 +40,8 @@ export const DemoContainer = styled.div`
 
 export const Wrapper = styled.div`
   display: inline-block;
-  background-color: #fff;
-  height: 70vh;
+  height: 90vh;
   width: 100%;
+  background-color: var(--main-bg-color);
+  color: var(--main-color);
 `;
