@@ -95,6 +95,8 @@ const SetDefaultBtn = styled.div`
   cursor: pointer;
   font-size: 14px;
   font-weight: 600;
+  padding-left: 20px;
+  padding-top: 10px;
 `;
 
 // 마크다운 링크

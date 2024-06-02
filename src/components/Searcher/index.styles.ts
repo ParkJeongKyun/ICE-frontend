@@ -10,8 +10,17 @@ export const SearchSelect = styled.select`
   width: 100%;
   outline: none;
   color: var(--main-color);
-  border: 1px solid var(--main-line-color);
+  border: none;
   background-color: var(--main-bg-color);
+  font-size: 12px;
+  min-height: 25px;
+  border-radius: 5px;
+  &:focus,
+  &:hover {
+    outline: none;
+    border: none;
+    background-color: var(--main-hover-color_1);
+  }
 `;
 
 export const SearchDiv = styled.div`
