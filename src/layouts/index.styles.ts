@@ -19,9 +19,9 @@ export const LogoDiv = styled.div`
   align-items: center;
 `;
 
-export const LogoImage = styled.img`
-  max-height: 18px;
-  min-height: 18px;
+export const LogoImage = styled.img<{ $height?: string }>`
+  max-height: ${(props) => (props.$height ? props.$height : '18px')};
+  min-height: ${(props) => (props.$height ? props.$height : '18px')};
 `;
 
 // 헤더
@@ -148,6 +148,21 @@ export const IceContent = styled.div`
   color: var(--main-color);
   overflow: hidden;
   flex-grow: 1;
+`;
+
+export const IceWelcome = styled.div`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  text-align: center;
+  align-items: center;
+  > div {
+    width: 100%;
+  }
+  > span {
+    /* width: 100%; */
+    /* background-color: red; */
+  }
 `;
 
 // 오른쪽 사이드바

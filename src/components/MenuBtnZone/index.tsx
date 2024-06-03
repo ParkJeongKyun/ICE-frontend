@@ -1,5 +1,6 @@
+import React from 'react';
 import HexViewer, { HexViewerRef } from 'components/HexViewer';
-import { ChangeEvent, Ref, useRef } from 'react';
+import { ChangeEvent, Ref, useImperativeHandle, useRef } from 'react';
 import styled from 'styled-components';
 import MenuBtn from '../common/MenuBtn';
 import { ExifRow, TabData, TabItem, TabKey } from 'types';
@@ -15,14 +16,14 @@ interface Props {
   openModal: (key: string) => void;
 }
 
-const MenuBtnZone: React.FC<Props> = ({
-  hexViewerRef,
-  newTabIndex,
-  setDatas,
-  setItems,
-  setActiveKey,
-  openModal,
-}) => {
+export interface MenuBtnZoneRef {
+  openBtnClick: () => void;
+}
+
+const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
+  { hexViewerRef, newTabIndex, setDatas, setItems, setActiveKey, openModal },
+  ref
+) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const handleOpenClick = () => {
     if (fileInputRef.current) {
@@ -153,6 +154,18 @@ const MenuBtnZone: React.FC<Props> = ({
     }
   };
 
+  // 상위 컴포넌트에게 전달할 함수
+  useImperativeHandle(ref, () => {
+    // 해당 위치로 스크롤 및 선택하기
+    const openBtnClick = (): void => {
+      handleOpenClick();
+    };
+
+    return {
+      openBtnClick,
+    };
+  });
+
   return (
     <Div>
       {/* 파일 업로드 */}
@@ -190,4 +203,4 @@ const FileInput = styled.input`
   display: none;
 `;
 
-export default MenuBtnZone;
+export default React.forwardRef(MenuBtnZone);

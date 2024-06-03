@@ -27,12 +27,6 @@ const calculateExperience = (startDate: Date, endDate: Date): string => {
   return `${years}년 ${months}개월`;
 };
 
-// Example usage:
-const startDate = new Date('2021-01-25');
-const endDate = new Date(); // Use current date as end date
-const experience = calculateExperience(startDate, endDate);
-console.log(`Experience: ${experience}`);
-
 const txt = `
 # 박정균(Park Jeong-kyun, 朴正均)
 "신독(愼獨) - 홀로 있을 때에도 도리에 어그러짐이 없도록 몸가짐을 바로 하고 언행을 삼감."    

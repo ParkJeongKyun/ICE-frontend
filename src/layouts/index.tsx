@@ -9,13 +9,14 @@ import {
   IceLeftSider,
   IceMainLayout,
   IceRightSider,
+  IceWelcome,
   LogoDiv,
   LogoImage,
   SelectInfo,
   Separator,
 } from './index.styles';
 import { TabData, TabItem, TabKey } from 'types';
-import MenuBtnZone from '../components/MenuBtnZone';
+import MenuBtnZone, { MenuBtnZoneRef } from '../components/MenuBtnZone';
 import TabWindow from '../components/TabWindow';
 import ExifRowViewer from '../components/ExifRowViewer';
 import Modal from 'components/common/Modal';
@@ -29,6 +30,7 @@ import { useSelection } from 'contexts/SelectionContext';
 const MainLayout: React.FC = () => {
   // Hex뷰어 Ref
   const hexViewerRef = useRef<HexViewerRef>(null);
+  const menuBtnZoneRef = useRef<MenuBtnZoneRef>(null);
   // Tab 데이터
   const newTabIndex = useRef(0);
   const [activeKey, setActiveKey] = useState<TabKey>(0);
@@ -116,6 +118,8 @@ const MainLayout: React.FC = () => {
 
   const isResizing = isLeftSideDragging || isRightSideDragging;
 
+  const isEmptyItems = items.length <= 0;
+
   const showHex = (deciaml: number) => {
     return (
       <>
@@ -140,6 +144,7 @@ const MainLayout: React.FC = () => {
         </LogoDiv>
 
         <MenuBtnZone
+          ref={menuBtnZoneRef}
           hexViewerRef={hexViewerRef}
           newTabIndex={newTabIndex}
           setDatas={setDatas}
@@ -154,7 +159,7 @@ const MainLayout: React.FC = () => {
           style={{
             width: `${leftSidePostion}px`,
             display:
-              leftSidePostion < minSiderWidth || items.length <= 0
+              leftSidePostion < minSiderWidth || isEmptyItems
                 ? 'none'
                 : 'block',
           }}
@@ -165,33 +170,51 @@ const MainLayout: React.FC = () => {
           {...leftSideSepProps}
           $isResizing={isLeftSideDragging}
           style={{
-            display: items.length <= 0 ? 'none' : 'block',
+            display: isEmptyItems ? 'none' : 'block',
           }}
         />
 
         <FlexGrow>
           <IceContent>
-            <TabWindow
-              items={items}
-              activeKey={activeKey}
-              setActiveKey={setActiveKey}
-              setDatas={setDatas}
-              setItems={setItems}
-            />
+            {isEmptyItems ? (
+              <>
+                <IceWelcome>
+                  <div
+                    onClick={() => {
+                      menuBtnZoneRef.current?.openBtnClick();
+                    }}
+                  >
+                    OPEN
+                    {/* <LogoImage $height="300px" src={'logo.png'} /> */}
+                    {/* <span>1234</span> */}
+                  </div>
+                </IceWelcome>
+              </>
+            ) : (
+              <>
+                <TabWindow
+                  items={items}
+                  activeKey={activeKey}
+                  setActiveKey={setActiveKey}
+                  setDatas={setDatas}
+                  setItems={setItems}
+                />
+              </>
+            )}
           </IceContent>
           <Separator
             {...rightSideSepProps}
             $reverse={true}
             $isResizing={isRightSideDragging}
             style={{
-              display: items.length <= 0 ? 'none' : 'block',
+              display: isEmptyItems ? 'none' : 'block',
             }}
           />
           <IceRightSider
             style={{
               width: `${rightSidePostion}px`,
               display:
-                rightSidePostion < minSiderWidth || items.length <= 0
+                rightSidePostion < minSiderWidth || isEmptyItems
                   ? 'none'
                   : 'block',
             }}
