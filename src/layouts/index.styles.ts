@@ -158,10 +158,13 @@ export const IceWelcome = styled.div`
   align-items: center;
   > div {
     width: 100%;
-  }
-  > span {
-    /* width: 100%; */
-    /* background-color: red; */
+    > span {
+      font-size: 50px;
+      font-weight: 600;
+      color: var(--ice-main-color);
+      text-decoration: underline;
+      cursor: pointer;
+    }
   }
 `;
 

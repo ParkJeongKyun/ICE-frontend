@@ -179,14 +179,14 @@ const MainLayout: React.FC = () => {
             {isEmptyItems ? (
               <>
                 <IceWelcome>
-                  <div
-                    onClick={() => {
-                      menuBtnZoneRef.current?.openBtnClick();
-                    }}
-                  >
-                    OPEN
-                    {/* <LogoImage $height="300px" src={'logo.png'} /> */}
-                    {/* <span>1234</span> */}
+                  <div>
+                    <span
+                      onClick={() => {
+                        menuBtnZoneRef.current?.openBtnClick();
+                      }}
+                    >
+                      OPEN
+                    </span>
                   </div>
                 </IceWelcome>
               </>
