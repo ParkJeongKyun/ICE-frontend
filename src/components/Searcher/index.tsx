@@ -236,25 +236,29 @@ const Searcher: React.FC<Props> = ({ hexViewerRef, activeKey }) => {
           <ResultDiv>
             <TextDiv>
               <Result>
-                <Tooltip text="Maximum 1000 results">
-                  총{' '}
-                  <span style={{ color: 'var(--ice-main-color_1)' }}>
-                    {searchResults[activeKey].results.length}
-                  </span>
-                  개의 결과
-                  {searchResults[activeKey].results.length > 1 && (
-                    <>
-                      중{' '}
-                      <span style={{ color: 'var(--ice-main-color)' }}>
-                        {searchResults[activeKey].currentIndex + 1}
-                      </span>
-                      번째
-                    </>
-                  )}
-                  <ResetBtn onClick={handleResetButtonClick}>
-                    <XIcon height={10} width={10} />
-                  </ResetBtn>
-                </Tooltip>
+                <div>
+                  <Tooltip text="최대 1000개까지 검색 가능">
+                    총{' '}
+                    <span style={{ color: 'var(--ice-main-color_1)' }}>
+                      {searchResults[activeKey].results.length}
+                    </span>
+                    개의 결과{' '}
+                    {searchResults[activeKey].results.length > 1 && (
+                      <>
+                        중{' '}
+                        <span style={{ color: 'var(--ice-main-color)' }}>
+                          {searchResults[activeKey].currentIndex + 1}
+                        </span>
+                        번째
+                      </>
+                    )}
+                  </Tooltip>
+                </div>
+                <ResetBtn onClick={handleResetButtonClick}>
+                  <Tooltip text="검색 종료">
+                    <XIcon height={15} width={15} />
+                  </Tooltip>
+                </ResetBtn>
               </Result>
             </TextDiv>
             <ButtonDiv>

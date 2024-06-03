@@ -72,6 +72,8 @@ export const TextDiv = styled.div`
 `;
 
 export const Result = styled.div`
+  display: flex;
+  align-items: center;
   font-size: 11px;
   font-weight: 600;
   margin: 2px 0px 2px 0px;
@@ -102,8 +104,7 @@ export const SearchBtn = styled.div<{ $disabled?: boolean }>`
 
 export const ResetBtn = styled.div`
   display: inline-flex;
-  margin: 2px 1px 2px 1px;
-  padding: 2px 4px 2px 4px;
+  margin: 0px 5px;
   svg {
     stroke: var(--main-color);
   }
