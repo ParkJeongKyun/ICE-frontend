@@ -152,8 +152,11 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
     bytes.forEach((byte: number, i: number) => {
       const byteIndex = start + i;
       const selected =
+        startIndex !== null &&
+        endIndex !== null &&
         byteIndex >= Math.min(startIndex!, endIndex!) &&
         byteIndex <= Math.max(startIndex!, endIndex!);
+
       hexRow.push(
         <HexByte
           key={i}

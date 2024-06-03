@@ -90,12 +90,12 @@ const MarkdownContainer = styled.div`
 
 // 기본 텍스트로 변경 버튼
 const SetDefaultBtn = styled.div`
-  color: var(--ice-main-color);
+  color: var(--ice-main-color_3);
   text-decoration: underline;
   cursor: pointer;
   font-size: 14px;
   font-weight: 600;
-  padding-left: 20px;
+  padding-left: 15px;
   padding-top: 10px;
 `;
 
