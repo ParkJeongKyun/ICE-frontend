@@ -224,7 +224,7 @@ const MainLayout: React.FC = () => {
           )}
         </SelectInfo>
         <IceCopyRight>
-          © 2024 Park Jeong-kyun (dbzoseh84@gmail.com). All rights reserved.
+          © 2022 ParkJeong-kyun (dbzoseh84@gmail.com). All rights reserved.
         </IceCopyRight>
       </IceFooter>
 
