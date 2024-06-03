@@ -82,7 +82,7 @@ export const TextByte = styled.span<{ $isDot: boolean; $selected: boolean }>`
   display: inline-block;
   min-height: 17px;
   width: 1ch;
-  padding: 3px 1px;
+  padding: 3px 0px;
   text-align: center;
 
   /* 점인 경우 */
