@@ -44,8 +44,9 @@ export const IceFooter = styled.div`
   justify-content: space-between;
   flex-wrap: nowrap;
   overflow: hidden;
+  white-space: nowrap;
 
-  height: 25px; /* 기본 푸터 높이 조정 */
+  height: 25px;
   padding: 0px 5px 0px 5px;
   background-color: var(--main-bg-color);
   border-top: 1px solid var(--main-line-color);
@@ -57,15 +58,23 @@ export const SelectInfo = styled.div`
   display: flex;
   flex-wrap: nowrap;
   font-size: 12px;
-  > hr {
-    width: 0px;
-    height: 5px;
-    padding-left: 2px;
+  font-weight: 600;
+  > div {
+    text-align: start;
+    min-width: 170px;
+    margin-left: 10px;
+    padding-right: 10px;
+    border-right: 1px solid var(--main-line-color);
+  }
+  > div:nth-child(2) {
+    min-width: 250px;
   }
 `;
 
 export const IceCopyRight = styled.div`
-  color: var(--main-line-color);
+  margin: 0px 10px;
+  color: var(--main-color_1);
+  font-weight: 600;
 `;
 
 // 중간 컨텐츠 레이아웃
@@ -96,7 +105,7 @@ export const Separator = styled.div<{
     position: absolute;
     top: 0;
     width: 5px;
-    z-index: -1; /* Ensure the pseudo-element is behind the actual separator */
+    z-index: -1;
   }
 
   /* 리사이즈 중일때 스타일 */
@@ -121,7 +130,7 @@ export const IceLeftSider = styled.div`
   display: grid;
   background-color: var(--main-bg-color);
   color: var(--main-color);
-  overflow: hidden; /* 내용이 넘치면 스크롤 생기도록 */
+  overflow: hidden;
   flex-shrink: 0;
 `;
 
@@ -146,6 +155,6 @@ export const IceRightSider = styled.div`
   display: grid;
   background-color: var(--main-bg-color);
   color: var(--main-color);
-  overflow: hidden; /* 내용이 넘치면 스크롤 생기도록 */
+  overflow: hidden;
   flex-shrink: 0;
 `;

@@ -221,13 +221,13 @@ const Searcher: React.FC<Props> = ({ hexViewerRef, activeKey }) => {
         <SearchDiv>
           <SearchLabel>검색어</SearchLabel>
           <SearchData>
-            <Tooltip text="Enter to search">
+            <Tooltip text="엔터시 검색">
               <SearchInput
                 value={inputValue}
                 onChange={handleInputChange}
                 onKeyDown={handleInputKeyPress}
                 maxLength={searchType === 'offset' ? 8 : 50}
-                placeholder={`Enter ${searchType} value`}
+                placeholder={`${searchType} 값을 입력하세요.`}
               />
             </Tooltip>
           </SearchData>

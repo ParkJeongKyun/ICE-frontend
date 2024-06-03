@@ -121,10 +121,12 @@ const MainLayout: React.FC = () => {
       <>
         <span style={{ color: 'var(--ice-main-color)' }}>{deciaml}</span>
         {'('}
-        <span style={{ color: 'var(--ice-main-color)', fontWeight: '600' }}>
+        <span style={{ color: 'var(--ice-main-color_3)', fontWeight: '600' }}>
           {'0x'}
         </span>
-        {deciaml.toString(16).toUpperCase()}
+        <span style={{ color: 'var(--ice-main-color)' }}>
+          {deciaml.toString(16).toUpperCase()}
+        </span>
         {`)`}
       </>
     );
@@ -203,14 +205,21 @@ const MainLayout: React.FC = () => {
         <SelectInfo>
           {startIndex != null && endIndex != null && (
             <>
-              {`선택됨: 오프셋: `}
-              {showHex(startIndex)}
-              {` 범위: `}
-              {showHex(startIndex)}
-              {`-`}
-              {showHex(endIndex)}
-              {` 길이: `}
-              {showHex(endIndex - startIndex + 1)}
+              {'선택됨:'}
+              <div>
+                {`오프셋: `}
+                {showHex(startIndex)}
+              </div>
+              <div>
+                {` 범위: `}
+                {showHex(startIndex)}
+                {`-`}
+                {showHex(endIndex)}
+              </div>
+              <div>
+                {` 길이: `}
+                {showHex(endIndex - startIndex + 1)}
+              </div>
             </>
           )}
         </SelectInfo>
