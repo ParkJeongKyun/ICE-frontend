@@ -26,6 +26,13 @@ const txt = `
  
 ## 파일 HexViewer 사용하기
   - Open 버튼 클릭 > 파일 선택
+
+## 파일 Hex 검색
+  - ASCII, Offset, Hex 값으로 검색 가능
+  - 최대 1000개까지만 표시
+
+## 사이트 문의
+  - dbzoseh84@gmail.com
 `;
 
 const HelpMD: React.FC = () => {
