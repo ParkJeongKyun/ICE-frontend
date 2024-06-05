@@ -13,7 +13,7 @@ interface CollapseProps {
   title: string;
   children: React.ReactNode;
   open?: boolean;
-  removePadding?: boolean; // 새로운 옵션 추가
+  removePadding?: boolean;
 }
 
 const Collapse: React.FC<CollapseProps> = ({
@@ -42,7 +42,6 @@ const Collapse: React.FC<CollapseProps> = ({
       </CollapseHeader>
       {isOpen && (
         <CollapseContent $removePadding={removePadding}>
-          {/* removePadding 옵션 전달 */}
           {children}
         </CollapseContent>
       )}

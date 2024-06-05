@@ -21,10 +21,9 @@ export const Title = styled.div`
 `;
 
 export const CollapseContent = styled.div<{
-  $removePadding?: boolean; // Props에서 받은 옵션
+  $removePadding?: boolean;
 }>`
-  padding: ${({ $removePadding }) =>
-    $removePadding ? '0' : '10px'}; // 패딩 설정
+  padding: ${({ $removePadding }) => ($removePadding ? '0' : '10px')};
   border-bottom: 1px solid var(--main-line-color);
   overflow: hidden;
   text-overflow: ellipsis;
