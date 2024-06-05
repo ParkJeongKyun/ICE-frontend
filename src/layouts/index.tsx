@@ -9,7 +9,6 @@ import {
   IceLeftSider,
   IceMainLayout,
   IceRightSider,
-  IceWelcome,
   LogoDiv,
   LogoImage,
   SelectInfo,
@@ -26,6 +25,7 @@ import { useResizable } from 'react-resizable-layout';
 import Searcher from 'components/Searcher';
 import { HexViewerRef } from 'components/HexViewer';
 import { useSelection } from 'contexts/SelectionContext';
+import Home from 'components/Home';
 
 const MainLayout: React.FC = () => {
   // Hex뷰어 Ref
@@ -178,17 +178,7 @@ const MainLayout: React.FC = () => {
           <IceContent>
             {isEmptyItems ? (
               <>
-                <IceWelcome>
-                  <div>
-                    <span
-                      onClick={() => {
-                        menuBtnZoneRef.current?.openBtnClick();
-                      }}
-                    >
-                      OPEN
-                    </span>
-                  </div>
-                </IceWelcome>
+                <Home menuBtnZoneRef={menuBtnZoneRef} />
               </>
             ) : (
               <>

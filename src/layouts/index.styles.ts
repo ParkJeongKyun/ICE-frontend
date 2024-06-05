@@ -150,24 +150,6 @@ export const IceContent = styled.div`
   flex-grow: 1;
 `;
 
-export const IceWelcome = styled.div`
-  width: 100%;
-  height: 100%;
-  display: flex;
-  text-align: center;
-  align-items: center;
-  > div {
-    width: 100%;
-    > span {
-      font-size: 50px;
-      font-weight: 600;
-      color: var(--ice-main-color);
-      text-decoration: underline;
-      cursor: pointer;
-    }
-  }
-`;
-
 // 오른쪽 사이드바
 export const IceRightSider = styled.div`
   display: grid;
