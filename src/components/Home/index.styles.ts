@@ -42,7 +42,8 @@ export const StartDiv = styled.div`
 `;
 
 export const Btn = styled.div`
-  margin: 3px 0px;
+  margin: 5px 0px;
+  padding-left: 10px;
   font-size: 15px;
   color: var(--ice-main-color);
   text-decoration: underline;
