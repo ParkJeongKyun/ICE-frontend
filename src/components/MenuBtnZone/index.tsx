@@ -165,17 +165,14 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
 
   // 상위 컴포넌트에게 전달할 함수
   useImperativeHandle(ref, () => {
-    // 해당 위치로 스크롤 및 선택하기
     const openBtnClick = (): void => {
       handleOpenClick();
     };
 
-    // 해당 위치로 스크롤 및 선택하기
     const helpBtnClick = (): void => {
       handleHelpClick();
     };
 
-    // 해당 위치로 스크롤 및 선택하기
     const aboutBtnClick = (): void => {
       handleAboutClick();
     };
