@@ -2,6 +2,7 @@ import { MenuBtnZoneRef } from 'components/MenuBtnZone';
 import {
   Btn,
   HomeDiv,
+  InfoDiv,
   StartDiv,
   SubTitle,
   Title,
@@ -47,6 +48,12 @@ const Home: React.FC<Props> = ({ menuBtnZoneRef }) => {
             사이트 정보...
           </Btn>
         </StartDiv>
+        <InfoDiv>
+          <div>웹 브라우저 기반으로 동작</div>
+          <div>수집 및 처리되는 개인정보 없음</div>
+          <div>파일 업로드시 서버에 저장되지 않음</div>
+          <div>{process.env.REACT_APP_COPYRIGHT}</div>
+        </InfoDiv>
       </div>
     </HomeDiv>
   );

@@ -50,5 +50,20 @@ export const Btn = styled.div`
   cursor: pointer;
   &:hover {
     color: var(--main-hover-line-color);
+    text-decoration: none;
+  }
+`;
+
+export const InfoDiv = styled.div`
+  margin-top: 100px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--main-color);
+  > div {
+    margin: 5px 0px;
+  }
+  > div:last-child {
+    margin-top: 15px;
+    color: var(--main-color_1);
   }
 `;

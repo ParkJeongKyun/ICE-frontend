@@ -236,9 +236,7 @@ const MainLayout: React.FC = () => {
             </>
           )}
         </SelectInfo>
-        <IceCopyRight>
-          © 2022 ParkJeong-kyun (dbzoseh84@gmail.com). All rights reserved.
-        </IceCopyRight>
+        <IceCopyRight>{process.env.REACT_APP_COPYRIGHT}</IceCopyRight>
       </IceFooter>
 
       <Modal title={modalTitle} isOpen={isModalOpen} onClose={closeModal}>
