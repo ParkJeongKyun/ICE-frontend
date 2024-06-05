@@ -7,7 +7,7 @@ export const HomeDiv = styled.div`
   align-items: center;
   justify-content: center;
   > div {
-    width: 50%;
+    width: 70%;
     height: 85%;
     text-align: left;
   }
@@ -27,13 +27,14 @@ export const Version = styled.span`
 `;
 
 export const SubTitle = styled.div`
-  font-size: 25px;
+  margin-left: 5px;
+  font-size: 16px;
   font-weight: 600;
   color: var(--main-color);
 `;
 
 export const StartDiv = styled.div`
-  margin-left: 10px;
+  margin-left: 5px;
   margin-top: 50px;
   font-size: 20px;
   font-weight: 600;
@@ -41,6 +42,7 @@ export const StartDiv = styled.div`
 `;
 
 export const Btn = styled.div`
+  margin: 3px 0px;
   font-size: 15px;
   color: var(--ice-main-color);
   text-decoration: underline;
