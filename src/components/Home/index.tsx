@@ -1,5 +1,12 @@
 import { MenuBtnZoneRef } from 'components/MenuBtnZone';
-import { IceWelcome } from './index.styles';
+import {
+  Btn,
+  HomeDiv,
+  StartDiv,
+  SubTitle,
+  Title,
+  Version,
+} from './index.styles';
 
 interface Props {
   menuBtnZoneRef: React.RefObject<MenuBtnZoneRef>;
@@ -7,17 +14,39 @@ interface Props {
 
 const Home: React.FC<Props> = ({ menuBtnZoneRef }) => {
   return (
-    <IceWelcome>
+    <HomeDiv>
       <div>
-        <span
-          onClick={() => {
-            menuBtnZoneRef.current?.openBtnClick();
-          }}
-        >
-          OPEN
-        </span>
+        <Title>
+          ICE<Version>{process.env.REACT_APP_VERSION}</Version>
+        </Title>
+        <SubTitle>Free Forensic Web Application</SubTitle>
+
+        <StartDiv>
+          Start
+          <Btn
+            onClick={() => {
+              menuBtnZoneRef.current?.openBtnClick();
+            }}
+          >
+            Open...
+          </Btn>
+          <Btn
+            onClick={() => {
+              menuBtnZoneRef.current?.helpBtnClick();
+            }}
+          >
+            Help...
+          </Btn>
+          <Btn
+            onClick={() => {
+              menuBtnZoneRef.current?.aboutBtnClick();
+            }}
+          >
+            About...
+          </Btn>
+        </StartDiv>
       </div>
-    </IceWelcome>
+    </HomeDiv>
   );
 };
 export default Home;

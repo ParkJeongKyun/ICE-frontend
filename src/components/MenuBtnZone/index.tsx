@@ -18,6 +18,8 @@ interface Props {
 
 export interface MenuBtnZoneRef {
   openBtnClick: () => void;
+  helpBtnClick: () => void;
+  aboutBtnClick: () => void;
 }
 
 const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
@@ -31,6 +33,13 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
     }
   };
 
+  const handleHelpClick = () => {
+    openModal('help');
+  };
+
+  const handleAboutClick = () => {
+    openModal('about');
+  };
   // 탭을 추가하고 데이터를 저장하는 함수
   const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -161,8 +170,20 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
       handleOpenClick();
     };
 
+    // 해당 위치로 스크롤 및 선택하기
+    const helpBtnClick = (): void => {
+      handleHelpClick();
+    };
+
+    // 해당 위치로 스크롤 및 선택하기
+    const aboutBtnClick = (): void => {
+      handleAboutClick();
+    };
+
     return {
       openBtnClick,
+      helpBtnClick,
+      aboutBtnClick,
     };
   });
 
@@ -177,18 +198,8 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
       <Tooltip text="기능 추가 업데이트 예정">
         <MenuBtn onClick={() => {}} text="Tools" disabled />
       </Tooltip>
-      <MenuBtn
-        onClick={() => {
-          openModal('help');
-        }}
-        text="Help"
-      />
-      <MenuBtn
-        onClick={() => {
-          openModal('about');
-        }}
-        text="About"
-      />
+      <MenuBtn onClick={handleHelpClick} text="Help" />
+      <MenuBtn onClick={handleAboutClick} text="About" />
     </Div>
   );
 };
