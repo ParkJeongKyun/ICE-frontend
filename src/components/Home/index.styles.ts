@@ -6,9 +6,9 @@ export const HomeDiv = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+  justify-items: center;
   > div {
     width: 70%;
-    height: 85%;
     text-align: left;
   }
 `;
@@ -56,7 +56,7 @@ export const Btn = styled.div`
 `;
 
 export const InfoDiv = styled.div`
-  margin-top: 100px;
+  margin-top: 200px;
   font-size: 12px;
   font-weight: 500;
   color: var(--main-color);
