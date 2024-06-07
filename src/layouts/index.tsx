@@ -26,6 +26,7 @@ import Searcher from 'components/Searcher';
 import { HexViewerRef } from 'components/HexViewer';
 import { useSelection } from 'contexts/SelectionContext';
 import Home from 'components/Home';
+import { isMobile } from 'react-device-detect';
 
 const MainLayout: React.FC = () => {
   // Hex뷰어 Ref
