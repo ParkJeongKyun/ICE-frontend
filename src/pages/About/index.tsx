@@ -12,6 +12,7 @@ import {
 } from './index.styles';
 import { calculateExperience } from 'utils/getDate';
 import ICEMarkDown from 'components/markdown';
+import DownArrowIcon from 'components/common/Icons/DownArrowIcon';
 
 const txt = `
 # 박정균(Park Jeong-kyun, 朴正均)
@@ -61,7 +62,11 @@ const About: React.FC = () => {
   return (
     <MainContainer>
       <AppContainer>
-        <Section $bgColor={'var(--main-bg-color)'}></Section>
+        <Section $bgColor={'var(--main-hover-color)'}>
+          <div style={{ display: 'flex', alignItems: 'end', height: '100%' }}>
+            <DownArrowIcon width={35} height={35} />
+          </div>
+        </Section>
         <Section $bgColor={'var(--main-bg-color)'}>
           <ImageContainer
             initial={{ opacity: 0, y: '5vh' }}

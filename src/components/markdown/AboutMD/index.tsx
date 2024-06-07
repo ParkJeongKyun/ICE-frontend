@@ -30,6 +30,7 @@ const txt = `
   - [Github](https://github.com/ParkJeongKyun/ICE-frontend)
 
 ## 도움받은 사이트
+  - [SVG REPO - 무료 아이콘](https://www.svgrepo.com/)
   - [Pixabay - 무료 사진](https://pixabay.com/)
   - [Framer Motion - 인터렉티브 웹 라이브러리](https://www.framer.com/motion/)
   - [Go Exif - GoLang Exif 분석 라이브러리](https://pkg.go.dev/github.com/dsoprea/go-exi)
