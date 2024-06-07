@@ -8,6 +8,7 @@ import {
   Title,
   Version,
 } from './index.styles';
+import { isMobile } from 'react-device-detect';
 
 interface Props {
   menuBtnZoneRef: React.RefObject<MenuBtnZoneRef>;
@@ -18,7 +19,11 @@ const Home: React.FC<Props> = ({ menuBtnZoneRef }) => {
     <HomeDiv>
       <div>
         <Title>
-          ICE<Version>{process.env.REACT_APP_VERSION}</Version>
+          ICE
+          <Version>
+            {process.env.REACT_APP_VERSION}
+            {isMobile && 'M'}
+          </Version>
         </Title>
         <SubTitle>이미지 메타데이터 분석</SubTitle>
         <SubTitle>파일 HEX 뷰어</SubTitle>
