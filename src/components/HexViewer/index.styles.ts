@@ -5,6 +5,7 @@ export const ListDiv = styled(List)`
   padding: 5px 5px;
   /* 선택 비활성화 */
   user-select: none;
+  scroll-snap-type: y mandatory;
 `;
 
 export const Row = styled.div`
