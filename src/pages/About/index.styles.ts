@@ -18,7 +18,7 @@ export const AppContainer = styled.div`
   text-align: center;
 `;
 
-export const Section = styled.section<{ $bgColor: string }>`
+export const Section = styled.section<{ $bgColor?: string }>`
   height: 100vh;
   display: flex;
   justify-content: center;
@@ -31,7 +31,38 @@ export const Section = styled.section<{ $bgColor: string }>`
     props.$bgColor ? props.$bgColor : `var(--main-bg-color)`};
 `;
 
-export const Container = styled(motion.div)`
+export const ImageContainer = styled(motion.div)`
+  width: 300px;
+  height: 400px;
+  position: relative;
+  max-height: 90vh;
+  margin: 20px;
+  overflow: hidden;
+  border-radius: 5px;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+`;
+
+export const AnimatedHeading = styled(motion.h2)`
+  margin: 0;
+  color: var(--ice-main-color_3);
+  text-shadow: 1px 1px 2px var(--main-bg-color);
+  left: calc(50% - 50px);
+  top: calc(50%);
+  font-size: 50px;
+  font-weight: 700;
+  font-family: consolas;
+  font-style: normal;
+  letter-spacing: -2px;
+  line-height: 1.2;
+  position: absolute;
+`;
+
+export const TabletContainer = styled(motion.div)`
   background-color: #000;
   border: 4px solid #707070;
   border-radius: 20px;
@@ -46,7 +77,7 @@ export const Container = styled(motion.div)`
   overflow: hidden;
 `;
 
-export const Wrapper = styled.div`
+export const TabletWrapper = styled.div`
   display: inline-block;
   width: 100%;
   height: 100%;
@@ -54,18 +85,4 @@ export const Wrapper = styled.div`
   background-color: var(--main-bg-color);
   color: var(--main-color);
   overflow: hidden;
-`;
-
-export const AnimatedHeading = styled(motion.h2)`
-  margin: 0;
-  /* color: var(--main-color); */
-  left: calc(10%);
-  top: calc(10%);
-  font-size: 56px;
-  font-weight: 700;
-  font-family: monospace;
-  font-style: normal;
-  letter-spacing: -2px;
-  line-height: 1.2;
-  position: absolute;
 `;

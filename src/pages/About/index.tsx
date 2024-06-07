@@ -4,10 +4,11 @@ import { useRef } from 'react';
 import {
   AnimatedHeading,
   AppContainer,
-  Container,
+  TabletContainer,
   MainContainer,
   Section,
-  Wrapper,
+  TabletWrapper,
+  ImageContainer,
 } from './index.styles';
 import { calculateExperience } from 'utils/getDate';
 import ICEMarkDown from 'components/markdown';
@@ -61,17 +62,54 @@ const About: React.FC = () => {
     <MainContainer>
       <AppContainer>
         <Section $bgColor={'var(--main-bg-color)'}></Section>
+        <Section $bgColor={'var(--main-bg-color)'}>
+          <ImageContainer
+            initial={{ opacity: 0, y: '5vh' }}
+            whileInView={{ opacity: 1, y: '0' }}
+            transition={{ duration: 0.5 }}
+            viewport={{ once: false }}
+          >
+            <img src={'/images/digital_forensics.jpg'} alt={'test'} />
+          </ImageContainer>
+          <AnimatedHeading
+            initial={{ opacity: 0, y: '10vh' }}
+            whileInView={{ opacity: 1, y: '0' }}
+            transition={{ duration: 0.5 }}
+            viewport={{ once: false }}
+          >
+            Digital
+            <br /> Forensics
+          </AnimatedHeading>
+        </Section>
+        <Section $bgColor={'var(--main-bg-color)'}>
+          <ImageContainer
+            initial={{ opacity: 0, y: '5vh' }}
+            whileInView={{ opacity: 1, y: '0' }}
+            transition={{ duration: 0.5 }}
+            viewport={{ once: false }}
+          >
+            <img src={'/images/developer.jpg'} alt={'test'} />
+          </ImageContainer>
+          <AnimatedHeading
+            initial={{ opacity: 0, y: '10vh' }}
+            whileInView={{ opacity: 1, y: '0' }}
+            transition={{ duration: 0.5 }}
+            viewport={{ once: false }}
+          >
+            Developer
+          </AnimatedHeading>
+        </Section>
         <Section $bgColor={'var(--main-bg-color_reverse)'}>
-          <Container
+          <TabletContainer
             initial={{ opacity: 0, x: '10vw' }}
             whileInView={{ opacity: 1, x: '0' }}
             transition={{ duration: 0.5 }}
             viewport={{ once: false }}
           >
-            <Wrapper>
+            <TabletWrapper>
               <ICEMarkDown defaultText={txt} />
-            </Wrapper>
-          </Container>
+            </TabletWrapper>
+          </TabletContainer>
         </Section>
       </AppContainer>
     </MainContainer>

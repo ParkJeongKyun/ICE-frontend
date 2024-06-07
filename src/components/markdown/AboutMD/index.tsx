@@ -29,7 +29,10 @@ const txt = `
 ## 소스 코드
   - [Github](https://github.com/ParkJeongKyun/ICE-frontend)
 
-## 도움받은 레파지토리
+## 도움받은 사이트
+  - [Pixabay - 무료 사진](https://pixabay.com/)
+  - [Framer Motion - 인터렉티브 웹 라이브러리](https://www.framer.com/motion/)
+  - [Go Exif - GoLang Exif 분석 라이브러리](https://pkg.go.dev/github.com/dsoprea/go-exi)
 `;
 
 const relase_txt = `
