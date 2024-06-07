@@ -22,7 +22,7 @@ export const Tab = styled.div<{ $active: boolean }>`
   display: flex;
   font-size: 11px;
   font-weight: 700;
-  padding: 5px 5px 5px 10px;
+  padding: 6px 5px 6px 10px;
   border-right: 1px solid var(--main-line-color);
   /* height: 12px; */
   cursor: pointer;
