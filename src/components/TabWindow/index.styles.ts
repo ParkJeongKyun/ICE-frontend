@@ -7,7 +7,6 @@ export const TabWindowContainer = styled.div`
   height: 100%;
   width: 100%;
   overflow: hidden;
-  min-width: 570px;
 `;
 
 export const TabsContainer = styled.div<{ $empty: boolean }>`

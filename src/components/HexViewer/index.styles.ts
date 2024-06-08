@@ -8,7 +8,7 @@ export const ListDiv = styled(List)`
   scroll-snap-type: y mandatory;
 `;
 
-export const Row = styled.div`
+export const Row = styled.div<{ $isMobile?: boolean }>`
   display: flex;
   flex-wrap: nowrap;
   font-family: monospace;
@@ -16,6 +16,13 @@ export const Row = styled.div`
   text-align: center;
   align-items: center;
   gap: 0px 10px;
+  /* 모바일 버전용 */
+  ${(props) =>
+    props.$isMobile &&
+    `
+    transform: scale(0.8);
+    transform-origin: top left;
+    `}
 `;
 
 export const OffsetCell = styled.div`

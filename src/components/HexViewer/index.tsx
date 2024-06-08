@@ -19,6 +19,7 @@ import {
 import { List } from 'react-virtualized';
 import { asciiToBytes, findPatternIndices } from 'utils/byteSearch';
 import { useSelection } from 'contexts/SelectionContext';
+import { isMobile } from 'react-device-detect';
 
 interface Props {
   arrayBuffer: ArrayBuffer;
@@ -185,7 +186,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
     });
 
     return (
-      <Row key={offset} style={style}>
+      <Row key={offset} style={style} $isMobile={isMobile}>
         <OffsetCell>
           <OffsetByte $selected={selected}>{offset}</OffsetByte>
         </OffsetCell>
