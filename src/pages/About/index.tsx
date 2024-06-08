@@ -63,8 +63,27 @@ const About: React.FC = () => {
     <MainContainer>
       <AppContainer>
         <Section $bgColor={'var(--main-hover-color)'}>
-          <div style={{ display: 'flex', alignItems: 'end', height: '100%' }}>
-            <DownArrowIcon width={35} height={35} />
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              width: '100%',
+              height: '100%',
+            }}
+          >
+            <div style={{ flexGrow: '1' }}></div>
+            <div
+              style={{
+                fontWeight: '700',
+                fontFamily: 'consolas',
+                fontSize: '15px',
+              }}
+            >
+              Scroll Down
+            </div>
+            <div style={{ marginBottom: '100px' }}>
+              <DownArrowIcon width={35} height={35} />
+            </div>
           </div>
         </Section>
         <Section $bgColor={'var(--main-bg-color)'}>
