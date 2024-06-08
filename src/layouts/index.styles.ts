@@ -131,6 +131,7 @@ export const IceLeftSider = styled.div`
   background-color: var(--main-bg-color);
   color: var(--main-color);
   overflow: hidden;
+  overflow-y: auto;
   flex-shrink: 0;
 `;
 
@@ -155,6 +156,36 @@ export const IceRightSider = styled.div`
   display: grid;
   background-color: var(--main-bg-color);
   color: var(--main-color);
-  overflow: hidden;
+  overflow: auto;
   flex-shrink: 0;
+`;
+
+// 모바일 레이아웃
+export const IceMobileLayout = styled.div`
+  background-color: var(--main-bg-color);
+  color: var(--main-color);
+  overflow: hidden; /* 스크롤 숨기기 */
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+`;
+
+// 모바일
+export const IceMobileContent = styled.div`
+  display: block;
+  background-color: var(--main-bg-color);
+  color: var(--main-color);
+  overflow: hidden;
+  flex-grow: 1;
+`;
+
+// 모바일
+export const IceMobileBottom = styled.div`
+  display: flex;
+  flex-direction: column;
+  background-color: var(--main-bg-color);
+  color: var(--main-color);
+  overflow: auto;
+  height: 40%;
+  border-top: 1px solid var(--main-line-color);
 `;

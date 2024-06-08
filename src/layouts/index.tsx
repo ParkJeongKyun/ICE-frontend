@@ -8,6 +8,9 @@ import {
   IceLayout,
   IceLeftSider,
   IceMainLayout,
+  IceMobileBottom,
+  IceMobileContent,
+  IceMobileLayout,
   IceRightSider,
   LogoDiv,
   LogoImage,
@@ -121,6 +124,7 @@ const MainLayout: React.FC = () => {
 
   const isEmptyItems = items.length <= 0;
 
+  // 헥스 값 렌더링
   const showHex = (deciaml: number) => {
     return (
       <>
@@ -133,6 +137,25 @@ const MainLayout: React.FC = () => {
           {deciaml.toString(16).toUpperCase()}
         </span>
         {`)`}
+      </>
+    );
+  };
+
+  // 메인 컨텐츠 뷰
+  const showContent = () => {
+    return isEmptyItems ? (
+      <>
+        <Home menuBtnZoneRef={menuBtnZoneRef} />
+      </>
+    ) : (
+      <>
+        <TabWindow
+          items={items}
+          activeKey={activeKey}
+          setActiveKey={setActiveKey}
+          setDatas={setDatas}
+          setItems={setItems}
+        />
       </>
     );
   };
@@ -155,65 +178,69 @@ const MainLayout: React.FC = () => {
         />
       </IceHeader>
 
-      <IceLayout>
-        <IceLeftSider
-          style={{
-            width: `${leftSidePostion}px`,
-            display:
-              leftSidePostion < minSiderWidth || isEmptyItems
-                ? 'none'
-                : 'block',
-          }}
-        >
-          <ExifRowViewer activeKey={activeKey} datas={datas} />
-        </IceLeftSider>
-        <Separator
-          {...leftSideSepProps}
-          $isResizing={isLeftSideDragging}
-          style={{
-            display: isEmptyItems ? 'none' : 'block',
-          }}
-        />
-
-        <FlexGrow>
-          <IceContent>
-            {isEmptyItems ? (
-              <>
-                <Home menuBtnZoneRef={menuBtnZoneRef} />
-              </>
-            ) : (
-              <>
-                <TabWindow
-                  items={items}
-                  activeKey={activeKey}
-                  setActiveKey={setActiveKey}
-                  setDatas={setDatas}
-                  setItems={setItems}
-                />
-              </>
+      {isMobile ? (
+        <>
+          {/* 모바일 버전 */}
+          <IceMobileLayout>
+            <IceMobileContent>{showContent()}</IceMobileContent>
+            {!isEmptyItems && (
+              <IceMobileBottom>
+                <div>
+                  <ExifRowViewer activeKey={activeKey} datas={datas} />
+                </div>
+                <Searcher hexViewerRef={hexViewerRef} activeKey={activeKey} />
+              </IceMobileBottom>
             )}
-          </IceContent>
-          <Separator
-            {...rightSideSepProps}
-            $reverse={true}
-            $isResizing={isRightSideDragging}
-            style={{
-              display: isEmptyItems ? 'none' : 'block',
-            }}
-          />
-          <IceRightSider
-            style={{
-              width: `${rightSidePostion}px`,
-              display:
-                rightSidePostion < minSiderWidth || isEmptyItems
-                  ? 'none'
-                  : 'block',
-            }}
-          >
-            <Searcher hexViewerRef={hexViewerRef} activeKey={activeKey} />
-          </IceRightSider>
-        </FlexGrow>
-      </IceLayout>
+          </IceMobileLayout>
+        </>
+      ) : (
+        <>
+          {/* PC 버전 */}
+          <IceLayout>
+            <IceLeftSider
+              style={{
+                width: `${leftSidePostion}px`,
+                display:
+                  leftSidePostion < minSiderWidth || isEmptyItems
+                    ? 'none'
+                    : 'block',
+              }}
+            >
+              <ExifRowViewer activeKey={activeKey} datas={datas} />
+            </IceLeftSider>
+            <Separator
+              {...leftSideSepProps}
+              $isResizing={isLeftSideDragging}
+              style={{
+                display: isEmptyItems ? 'none' : 'block',
+              }}
+            />
+
+            <FlexGrow>
+              <IceContent>{showContent()}</IceContent>
+              <Separator
+                {...rightSideSepProps}
+                $reverse={true}
+                $isResizing={isRightSideDragging}
+                style={{
+                  display: isEmptyItems ? 'none' : 'block',
+                }}
+              />
+              <IceRightSider
+                style={{
+                  width: `${rightSidePostion}px`,
+                  display:
+                    rightSidePostion < minSiderWidth || isEmptyItems
+                      ? 'none'
+                      : 'block',
+                }}
+              >
+                <Searcher hexViewerRef={hexViewerRef} activeKey={activeKey} />
+              </IceRightSider>
+            </FlexGrow>
+          </IceLayout>
+        </>
+      )}
 
       <IceFooter>
         <SelectInfo>
