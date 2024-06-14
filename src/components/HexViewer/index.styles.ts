@@ -42,8 +42,6 @@ export const Row = styled.div<{ $isMobile?: boolean }>`
   align-items: center;
   /* 여백 */
   gap: 10px 10px;
-  padding-left: 5px;
-  padding-right: 5px;
   padding-top: 5px;
   padding-bottom: 5px;
   /* 모바일 버전용 */
@@ -61,6 +59,7 @@ export const OffsetCell = styled.div`
   flex-wrap: nowrap;
   text-align: center;
   align-items: center;
+  padding-left: 10px;
 `;
 
 // 헥스 셀
@@ -79,6 +78,7 @@ export const TextCell = styled.div`
   flex-wrap: nowrap;
   text-align: center;
   align-items: center;
+  padding-right: 10px;
 `;
 
 // 오프셋
