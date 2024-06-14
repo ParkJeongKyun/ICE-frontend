@@ -25,7 +25,7 @@ export const LogoImage = styled.img<{ $height?: string }>`
 `;
 
 // 헤더
-export const IceHeader = styled.div`
+export const IceHeader = styled.div<{ $isMobile?: boolean }>`
   display: flex;
   gap: 5px;
   /* 위 | 오른쪽 | 아래 | 왼쪽 */
@@ -35,10 +35,17 @@ export const IceHeader = styled.div`
   background-color: var(--main-bg-color);
   color: var(--main-color);
   border-bottom: 1px solid var(--main-line-color);
+
+  /* 모바일 버전용 */
+  ${(props) =>
+    props.$isMobile &&
+    `
+      overflow-x:auto
+    `}
 `;
 
 // 푸터
-export const IceFooter = styled.div`
+export const IceFooter = styled.div<{ $isMobile?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -52,6 +59,13 @@ export const IceFooter = styled.div`
   border-top: 1px solid var(--main-line-color);
   border-bottom: 1px solid var(--main-line-color);
   font-size: 10px;
+
+  /* 모바일 버전용 */
+  ${(props) =>
+    props.$isMobile &&
+    `
+      overflow-x:auto
+    `}
 `;
 
 export const SelectInfo = styled.div`

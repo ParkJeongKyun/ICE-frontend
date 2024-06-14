@@ -162,7 +162,7 @@ const MainLayout: React.FC = () => {
 
   return (
     <IceMainLayout $isResizing={isResizing}>
-      <IceHeader>
+      <IceHeader $isMobile={isMobile}>
         <LogoDiv>
           <LogoImage src={'pullLogo.png'} />
         </LogoDiv>
@@ -242,7 +242,7 @@ const MainLayout: React.FC = () => {
         </>
       )}
 
-      <IceFooter>
+      <IceFooter $isMobile={isMobile}>
         <SelectInfo>
           {startIndex != null && endIndex != null && (
             <>
