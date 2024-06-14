@@ -25,10 +25,11 @@ export function computeLPSArray(pattern: Uint8Array): number[] {
   return lps;
 }
 
-// Knuth-Morris-Pratt(KMP) 알고리즘 이용
+// Knuth-Morris-Pratt(KMP) 알고리즘 이용하여 대소문자 구별 여부를 선택할 수 있는 검색 로직으로 수정
 export function findPatternIndices(
   array: Uint8Array,
-  pattern: Uint8Array
+  pattern: Uint8Array,
+  ignoreCase: boolean = false
 ): number[] {
   const indices: number[] = [];
   if (pattern.length === 0) return indices;
@@ -39,7 +40,9 @@ export function findPatternIndices(
   let count = 0; // count of pattern occurrences
   const maxCount = 1000;
   while (i < array.length) {
-    if (pattern[j] === array[i]) {
+    const currentPatternByte = ignoreCase ? pattern[j] | 32 : pattern[j];
+    const currentArrayByte = ignoreCase ? array[i] | 32 : array[i];
+    if (currentArrayByte === currentPatternByte) {
       i++;
       j++;
     }
@@ -48,7 +51,7 @@ export function findPatternIndices(
       j = lps[j - 1];
       count++;
       if (count === maxCount) break; // Stop searching if maximum occurrences reached
-    } else if (i < array.length && pattern[j] !== array[i]) {
+    } else if (i < array.length && currentArrayByte !== currentPatternByte) {
       if (j !== 0) {
         j = lps[j - 1];
       } else {

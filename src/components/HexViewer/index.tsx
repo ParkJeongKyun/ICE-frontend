@@ -269,12 +269,14 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
         if (text.trim()) {
           try {
             const pattern = asciiToBytes(text);
-            const result = findPatternIndices(buffer, pattern).map((item) => {
-              return {
-                index: item,
-                offset: pattern.length,
-              };
-            });
+            const result = findPatternIndices(buffer, pattern, true).map(
+              (item) => {
+                return {
+                  index: item,
+                  offset: pattern.length,
+                };
+              }
+            );
 
             if (result.length > 0) return result;
           } catch (e) {
