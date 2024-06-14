@@ -15,7 +15,11 @@ export const Row = styled.div<{ $isMobile?: boolean }>`
   font-weight: 600;
   text-align: center;
   align-items: center;
-  gap: 0px 10px;
+  gap: 10px 10px;
+  padding-left: 5px;
+  padding-right: 5px;
+  padding-top: 5px;
+  padding-bottom: 5px;
   /* 모바일 버전용 */
   ${(props) =>
     props.$isMobile &&
@@ -36,7 +40,7 @@ export const HexCell = styled.div`
   display: flex;
   flex-wrap: nowrap;
   text-align: center;
-  width: 320px;
+  min-width: 320px;
   align-items: center;
 `;
 
