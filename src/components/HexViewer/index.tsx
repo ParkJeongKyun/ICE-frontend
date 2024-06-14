@@ -91,10 +91,12 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
       setSelectionRange({
         start: byteIndex,
         end: byteIndex,
-        arrayBuffer: buffer.slice(byteIndex, byteIndex + 1),
+        arrayBuffer: null,
+        // arrayBuffer: buffer.slice(byteIndex, byteIndex + 1),
       });
     },
-    [buffer, setSelectionRange]
+    // [buffer, setSelectionRange]
+    [setSelectionRange]
   );
 
   const handleMouseMove = useCallback(
@@ -114,18 +116,20 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
         setSelectionRange({
           start: start,
           end: end,
-          arrayBuffer:
-            start != null && end != null ? buffer.slice(start, end + 1) : null,
+          arrayBuffer: null,
+          // arrayBuffer:
+          //   start != null && end != null ? buffer.slice(start, end + 1) : null,
         });
       }
     },
-    [
-      isDragging,
-      selectionRange.start,
-      selectionRange.end,
-      buffer,
-      setSelectionRange,
-    ]
+    // [
+    //   isDragging,
+    //   selectionRange.start,
+    //   selectionRange.end,
+    //   buffer,
+    //   setSelectionRange,
+    // ]
+    [isDragging, selectionRange.start, selectionRange.end, setSelectionRange]
   );
 
   const debouncedHandleMouseMove = useMemo(
@@ -278,7 +282,8 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
         setSelectionRange({
           start: index,
           end: index + offset - 1,
-          arrayBuffer: buffer.slice(index, index + offset),
+          // arrayBuffer: buffer.slice(index, index + offset),
+          arrayBuffer: null,
         });
       };
 
