@@ -19,6 +19,7 @@ import {
   TextDiv,
   SearchSelect,
   ResetBtn,
+  SearchCheckBox,
 } from './index.styles';
 import { HexViewerRef, IndexInfo } from 'components/HexViewer';
 import Tooltip from 'components/common/Tooltip';
@@ -99,6 +100,7 @@ const Searcher: React.FC<Props> = ({ hexViewerRef, activeKey }) => {
   const [searchResults, dispatch] = useReducer(reducer, initialState);
   const [searchType, setSearchType] = useState<TSearchType>('offset');
   const [inputValue, setInputValue] = useState('');
+  const [ignoreCase, setIgnoreCase] = useState(true); // 대소문자 구분 여부
 
   const search = useCallback(
     async (inputValue: string, type: TSearchType) => {
@@ -111,8 +113,10 @@ const Searcher: React.FC<Props> = ({ hexViewerRef, activeKey }) => {
         results = (await hexViewerRef.current.findAllByHex(inputValue)) || [];
       } else if (type === 'ascii') {
         results =
-          (await hexViewerRef.current.findAllByAsciiText(inputValue, true)) ||
-          [];
+          (await hexViewerRef.current.findAllByAsciiText(
+            inputValue,
+            ignoreCase
+          )) || [];
       }
       dispatch({
         type: 'SET_RESULTS',
@@ -122,7 +126,7 @@ const Searcher: React.FC<Props> = ({ hexViewerRef, activeKey }) => {
         searchType,
       });
     },
-    [hexViewerRef, activeKey]
+    [hexViewerRef, activeKey, ignoreCase]
   );
 
   const handleInputChange = useCallback(
@@ -233,6 +237,18 @@ const Searcher: React.FC<Props> = ({ hexViewerRef, activeKey }) => {
             </Tooltip>
           </SearchData>
         </SearchDiv>
+        {searchType == 'ascii' && (
+          <SearchDiv>
+            <SearchCheckBox>
+              <input
+                type="checkbox"
+                checked={ignoreCase}
+                onChange={(e) => setIgnoreCase(e.target.checked)}
+              />
+              <span>대소문자를 구분하지 않음</span>
+            </SearchCheckBox>
+          </SearchDiv>
+        )}
         {searchResults[activeKey]?.results.length > 0 && (
           <ResultDiv>
             <TextDiv>
