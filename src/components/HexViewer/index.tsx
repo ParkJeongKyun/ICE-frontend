@@ -34,7 +34,10 @@ export interface IndexInfo {
 export interface HexViewerRef {
   findByOffset: (offset: string) => Promise<IndexInfo | null>;
   findAllByHex: (hex: string) => Promise<IndexInfo[] | null>;
-  findAllByAsciiText: (text: string) => Promise<IndexInfo[] | null>;
+  findAllByAsciiText: (
+    text: string,
+    ignoreCase: boolean
+  ) => Promise<IndexInfo[] | null>;
   scrollToIndex: (rowIndex: number, offset: number) => void;
 }
 
@@ -264,12 +267,13 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
       };
       // ASCII 텍스트로 찾는 함수
       const findAllByAsciiText = async (
-        text: string
+        text: string,
+        ignoreCase: boolean
       ): Promise<IndexInfo[] | null> => {
         if (text.trim()) {
           try {
             const pattern = asciiToBytes(text);
-            const result = findPatternIndices(buffer, pattern, true).map(
+            const result = findPatternIndices(buffer, pattern, ignoreCase).map(
               (item) => {
                 return {
                   index: item,

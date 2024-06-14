@@ -111,7 +111,8 @@ const Searcher: React.FC<Props> = ({ hexViewerRef, activeKey }) => {
         results = (await hexViewerRef.current.findAllByHex(inputValue)) || [];
       } else if (type === 'ascii') {
         results =
-          (await hexViewerRef.current.findAllByAsciiText(inputValue)) || [];
+          (await hexViewerRef.current.findAllByAsciiText(inputValue, true)) ||
+          [];
       }
       dispatch({
         type: 'SET_RESULTS',
