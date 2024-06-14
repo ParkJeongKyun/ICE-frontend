@@ -40,4 +40,5 @@ export const CellBodyDiv = styled.div`
   &:hover {
     background-color: var(--main-hover-color);
   }
+  word-wrap: break-word;
 `;
