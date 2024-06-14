@@ -112,6 +112,24 @@ const About: React.FC = () => {
             transition={{ duration: 0.5 }}
             viewport={{ once: false }}
           >
+            <img src={'/images/security.jpg'} alt={'test'} />
+          </ImageContainer>
+          <AnimatedHeading
+            initial={{ opacity: 0, y: '10vh' }}
+            whileInView={{ opacity: 1, y: '0' }}
+            transition={{ duration: 0.5 }}
+            viewport={{ once: false }}
+          >
+            Security
+          </AnimatedHeading>
+        </Section>
+        <Section $bgColor={'var(--main-bg-color)'}>
+          <ImageContainer
+            initial={{ opacity: 0, y: '5vh' }}
+            whileInView={{ opacity: 1, y: '0' }}
+            transition={{ duration: 0.5 }}
+            viewport={{ once: false }}
+          >
             <img src={'/images/developer.jpg'} alt={'test'} />
           </ImageContainer>
           <AnimatedHeading
