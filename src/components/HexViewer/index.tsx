@@ -103,7 +103,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
         // 뒤에서 앞으로 선택하는 경우
         if (Number(selectionRange.start) > byteIndex) {
           start = byteIndex;
-          end = selectionRange.start;
+          end = selectionRange.end;
         } else {
           start = selectionRange.start;
           end = byteIndex;
