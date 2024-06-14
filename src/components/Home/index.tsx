@@ -18,13 +18,15 @@ const Home: React.FC<Props> = ({ menuBtnZoneRef }) => {
   return (
     <HomeDiv>
       <div>
-        <Title>
-          ICE
+        <div>
+          <Title>ICE</Title>
           <Version>
-            {process.env.REACT_APP_VERSION}
-            {isMobile && 'M'}
+            <span>
+              {process.env.REACT_APP_VERSION}
+              {isMobile && '_Mobile'}
+            </span>
           </Version>
-        </Title>
+        </div>
         <SubTitle>이미지 메타데이터 분석</SubTitle>
         <SubTitle>파일 HEX 뷰어</SubTitle>
         <SubTitle>웹 애플리케이션</SubTitle>

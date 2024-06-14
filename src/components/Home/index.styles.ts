@@ -10,6 +10,11 @@ export const HomeDiv = styled.div`
   > div {
     width: 70%;
     text-align: left;
+    > div:first-child {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+    }
   }
 `;
 
@@ -19,8 +24,10 @@ export const Title = styled.div`
   color: var(--ice-main-color);
 `;
 
-export const Version = styled.span`
+export const Version = styled.div`
+  flex-grow: 1;
   margin-left: 10px;
+  margin-bottom: 5px;
   font-size: 16px;
   font-weight: 600;
   color: var(--main-color_1);
