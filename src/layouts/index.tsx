@@ -188,7 +188,9 @@ const MainLayout: React.FC = () => {
                 <div>
                   <ExifRowViewer activeKey={activeKey} datas={datas} />
                 </div>
-                <Searcher hexViewerRef={hexViewerRef} activeKey={activeKey} />
+                <div>
+                  <Searcher hexViewerRef={hexViewerRef} activeKey={activeKey} />
+                </div>
               </IceMobileBottom>
             )}
           </IceMobileLayout>
