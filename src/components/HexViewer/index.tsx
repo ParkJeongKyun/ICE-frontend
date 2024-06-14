@@ -85,14 +85,17 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
   const rowCount = Math.ceil(buffer.length / bytesPerRow);
 
   // 마우스 이벤트
-  const handleMouseDown = useCallback((byteIndex: number) => {
-    setIsDragging(true);
-    setSelectionRange({
-      start: byteIndex,
-      end: byteIndex,
-      arrayBuffer: buffer.slice(byteIndex, byteIndex + 1),
-    });
-  }, []);
+  const handleMouseDown = useCallback(
+    (byteIndex: number) => {
+      setIsDragging(true);
+      setSelectionRange({
+        start: byteIndex,
+        end: byteIndex,
+        arrayBuffer: buffer.slice(byteIndex, byteIndex + 1),
+      });
+    },
+    [buffer, setSelectionRange]
+  );
 
   const handleMouseMove = useCallback(
     (byteIndex: number) => {
@@ -116,7 +119,13 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
         });
       }
     },
-    [isDragging, selectionRange.start, buffer]
+    [
+      isDragging,
+      selectionRange.start,
+      selectionRange.end,
+      buffer,
+      setSelectionRange,
+    ]
   );
 
   const debouncedHandleMouseMove = useMemo(
@@ -128,13 +137,16 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
     setIsDragging(false);
   }, []);
 
-  const getRowData = (index: number) => {
-    const start = index * bytesPerRow;
-    const end = Math.min(start + bytesPerRow, buffer.length);
-    const bytes = buffer.slice(start, end);
-    const offset = start.toString(16).padStart(8, '0').toUpperCase();
-    return { offset, bytes, start };
-  };
+  const getRowData = useCallback(
+    (index: number) => {
+      const start = index * bytesPerRow;
+      const end = Math.min(start + bytesPerRow, buffer.length);
+      const bytes = buffer.slice(start, end);
+      const offset = start.toString(16).padStart(8, '0').toUpperCase();
+      return { offset, bytes, start };
+    },
+    [buffer]
+  );
 
   const RowRenderer = React.memo(
     ({ index, style }: ListChildComponentProps) => {
@@ -196,83 +208,89 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
     }
   );
 
-  useImperativeHandle(ref, () => {
-    // 오프셋 검색
-    const findByOffset = async (offset: string): Promise<IndexInfo | null> => {
-      if (offset.trim()) {
-        const byteOffset = parseInt(offset, 16);
-        if (byteOffset >= 0 && byteOffset < buffer.length) {
-          return {
-            index: byteOffset,
-            offset: bytesPerRow,
-          };
-        }
-      }
-      return null;
-    };
-    // 헥스 값으로 찾기
-    const findAllByHex = async (hex: string): Promise<IndexInfo[] | null> => {
-      if (hex.trim()) {
-        try {
-          const pattern = new Uint8Array(
-            hex.match(/.{1,2}/g)?.map((byte) => parseInt(byte, 16)) || []
-          );
-          const result = findPatternIndices(buffer, pattern).map((item) => {
+  useImperativeHandle(
+    ref,
+    () => {
+      // 오프셋 검색
+      const findByOffset = async (
+        offset: string
+      ): Promise<IndexInfo | null> => {
+        if (offset.trim()) {
+          const byteOffset = parseInt(offset, 16);
+          if (byteOffset >= 0 && byteOffset < buffer.length) {
             return {
-              index: item,
-              offset: pattern.length,
+              index: byteOffset,
+              offset: bytesPerRow,
             };
-          });
-
-          if (result.length > 0) return result;
-        } catch (e) {
-          console.log(e);
-          return null;
+          }
         }
-      }
-      return null;
-    };
-    // ASCII 텍스트로 찾는 함수
-    const findAllByAsciiText = async (
-      text: string
-    ): Promise<IndexInfo[] | null> => {
-      if (text.trim()) {
-        try {
-          const pattern = asciiToBytes(text);
-          const result = findPatternIndices(buffer, pattern).map((item) => {
-            return {
-              index: item,
-              offset: pattern.length,
-            };
-          });
+        return null;
+      };
+      // 헥스 값으로 찾기
+      const findAllByHex = async (hex: string): Promise<IndexInfo[] | null> => {
+        if (hex.trim()) {
+          try {
+            const pattern = new Uint8Array(
+              hex.match(/.{1,2}/g)?.map((byte) => parseInt(byte, 16)) || []
+            );
+            const result = findPatternIndices(buffer, pattern).map((item) => {
+              return {
+                index: item,
+                offset: pattern.length,
+              };
+            });
 
-          if (result.length > 0) return result;
-        } catch (e) {
-          console.log(e);
-          return null;
+            if (result.length > 0) return result;
+          } catch (e) {
+            console.log(e);
+            return null;
+          }
         }
-      }
-      return null;
-    };
+        return null;
+      };
+      // ASCII 텍스트로 찾는 함수
+      const findAllByAsciiText = async (
+        text: string
+      ): Promise<IndexInfo[] | null> => {
+        if (text.trim()) {
+          try {
+            const pattern = asciiToBytes(text);
+            const result = findPatternIndices(buffer, pattern).map((item) => {
+              return {
+                index: item,
+                offset: pattern.length,
+              };
+            });
 
-    // 해당 위치로 스크롤 및 선택하기
-    const scrollToIndex = (index: number, offset: number): void => {
-      const rowIndex = Math.floor(index / bytesPerRow);
-      listRef.current?.scrollToItem(rowIndex, 'start');
-      setSelectionRange({
-        start: index,
-        end: index + offset - 1,
-        arrayBuffer: buffer.slice(index, index + offset),
-      });
-    };
+            if (result.length > 0) return result;
+          } catch (e) {
+            console.log(e);
+            return null;
+          }
+        }
+        return null;
+      };
 
-    return {
-      findByOffset,
-      findAllByHex,
-      findAllByAsciiText,
-      scrollToIndex,
-    };
-  });
+      // 해당 위치로 스크롤 및 선택하기
+      const scrollToIndex = (index: number, offset: number): void => {
+        const rowIndex = Math.floor(index / bytesPerRow);
+        listRef.current?.scrollToItem(rowIndex, 'start');
+        setSelectionRange({
+          start: index,
+          end: index + offset - 1,
+          arrayBuffer: buffer.slice(index, index + offset),
+        });
+      };
+
+      return {
+        findByOffset,
+        findAllByHex,
+        findAllByAsciiText,
+        scrollToIndex,
+      };
+    },
+    [buffer, setSelectionRange]
+  );
 
   return (
     <AutoSizer>
