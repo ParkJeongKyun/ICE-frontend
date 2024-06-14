@@ -15,6 +15,22 @@ export const TabsContainer = styled.div<{ $empty: boolean }>`
   width: 100%;
   border-bottom: ${(props) =>
     props.$empty ? 'none' : '1px solid var(--main-line-color)'};
+
+  /* 스크롤 디자인 */
+  // Chrome, Safari, Edge, Opera
+  &::-webkit-scrollbar {
+    display: block !important;
+    width: 5px; /* 스크롤바 너비 */
+    height: 5px; /* Scrollbar 높이 */
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.3); /* 스크롤바 색상 */
+    &:hover {
+      /* 마우스 호버시 스크롤바 색상 */
+      background-color: var(--main-hover-line-color);
+    }
+  }
+  /* 스크롤 디자인 */
 `;
 
 export const Tab = styled.div<{ $active: boolean }>`
@@ -40,7 +56,6 @@ export const Tab = styled.div<{ $active: boolean }>`
       stroke: var(--main-hover-line-color);
     }
   }
-  /* 텍스트가 너무 길어질 때 ...으로 대체되도록 설정 */
   white-space: nowrap; /* 줄 바꿈 방지 */
 `;
 

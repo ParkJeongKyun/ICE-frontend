@@ -26,25 +26,9 @@ body,
   --ice-main-color_2: rgb(35, 209, 124);
   --ice-main-color_3: rgb(204, 167, 0);
 
-  // 수직 스크롤바
+  // 스크롤바
   // Chrome, Safari, Edge, Opera
   ::-webkit-scrollbar {
-    width: 5px; /* 스크롤바 너비 */
-    height: 5px; /* Scrollbar 높이 */
-    background-color: rgba(255, 255, 255, 0.1);
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background-color: rgba(255, 255, 255, 0.3); /* 스크롤바 색상 */
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    background-color: var(
-      --main-hover-line-color
-    ); /* 마우스 호버시 스크롤바 색상 */
-  }
-
-  ::-webkit-scrollbar-corner {
-    background-color: rgba(255, 255, 255, 0.3);
+    display: none;
   }
 }

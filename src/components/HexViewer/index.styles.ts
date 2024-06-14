@@ -1,20 +1,46 @@
 import styled from 'styled-components';
 import { FixedSizeList as List } from 'react-window';
 
+// 리스트 가상화 디자인
 export const ListDiv = styled(List)`
-  /* padding: 5px 5px; */
   /* 선택 비활성화 */
   user-select: none;
   scroll-snap-type: y mandatory;
+
+  /* 스크롤 디자인 */
+  // Chrome, Safari, Edge, Opera
+  &::-webkit-scrollbar {
+    display: block !important;
+    width: 10px; /* 스크롤바 너비 */
+    height: 10px; /* Scrollbar 높이 */
+    /* background-color: rgba(255, 255, 255, 0.1); */
+    background-color: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.3); /* 스크롤바 색상 */
+    &:hover {
+      /* 마우스 호버시 스크롤바 색상 */
+      background-color: var(--main-hover-line-color);
+    }
+  }
+  &::-webkit-scrollbar-corner {
+    /* background-color: rgba(255, 255, 255, 0.3); */
+    background-color: transparent;
+  }
+  /* 스크롤 디자인 */
 `;
 
+// 하나의 열
 export const Row = styled.div<{ $isMobile?: boolean }>`
   display: flex;
   flex-wrap: nowrap;
+  /* 폰트 */
   font-family: monospace;
   font-weight: 600;
+  /* 정렬 */
   text-align: center;
   align-items: center;
+  /* 여백 */
   gap: 10px 10px;
   padding-left: 5px;
   padding-right: 5px;
@@ -29,6 +55,7 @@ export const Row = styled.div<{ $isMobile?: boolean }>`
     `}
 `;
 
+// 오프셋 셀
 export const OffsetCell = styled.div`
   display: flex;
   flex-wrap: nowrap;
@@ -36,14 +63,17 @@ export const OffsetCell = styled.div`
   align-items: center;
 `;
 
+// 헥스 셀
 export const HexCell = styled.div`
   display: flex;
   flex-wrap: nowrap;
   text-align: center;
+  /* 최소간격유지 */
   min-width: 320px;
   align-items: center;
 `;
 
+// 텍스트 셀
 export const TextCell = styled.div`
   display: flex;
   flex-wrap: nowrap;
@@ -51,6 +81,7 @@ export const TextCell = styled.div`
   align-items: center;
 `;
 
+// 오프셋
 export const OffsetByte = styled.span<{ $selected: boolean }>`
   cursor: text;
   display: inline-block;
@@ -68,6 +99,7 @@ export const OffsetByte = styled.span<{ $selected: boolean }>`
     `}
 `;
 
+// 헥스
 export const HexByte = styled.span<{ $isEven: boolean; $selected: boolean }>`
   cursor: text;
   display: inline-block;
@@ -89,6 +121,7 @@ export const HexByte = styled.span<{ $isEven: boolean; $selected: boolean }>`
   `}
 `;
 
+// 텍스트
 export const TextByte = styled.span<{ $isDot: boolean; $selected: boolean }>`
   cursor: text;
   display: inline-block;
