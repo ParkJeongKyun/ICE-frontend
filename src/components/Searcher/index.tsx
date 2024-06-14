@@ -239,7 +239,7 @@ const Searcher: React.FC<Props> = ({ hexViewerRef, activeKey }) => {
         </SearchDiv>
         {searchType == 'ascii' && (
           <SearchDiv>
-            <SearchCheckBox>
+            <SearchCheckBox onClick={() => setIgnoreCase((prev) => !prev)}>
               <input
                 type="checkbox"
                 checked={ignoreCase}

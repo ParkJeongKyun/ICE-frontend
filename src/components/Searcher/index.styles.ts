@@ -86,6 +86,12 @@ export const SearchCheckBox = styled.div`
   input[type='checkbox']:hover {
     background-color: var(--main-hover-color_1);
   }
+  &:hover {
+    cursor: pointer;
+    input[type='checkbox'] {
+      background-color: var(--main-hover-color_1);
+    }
+  }
 
   > span {
     margin-left: 5px;
