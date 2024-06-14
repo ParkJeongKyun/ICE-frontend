@@ -152,64 +152,74 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
     [buffer]
   );
 
-  const RowRenderer = React.memo(
-    ({ index, style }: ListChildComponentProps) => {
-      const { offset, bytes, start } = getRowData(index);
+  // RowRenderer 컴포넌트를 외부로 이동하여 불필요한 핸들러 재정의 방지
+  const RowRenderer = useMemo(
+    () =>
+      React.memo(({ index, style }: ListChildComponentProps) => {
+        const { offset, bytes, start } = getRowData(index);
 
-      const selected =
-        startIndex !== null &&
-        endIndex !== null &&
-        start <= Math.max(startIndex, endIndex) &&
-        start + bytesPerRow - 1 >= Math.min(startIndex, endIndex);
-
-      const hexRow: JSX.Element[] = [];
-      const textRow: JSX.Element[] = [];
-
-      bytes.forEach((byte: number, i: number) => {
-        const byteIndex = start + i;
         const selected =
           startIndex !== null &&
           endIndex !== null &&
-          byteIndex >= Math.min(startIndex!, endIndex!) &&
-          byteIndex <= Math.max(startIndex!, endIndex!);
+          start <= Math.max(startIndex, endIndex) &&
+          start + bytesPerRow - 1 >= Math.min(startIndex, endIndex);
 
-        hexRow.push(
-          <HexByte
-            key={i}
-            $isEven={i % 2 === 0}
-            $selected={selected}
-            onMouseDown={() => handleMouseDown(byteIndex)}
-            onMouseEnter={() => debouncedHandleMouseMove(byteIndex)}
-            onMouseUp={handleMouseUp}
-          >
-            {byteToHex(byte)}
-          </HexByte>
-        );
-        const str = byteToChar(byte);
-        textRow.push(
-          <TextByte
-            key={i}
-            $isDot={str == '.'}
-            $selected={selected}
-            onMouseDown={() => handleMouseDown(byteIndex)}
-            onMouseEnter={() => debouncedHandleMouseMove(byteIndex)}
-            onMouseUp={handleMouseUp}
-          >
-            {str}
-          </TextByte>
-        );
-      });
+        const hexRow: JSX.Element[] = [];
+        const textRow: JSX.Element[] = [];
 
-      return (
-        <Row key={offset} style={style} $isMobile={isMobile}>
-          <OffsetCell>
-            <OffsetByte $selected={selected}>{offset}</OffsetByte>
-          </OffsetCell>
-          <HexCell>{hexRow}</HexCell>
-          <TextCell>{textRow}</TextCell>
-        </Row>
-      );
-    }
+        bytes.forEach((byte: number, i: number) => {
+          const byteIndex = start + i;
+          const selected =
+            startIndex !== null &&
+            endIndex !== null &&
+            byteIndex >= Math.min(startIndex!, endIndex!) &&
+            byteIndex <= Math.max(startIndex!, endIndex!);
+
+          hexRow.push(
+            <HexByte
+              key={i}
+              $isEven={i % 2 === 0}
+              $selected={selected}
+              onMouseDown={() => handleMouseDown(byteIndex)}
+              onMouseEnter={() => debouncedHandleMouseMove(byteIndex)}
+              onMouseUp={handleMouseUp}
+            >
+              {byteToHex(byte)}
+            </HexByte>
+          );
+          const str = byteToChar(byte);
+          textRow.push(
+            <TextByte
+              key={i}
+              $isDot={str == '.'}
+              $selected={selected}
+              onMouseDown={() => handleMouseDown(byteIndex)}
+              onMouseEnter={() => debouncedHandleMouseMove(byteIndex)}
+              onMouseUp={handleMouseUp}
+            >
+              {str}
+            </TextByte>
+          );
+        });
+
+        return (
+          <Row key={offset} style={style} $isMobile={isMobile}>
+            <OffsetCell>
+              <OffsetByte $selected={selected}>{offset}</OffsetByte>
+            </OffsetCell>
+            <HexCell>{hexRow}</HexCell>
+            <TextCell>{textRow}</TextCell>
+          </Row>
+        );
+      }),
+    [
+      startIndex,
+      endIndex,
+      getRowData,
+      handleMouseDown,
+      debouncedHandleMouseMove,
+      handleMouseUp,
+    ]
   );
 
   useImperativeHandle(
