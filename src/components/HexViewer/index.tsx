@@ -7,7 +7,6 @@ import React, {
 } from 'react';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { FixedSizeList as List, ListChildComponentProps } from 'react-window';
-import debounce from 'lodash.debounce';
 import {
   HexByte,
   HexCell,
@@ -78,7 +77,6 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
   // 드래그 관련 변수
   const [isDragging, setIsDragging] = useState(false);
   const { selectionRange, setSelectionRange } = useSelection();
-
   const { start: startIndex, end: endIndex } = selectionRange;
 
   // 분할용 변수
@@ -87,57 +85,42 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
   const buffer = useMemo(() => new Uint8Array(arrayBuffer), [arrayBuffer]);
   const rowCount = Math.ceil(buffer.length / bytesPerRow);
 
-  // 마우스 이벤트
+  // 마우스 이벤트 핸들러
   const handleMouseDown = useCallback(
     (byteIndex: number) => {
       setIsDragging(true);
-      setSelectionRange({
+      setSelectionRange((prev) => ({
+        ...prev,
         start: byteIndex,
         end: byteIndex,
-        arrayBuffer: null,
-        // arrayBuffer: buffer.slice(byteIndex, byteIndex + 1),
-      });
+      }));
     },
-    // [buffer, setSelectionRange]
     [setSelectionRange]
   );
 
   const handleMouseMove = useCallback(
     (byteIndex: number) => {
       if (isDragging) {
-        let start: number | null;
-        let end: number | null;
+        setSelectionRange((prev) => {
+          let start: number | null;
+          let end: number | null;
 
-        // 뒤에서 앞으로 선택하는 경우
-        if (Number(selectionRange.start) > byteIndex) {
-          start = byteIndex;
-          end = selectionRange.end;
-        } else {
-          start = selectionRange.start;
-          end = byteIndex;
-        }
-        setSelectionRange({
-          start: start,
-          end: end,
-          arrayBuffer: null,
-          // arrayBuffer:
-          //   start != null && end != null ? buffer.slice(start, end + 1) : null,
+          if (Number(prev.start) > byteIndex) {
+            start = byteIndex;
+            end = prev.end;
+          } else {
+            start = prev.start;
+            end = byteIndex;
+          }
+          return {
+            ...prev,
+            start: start,
+            end: end,
+          };
         });
       }
     },
-    // [
-    //   isDragging,
-    //   selectionRange.start,
-    //   selectionRange.end,
-    //   buffer,
-    //   setSelectionRange,
-    // ]
-    [isDragging, selectionRange.start, selectionRange.end, setSelectionRange]
-  );
-
-  const debouncedHandleMouseMove = useMemo(
-    () => debounce(handleMouseMove, 10),
-    [handleMouseMove]
+    [isDragging]
   );
 
   const handleMouseUp = useCallback(() => {
@@ -155,74 +138,89 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
     [buffer]
   );
 
-  // RowRenderer 컴포넌트를 외부로 이동하여 불필요한 핸들러 재정의 방지
+  // 선택된 상태를 미리 계산하여 사용
+  const isSelected = useCallback(
+    (byteIndex: number) => {
+      return (
+        startIndex !== null &&
+        endIndex !== null &&
+        byteIndex >= Math.min(startIndex, endIndex) &&
+        byteIndex <= Math.max(startIndex, endIndex)
+      );
+    },
+    [startIndex, endIndex]
+  );
+
+  // 셀 렌더링 최적화
+  const renderHexByte = (
+    byte: number,
+    i: number,
+    start: number
+  ): JSX.Element => {
+    const byteIndex = start + i;
+    const selected = isSelected(byteIndex);
+
+    return (
+      <HexByte
+        key={i}
+        $isEven={i % 2 === 0}
+        $selected={selected}
+        onMouseDown={() => handleMouseDown(byteIndex)}
+        onMouseEnter={() => handleMouseMove(byteIndex)}
+        onMouseUp={handleMouseUp}
+      >
+        {byteToHex(byte)}
+      </HexByte>
+    );
+  };
+
+  const renderTextByte = (
+    byte: number,
+    i: number,
+    start: number
+  ): JSX.Element => {
+    const byteIndex = start + i;
+    const selected = isSelected(byteIndex);
+    const str = byteToChar(byte);
+
+    return (
+      <TextByte
+        key={i}
+        $isDot={str === '.'}
+        $selected={selected}
+        onMouseDown={() => handleMouseDown(byteIndex)}
+        onMouseEnter={() => handleMouseMove(byteIndex)}
+        onMouseUp={handleMouseUp}
+      >
+        {str}
+      </TextByte>
+    );
+  };
+
   const RowRenderer = useMemo(
     () =>
       React.memo(({ index, style }: ListChildComponentProps) => {
         const { offset, bytes, start } = getRowData(index);
 
-        const selected =
-          startIndex !== null &&
-          endIndex !== null &&
-          start <= Math.max(startIndex, endIndex) &&
-          start + bytesPerRow - 1 >= Math.min(startIndex, endIndex);
-
         const hexRow: JSX.Element[] = [];
         const textRow: JSX.Element[] = [];
 
-        bytes.forEach((byte: number, i: number) => {
-          const byteIndex = start + i;
-          const selected =
-            startIndex !== null &&
-            endIndex !== null &&
-            byteIndex >= Math.min(startIndex!, endIndex!) &&
-            byteIndex <= Math.max(startIndex!, endIndex!);
-
-          hexRow.push(
-            <HexByte
-              key={i}
-              $isEven={i % 2 === 0}
-              $selected={selected}
-              onMouseDown={() => handleMouseDown(byteIndex)}
-              onMouseEnter={() => debouncedHandleMouseMove(byteIndex)}
-              onMouseUp={handleMouseUp}
-            >
-              {byteToHex(byte)}
-            </HexByte>
-          );
-          const str = byteToChar(byte);
-          textRow.push(
-            <TextByte
-              key={i}
-              $isDot={str == '.'}
-              $selected={selected}
-              onMouseDown={() => handleMouseDown(byteIndex)}
-              onMouseEnter={() => debouncedHandleMouseMove(byteIndex)}
-              onMouseUp={handleMouseUp}
-            >
-              {str}
-            </TextByte>
-          );
+        bytes.forEach((byte, i) => {
+          hexRow.push(renderHexByte(byte, i, start));
+          textRow.push(renderTextByte(byte, i, start));
         });
 
         return (
           <Row key={offset} style={style} $isMobile={isMobile}>
             <OffsetCell>
-              <OffsetByte $selected={selected}>{offset}</OffsetByte>
+              <OffsetByte $selected={isSelected(start)}>{offset}</OffsetByte>
             </OffsetCell>
             <HexCell>{hexRow}</HexCell>
             <TextCell>{textRow}</TextCell>
           </Row>
         );
       }),
-    [
-      startIndex,
-      endIndex,
-      getRowData,
-      handleMouseDown,
-      debouncedHandleMouseMove,
-      handleMouseUp,
-    ]
+    [getRowData, isSelected, renderHexByte, renderTextByte]
   );
 
   useImperativeHandle(
@@ -243,6 +241,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
         }
         return null;
       };
+
       // 헥스 값으로 찾기
       const findAllByHex = async (hex: string): Promise<IndexInfo[] | null> => {
         if (hex.trim()) {
@@ -265,7 +264,8 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
         }
         return null;
       };
-      // ASCII 텍스트로 찾는 함수
+
+      // ASCII 텍스트로 찾기
       const findAllByAsciiText = async (
         text: string,
         ignoreCase: boolean
@@ -298,7 +298,6 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
         setSelectionRange({
           start: index,
           end: index + offset - 1,
-          // arrayBuffer: buffer.slice(index, index + offset),
           arrayBuffer: null,
         });
       };
