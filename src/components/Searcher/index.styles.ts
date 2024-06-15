@@ -65,32 +65,13 @@ export const SearchCheckBox = styled.div`
   justify-content: center;
 
   input[type='checkbox'] {
-    -webkit-appearance: none; /* Remove default appearance */
-    -moz-appearance: none;
-    appearance: none;
     width: 12px;
     height: 12px;
-    border: 1px solid var(--main-line-color);
-    border-radius: 6px;
     cursor: pointer;
-    outline: none;
-    transition:
-      background-color 0.3s,
-      border-color 0.3s;
   }
 
-  input[type='checkbox']:checked {
-    background-color: var(--ice-main-color);
-  }
-
-  input[type='checkbox']:hover {
-    background-color: var(--main-hover-color_1);
-  }
   &:hover {
     cursor: pointer;
-    input[type='checkbox'] {
-      background-color: var(--main-hover-color_1);
-    }
   }
 
   > span {
