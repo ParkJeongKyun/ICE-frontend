@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import { useTransform, useScroll } from 'framer-motion';
 import { useRef } from 'react';
 import {
@@ -9,6 +9,9 @@ import {
   Section,
   TabletWrapper,
   ImageContainer,
+  Container,
+  Overlay,
+  Card,
 } from './index.styles';
 import { calculateExperience } from 'utils/getDate';
 import ICEMarkDown from 'components/markdown';
@@ -56,6 +59,43 @@ const txt = `
 
 `;
 
+const AnimatedCard = ({ imgUrl }: { imgUrl: string }) => {
+  const [rotateX, setRotateX] = useState(0);
+  const [rotateY, setRotateY] = useState(0);
+  const [opacity, setOpacity] = useState(0.8);
+  const [backgroundPosition, setBackgroundPosition] = useState(100);
+
+  const handleMouseMove = useCallback((e: any) => {
+    const x = e.nativeEvent.offsetX;
+    const y = e.nativeEvent.offsetY;
+    const newRotateY = (-1 / 5) * x + 20;
+    const newRotateX = (4 / 30) * y - 20;
+
+    setRotateX(newRotateX);
+    setRotateY(newRotateY);
+    setBackgroundPosition(x / 5 + y / 5);
+    setOpacity(x / 200);
+  }, []);
+
+  const handleMouseOut = useCallback(() => {
+    setOpacity(0);
+    setRotateX(0);
+    setRotateY(0);
+  }, []);
+
+  return (
+    <Container
+      $rotateX={rotateX}
+      $rotateY={rotateY}
+      onMouseMove={handleMouseMove}
+      onMouseOut={handleMouseOut}
+    >
+      <Overlay $opacity={opacity} $backgroundPosition={backgroundPosition} />
+      <Card $imgUrl={imgUrl} />
+    </Container>
+  );
+};
+
 // ### 프로젝트 경력
 
 const About: React.FC = () => {
@@ -71,7 +111,16 @@ const About: React.FC = () => {
               height: '100%',
             }}
           >
-            <div style={{ flexGrow: '1' }}></div>
+            <div
+              style={{
+                flexGrow: '1',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <AnimatedCard imgUrl={'/images/kyun.jpg'} />
+            </div>
             <div
               style={{
                 fontWeight: '700',

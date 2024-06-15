@@ -86,3 +86,43 @@ export const TabletWrapper = styled.div`
   color: var(--main-color);
   overflow: hidden;
 `;
+
+export const Container = styled.div<{ $rotateX: number; $rotateY: number }>`
+  width: 220px;
+  height: 310px;
+  transition: all 0.1s;
+  position: relative;
+  transform: ${({ $rotateX, $rotateY }) =>
+    `perspective(350px) rotateX(${$rotateX}deg) rotateY(${$rotateY}deg)`};
+`;
+
+export const Overlay = styled.div<{
+  $opacity: number;
+  $backgroundPosition: number;
+}>`
+  position: absolute;
+  width: 220px;
+  height: 310px;
+  background: linear-gradient(
+    105deg,
+    transparent 40%,
+    rgba(255, 219, 112, 0.8) 45%,
+    rgba(132, 50, 255, 0.6) 50%,
+    transparent 54%
+  );
+  filter: ${({ $opacity }) => `brightness(1.2) opacity(${$opacity})`};
+  mix-blend-mode: color-dodge;
+  background-size: 150% 150%;
+  background-position: ${({ $backgroundPosition }) =>
+    `${$backgroundPosition}%`};
+  transition: all 0.1s;
+`;
+
+export const Card = styled.div<{ $imgUrl: string }>`
+  width: 220px;
+  height: 310px;
+  background-image: ${({ $imgUrl }) => `url(${$imgUrl});`};
+  border-radius: 6px;
+  background-size: cover;
+  background-position: center;
+`;
