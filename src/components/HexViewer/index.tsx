@@ -320,7 +320,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
           width={width}
           itemCount={rowCount}
           itemSize={rowHeight}
-          overscanCount={100}
+          overscanCount={20}
           ref={listRef}
         >
           {RowRenderer}
