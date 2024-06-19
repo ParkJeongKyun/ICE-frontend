@@ -90,8 +90,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
         setSelectionRange((prev) => {
           let start: number | null;
           let end: number | null;
-
-          if (Number(prev.start) > byteIndex) {
+          if (Number(prev.start) >= byteIndex) {
             start = byteIndex;
             end = prev.end;
           } else {
