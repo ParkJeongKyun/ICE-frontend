@@ -1,8 +1,8 @@
 import styled from 'styled-components';
-import { FixedSizeList as List } from 'react-window';
+import { Virtuoso } from 'react-virtuoso';
 
 // 리스트 가상화 디자인
-export const ListDiv = styled(List)`
+export const ListDiv = styled(Virtuoso)`
   /* 선택 비활성화 */
   user-select: none;
   scroll-snap-type: y mandatory;
@@ -45,12 +45,12 @@ export const Row = styled.div<{ $isMobile?: boolean }>`
   padding-top: 5px;
   padding-bottom: 5px;
   /* 모바일 버전용 */
-  ${(props) =>
+  /* ${(props) =>
     props.$isMobile &&
     `
     transform: scale(0.8);
     transform-origin: top left;
-    `}
+    `} */
 `;
 
 // 오프셋 셀

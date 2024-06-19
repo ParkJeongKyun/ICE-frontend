@@ -2,11 +2,9 @@ import React, {
   useMemo,
   useState,
   useCallback,
-  forwardRef,
   useImperativeHandle,
 } from 'react';
 import AutoSizer from 'react-virtualized-auto-sizer';
-import { FixedSizeList as List, ListChildComponentProps } from 'react-window';
 import {
   HexByte,
   HexCell,
@@ -20,6 +18,7 @@ import {
 import { asciiToBytes, findPatternIndices } from 'utils/byteSearch';
 import { useSelection } from 'contexts/SelectionContext';
 import { isMobile } from 'react-device-detect';
+import { VirtuosoHandle } from 'react-virtuoso';
 
 interface Props {
   arrayBuffer: ArrayBuffer;
@@ -45,26 +44,19 @@ const byteToHex = (byte: number): string => {
 };
 
 const byteToChar = (byte: number): string => {
-  const decoder = new TextDecoder('windows-1252'); // ANSI에 해당하는 인코딩 사용
+  const decoder = new TextDecoder('windows-1252');
   const byteArr = new Uint8Array([byte]);
 
   try {
     const char = decoder.decode(byteArr);
     const code = char.charCodeAt(0);
 
-    // ASCII 프린트 가능한 문자 및 확장된 ANSI 프린트 가능한 문자 확인
-    if (
-      (code >= 0x20 && code <= 0x7e) || // ASCII printable characters
-      (code >= 0xa0 && code <= 0xff) // Extended ANSI printable characters
-    ) {
+    if ((code >= 0x20 && code <= 0x7e) || (code >= 0xa0 && code <= 0xff)) {
       return char;
     }
-  } catch (e) {
-    // 디코딩에 실패하면 무시하고 '.' 반환
-  }
+  } catch (e) {}
 
-  // 범위 내 바이트 값에 대해 '.' 반환
-  return '.'; // Non-printable characters
+  return '.';
 };
 
 const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
@@ -72,20 +64,14 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
   ref
 ) => {
   // 가상 테이블 레퍼런스
-  const listRef = React.useRef<List>(null);
-
-  // 드래그 관련 변수
+  const listRef = React.useRef<VirtuosoHandle>(null);
   const [isDragging, setIsDragging] = useState(false);
   const { selectionRange, setSelectionRange } = useSelection();
   const { start: startIndex, end: endIndex } = selectionRange;
-
-  // 분할용 변수
   const bytesPerRow = 16;
-  const rowHeight = 22;
   const buffer = useMemo(() => new Uint8Array(arrayBuffer), [arrayBuffer]);
   const rowCount = Math.ceil(buffer.length / bytesPerRow);
 
-  // 마우스 이벤트 핸들러
   const handleMouseDown = useCallback(
     (byteIndex: number) => {
       setIsDragging(true);
@@ -138,7 +124,6 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
     [buffer]
   );
 
-  // 선택된 상태를 미리 계산하여 사용
   const isSelected = useCallback(
     (byteIndex: number) => {
       return (
@@ -151,7 +136,6 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
     [startIndex, endIndex]
   );
 
-  // 셀 렌더링 최적화
   const renderHexByte = (
     byte: number,
     i: number,
@@ -197,39 +181,32 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
     );
   };
 
-  const RowRenderer = useMemo(
-    () =>
-      React.memo(({ index, style }: ListChildComponentProps) => {
-        const { offset, bytes, start } = getRowData(index);
+  const RowRenderer = ({ index }: { index: number }): JSX.Element => {
+    const { offset, bytes, start } = getRowData(index);
 
-        const hexRow: JSX.Element[] = [];
-        const textRow: JSX.Element[] = [];
+    const hexRow: JSX.Element[] = [];
+    const textRow: JSX.Element[] = [];
 
-        bytes.forEach((byte, i) => {
-          hexRow.push(renderHexByte(byte, i, start));
-          textRow.push(renderTextByte(byte, i, start));
-        });
+    bytes.forEach((byte, i) => {
+      hexRow.push(renderHexByte(byte, i, start));
+      textRow.push(renderTextByte(byte, i, start));
+    });
 
-        return (
-          <Row key={offset} style={style} $isMobile={isMobile}>
-            <OffsetCell>
-              <OffsetByte $selected={isSelected(start)}>{offset}</OffsetByte>
-            </OffsetCell>
-            <HexCell>{hexRow}</HexCell>
-            <TextCell>{textRow}</TextCell>
-          </Row>
-        );
-      }),
-    [getRowData, isSelected, renderHexByte, renderTextByte]
-  );
+    return (
+      <Row key={offset} $isMobile={isMobile}>
+        <OffsetCell>
+          <OffsetByte $selected={isSelected(start)}>{offset}</OffsetByte>
+        </OffsetCell>
+        <HexCell>{hexRow}</HexCell>
+        <TextCell>{textRow}</TextCell>
+      </Row>
+    );
+  };
 
   useImperativeHandle(
     ref,
-    () => {
-      // 오프셋 검색
-      const findByOffset = async (
-        offset: string
-      ): Promise<IndexInfo | null> => {
+    () => ({
+      findByOffset: async (offset: string): Promise<IndexInfo | null> => {
         if (offset.trim()) {
           const byteOffset = parseInt(offset, 16);
           if (byteOffset >= 0 && byteOffset < buffer.length) {
@@ -240,33 +217,28 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
           }
         }
         return null;
-      };
+      },
 
-      // 헥스 값으로 찾기
-      const findAllByHex = async (hex: string): Promise<IndexInfo[] | null> => {
+      findAllByHex: async (hex: string): Promise<IndexInfo[] | null> => {
         if (hex.trim()) {
           try {
             const pattern = new Uint8Array(
               hex.match(/.{1,2}/g)?.map((byte) => parseInt(byte, 16)) || []
             );
-            const result = findPatternIndices(buffer, pattern).map((item) => {
-              return {
-                index: item,
-                offset: pattern.length,
-              };
-            });
+            const result = findPatternIndices(buffer, pattern).map((item) => ({
+              index: item,
+              offset: pattern.length,
+            }));
 
             if (result.length > 0) return result;
           } catch (e) {
             console.log(e);
-            return null;
           }
         }
         return null;
-      };
+      },
 
-      // ASCII 텍스트로 찾기
-      const findAllByAsciiText = async (
+      findAllByAsciiText: async (
         text: string,
         ignoreCase: boolean
       ): Promise<IndexInfo[] | null> => {
@@ -274,41 +246,30 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
           try {
             const pattern = asciiToBytes(text);
             const result = findPatternIndices(buffer, pattern, ignoreCase).map(
-              (item) => {
-                return {
-                  index: item,
-                  offset: pattern.length,
-                };
-              }
+              (item) => ({
+                index: item,
+                offset: pattern.length,
+              })
             );
 
             if (result.length > 0) return result;
           } catch (e) {
             console.log(e);
-            return null;
           }
         }
         return null;
-      };
+      },
 
-      // 해당 위치로 스크롤 및 선택하기
-      const scrollToIndex = (index: number, offset: number): void => {
+      scrollToIndex: (index: number, offset: number): void => {
         const rowIndex = Math.floor(index / bytesPerRow);
-        listRef.current?.scrollToItem(rowIndex, 'start');
+        listRef.current?.scrollToIndex({ index: rowIndex, align: 'start' });
         setSelectionRange({
           start: index,
           end: index + offset - 1,
           arrayBuffer: null,
         });
-      };
-
-      return {
-        findByOffset,
-        findAllByHex,
-        findAllByAsciiText,
-        scrollToIndex,
-      };
-    },
+      },
+    }),
     [buffer, setSelectionRange]
   );
 
@@ -316,15 +277,11 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
     <AutoSizer>
       {({ height, width }: { height: number; width: number }) => (
         <ListDiv
-          height={height}
-          width={width}
-          itemCount={rowCount}
-          itemSize={rowHeight}
-          overscanCount={20}
           ref={listRef}
-        >
-          {RowRenderer}
-        </ListDiv>
+          style={{ height, width }}
+          totalCount={rowCount}
+          itemContent={(index) => <RowRenderer index={index} />}
+        />
       )}
     </AutoSizer>
   );

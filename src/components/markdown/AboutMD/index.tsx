@@ -34,6 +34,8 @@ const txt = `
   - [Pixabay - 무료 사진](https://pixabay.com/)
   - [Framer Motion - 인터렉티브 웹 라이브러리](https://www.framer.com/motion/)
   - [Go Exif - GoLang Exif 분석 라이브러리](https://pkg.go.dev/github.com/dsoprea/go-exi)
+  - [Virtuoso - 리액트 가상화 리스트 라이브러리](https://github.com/petyosi/react-virtuoso)
+  - [react-resizable-layout - 리액트 레이아웃 크기 조절 라이브러리](https://github.com/RyoSogawa/react-resizable-layout)
 `;
 
 const relase_txt = `
