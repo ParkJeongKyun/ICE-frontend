@@ -1,8 +1,8 @@
+import { List } from 'react-virtualized';
 import styled from 'styled-components';
-import { Virtuoso } from 'react-virtuoso';
 
 // 리스트 가상화 디자인
-export const ListDiv = styled(Virtuoso)`
+export const ListDiv = styled(List)`
   /* 선택 비활성화 */
   user-select: none;
   scroll-snap-type: y mandatory;

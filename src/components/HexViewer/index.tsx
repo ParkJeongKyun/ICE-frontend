@@ -3,8 +3,10 @@ import React, {
   useState,
   useCallback,
   useImperativeHandle,
+  forwardRef,
 } from 'react';
 import AutoSizer from 'react-virtualized-auto-sizer';
+import { List, ListRowProps } from 'react-virtualized';
 import {
   HexByte,
   HexCell,
@@ -18,7 +20,6 @@ import {
 import { asciiToBytes, findPatternIndices } from 'utils/byteSearch';
 import { useSelection } from 'contexts/SelectionContext';
 import { isMobile } from 'react-device-detect';
-import { VirtuosoHandle } from 'react-virtuoso';
 
 interface Props {
   arrayBuffer: ArrayBuffer;
@@ -64,11 +65,12 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
   ref
 ) => {
   // 가상 테이블 레퍼런스
-  const listRef = React.useRef<VirtuosoHandle>(null);
+  const listRef = React.useRef<List>(null);
   const [isDragging, setIsDragging] = useState(false);
   const { selectionRange, setSelectionRange } = useSelection();
   const { start: startIndex, end: endIndex } = selectionRange;
   const bytesPerRow = 16;
+  const rowHeight = 30;
   const buffer = useMemo(() => new Uint8Array(arrayBuffer), [arrayBuffer]);
   const rowCount = Math.ceil(buffer.length / bytesPerRow);
 
@@ -180,7 +182,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
     );
   };
 
-  const RowRenderer = ({ index }: { index: number }): JSX.Element => {
+  const RowRenderer = ({ index, key, style }: ListRowProps): JSX.Element => {
     const { offset, bytes, start } = getRowData(index);
 
     const hexRow: JSX.Element[] = [];
@@ -192,7 +194,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
     });
 
     return (
-      <Row key={offset} $isMobile={isMobile}>
+      <Row key={key} style={style} $isMobile={isMobile}>
         <OffsetCell>
           <OffsetByte $selected={isSelected(start)}>{offset}</OffsetByte>
         </OffsetCell>
@@ -261,7 +263,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
 
       scrollToIndex: (index: number, offset: number): void => {
         const rowIndex = Math.floor(index / bytesPerRow);
-        listRef.current?.scrollToIndex({ index: rowIndex, align: 'start' });
+        listRef.current?.scrollToPosition(rowIndex * rowHeight);
         setSelectionRange({
           start: index,
           end: index + offset - 1,
@@ -277,13 +279,16 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
       {({ height, width }: { height: number; width: number }) => (
         <ListDiv
           ref={listRef}
-          style={{ height, width }}
-          totalCount={rowCount}
-          itemContent={(index) => <RowRenderer index={index} />}
+          height={height}
+          width={width}
+          rowCount={rowCount}
+          rowHeight={rowHeight}
+          overscanRowCount={20}
+          rowRenderer={RowRenderer}
         />
       )}
     </AutoSizer>
   );
 };
 
-export default React.forwardRef(HexViewer);
+export default forwardRef(HexViewer);
