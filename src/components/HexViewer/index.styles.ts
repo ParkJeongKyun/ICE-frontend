@@ -1,8 +1,8 @@
-import { List } from 'react-virtualized';
 import styled from 'styled-components';
+import { Grid } from 'react-virtualized';
 
 // 리스트 가상화 디자인
-export const ListDiv = styled(List)`
+export const GridDiv = styled(Grid)`
   /* 선택 비활성화 */
   user-select: none;
   scroll-snap-type: y mandatory;
@@ -30,36 +30,17 @@ export const ListDiv = styled(List)`
   /* 스크롤 디자인 */
 `;
 
-// 하나의 열
-export const Row = styled.div<{ $isMobile?: boolean }>`
-  display: flex;
-  flex-wrap: nowrap;
-  /* 폰트 */
-  font-family: monospace;
-  font-weight: 600;
-  /* 정렬 */
-  text-align: center;
-  align-items: center;
-  /* 여백 */
-  gap: 10px 10px;
-  padding-top: 5px;
-  padding-bottom: 5px;
-  /* 모바일 버전용 */
-  /* ${(props) =>
-    props.$isMobile &&
-    `
-    transform: scale(0.8);
-    transform-origin: top left;
-    `} */
-`;
-
 // 오프셋 셀
 export const OffsetCell = styled.div`
   display: flex;
   flex-wrap: nowrap;
   text-align: center;
   align-items: center;
-  padding-left: 10px;
+  justify-content: center;
+
+  /* 폰트 */
+  font-family: monospace;
+  font-weight: 600;
 `;
 
 // 헥스 셀
@@ -67,9 +48,11 @@ export const HexCell = styled.div`
   display: flex;
   flex-wrap: nowrap;
   text-align: center;
-  /* 최소간격유지 */
-  min-width: 320px;
   align-items: center;
+
+  /* 폰트 */
+  font-family: monospace;
+  font-weight: 600;
 `;
 
 // 텍스트 셀
@@ -78,7 +61,10 @@ export const TextCell = styled.div`
   flex-wrap: nowrap;
   text-align: center;
   align-items: center;
-  padding-right: 10px;
+
+  /* 폰트 */
+  font-family: monospace;
+  font-weight: 600;
 `;
 
 // 오프셋

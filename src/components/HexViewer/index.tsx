@@ -6,20 +6,18 @@ import React, {
   forwardRef,
 } from 'react';
 import AutoSizer from 'react-virtualized-auto-sizer';
-import { List, ListRowProps } from 'react-virtualized';
+import { GridCellProps } from 'react-virtualized';
 import {
   HexByte,
   HexCell,
-  ListDiv,
+  GridDiv,
   OffsetByte,
   OffsetCell,
-  Row,
   TextByte,
   TextCell,
 } from './index.styles';
 import { asciiToBytes, findPatternIndices } from 'utils/byteSearch';
 import { useSelection } from 'contexts/SelectionContext';
-import { isMobile } from 'react-device-detect';
 
 interface Props {
   arrayBuffer: ArrayBuffer;
@@ -64,13 +62,13 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
   { arrayBuffer },
   ref
 ) => {
-  // 가상 테이블 레퍼런스
-  const listRef = React.useRef<List>(null);
+  const [scrollIndex, setScrollIndex] = React.useState<number>(0);
   const [isDragging, setIsDragging] = useState(false);
   const { selectionRange, setSelectionRange } = useSelection();
   const { start: startIndex, end: endIndex } = selectionRange;
   const bytesPerRow = 16;
-  const rowHeight = 30;
+  const rowHeight = 35;
+  const columnCount = 3;
   const buffer = useMemo(() => new Uint8Array(arrayBuffer), [arrayBuffer]);
   const rowCount = Math.ceil(buffer.length / bytesPerRow);
 
@@ -113,6 +111,11 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
   const handleMouseUp = useCallback(() => {
     setIsDragging(false);
   }, []);
+
+  const getColumnWidth = ({ index }: { index: number }): number => {
+    const widths = [70, 310, 120];
+    return widths[index];
+  };
 
   const getRowData = useCallback(
     (index: number) => {
@@ -182,26 +185,43 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
     );
   };
 
-  const RowRenderer = ({ index, key, style }: ListRowProps): JSX.Element => {
-    const { offset, bytes, start } = getRowData(index);
+  const cellRenderer = ({
+    columnIndex,
+    key,
+    rowIndex,
+    style,
+  }: GridCellProps) => {
+    const { offset, bytes, start } = getRowData(rowIndex);
 
-    const hexRow: JSX.Element[] = [];
-    const textRow: JSX.Element[] = [];
-
-    bytes.forEach((byte, i) => {
-      hexRow.push(renderHexByte(byte, i, start));
-      textRow.push(renderTextByte(byte, i, start));
-    });
-
-    return (
-      <Row key={key} style={style} $isMobile={isMobile}>
-        <OffsetCell>
+    if (columnIndex === 0) {
+      return (
+        <OffsetCell key={key} style={style}>
           <OffsetByte $selected={isSelected(start)}>{offset}</OffsetByte>
         </OffsetCell>
-        <HexCell>{hexRow}</HexCell>
-        <TextCell>{textRow}</TextCell>
-      </Row>
-    );
+      );
+    } else if (columnIndex === 1) {
+      const cells: JSX.Element[] = [];
+      bytes.forEach((byte, i) => {
+        cells.push(renderHexByte(byte, i, start));
+      });
+
+      return (
+        <HexCell key={key} style={style}>
+          {cells}
+        </HexCell>
+      );
+    } else {
+      const cells: JSX.Element[] = [];
+      bytes.forEach((byte, i) => {
+        cells.push(renderTextByte(byte, i, start));
+      });
+
+      return (
+        <TextCell key={key} style={style}>
+          {cells}
+        </TextCell>
+      );
+    }
   };
 
   useImperativeHandle(
@@ -263,7 +283,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
 
       scrollToIndex: (index: number, offset: number): void => {
         const rowIndex = Math.floor(index / bytesPerRow);
-        listRef.current?.scrollToPosition(rowIndex * rowHeight);
+        setScrollIndex(rowIndex);
         setSelectionRange({
           start: index,
           end: index + offset - 1,
@@ -277,14 +297,23 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
   return (
     <AutoSizer>
       {({ height, width }: { height: number; width: number }) => (
-        <ListDiv
-          ref={listRef}
+        <GridDiv
           height={height}
           width={width}
+          // 가로
+          columnCount={columnCount}
+          columnWidth={getColumnWidth}
+          // 세로
           rowCount={rowCount}
           rowHeight={rowHeight}
+          // 랜더링 설정
+          cellRenderer={cellRenderer}
+          // 셀 고정
+          scrollToRow={scrollIndex}
+          scrollToAlignment={'start'}
+          // 오버 스캔
+          overscanColumnCount={2}
           overscanRowCount={20}
-          rowRenderer={RowRenderer}
         />
       )}
     </AutoSizer>
