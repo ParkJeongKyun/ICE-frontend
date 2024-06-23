@@ -69,8 +69,8 @@ export const TabletContainer = styled(motion.div)`
   box-shadow: 0 0 20px 2px rgba(28, 31, 47, 0.1);
   padding: 10px 10px;
   width: 90vw;
-  max-width: 600px;
-  height: 500px;
+  max-width: 700px;
+  height: 900px;
   position: relative;
   max-height: 90vh;
   margin: 20px;
