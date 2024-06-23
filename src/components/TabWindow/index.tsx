@@ -53,7 +53,17 @@ const TabWindow: React.FC<Props> = ({
 
         // 삭제된 탭이 활성화된 탭인 경우, 새로운 활성화된 탭을 선택.
         if (key === activeKey) {
-          const newActiveKey = newItems[index - 1]?.key || 0;
+          let newActiveKey: TabKey | number;
+          if (index === 0) {
+            // 첫 번째 탭이 제거된 경우
+            newActiveKey = newItems[0]?.key || 0;
+          } else {
+            // 그 외의 경우
+            newActiveKey =
+              newItems[index - 1]?.key ||
+              newItems[newItems.length - 1]?.key ||
+              0;
+          }
           setActiveKey(newActiveKey);
         }
 
