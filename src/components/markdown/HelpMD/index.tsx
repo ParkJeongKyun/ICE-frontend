@@ -5,8 +5,10 @@ const txt = `
 사이트에서 파일을 열어도 서버에 저장되거나 업로드 되지 않습니다.     
 사이트 접속 요청만 구글 애널리틱스에 의해 수집되고 있으며 수집 및 처리되는 개인정보는 없습니다.    
       
-[ 아래는 실제 사용 사진 예제 ]
+[ PC 버전 사용 화면 ]
 ![Example Image](/images/sample/sample3.png)    
+[ Mobile 버전 사용 화면 ]
+![Example Image](/images/sample/mobile_sample1.png)   
 - 표시되는 파일정보
   - Hex View
     - 파일 Hex 값을 보여줍니다
