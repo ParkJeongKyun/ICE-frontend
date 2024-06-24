@@ -67,7 +67,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
   const { selectionRange, setSelectionRange } = useSelection();
   const { start: startIndex, end: endIndex } = selectionRange;
   const bytesPerRow = 16;
-  const rowHeight = 35;
+  const rowHeight = 30;
   const columnCount = 3;
   const buffer = useMemo(() => new Uint8Array(arrayBuffer), [arrayBuffer]);
   const rowCount = Math.ceil(buffer.length / bytesPerRow);
@@ -113,7 +113,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
   }, []);
 
   const getColumnWidth = ({ index }: { index: number }): number => {
-    const widths = [85, 325, 150];
+    const widths = [100, 360, 200];
     return widths[index];
   };
 

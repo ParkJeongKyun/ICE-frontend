@@ -41,6 +41,7 @@ export const OffsetCell = styled.div`
   /* 폰트 */
   font-family: monospace;
   font-weight: 600;
+  font-size: 14.5px;
 `;
 
 // 헥스 셀
@@ -53,6 +54,7 @@ export const HexCell = styled.div`
   /* 폰트 */
   font-family: monospace;
   font-weight: 600;
+  font-size: 14.5px;
 `;
 
 // 텍스트 셀
@@ -66,6 +68,7 @@ export const TextCell = styled.div`
   /* 폰트 */
   font-family: monospace;
   font-weight: 600;
+  font-size: 12.5px;
 `;
 
 // 오프셋
@@ -113,7 +116,8 @@ export const TextByte = styled.span<{ $isDot: boolean; $selected: boolean }>`
   cursor: text;
   display: inline-block;
   min-height: 17px;
-  width: 1ch;
+  min-width: 10px;
+  max-width: 10px;
   padding: 3px 0px;
   text-align: center;
 
