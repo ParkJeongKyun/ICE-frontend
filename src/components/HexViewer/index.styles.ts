@@ -62,6 +62,7 @@ export const TextCell = styled.div`
   text-align: center;
   align-items: center;
 
+  margin-left: 10px;
   /* 폰트 */
   font-family: monospace;
   font-weight: 600;

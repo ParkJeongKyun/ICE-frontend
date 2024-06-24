@@ -113,7 +113,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
   }, []);
 
   const getColumnWidth = ({ index }: { index: number }): number => {
-    const widths = [85, 325, 125];
+    const widths = [85, 325, 150];
     return widths[index];
   };
 
