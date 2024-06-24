@@ -34,7 +34,7 @@ export const GridDiv = styled(Grid)`
 export const OffsetCell = styled.div`
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: start;
   flex-wrap: nowrap;
   text-align: center;
 
@@ -76,7 +76,8 @@ export const TextCell = styled.div`
 export const OffsetByte = styled.span<{ $selected: boolean }>`
   cursor: text;
   display: inline;
-  width: 80px;
+  margin-left: 10px;
+  width: 70px;
   line-height: 30px;
 
   color: var(--ice-main-color_3);
