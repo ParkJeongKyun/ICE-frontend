@@ -58,7 +58,7 @@ const Home: React.FC<Props> = ({ menuBtnZoneRef }) => {
         <InfoDiv>
           <div>웹 브라우저 기반으로 동작</div>
           <div>수집 및 처리되는 개인정보 없음</div>
-          <div>파일 업로드시 서버에 저장되지 않음</div>
+          <div>파일을 열어도 서버에 업로드 및 저장되지 않음</div>
           <div>{process.env.REACT_APP_COPYRIGHT}</div>
         </InfoDiv>
       </div>

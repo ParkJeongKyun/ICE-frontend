@@ -27,8 +27,8 @@ export const ModalContent = styled.div<{ $top: string; $left: string }>`
 `;
 
 export const ChildDiv = styled.div`
-  height: 50vh;
-  max-height: 500px;
+  height: 70vh;
+  max-height: 800px;
   border: 1px solid var(--main-line-color);
 `;
 
