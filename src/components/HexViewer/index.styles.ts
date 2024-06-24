@@ -33,10 +33,10 @@ export const GridDiv = styled(Grid)`
 // 오프셋 셀
 export const OffsetCell = styled.div`
   display: flex;
-  flex-wrap: nowrap;
-  text-align: center;
   align-items: center;
   justify-content: center;
+  flex-wrap: nowrap;
+  text-align: center;
 
   /* 폰트 */
   font-family: monospace;
@@ -47,9 +47,10 @@ export const OffsetCell = styled.div`
 // 헥스 셀
 export const HexCell = styled.div`
   display: flex;
+  align-items: center;
+  justify-content: start;
   flex-wrap: nowrap;
   text-align: center;
-  align-items: center;
 
   /* 폰트 */
   font-family: monospace;
@@ -60,11 +61,11 @@ export const HexCell = styled.div`
 // 텍스트 셀
 export const TextCell = styled.div`
   display: flex;
+  align-items: center;
+  justify-content: start;
   flex-wrap: nowrap;
   text-align: center;
-  align-items: center;
 
-  margin-left: 10px;
   /* 폰트 */
   font-family: monospace;
   font-weight: 600;
@@ -74,10 +75,9 @@ export const TextCell = styled.div`
 // 오프셋
 export const OffsetByte = styled.span<{ $selected: boolean }>`
   cursor: text;
-  display: inline-block;
-  min-height: 17px;
-  padding: 3px;
-  text-align: center;
+  display: inline;
+  width: 80px;
+  line-height: 30px;
 
   color: var(--ice-main-color_3);
   /* 선택된 셀 */
@@ -92,11 +92,9 @@ export const OffsetByte = styled.span<{ $selected: boolean }>`
 // 헥스
 export const HexByte = styled.span<{ $isEven: boolean; $selected: boolean }>`
   cursor: text;
-  display: inline-block;
-  min-height: 17px;
-  padding: 3px 2px;
-  text-align: center;
-  width: 2ch;
+  display: inline;
+  width: 22px;
+  line-height: 30px;
 
   /* 텍스트 색변경 */
   ${(props) =>
@@ -114,12 +112,11 @@ export const HexByte = styled.span<{ $isEven: boolean; $selected: boolean }>`
 // 텍스트
 export const TextByte = styled.span<{ $isDot: boolean; $selected: boolean }>`
   cursor: text;
-  display: inline-block;
-  min-height: 17px;
-  min-width: 10px;
-  max-width: 10px;
-  padding: 3px 0px;
-  text-align: center;
+  display: inline;
+  width: 10px;
+  line-height: 30px;
+  /* 공백인 경우 */
+  min-height: 30px;
 
   /* 점인 경우 */
   ${(props) =>
