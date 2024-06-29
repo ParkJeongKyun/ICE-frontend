@@ -30,5 +30,5 @@ export const calculateExperience = (startDate: Date, endDate: Date): string => {
     months += 12;
   }
 
-  return `${years}년 ${months}개월`;
+  return `${years ? years + '년 ' : ''}${months}개월`;
 };
