@@ -19,40 +19,46 @@ import DownArrowIcon from 'components/common/Icons/DownArrowIcon';
 
 const txt = `
 # 박정균(Park Jeong-kyun, 朴正均)  
-### 출생
+## 출생
   - 2001년 2월 23일 (만 ${new Date().getFullYear() - new Date('2001-02-23').getFullYear()}세)
   - 대한민국 대구광역시 중구 대봉동
-### 거주지
+## 거주지
   - 대한민국 서울특별시 강서구 화곡동
-### 이메일
+## 이메일
   - dbzoseh84@gmail.com
-### 관심 분야
+## 관심 분야
   - 디지털 포렌식, 보안, 웹/풀스택 개발
-### 학력
+## 학력
   - 대구초등학교(졸업)
   - 대구제일중학교(졸업)
   - 협성고등학교(졸업)
   - 영진직업전문학교(고교위탁 학생 졸업)
-### 병역
+## 병역
   - 대한민국 해군 3함대사령부 CERT(정보보호병) 병장 전역
     - 2020년 11월 23일 ~ 2022년 07월 22일
-    - ${calculateExperience(new Date('2020-11-23'), new Date('2022-07-22'))}
-### 보유 자격
+    - ${calculateExperience(new Date('2020-11'), new Date('2022-07'))}
+## 보유 자격
   - 디지털포렌식전문가 2급
   - 정보보안산업기사
   - 정보처리산업기사
   - 리눅스마스터 2급
   - 네트워크관리사 2급
-### 업무 경력
+## 기술 스택
+  - 언어
+    - Python, TypeScript, Javascript/HTML/CSS, Go, Java
+  - Forensic
+  - Network/System Security
+  - Docker, React, NextJS, JSP, FastAPI, Nifi, Jupyter, Kafka, Redis, Superset
+## 업무 경력
   - 대한민국 해군 3함대사령부 사이버방호과
     - CERT/사이버보안관제
     - 2021년 01월 25일 ~ 2022년 07월 22일
-    - ${calculateExperience(new Date('2021-01-25'), new Date('2022-07-22'))}
+    - ${calculateExperience(new Date('2021-01'), new Date('2022-07'))}
   - NuriggumSoft(주) DX 개발팀
     - SI, UI/UX, 웹, 파이썬 개발
     - 2022년 07월 25일 ~ 2024년 06월 24일
-    - ${calculateExperience(new Date('2022-07-25'), new Date('2024-06-24'))}
-### 프로젝트 경력 (SI)
+    - ${calculateExperience(new Date('2022-07'), new Date('2024-06'))}
+## 프로젝트 경력 (SI)
   - AI Link On, Plant AI
     - 고객사 : LG 화학, LG CNS
     - 근무회사 : NuriggumSoft(주)
@@ -117,8 +123,6 @@ const AnimatedCard = ({ imgUrl }: { imgUrl: string }) => {
     </Container>
   );
 };
-
-// ### 프로젝트 경력
 
 const About: React.FC = () => {
   return (
