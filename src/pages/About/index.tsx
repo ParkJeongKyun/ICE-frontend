@@ -58,6 +58,10 @@ const txt = `
     - SI, UI/UX, 웹, 파이썬 개발
     - 2022년 07월 25일 ~ 2024년 06월 24일
     - ${calculateExperience(new Date('2022-07'), new Date('2024-06'))}
+  - 프리랜서 개발자로 근무중
+    - SI, SM, UI/UX, 웹, 파이썬, Java 개발
+    - 2024년 07월 15일 ~ 
+    - ${calculateExperience(new Date('2024-07'), new Date())}
 ## 프로젝트 경력 (SI)
   - AI Link On, Plant AI
     - 고객사 : LG 화학, LG CNS
@@ -84,7 +88,10 @@ const txt = `
     - 근무회사 : NuriggumSoft(주)
     - TypeScript React 웹 프론트엔드 개발
     - 2023년 06월 ~ 2024년 04월 (${calculateExperience(new Date('2023-06'), new Date('2024-04'))})
-
+## 프로젝트 경력 (SM)
+  - 철 스크랩 AIS 운영시스템 운영 및 개선 작업
+    - 고객사 : 대한제강, LG CNS, KG ITC
+    - 2024년 07월 ~ (${calculateExperience(new Date('2024-07'), new Date())})
 `;
 
 const AnimatedCard = ({ imgUrl }: { imgUrl: string }) => {
@@ -146,6 +153,7 @@ const About: React.FC = () => {
               }}
             >
               <AnimatedCard imgUrl={'/images/kyun.jpg'} />
+              <AnimatedCard imgUrl={'/images/forensic_badge.png'} />
             </div>
             <div
               style={{

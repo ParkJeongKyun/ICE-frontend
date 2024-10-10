@@ -88,8 +88,8 @@ export const TabletWrapper = styled.div`
 `;
 
 export const Container = styled.div<{ $rotateX: number; $rotateY: number }>`
-  width: 220px;
-  height: 310px;
+  width: 150px;
+  height: 150px;
   transition: all 0.1s;
   position: relative;
   transform: ${({ $rotateX, $rotateY }) =>
@@ -101,8 +101,8 @@ export const Overlay = styled.div<{
   $backgroundPosition: number;
 }>`
   position: absolute;
-  width: 220px;
-  height: 310px;
+  width: 150px;
+  height: 150px;
   background: linear-gradient(
     105deg,
     transparent 40%,
@@ -119,10 +119,11 @@ export const Overlay = styled.div<{
 `;
 
 export const Card = styled.div<{ $imgUrl: string }>`
-  width: 220px;
-  height: 310px;
+  width: 150px;
+  height: 150px;
   background-image: ${({ $imgUrl }) => `url(${$imgUrl});`};
   border-radius: 6px;
-  background-size: cover;
+  background-size: contain;
   background-position: center;
+  background-repeat: no-repeat;
 `;
