@@ -1,4 +1,4 @@
-import Collapse from 'components/common/Collapse';
+import Collapse from '@/components/common/Collapse';
 import React, {
   useCallback,
   useEffect,
@@ -21,10 +21,10 @@ import {
   ResetBtn,
   SearchCheckBox,
 } from './index.styles';
-import { HexViewerRef, IndexInfo } from 'components/HexViewer';
-import Tooltip from 'components/common/Tooltip';
-import { TabKey } from 'types';
-import XIcon from 'components/common/Icons/XIcon';
+import { HexViewerRef, IndexInfo } from '@/components/HexViewer';
+import Tooltip from '@/components/common/Tooltip';
+import { TabKey } from '@/types';
+import XIcon from '@/components/common/Icons/XIcon';
 
 interface Props {
   hexViewerRef: React.RefObject<HexViewerRef>;

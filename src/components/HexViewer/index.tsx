@@ -16,8 +16,8 @@ import {
   TextByte,
   TextCell,
 } from './index.styles';
-import { asciiToBytes, findPatternIndices } from 'utils/byteSearch';
-import { useSelection } from 'contexts/SelectionContext';
+import { asciiToBytes, findPatternIndices } from '@/utils/byteSearch';
+import { useSelection } from '@/contexts/SelectionContext';
 
 interface Props {
   arrayBuffer: ArrayBuffer;

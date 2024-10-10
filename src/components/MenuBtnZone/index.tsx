@@ -1,11 +1,11 @@
 import React from 'react';
-import HexViewer, { HexViewerRef } from 'components/HexViewer';
+import HexViewer, { HexViewerRef } from '@/components/HexViewer';
 import { ChangeEvent, Ref, useImperativeHandle, useRef } from 'react';
 import styled from 'styled-components';
 import MenuBtn from '../common/MenuBtn';
-import { ExifRow, TabData, TabItem, TabKey } from 'types';
-import { getAddress, isValidLocation } from 'utils/getAddress';
-import Tooltip from 'components/common/Tooltip';
+import { ExifRow, TabData, TabItem, TabKey } from '@/types';
+import { getAddress, isValidLocation } from '@/utils/getAddress';
+import Tooltip from '@/components/common/Tooltip';
 
 interface Props {
   hexViewerRef: Ref<HexViewerRef>;

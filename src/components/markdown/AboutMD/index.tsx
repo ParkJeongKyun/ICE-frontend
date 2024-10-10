@@ -1,7 +1,7 @@
 import ICEMarkDown from '..';
 
 const txt = `
-# 현재 버전 : ${process.env.REACT_APP_VERSION}
+# 현재 버전 : ${import.meta.env.VITE_APP_VERSION}
 
 안녕하세요!     
 사이트 개발자 균입니다. 😎    

@@ -1,4 +1,4 @@
-import Collapse from 'components/common/Collapse';
+import Collapse from '@/components/common/Collapse';
 import React, { useMemo } from 'react';
 import {
   CellBodyDiv,
@@ -8,12 +8,12 @@ import {
   Thumbnail,
   ViewerDiv,
 } from './index.styles';
-import { TabData, TabKey } from 'types';
-import { getDate } from 'utils/getDate';
-import { getBytes } from 'utils/getBytes';
-import { isValidLocation } from 'utils/getAddress';
-import KakaoMap from 'components/KakaoMap/KakaoMap';
-import Tooltip from 'components/common/Tooltip';
+import { TabData, TabKey } from '@/types';
+import { getDate } from '@/utils/getDate';
+import { getBytes } from '@/utils/getBytes';
+import { isValidLocation } from '@/utils/getAddress';
+import KakaoMap from '@/components/KakaoMap/KakaoMap';
+import Tooltip from '@/components/common/Tooltip';
 
 interface Props {
   activeKey: TabKey;

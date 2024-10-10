@@ -13,9 +13,9 @@ import {
   Overlay,
   Card,
 } from './index.styles';
-import { calculateExperience } from 'utils/getDate';
-import ICEMarkDown from 'components/markdown';
-import DownArrowIcon from 'components/common/Icons/DownArrowIcon';
+import { calculateExperience } from '@/utils/getDate';
+import ICEMarkDown from '@/components/markdown';
+import DownArrowIcon from '@/components/common/Icons/DownArrowIcon';
 
 const txt = `
 # 박정균(Park Jeong-kyun, 朴正均)  

@@ -12,9 +12,9 @@ import {
   TabWindowContainer,
   TabsContainer,
 } from './index.styles';
-import XIcon from 'components/common/Icons/XIcon';
-import { TabData, TabItem, TabKey } from 'types';
-import { useSelection } from 'contexts/SelectionContext';
+import XIcon from '@/components/common/Icons/XIcon';
+import { TabData, TabItem, TabKey } from '@/types';
+import { useSelection } from '@/contexts/SelectionContext';
 
 interface Props {
   items: TabItem[];

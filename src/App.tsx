@@ -1,10 +1,10 @@
-import { SelectionProvider } from 'contexts/SelectionContext';
+import { SelectionProvider } from '@/contexts/SelectionContext';
 import { BrowserRouter } from 'react-router-dom';
-import RouterList from 'routes';
+import RouterList from '@/routes';
 
 function App() {
   return (
-    <BrowserRouter basename={process.env.PUBLIC_URL}>
+    <BrowserRouter basename={import.meta.env.BASE_URL}>
       <SelectionProvider>
         <RouterList />
       </SelectionProvider>

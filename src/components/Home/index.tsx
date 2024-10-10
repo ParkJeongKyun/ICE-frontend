@@ -1,4 +1,4 @@
-import { MenuBtnZoneRef } from 'components/MenuBtnZone';
+import { MenuBtnZoneRef } from '@/components/MenuBtnZone';
 import {
   Btn,
   HomeDiv,
@@ -22,7 +22,7 @@ const Home: React.FC<Props> = ({ menuBtnZoneRef }) => {
           <Title>ICE</Title>
           <Version>
             <span>
-              {process.env.REACT_APP_VERSION}
+              {import.meta.env.VITE_APP_VERSION}
               {isMobile && '_Mobile'}
             </span>
           </Version>
@@ -59,7 +59,7 @@ const Home: React.FC<Props> = ({ menuBtnZoneRef }) => {
           <div>웹 브라우저 기반으로 동작</div>
           <div>수집 및 처리되는 개인정보 없음</div>
           <div>파일을 열어도 서버에 업로드 및 저장되지 않음</div>
-          <div>{process.env.REACT_APP_COPYRIGHT}</div>
+          <div>{import.meta.env.VITE_APP_COPYRIGHT}</div>
         </InfoDiv>
       </div>
     </HomeDiv>

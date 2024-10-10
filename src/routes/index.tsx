@@ -1,6 +1,6 @@
-import MainLayout from 'layouts';
-import HomePage from 'pages';
-import About from 'pages/About';
+import MainLayout from '@/layouts';
+import HomePage from '@/pages';
+import About from '@/pages/About';
 import { Navigate, Outlet, useRoutes } from 'react-router-dom';
 
 const RouterList = () => {

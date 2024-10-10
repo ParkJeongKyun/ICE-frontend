@@ -17,18 +17,18 @@ import {
   SelectInfo,
   Separator,
 } from './index.styles';
-import { TabData, TabItem, TabKey } from 'types';
-import MenuBtnZone, { MenuBtnZoneRef } from '../components/MenuBtnZone';
-import TabWindow from '../components/TabWindow';
-import ExifRowViewer from '../components/ExifRowViewer';
-import Modal from 'components/common/Modal';
-import AboutMD from 'components/markdown/AboutMD';
-import HelpMD from 'components/markdown/HelpMD';
+import { TabData, TabItem, TabKey } from '@/types';
+import MenuBtnZone, { MenuBtnZoneRef } from '@/components/MenuBtnZone';
+import TabWindow from '@/components/TabWindow';
+import ExifRowViewer from '@/components/ExifRowViewer';
+import Modal from '@/components/common/Modal';
+import AboutMD from '@/components/markdown/AboutMD';
+import HelpMD from '@/components/markdown/HelpMD';
 import { useResizable } from 'react-resizable-layout';
-import Searcher from 'components/Searcher';
-import { HexViewerRef } from 'components/HexViewer';
-import { useSelection } from 'contexts/SelectionContext';
-import Home from 'components/Home';
+import Searcher from '@/components/Searcher';
+import { HexViewerRef } from '@/components/HexViewer';
+import { useSelection } from '@/contexts/SelectionContext';
+import Home from '@/components/Home';
 import { isMobile } from 'react-device-detect';
 
 const MainLayout: React.FC = () => {
@@ -266,7 +266,7 @@ const MainLayout: React.FC = () => {
             </>
           )}
         </SelectInfo>
-        <IceCopyRight>{process.env.REACT_APP_COPYRIGHT}</IceCopyRight>
+        <IceCopyRight>{import.meta.env.VITE_APP_COPYRIGHT}</IceCopyRight>
       </IceFooter>
 
       <Modal title={modalTitle} isOpen={isModalOpen} onClose={closeModal}>
