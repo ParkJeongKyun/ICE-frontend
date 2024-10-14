@@ -90,7 +90,7 @@ const MainLayout: React.FC = () => {
     const loadWebAssembly = async () => {
       const go = new Go();
       const wasmModule = await WebAssembly.instantiateStreaming(
-        fetch('wasm/main.wasm'),
+        fetch('wasm/ice_app.wasm'),
         go.importObject
       );
       go.run(wasmModule.instance);
