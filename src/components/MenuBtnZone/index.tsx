@@ -72,7 +72,7 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
             thumbnail = URL.createObjectURL(file);
             const input_data = new Uint8Array(arrayBuffer);
             const result = await window.goFunc(input_data);
-            if (result) {
+            if (result.data) {
               const meta: [
                 {
                   tag: string;
@@ -84,7 +84,7 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
                   unit: string;
                   example: any;
                 },
-              ] = JSON.parse(result);
+              ] = JSON.parse(result.data);
 
               if (meta) {
                 parsedRows = await Promise.all(

@@ -1,8 +1,14 @@
 // GO 언어를 컴파일한 웹 어셈블리 파일 적용을 위한 타입 선언
 declare global {
   interface Window {
-    goFunc: (imageData: Uint8Array) => Promise<any>;
+    goFunc: (imageData: Uint8Array) => Promise<GoFuncResult>;
   }
+}
+
+// goFunc의 반환 타입 정의
+export interface GoFuncResult {
+  data?: string;
+  error?: string;
 }
 
 declare global {
