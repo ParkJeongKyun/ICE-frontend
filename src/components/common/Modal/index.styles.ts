@@ -45,6 +45,7 @@ export const CloseBtn = styled.div`
   margin-left: 5px;
   display: flex;
   align-items: center;
+  cursor: pointer;
   svg {
     stroke: var(--main-line-color);
   }
