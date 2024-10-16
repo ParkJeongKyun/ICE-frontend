@@ -7,8 +7,10 @@ declare global {
 
 // goFunc의 반환 타입 정의
 export interface GoFuncResult {
-  data?: string;
   error?: string;
+  exif_data?: string;
+  mime_type?: string;
+  extension?: string;
 }
 
 declare global {
@@ -57,6 +59,8 @@ export interface fileinfo {
   name: string;
   lastModified: number;
   size: number;
+  mime_type?: string;
+  extension?: string;
 }
 
 export type TabKey = number;

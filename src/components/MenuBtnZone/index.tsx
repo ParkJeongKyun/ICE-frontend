@@ -68,68 +68,69 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
           setItems((prev) => [...prev, newTab]);
           setActiveKey(newActiveKey);
 
-          if (file.type.startsWith('image/')) {
-            thumbnail = URL.createObjectURL(file);
-            const input_data = new Uint8Array(arrayBuffer);
-            const result = await window.goFunc(input_data);
-            if (result.data) {
-              const meta: [
-                {
-                  tag: string;
-                  comment: string;
-                  data: string;
-                  origindata: string;
-                  type: string;
-                  name: string;
-                  unit: string;
-                  example: any;
-                },
-              ] = JSON.parse(result.data);
+          thumbnail = URL.createObjectURL(file);
+          const input_data = new Uint8Array(arrayBuffer);
+          const result = await window.goFunc(input_data);
+          if (result.error) {
+            console.error(result);
+          }
+          if (result.exif_data) {
+            const meta: [
+              {
+                tag: string;
+                comment: string;
+                data: string;
+                origindata: string;
+                type: string;
+                name: string;
+                unit: string;
+                example: any;
+              },
+            ] = JSON.parse(result.exif_data);
 
-              if (meta) {
-                parsedRows = await Promise.all(
-                  meta.map(
-                    async (
-                      {
-                        tag,
-                        comment,
-                        data,
-                        origindata,
-                        name,
-                        type,
-                        unit,
-                        example,
-                      },
-                      index
-                    ) => {
-                      if (tag === 'Location') {
-                        try {
-                          [lat, lng] = origindata
-                            .split(',')
-                            .map((value) => value.trim());
-                          if (isValidLocation(lat, lng)) {
-                            address = await getAddress(lat, lng);
-                            data = address;
-                          }
-                        } catch (error_msg) {
-                          console.log(error_msg);
+            if (meta) {
+              parsedRows = await Promise.all(
+                meta.map(
+                  async (
+                    {
+                      tag,
+                      comment,
+                      data,
+                      origindata,
+                      name,
+                      type,
+                      unit,
+                      example,
+                    },
+                    index
+                  ) => {
+                    if (tag === 'Location') {
+                      try {
+                        [lat, lng] = origindata
+                          .split(',')
+                          .map((value) => value.trim());
+                        if (isValidLocation(lat, lng)) {
+                          address = await getAddress(lat, lng);
+                          data = address;
                         }
+                      } catch (error_msg) {
+                        console.log(error_msg);
                       }
-                      return {
-                        id: index + 1,
-                        meta: tag,
-                        comment,
-                        data,
-                        origindata,
-                        name,
-                        type,
-                        unit,
-                        example,
-                      };
                     }
-                  )
-                );
-              }
+                    return {
+                      id: index + 1,
+                      meta: tag,
+                      comment,
+                      data,
+                      origindata,
+                      name,
+                      type,
+                      unit,
+                      example,
+                    };
+                  }
+                )
+              );
             }
           }
 
@@ -141,6 +142,8 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
                     name: file.name,
                     lastModified: file.lastModified,
                     size: file.size,
+                    mime_type: result.mime_type,
+                    extension: result.extension,
                   },
                   location: {
                     lat: lat,

@@ -57,6 +57,28 @@ const ExifRowViewer: React.FC<Props> = ({ activeKey, datas }) => {
                 <CellHeaderDiv>크기</CellHeaderDiv>
                 <CellBodyDiv>{getBytes(activeItem.fileinfo.size)}</CellBodyDiv>
               </ContentDiv>
+              <ContentDiv>
+                <CellHeaderDiv>
+                  <Tooltip text={'파일내용 기반 MIME 표준 포맷 추측'}>
+                    MIME 타입
+                  </Tooltip>
+                </CellHeaderDiv>
+                <CellBodyDiv>
+                  {activeItem.fileinfo.mime_type || '-'}
+                </CellBodyDiv>
+              </ContentDiv>
+              <ContentDiv>
+                <CellHeaderDiv>
+                  <Tooltip
+                    text={'시그니처/푸터/파일내용 기반 파일 확장자 추측 결과'}
+                  >
+                    적절한 확장자
+                  </Tooltip>
+                </CellHeaderDiv>
+                <CellBodyDiv>
+                  {activeItem.fileinfo.extension || '-'}
+                </CellBodyDiv>
+              </ContentDiv>
             </>
           }
           open
