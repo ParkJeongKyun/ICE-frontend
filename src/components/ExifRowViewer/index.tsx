@@ -12,7 +12,7 @@ import { TabData, TabKey } from '@/types';
 import { getDate } from '@/utils/getDate';
 import { getBytes } from '@/utils/getBytes';
 import { isValidLocation } from '@/utils/getAddress';
-import KakaoMap from '@/components/KakaoMap/KakaoMap';
+import KakaoMap from '@/components/KakaoMap';
 import Tooltip from '@/components/common/Tooltip';
 
 interface Props {

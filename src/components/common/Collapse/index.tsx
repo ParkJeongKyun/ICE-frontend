@@ -6,8 +6,8 @@ import {
   CollapseHeader,
   Title,
 } from './index.styles';
-import MinusIcon from '../Icons/MinusIcon';
-import PlusIcon from '../Icons/PlusIcon';
+import MinusIcon from '@/components/common/Icons/MinusIcon';
+import PlusIcon from '@/components/common/Icons/PlusIcon';
 
 interface CollapseProps {
   title: string;

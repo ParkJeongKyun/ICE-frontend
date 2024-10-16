@@ -1,16 +1,29 @@
 import styled from 'styled-components';
+import Tooltip from '@/components/common/Tooltip';
 
 interface Props {
   onClick: () => void;
   text: string;
   disabled?: boolean;
+  disabledTxt?: string;
 }
 
-const MenuBtn: React.FC<Props> = ({ onClick, text, disabled = false }) => {
-  return (
+const MenuBtn: React.FC<Props> = ({
+  onClick,
+  text,
+  disabled = false,
+  disabledTxt,
+}) => {
+  const button = (
     <BtnDiv onClick={!disabled ? onClick : undefined} disabled={disabled}>
       {text}
     </BtnDiv>
+  );
+
+  return disabled && disabledTxt ? (
+    <Tooltip text={disabledTxt}>{button}</Tooltip>
+  ) : (
+    button
   );
 };
 

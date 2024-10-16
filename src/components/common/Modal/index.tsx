@@ -6,7 +6,7 @@ import {
   CloseBtn,
   ChildDiv,
 } from './index.styles';
-import XIcon from '../Icons/XIcon';
+import XIcon from '@/components/common/Icons/XIcon';
 
 export interface ModalProps {
   title?: React.ReactNode;

@@ -68,6 +68,61 @@ export const IceFooter = styled.div<{ $isMobile?: boolean }>`
     `}
 `;
 
+export const ProcessInfo = styled.div`
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+`;
+
+export const Spinner = styled.div`
+  border: 2px solid var(--main-line-color);
+  border-top: 2px solid var(--ice-main-color);
+  border-radius: 50%;
+  width: 10px;
+  height: 10px;
+  animation: spin 1s linear infinite;
+
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+`;
+
+export const ProcessMsg = styled.span`
+  margin-left: 5px;
+  margin-right: 5px;
+  position: relative;
+
+  &::after {
+    content: '';
+    animation: dots 1.5s steps(1, end) infinite;
+  }
+
+  @keyframes dots {
+    0%,
+    20% {
+      content: '';
+    }
+    40% {
+      content: '.';
+    }
+    60% {
+      content: '..';
+    }
+    80%,
+    100% {
+      content: '...';
+    }
+  }
+`;
+
 export const SelectInfo = styled.div`
   display: flex;
   flex-wrap: nowrap;

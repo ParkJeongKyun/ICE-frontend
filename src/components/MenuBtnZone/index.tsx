@@ -1,11 +1,11 @@
 import React from 'react';
-import HexViewer, { HexViewerRef } from '@/components/HexViewer';
 import { ChangeEvent, Ref, useImperativeHandle, useRef } from 'react';
 import styled from 'styled-components';
-import MenuBtn from '../common/MenuBtn';
+import MenuBtn from '@/components/common/MenuBtn';
+import HexViewer, { HexViewerRef } from '@/components/HexViewer';
 import { ExifRow, TabData, TabItem, TabKey } from '@/types';
 import { getAddress, isValidLocation } from '@/utils/getAddress';
-import Tooltip from '@/components/common/Tooltip';
+import { useProcess } from '@/contexts/ProcessContext';
 
 interface Props {
   hexViewerRef: Ref<HexViewerRef>;
@@ -26,6 +26,10 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
   { hexViewerRef, newTabIndex, setDatas, setItems, setActiveKey, openModal },
   ref
 ) => {
+  // 처리중인 파일 정보
+  const { processInfo, setProcessInfo } = useProcess();
+  const { isProcessing } = processInfo;
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const handleOpenClick = () => {
     if (fileInputRef.current) {
@@ -45,6 +49,7 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
   const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setProcessInfo({ fileName: file.name, isProcessing: true });
       const readFileAsArrayBuffer = (file: File): Promise<ArrayBuffer> => {
         return new Promise((resolve, reject) => {
           const reader = new FileReader();
@@ -164,6 +169,8 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
         );
       } catch (error) {
         console.error('Error reading file:', error);
+      } finally {
+        setProcessInfo({ isProcessing: false });
       }
 
       // 파일 선택 input 초기화
@@ -197,14 +204,25 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
   return (
     <Div>
       {/* 파일 업로드 */}
-      <MenuBtn onClick={handleOpenClick} text="Open" />
+      <MenuBtn
+        onClick={handleOpenClick}
+        text="Open"
+        disabled={isProcessing}
+        disabledTxt="파일 분석이 완료되면 시도해주세요"
+      />
       <FileInput type="file" ref={fileInputRef} onChange={handleFileChange} />
-      <Tooltip text="기능 추가 업데이트 예정">
-        <MenuBtn onClick={() => {}} text="Save" disabled />
-      </Tooltip>
-      <Tooltip text="기능 추가 업데이트 예정">
-        <MenuBtn onClick={() => {}} text="Tools" disabled />
-      </Tooltip>
+      <MenuBtn
+        onClick={() => {}}
+        text="Save"
+        disabled
+        disabledTxt="기능 추가 업데이트 예정"
+      />
+      <MenuBtn
+        onClick={() => {}}
+        text="Tools"
+        disabled
+        disabledTxt="기능 추가 업데이트 예정"
+      />
       <MenuBtn onClick={handleHelpClick} text="Help" />
       <MenuBtn onClick={handleAboutClick} text="About" />
     </Div>

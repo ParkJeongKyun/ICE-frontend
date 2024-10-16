@@ -14,8 +14,11 @@ import {
   IceRightSider,
   LogoDiv,
   LogoImage,
+  ProcessInfo,
+  Spinner,
   SelectInfo,
   Separator,
+  ProcessMsg,
 } from './index.styles';
 import { TabData, TabItem, TabKey } from '@/types';
 import MenuBtnZone, { MenuBtnZoneRef } from '@/components/MenuBtnZone';
@@ -27,6 +30,7 @@ import HelpMD from '@/components/markdown/HelpMD';
 import { useResizable } from 'react-resizable-layout';
 import Searcher from '@/components/Searcher';
 import { HexViewerRef } from '@/components/HexViewer';
+import { useProcess } from '@/contexts/ProcessContext';
 import { useSelection } from '@/contexts/SelectionContext';
 import Home from '@/components/Home';
 import { isMobile } from 'react-device-detect';
@@ -43,8 +47,11 @@ const MainLayout: React.FC = () => {
   // Modal 데이터
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalContentKey, setModalContentKey] = useState<string | null>(null);
+  // 처리중인 파일 정보
+  const { processInfo } = useProcess();
+  const { fileName, isProcessing } = processInfo;
   // 선택된 셀 정보
-  const { selectionRange, setSelectionRange } = useSelection();
+  const { selectionRange } = useSelection();
   const { start: startIndex, end: endIndex } = selectionRange;
 
   // 모달 Open 이벤트
@@ -245,6 +252,12 @@ const MainLayout: React.FC = () => {
       )}
 
       <IceFooter $isMobile={isMobile}>
+        {isProcessing && (
+          <ProcessInfo>
+            <Spinner />
+            <ProcessMsg>{fileName} 분석중</ProcessMsg>
+          </ProcessInfo>
+        )}
         <SelectInfo>
           {startIndex != null && endIndex != null && (
             <>
