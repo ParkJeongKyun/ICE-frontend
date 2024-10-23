@@ -2,6 +2,7 @@
 declare global {
   interface Window {
     goFunc: (imageData: Uint8Array) => Promise<GoFuncResult>;
+    Module: any;
   }
 }
 

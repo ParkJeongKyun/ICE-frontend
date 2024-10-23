@@ -34,6 +34,7 @@ import { useProcess } from '@/contexts/ProcessContext';
 import { useSelection } from '@/contexts/SelectionContext';
 import Home from '@/components/Home';
 import { isMobile } from 'react-device-detect';
+import Yara from '@/components/Yara';
 
 const MainLayout: React.FC = () => {
   // Hex뷰어 Ref
@@ -85,6 +86,15 @@ const MainLayout: React.FC = () => {
           </>,
           <>
             <HelpMD />
+          </>,
+        ];
+      case 'Yara':
+        return [
+          <>
+            <b>Yara 테스트</b>
+          </>,
+          <>
+            <Yara />
           </>,
         ];
       default:

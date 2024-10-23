@@ -37,6 +37,10 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
     }
   };
 
+  const handleToolsClick = async () => {
+    openModal('Yara');
+  };
+
   const handleHelpClick = () => {
     openModal('help');
   };
@@ -217,12 +221,7 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
         disabled
         disabledTxt="기능 추가 업데이트 예정"
       />
-      <MenuBtn
-        onClick={() => {}}
-        text="Tools"
-        disabled
-        disabledTxt="기능 추가 업데이트 예정"
-      />
+      <MenuBtn onClick={handleToolsClick} text="Tools" />
       <MenuBtn onClick={handleHelpClick} text="Help" />
       <MenuBtn onClick={handleAboutClick} text="About" />
     </Div>
