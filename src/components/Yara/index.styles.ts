@@ -8,7 +8,7 @@ export const RuleTextarea = styled.textarea`
   border-bottom: 1px solid var(--main-line-color);
   box-sizing: border-box;
   font-size: 12px;
-  min-height: 25px;
+  min-height: 100px;
   &:focus,
   &:hover {
     outline: none;

@@ -7,73 +7,82 @@ interface Props {
 }
 
 const Yara: React.FC<Props> = ({ hexViewerRef }) => {
-  const [inputValue, setInputValue] = useState('');
+  const [inputRule, setInputRule] = useState('');
+  const [result, setResult] = useState<string[]>();
+
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-      setInputValue(e.target.value);
+      setInputRule(e.target.value);
     },
     []
   );
-  const testYara = () => {
-    // Get the scan_with_yara function
-    const scanWithYara = window.Module.cwrap('scan_with_yara', 'number', [
-      'number',
-      'number',
-      'string',
-    ]);
 
-    // Get the get_matched_rule_names function
-    const getMatchedRuleNames = window.Module.cwrap(
-      'get_matched_rule_names',
-      'number',
-      ['number']
-    );
+  const allocateMemory = (size: number) => {
+    const ptr = window.Module._malloc(size);
+    return ptr;
+  };
 
-    // Example binary data and YARA rule
-    // const binaryData = new Uint8Array([
-    //   0x65, 0x78, 0x61, 0x6d, 0x70, 0x6c, 0x65,
-    // ]);
+  const freeMemory = (ptr: number) => {
+    window.Module._free(ptr);
+  };
+
+  const scanWithYaraAsync = (
+    dataPtr: number,
+    dataLength: number,
+    rule: string
+  ) => {
+    return new Promise<void>((resolve) => {
+      const scanWithYara = window.Module.cwrap('scan_with_yara', 'number', [
+        'number',
+        'number',
+        'string',
+      ]);
+      scanWithYara(dataPtr, dataLength, rule);
+      resolve();
+    });
+  };
+
+  const getMatchedRuleNamesAsync = (countPtr: number) => {
+    return new Promise<number>((resolve) => {
+      const getMatchedRuleNames = window.Module.cwrap(
+        'get_matched_rule_names',
+        'number',
+        ['number']
+      );
+      const ruleNamesPtr = getMatchedRuleNames(countPtr);
+      resolve(ruleNamesPtr);
+    });
+  };
+
+  const testYara = useCallback(async () => {
     const binaryData = hexViewerRef.current?.getBuffer();
-    if (binaryData && inputValue) {
-      // const ruleStr = 'rule testrule { strings: $a = "example" condition: $a }';
-
-      // Allocate memory for the binary data
-      const dataPtr = window.Module._malloc(binaryData.length);
+    if (binaryData && inputRule) {
+      const dataPtr = allocateMemory(binaryData.length);
       window.Module.HEAPU8.set(binaryData, dataPtr);
 
-      // Call the scan_with_yara function
-      const result = scanWithYara(dataPtr, binaryData.length, inputValue);
+      await scanWithYaraAsync(dataPtr, binaryData.length, inputRule);
 
-      // Get the matched rule names
-      const countPtr = window.Module._malloc(4); // Allocate memory for the count
-      const ruleNamesPtr = getMatchedRuleNames(countPtr);
+      const countPtr = allocateMemory(4);
+      const ruleNamesPtr = await getMatchedRuleNamesAsync(countPtr);
       const count = window.Module.getValue(countPtr, 'i32');
-
       const matchedRuleNames = [];
       for (let i = 0; i < count; i++) {
         const ruleNamePtr = window.Module.getValue(ruleNamesPtr + i * 4, 'i32');
         const ruleName = window.Module.UTF8ToString(ruleNamePtr);
-        matchedRuleNames.push(ruleName);
+        matchedRuleNames.push(ruleName as string);
       }
 
-      // Free allocated memory
-      window.Module._free(dataPtr);
-      window.Module._free(countPtr);
-
-      return matchedRuleNames;
+      freeMemory(dataPtr);
+      freeMemory(countPtr);
+      setResult(matchedRuleNames);
     }
-  };
+  }, [hexViewerRef, inputRule]);
+
   return (
     <>
-      <RuleTextarea value={inputValue} onChange={handleInputChange} />
-      <StartBtn
-        onClick={async () => {
-          const result = await testYara();
-          console.log(result);
-        }}
-      >
-        룰 체크 시작
-      </StartBtn>
+      <RuleTextarea value={inputRule} onChange={handleInputChange} />
+      <StartBtn onClick={testYara}>룰 체크 시작</StartBtn>
+      {result?.map((item, index) => <p key={index}>{item}</p>)}
     </>
   );
 };
