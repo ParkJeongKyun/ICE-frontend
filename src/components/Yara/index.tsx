@@ -1,10 +1,19 @@
+import { useCallback, useState } from 'react';
 import { HexViewerRef } from '../HexViewer';
+import { RuleTextarea, StartBtn } from './index.styles';
 
 interface Props {
   hexViewerRef: React.RefObject<HexViewerRef>;
 }
 
 const Yara: React.FC<Props> = ({ hexViewerRef }) => {
+  const [inputValue, setInputValue] = useState('');
+  const handleInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+      setInputValue(e.target.value);
+    },
+    []
+  );
   const testYara = () => {
     // Get the scan_with_yara function
     const scanWithYara = window.Module.cwrap('scan_with_yara', 'number', [
@@ -25,15 +34,15 @@ const Yara: React.FC<Props> = ({ hexViewerRef }) => {
     //   0x65, 0x78, 0x61, 0x6d, 0x70, 0x6c, 0x65,
     // ]);
     const binaryData = hexViewerRef.current?.getBuffer();
-    if (binaryData) {
-      const ruleStr = 'rule testrule { strings: $a = "example" condition: $a }';
+    if (binaryData && inputValue) {
+      // const ruleStr = 'rule testrule { strings: $a = "example" condition: $a }';
 
       // Allocate memory for the binary data
       const dataPtr = window.Module._malloc(binaryData.length);
       window.Module.HEAPU8.set(binaryData, dataPtr);
 
       // Call the scan_with_yara function
-      const result = scanWithYara(dataPtr, binaryData.length, ruleStr);
+      const result = scanWithYara(dataPtr, binaryData.length, inputValue);
 
       // Get the matched rule names
       const countPtr = window.Module._malloc(4); // Allocate memory for the count
@@ -56,17 +65,15 @@ const Yara: React.FC<Props> = ({ hexViewerRef }) => {
   };
   return (
     <>
-      <button
-        onClick={() => {
-          console.log(hexViewerRef.current?.getBuffer());
-        }}
-      ></button>
-      <button
+      <RuleTextarea value={inputValue} onChange={handleInputChange} />
+      <StartBtn
         onClick={async () => {
           const result = await testYara();
           console.log(result);
         }}
-      ></button>
+      >
+        룰 체크 시작
+      </StartBtn>
     </>
   );
 };
