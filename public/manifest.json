@@ -1,7 +1,12 @@
 {
   "short_name": "ICE",
-  "name": "ICE Frontend",
-  "icons": [],
+  "name": "ICE",
+  "icons": [
+    {
+      "src": "logo.png",
+      "type": "image/png"
+    }
+  ],
   "start_url": ".",
   "display": "standalone"
 }
