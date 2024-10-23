@@ -94,7 +94,7 @@ const MainLayout: React.FC = () => {
             <b>Yara 테스트</b>
           </>,
           <>
-            <Yara />
+            <Yara hexViewerRef={hexViewerRef} />
           </>,
         ];
       default:

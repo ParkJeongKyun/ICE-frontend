@@ -36,6 +36,7 @@ export interface HexViewerRef {
     ignoreCase: boolean
   ) => Promise<IndexInfo[] | null>;
   scrollToIndex: (rowIndex: number, offset: number) => void;
+  getBuffer: () => Uint8Array;
 }
 
 const byteToHex = (byte: number): string => {
@@ -290,6 +291,8 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
           arrayBuffer: null,
         });
       },
+
+      getBuffer: (): Uint8Array => buffer,
     }),
     [buffer, setSelectionRange]
   );
