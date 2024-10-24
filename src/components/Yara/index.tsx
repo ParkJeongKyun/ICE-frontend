@@ -91,7 +91,7 @@ const Yara: React.FC<Props> = ({ hexViewerRef }) => {
       <SearchDiv>
         <RuleTextarea value={inputRule} onChange={handleInputChange} />
         <StartBtn onClick={testYara}>Rule Detection</StartBtn>
-        Dection Rules :
+        Detection Rules :
         {result.length > 0 ? (
           <>
             {result?.map((item, index) => (
