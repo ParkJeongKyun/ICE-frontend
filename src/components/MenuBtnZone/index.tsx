@@ -88,7 +88,6 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
         setItems((prev) => [...prev, newTab]);
         setActiveKey(newActiveKey);
 
-        thumbnail = URL.createObjectURL(file);
         const input_data = new Uint8Array(arrayBuffer);
         const result = await window.goFunc(input_data);
         if (result.error) {
@@ -143,6 +142,10 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
               )
             );
           }
+        }
+
+        if (result.mime_type?.startsWith('image')) {
+          thumbnail = URL.createObjectURL(file);
         }
 
         setDatas(

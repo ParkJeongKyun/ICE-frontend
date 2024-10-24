@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 import Collapse from '@/components/common/Collapse';
 import { HexViewerRef } from '../HexViewer';
-import { RuleTextarea, StartBtn } from './index.styles';
+import { SearchDiv, RuleTextarea, StartBtn, RuleTag } from './index.styles';
 
 interface Props {
   hexViewerRef: React.RefObject<HexViewerRef>;
@@ -16,7 +16,7 @@ rule sample_rule {
 
 const Yara: React.FC<Props> = ({ hexViewerRef }) => {
   const [inputRule, setInputRule] = useState(SAMPLE_RULE);
-  const [result, setResult] = useState<string[]>();
+  const [result, setResult] = useState<string[]>([]);
 
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -88,9 +88,20 @@ const Yara: React.FC<Props> = ({ hexViewerRef }) => {
 
   return (
     <Collapse title="Yara" open>
-      <RuleTextarea value={inputRule} onChange={handleInputChange} />
-      <StartBtn onClick={testYara}>룰 체크 시작</StartBtn>
-      {result?.map((item, index) => <p key={index}>{item}</p>)}
+      <SearchDiv>
+        <RuleTextarea value={inputRule} onChange={handleInputChange} />
+        <StartBtn onClick={testYara}>Rule Detection</StartBtn>
+        Dection Rules :
+        {result.length > 0 ? (
+          <>
+            {result?.map((item, index) => (
+              <RuleTag key={index}>{item}</RuleTag>
+            ))}
+          </>
+        ) : (
+          <> - </>
+        )}
+      </SearchDiv>
     </Collapse>
   );
 };

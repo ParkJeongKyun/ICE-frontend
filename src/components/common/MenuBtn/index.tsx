@@ -31,8 +31,10 @@ const BtnDiv = styled.div<{ disabled: boolean }>`
   margin: 2px 1px 2px 1px;
   padding: 2px 4px 2px 4px;
   border-radius: 5px;
-  font-weight: 600;
+
   font-size: 12px;
+  font-weight: 600;
+
   color: var(
     ${({ disabled }) => (disabled ? '--main-disabled-color' : '--main-color')}
   );
