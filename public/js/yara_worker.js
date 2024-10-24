@@ -1,4 +1,4 @@
-self.importScripts('./ice_yara.js');
+self.importScripts('/js/ice_yara.js');
 
 self.onmessage = async function (e) {
   const { binaryData, inputRule } = e.data;
@@ -58,58 +58,3 @@ self.onmessage = async function (e) {
     self.postMessage(matchedRuleNames);
   }
 };
-
-/*
- import { useCallback, useEffect, useState } from 'react';
-import Collapse from '@/components/common/Collapse';
-import { HexViewerRef } from '../HexViewer';
-import { SearchDiv, RuleTextarea, StartBtn, RuleTag } from './index.styles';
-
-interface Props {
-  hexViewerRef: React.RefObject<HexViewerRef>;
-}
-
-const SAMPLE_RULE = `
-rule sample_rule {
-  strings: $a = "sample"
-  condition: $a 
-}
-`;
-
-const Yara: React.FC<Props> = ({ hexViewerRef }) => {
-  const [worker, setWorker] = useState<Worker | null>(null);
-  useEffect(() => {
-    const newWorker = new Worker(new URL('/js/test.js', import.meta.url));
-    setWorker(newWorker);
-
-    return () => {
-      newWorker.terminate();
-    };
-  }, []);
-
-  const testYara = () => {
-    if (worker) {
-      const binaryData = hexViewerRef.current?.getBuffer();
-      const inputRule = `rule sample_rule {
-  strings: $a = "a"
-  condition: $a 
-}`;
-      worker.postMessage({ binaryData, inputRule });
-
-      worker.onmessage = (e) => {
-        console.log('Received message from worker:', e.data);
-      };
-    }
-  };
-
-  return (
-    <Collapse title="Yara" open>
-      <SearchDiv>
-        <StartBtn onClick={testYara}>Rule Detection</StartBtn>
-      </SearchDiv>
-    </Collapse>
-  );
-};
-
-export default Yara;
- */
