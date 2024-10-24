@@ -88,15 +88,6 @@ const MainLayout: React.FC = () => {
             <HelpMD />
           </>,
         ];
-      case 'Yara':
-        return [
-          <>
-            <b>Yara 테스트</b>
-          </>,
-          <>
-            <Yara hexViewerRef={hexViewerRef} />
-          </>,
-        ];
       default:
         return [null, null];
     }
@@ -207,6 +198,7 @@ const MainLayout: React.FC = () => {
                 </div>
                 <div>
                   <Searcher hexViewerRef={hexViewerRef} activeKey={activeKey} />
+                  <Yara hexViewerRef={hexViewerRef} />
                 </div>
               </IceMobileBottom>
             )}
@@ -255,6 +247,7 @@ const MainLayout: React.FC = () => {
                 }}
               >
                 <Searcher hexViewerRef={hexViewerRef} activeKey={activeKey} />
+                <Yara hexViewerRef={hexViewerRef} />
               </IceRightSider>
             </FlexGrow>
           </IceLayout>

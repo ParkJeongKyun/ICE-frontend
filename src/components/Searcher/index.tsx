@@ -8,7 +8,6 @@ import React, {
 } from 'react';
 import {
   ButtonDiv,
-  ContainerDiv,
   SearchBtn,
   Result,
   ResultDiv,
@@ -211,91 +210,89 @@ const Searcher: React.FC<Props> = ({ hexViewerRef, activeKey }) => {
   }, [searchType]);
 
   return (
-    <ContainerDiv>
-      <Collapse title="Search" open>
+    <Collapse title="Search" open>
+      <SearchDiv>
+        <SearchLabel>타입</SearchLabel>
+        <SearchData>
+          <SearchSelect value={searchType} onChange={handleSearchTypeChange}>
+            <option value="offset">Offset</option>
+            <option value="hex">Hex</option>
+            <option value="ascii">ASCII</option>
+          </SearchSelect>
+        </SearchData>
+      </SearchDiv>
+      <SearchDiv>
+        <SearchLabel>검색어</SearchLabel>
+        <SearchData>
+          <Tooltip text="엔터시 검색">
+            <SearchInput
+              value={inputValue}
+              onChange={handleInputChange}
+              onKeyDown={handleInputKeyPress}
+              maxLength={searchType === 'offset' ? 8 : 50}
+              placeholder={`${searchType} 값을 입력하세요.`}
+            />
+          </Tooltip>
+        </SearchData>
+      </SearchDiv>
+      {searchType == 'ascii' && (
         <SearchDiv>
-          <SearchLabel>타입</SearchLabel>
-          <SearchData>
-            <SearchSelect value={searchType} onChange={handleSearchTypeChange}>
-              <option value="offset">Offset</option>
-              <option value="hex">Hex</option>
-              <option value="ascii">ASCII</option>
-            </SearchSelect>
-          </SearchData>
+          <SearchCheckBox onClick={() => setIgnoreCase((prev) => !prev)}>
+            <input
+              type="checkbox"
+              checked={ignoreCase}
+              onChange={(e) => setIgnoreCase(e.target.checked)}
+            />
+            <span>대소문자를 구분하지 않음</span>
+          </SearchCheckBox>
         </SearchDiv>
-        <SearchDiv>
-          <SearchLabel>검색어</SearchLabel>
-          <SearchData>
-            <Tooltip text="엔터시 검색">
-              <SearchInput
-                value={inputValue}
-                onChange={handleInputChange}
-                onKeyDown={handleInputKeyPress}
-                maxLength={searchType === 'offset' ? 8 : 50}
-                placeholder={`${searchType} 값을 입력하세요.`}
-              />
-            </Tooltip>
-          </SearchData>
-        </SearchDiv>
-        {searchType == 'ascii' && (
-          <SearchDiv>
-            <SearchCheckBox onClick={() => setIgnoreCase((prev) => !prev)}>
-              <input
-                type="checkbox"
-                checked={ignoreCase}
-                onChange={(e) => setIgnoreCase(e.target.checked)}
-              />
-              <span>대소문자를 구분하지 않음</span>
-            </SearchCheckBox>
-          </SearchDiv>
-        )}
-        {searchResults[activeKey]?.results.length > 0 && (
-          <ResultDiv>
-            <TextDiv>
-              <Result>
-                <div>
-                  <Tooltip text="최대 1000개까지 검색 가능">
-                    총{' '}
-                    <span style={{ color: 'var(--ice-main-color_1)' }}>
-                      {searchResults[activeKey].results.length}
-                    </span>
-                    개의 결과{' '}
-                    {searchResults[activeKey].results.length > 1 && (
-                      <>
-                        중{' '}
-                        <span style={{ color: 'var(--ice-main-color)' }}>
-                          {searchResults[activeKey].currentIndex + 1}
-                        </span>
-                        번째
-                      </>
-                    )}
-                  </Tooltip>
-                </div>
-                <ResetBtn onClick={handleResetButtonClick}>
-                  <Tooltip text="검색 종료">
-                    <XIcon height={15} width={15} />
-                  </Tooltip>
-                </ResetBtn>
-              </Result>
-            </TextDiv>
-            <ButtonDiv>
-              <SearchBtn
-                onClick={handlePrevButtonClick}
-                $disabled={searchResults[activeKey].results.length <= 1}
-              >
-                PREV
-              </SearchBtn>
-              <SearchBtn
-                onClick={handleNextButtonClick}
-                $disabled={searchResults[activeKey].results.length <= 1}
-              >
-                NEXT
-              </SearchBtn>
-            </ButtonDiv>
-          </ResultDiv>
-        )}
-      </Collapse>
-    </ContainerDiv>
+      )}
+      {searchResults[activeKey]?.results.length > 0 && (
+        <ResultDiv>
+          <TextDiv>
+            <Result>
+              <div>
+                <Tooltip text="최대 1000개까지 검색 가능">
+                  총{' '}
+                  <span style={{ color: 'var(--ice-main-color_1)' }}>
+                    {searchResults[activeKey].results.length}
+                  </span>
+                  개의 결과{' '}
+                  {searchResults[activeKey].results.length > 1 && (
+                    <>
+                      중{' '}
+                      <span style={{ color: 'var(--ice-main-color)' }}>
+                        {searchResults[activeKey].currentIndex + 1}
+                      </span>
+                      번째
+                    </>
+                  )}
+                </Tooltip>
+              </div>
+              <ResetBtn onClick={handleResetButtonClick}>
+                <Tooltip text="검색 종료">
+                  <XIcon height={15} width={15} />
+                </Tooltip>
+              </ResetBtn>
+            </Result>
+          </TextDiv>
+          <ButtonDiv>
+            <SearchBtn
+              onClick={handlePrevButtonClick}
+              $disabled={searchResults[activeKey].results.length <= 1}
+            >
+              PREV
+            </SearchBtn>
+            <SearchBtn
+              onClick={handleNextButtonClick}
+              $disabled={searchResults[activeKey].results.length <= 1}
+            >
+              NEXT
+            </SearchBtn>
+          </ButtonDiv>
+        </ResultDiv>
+      )}
+    </Collapse>
   );
 };
 

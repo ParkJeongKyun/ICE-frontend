@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react';
+import Collapse from '@/components/common/Collapse';
 import { HexViewerRef } from '../HexViewer';
 import { RuleTextarea, StartBtn } from './index.styles';
 
@@ -6,8 +7,15 @@ interface Props {
   hexViewerRef: React.RefObject<HexViewerRef>;
 }
 
+const SAMPLE_RULE = `
+rule sample_rule {
+  strings: $a = "sample"
+  condition: $a 
+}
+`;
+
 const Yara: React.FC<Props> = ({ hexViewerRef }) => {
-  const [inputRule, setInputRule] = useState('');
+  const [inputRule, setInputRule] = useState(SAMPLE_RULE);
   const [result, setResult] = useState<string[]>();
 
   const handleInputChange = useCallback(
@@ -79,11 +87,11 @@ const Yara: React.FC<Props> = ({ hexViewerRef }) => {
   }, [hexViewerRef, inputRule]);
 
   return (
-    <>
+    <Collapse title="Yara" open>
       <RuleTextarea value={inputRule} onChange={handleInputChange} />
       <StartBtn onClick={testYara}>룰 체크 시작</StartBtn>
       {result?.map((item, index) => <p key={index}>{item}</p>)}
-    </>
+    </Collapse>
   );
 };
 

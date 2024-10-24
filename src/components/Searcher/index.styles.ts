@@ -1,10 +1,5 @@
 import styled from 'styled-components';
 
-export const ContainerDiv = styled.div`
-  height: 100%;
-  width: 100%;
-`;
-
 export const SearchSelect = styled.select`
   width: 100%;
   outline: none;
