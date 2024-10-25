@@ -9,6 +9,7 @@ import React, {
 // 선택된 바이트 범위의 타입 정의
 interface ProcessInfo {
   fileName?: string;
+  type?: 'Exif' | 'Yara';
   isProcessing: boolean;
 }
 

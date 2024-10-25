@@ -32,7 +32,7 @@ const Yara: React.FC<Props> = ({ hexViewerRef }) => {
 
   useEffect(() => {
     const newWorker = new Worker(
-      new URL('/js/yara_worker.js', import.meta.url)
+      new URL('/worker/yara_worker.js', import.meta.url)
     );
     newWorker.onmessage = (e) => {
       setResult(e.data as string[]);
