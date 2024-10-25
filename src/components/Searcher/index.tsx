@@ -24,10 +24,10 @@ import { HexViewerRef, IndexInfo } from '@/components/HexViewer';
 import Tooltip from '@/components/common/Tooltip';
 import { TabKey } from '@/types';
 import XIcon from '@/components/common/Icons/XIcon';
+import { useTabData } from '@/contexts/TabDataContext';
 
 interface Props {
   hexViewerRef: React.RefObject<HexViewerRef>;
-  activeKey: TabKey;
 }
 
 type TSearchType = 'offset' | 'hex' | 'ascii';
@@ -95,7 +95,8 @@ const filterInput = (inputValue: string, type: TSearchType) => {
   }
 };
 
-const Searcher: React.FC<Props> = ({ hexViewerRef, activeKey }) => {
+const Searcher: React.FC<Props> = ({ hexViewerRef }) => {
+  const { activeKey } = useTabData();
   const [searchResults, dispatch] = useReducer(reducer, initialState);
   const [searchType, setSearchType] = useState<TSearchType>('offset');
   const [inputValue, setInputValue] = useState('');

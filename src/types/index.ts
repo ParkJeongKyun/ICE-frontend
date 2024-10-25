@@ -71,14 +71,3 @@ export interface TabItem {
   children: React.ReactNode;
   key: TabKey;
 }
-
-export type TabData = Map<
-  number,
-  {
-    fileinfo: fileinfo;
-    thumbnail: string;
-    location: { lat: string; lng: string; address: string };
-    rows: ExifRow[] | null;
-    buffer: ArrayBuffer;
-  }
->;

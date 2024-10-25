@@ -20,7 +20,7 @@ import {
   Separator,
   ProcessMsg,
 } from './index.styles';
-import { TabData, TabItem, TabKey } from '@/types';
+import { TabItem } from '@/types';
 import MenuBtnZone, { MenuBtnZoneRef } from '@/components/MenuBtnZone';
 import TabWindow from '@/components/TabWindow';
 import ExifRowViewer from '@/components/ExifRowViewer';
@@ -41,9 +41,6 @@ const MainLayout: React.FC = () => {
   const hexViewerRef = useRef<HexViewerRef>(null);
   const menuBtnZoneRef = useRef<MenuBtnZoneRef>(null);
   // Tab 데이터
-  const newTabIndex = useRef(0);
-  const [activeKey, setActiveKey] = useState<TabKey>(0);
-  const [datas, setDatas] = useState<TabData>(new Map());
   const [items, setItems] = useState<TabItem[]>([]);
   // Modal 데이터
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -51,6 +48,7 @@ const MainLayout: React.FC = () => {
   // 처리중인 파일 정보
   const { processInfo } = useProcess();
   const { fileName, isProcessing } = processInfo;
+
   // 선택된 셀 정보
   const { selectionRange } = useSelection();
   const { start: startIndex, end: endIndex } = selectionRange;
@@ -157,13 +155,7 @@ const MainLayout: React.FC = () => {
       </>
     ) : (
       <>
-        <TabWindow
-          items={items}
-          activeKey={activeKey}
-          setActiveKey={setActiveKey}
-          setDatas={setDatas}
-          setItems={setItems}
-        />
+        <TabWindow items={items} setItems={setItems} />
       </>
     );
   };
@@ -178,10 +170,7 @@ const MainLayout: React.FC = () => {
         <MenuBtnZone
           ref={menuBtnZoneRef}
           hexViewerRef={hexViewerRef}
-          newTabIndex={newTabIndex}
-          setDatas={setDatas}
           setItems={setItems}
-          setActiveKey={setActiveKey}
           openModal={openModal}
         />
       </IceHeader>
@@ -194,11 +183,11 @@ const MainLayout: React.FC = () => {
             {!isEmptyItems && (
               <IceMobileBottom>
                 <div>
-                  <ExifRowViewer activeKey={activeKey} datas={datas} />
+                  <ExifRowViewer />
                 </div>
                 <div>
-                  <Searcher hexViewerRef={hexViewerRef} activeKey={activeKey} />
-                  <Yara hexViewerRef={hexViewerRef} />
+                  <Searcher hexViewerRef={hexViewerRef} />
+                  <Yara />
                 </div>
               </IceMobileBottom>
             )}
@@ -217,7 +206,7 @@ const MainLayout: React.FC = () => {
                     : 'block',
               }}
             >
-              <ExifRowViewer activeKey={activeKey} datas={datas} />
+              <ExifRowViewer />
             </IceLeftSider>
             <Separator
               {...leftSideSepProps}
@@ -246,8 +235,8 @@ const MainLayout: React.FC = () => {
                       : 'block',
                 }}
               >
-                <Searcher hexViewerRef={hexViewerRef} activeKey={activeKey} />
-                <Yara hexViewerRef={hexViewerRef} />
+                <Searcher hexViewerRef={hexViewerRef} />
+                <Yara />
               </IceRightSider>
             </FlexGrow>
           </IceLayout>

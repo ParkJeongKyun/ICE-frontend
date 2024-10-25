@@ -1,13 +1,9 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import Collapse from '@/components/common/Collapse';
-import { HexViewerRef } from '../HexViewer';
 import { SearchDiv, RuleTextarea, RuleTag } from './index.styles';
 import { useProcess } from '@/contexts/ProcessContext';
 import Btn from '@/components/common/Btn';
-
-interface Props {
-  hexViewerRef: React.RefObject<HexViewerRef>;
-}
+import { useTabData } from '@/contexts/TabDataContext';
 
 const SAMPLE_RULE = `
 rule sample_rule {
@@ -16,7 +12,9 @@ rule sample_rule {
 }
 `;
 
-const Yara: React.FC<Props> = ({ hexViewerRef }) => {
+const Yara: React.FC = () => {
+  const { tabData, activeKey } = useTabData();
+  const activeItem = useMemo(() => tabData[activeKey], [tabData, activeKey]);
   const { processInfo, setProcessInfo } = useProcess();
   const { isProcessing } = processInfo;
   const [worker, setWorker] = useState<Worker | null>(null);
@@ -53,11 +51,11 @@ const Yara: React.FC<Props> = ({ hexViewerRef }) => {
     setProcessInfo({ isProcessing: true });
     if (worker) {
       worker.postMessage({
-        binaryData: hexViewerRef.current?.getBuffer(),
+        binaryData: activeItem.buffer,
         inputRule,
       });
     }
-  }, [worker, hexViewerRef, inputRule, setProcessInfo]);
+  }, [worker, activeItem, inputRule, setProcessInfo]);
 
   return (
     <Collapse title="Yara" open>

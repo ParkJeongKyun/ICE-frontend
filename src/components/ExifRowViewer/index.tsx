@@ -8,20 +8,16 @@ import {
   Thumbnail,
   ViewerDiv,
 } from './index.styles';
-import { TabData, TabKey } from '@/types';
 import { getDate } from '@/utils/getDate';
 import { getBytes } from '@/utils/getBytes';
 import { isValidLocation } from '@/utils/getAddress';
 import KakaoMap from '@/components/KakaoMap';
 import Tooltip from '@/components/common/Tooltip';
+import { useTabData } from '@/contexts/TabDataContext';
 
-interface Props {
-  activeKey: TabKey;
-  datas: TabData;
-}
-
-const ExifRowViewer: React.FC<Props> = ({ activeKey, datas }) => {
-  const activeItem = useMemo(() => datas.get(activeKey), [datas, activeKey]);
+const ExifRowViewer: React.FC = () => {
+  const { tabData, activeKey } = useTabData();
+  const activeItem = useMemo(() => tabData[activeKey], [tabData, activeKey]);
 
   return (
     <ViewerDiv>

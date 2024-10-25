@@ -18,10 +18,7 @@ import {
 } from './index.styles';
 import { asciiToBytes, findPatternIndices } from '@/utils/byteSearch';
 import { useSelection } from '@/contexts/SelectionContext';
-
-interface Props {
-  arrayBuffer: ArrayBuffer;
-}
+import { useTabData } from '@/contexts/TabDataContext';
 
 export interface IndexInfo {
   index: number;
@@ -36,7 +33,6 @@ export interface HexViewerRef {
     ignoreCase: boolean
   ) => Promise<IndexInfo[] | null>;
   scrollToIndex: (rowIndex: number, offset: number) => void;
-  getBuffer: () => Uint8Array;
 }
 
 const byteToHex = (byte: number): string => {
@@ -59,10 +55,9 @@ const byteToChar = (byte: number): string => {
   return '.';
 };
 
-const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
-  { arrayBuffer },
-  ref
-) => {
+const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
+  const { tabData, activeKey } = useTabData();
+  const activeItem = useMemo(() => tabData[activeKey], [tabData, activeKey]);
   const [scrollIndex, setScrollIndex] = React.useState<number>(0);
   const [isDragging, setIsDragging] = useState(false);
   const { selectionRange, setSelectionRange } = useSelection();
@@ -70,7 +65,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
   const bytesPerRow = 16;
   const rowHeight = 30;
   const columnCount = 3;
-  const buffer = useMemo(() => new Uint8Array(arrayBuffer), [arrayBuffer]);
+  const buffer = activeItem.buffer;
   const rowCount = Math.ceil(buffer.length / bytesPerRow);
 
   const handleMouseDown = useCallback(
@@ -291,8 +286,6 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
           arrayBuffer: null,
         });
       },
-
-      getBuffer: (): Uint8Array => buffer,
     }),
     [buffer, setSelectionRange]
   );
@@ -323,4 +316,4 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef, Props> = (
   );
 };
 
-export default forwardRef(HexViewer);
+export default forwardRef<HexViewerRef>(HexViewer);

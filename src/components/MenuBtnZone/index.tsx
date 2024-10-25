@@ -3,16 +3,14 @@ import { ChangeEvent, Ref, useImperativeHandle, useRef } from 'react';
 import styled from 'styled-components';
 import MenuBtn from '@/components/common/MenuBtn';
 import HexViewer, { HexViewerRef } from '@/components/HexViewer';
-import { ExifRow, TabData, TabItem, TabKey } from '@/types';
+import { ExifRow, TabItem } from '@/types';
 import { getAddress, isValidLocation } from '@/utils/getAddress';
 import { useProcess } from '@/contexts/ProcessContext';
+import { useTabData } from '@/contexts/TabDataContext';
 
 interface Props {
   hexViewerRef: Ref<HexViewerRef>;
-  newTabIndex: React.MutableRefObject<number>;
-  setDatas: React.Dispatch<React.SetStateAction<TabData>>;
   setItems: React.Dispatch<React.SetStateAction<TabItem[]>>;
-  setActiveKey: React.Dispatch<React.SetStateAction<TabKey>>;
   openModal: (key: string) => void;
 }
 
@@ -23,9 +21,10 @@ export interface MenuBtnZoneRef {
 }
 
 const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
-  { hexViewerRef, newTabIndex, setDatas, setItems, setActiveKey, openModal },
+  { hexViewerRef, setItems, openModal },
   ref
 ) => {
+  const { setTabData, setActiveKey, getNewKey } = useTabData();
   // 처리중인 파일 정보
   const { processInfo, setProcessInfo } = useProcess();
   const { isProcessing } = processInfo;
@@ -67,20 +66,19 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
 
       try {
         const arrayBuffer = await readFileAsArrayBuffer(file);
+        const buffer = new Uint8Array(arrayBuffer);
         let parsedRows: ExifRow[] | null = null;
         let thumbnail: string = '';
         let lat: string = 'NaN';
         let lng: string = 'NaN';
         let address: string = '';
 
-        const newActiveKey = newTabIndex.current++;
+        const newActiveKey = getNewKey();
         const newTab = {
           label: file.name,
           children: (
             <>
-              {arrayBuffer && (
-                <HexViewer arrayBuffer={arrayBuffer} ref={hexViewerRef} />
-              )}
+              <HexViewer ref={hexViewerRef} />
             </>
           ),
           key: newActiveKey,
@@ -88,8 +86,7 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
         setItems((prev) => [...prev, newTab]);
         setActiveKey(newActiveKey);
 
-        const input_data = new Uint8Array(arrayBuffer);
-        const result = await window.goFunc(input_data);
+        const result = await window.goFunc(buffer);
         if (result.error) {
           console.error(result);
         }
@@ -148,28 +145,26 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
           thumbnail = URL.createObjectURL(file);
         }
 
-        setDatas(
-          (prevDatas) =>
-            new Map(
-              prevDatas.set(newActiveKey, {
-                fileinfo: {
-                  name: file.name,
-                  lastModified: file.lastModified,
-                  size: file.size,
-                  mime_type: result.mime_type,
-                  extension: result.extension,
-                },
-                location: {
-                  lat: lat,
-                  lng: lng,
-                  address: address,
-                },
-                thumbnail: thumbnail,
-                rows: parsedRows,
-                buffer: arrayBuffer,
-              })
-            )
-        );
+        setTabData((prevDatas) => ({
+          ...prevDatas,
+          [newActiveKey]: {
+            fileinfo: {
+              name: file.name,
+              lastModified: file.lastModified,
+              size: file.size,
+              mime_type: result.mime_type,
+              extension: result.extension,
+            },
+            location: {
+              lat: lat,
+              lng: lng,
+              address: address,
+            },
+            thumbnail: thumbnail,
+            rows: parsedRows,
+            buffer: buffer,
+          },
+        }));
       } catch (error) {
         console.error('Error reading file:', error);
       } finally {

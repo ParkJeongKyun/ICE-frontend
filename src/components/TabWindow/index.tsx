@@ -1,10 +1,4 @@
-import React, {
-  useCallback,
-  useMemo,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import React, { useCallback, useMemo, useRef } from 'react';
 import {
   CloseBtn,
   Tab,
@@ -13,26 +7,19 @@ import {
   TabsContainer,
 } from './index.styles';
 import XIcon from '@/components/common/Icons/XIcon';
-import { TabData, TabItem, TabKey } from '@/types';
+import { TabItem, TabKey } from '@/types';
 import { useSelection } from '@/contexts/SelectionContext';
+import { useTabData } from '@/contexts/TabDataContext';
 
 interface Props {
   items: TabItem[];
-  activeKey: TabKey;
-  setActiveKey: React.Dispatch<React.SetStateAction<TabKey>>;
-  setDatas: React.Dispatch<React.SetStateAction<TabData>>;
   setItems: React.Dispatch<React.SetStateAction<TabItem[]>>;
 }
 
 // TabWindow 컴포넌트
-const TabWindow: React.FC<Props> = ({
-  items,
-  activeKey,
-  setActiveKey,
-  setDatas,
-  setItems,
-}) => {
+const TabWindow: React.FC<Props> = ({ items, setItems }) => {
   const contentContainerRef = useRef<HTMLDivElement>(null);
+  const { setTabData, activeKey, setActiveKey } = useTabData();
   const { setSelectionRange } = useSelection();
 
   const handleTabClick = useCallback(
@@ -68,9 +55,8 @@ const TabWindow: React.FC<Props> = ({
         }
 
         // Datas에서도 제거
-        setDatas((prevDatas) => {
-          const newDatas = new Map(prevDatas);
-          newDatas.delete(key);
+        setTabData((prevDatas) => {
+          const { [key]: _, ...newDatas } = prevDatas;
           return newDatas;
         });
 
@@ -84,7 +70,7 @@ const TabWindow: React.FC<Props> = ({
         }
       }
     },
-    [activeKey, items, setActiveKey, setDatas, setItems]
+    [activeKey, items, setActiveKey, setTabData, setItems]
   );
 
   const activeItem = useMemo(
