@@ -12,7 +12,8 @@ export const SearchDiv = styled.div`
 `;
 
 export const RuleTextarea = styled.textarea`
-  width: 100%;
+  max-width: 100%;
+  min-width: 100%;
   color: var(--main-color);
   background-color: var(--main-bg-color);
   border: none;

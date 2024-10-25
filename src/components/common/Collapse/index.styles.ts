@@ -4,6 +4,7 @@ export const CollapseContainer = styled.div``;
 
 export const CollapseHeader = styled.div`
   display: flex;
+  align-items: center;
   padding: 4px 15px 4px 15px;
   cursor: pointer;
   border-bottom: 1px solid var(--main-line-color);
@@ -12,7 +13,10 @@ export const CollapseHeader = styled.div`
   }
 `;
 
-export const CollapsIconDiv = styled.div``;
+export const CollapsIconDiv = styled.div`
+  display: flex;
+  align-items: center
+`;
 
 export const Title = styled.div`
   font-weight: 600;
