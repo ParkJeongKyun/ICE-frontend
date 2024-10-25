@@ -25,7 +25,10 @@ export const LogoImage = styled.img<{ $height?: string }>`
 `;
 
 // 헤더
-export const IceHeader = styled.div<{ $isMobile?: boolean }>`
+export const IceHeader = styled.div<{
+  $isMobile?: boolean;
+  $isProcessing?: boolean;
+}>`
   display: flex;
   gap: 5px;
   /* 위 | 오른쪽 | 아래 | 왼쪽 */
@@ -34,7 +37,7 @@ export const IceHeader = styled.div<{ $isMobile?: boolean }>`
   line-height: 15px;
   background-color: var(--main-bg-color);
   color: var(--main-color);
-  border-bottom: 1px solid var(--main-line-color);
+  border-bottom: 1.5px solid var(--main-line-color);
 
   /* 모바일 버전용 */
   ${(props) =>
@@ -42,6 +45,31 @@ export const IceHeader = styled.div<{ $isMobile?: boolean }>`
     `
       overflow-x:auto
     `}
+
+  /* 로딩 이벤트 */
+  ${(props) =>
+    props.$isProcessing &&
+    `
+      &:after {
+        content: '';
+        position: absolute;
+        top: 27px;
+        left: 0;
+        width: 5vw;
+        height: 1.5px;
+        background-color: var(--ice-main-color);
+        animation: loading 5s linear infinite;
+      }
+    `}
+
+  @keyframes loading {
+    0% {
+      left: 0;
+    }
+    100% {
+      left: 100%;
+    }
+  }
 `;
 
 // 푸터

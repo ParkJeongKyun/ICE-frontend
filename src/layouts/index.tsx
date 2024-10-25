@@ -170,7 +170,7 @@ const MainLayout: React.FC = () => {
 
   return (
     <IceMainLayout $isResizing={isResizing}>
-      <IceHeader $isMobile={isMobile}>
+      <IceHeader $isMobile={isMobile} $isProcessing={isProcessing}>
         <LogoDiv>
           <LogoImage src={'pullLogo.png'} />
         </LogoDiv>
