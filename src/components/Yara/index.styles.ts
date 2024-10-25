@@ -27,23 +27,6 @@ export const RuleTextarea = styled.textarea`
   }
 `;
 
-export const StartBtn = styled.div`
-  margin: 2px 1px 2px 1px;
-  padding: 2px 4px 2px 4px;
-  border-radius: 2.5px;
-
-  font-size: 12px;
-  font-weight: 600;
-
-  color: var(--main-color);
-  border: 1px solid var(--main-line-color);
-  &:hover {
-    cursor: pointer;
-    color: var(--ice-main-color);
-    background-color: var(--main-hover-color);
-  }
-`;
-
 export const RuleTag = styled.span`
   margin: 2px 1px 2px 1px;
   padding: 2px 4px 2px 4px;
