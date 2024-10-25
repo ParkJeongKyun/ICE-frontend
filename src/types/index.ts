@@ -64,10 +64,20 @@ export interface fileinfo {
   extension?: string;
 }
 
-export type TabKey = number;
+export type TabKey = string;
 
-export interface TabItem {
+export interface TabWindow {
   label: string;
-  children: React.ReactNode;
-  key: TabKey;
+  contents: React.ReactNode;
+}
+
+export interface TabData {
+  [key: TabKey]: {
+    window: TabWindow;
+    fileinfo: fileinfo;
+    thumbnail: string;
+    location: { lat: string; lng: string; address: string };
+    rows: ExifRow[] | null;
+    buffer: Uint8Array;
+  };
 }

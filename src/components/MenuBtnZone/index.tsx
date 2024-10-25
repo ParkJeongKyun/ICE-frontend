@@ -3,14 +3,13 @@ import { ChangeEvent, Ref, useImperativeHandle, useRef } from 'react';
 import styled from 'styled-components';
 import MenuBtn from '@/components/common/MenuBtn';
 import HexViewer, { HexViewerRef } from '@/components/HexViewer';
-import { ExifRow, TabItem } from '@/types';
+import { ExifRow } from '@/types';
 import { getAddress, isValidLocation } from '@/utils/getAddress';
 import { useProcess } from '@/contexts/ProcessContext';
 import { useTabData } from '@/contexts/TabDataContext';
 
 interface Props {
   hexViewerRef: Ref<HexViewerRef>;
-  setItems: React.Dispatch<React.SetStateAction<TabItem[]>>;
   openModal: (key: string) => void;
 }
 
@@ -21,7 +20,7 @@ export interface MenuBtnZoneRef {
 }
 
 const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
-  { hexViewerRef, setItems, openModal },
+  { hexViewerRef, openModal },
   ref
 ) => {
   const { setTabData, setActiveKey, getNewKey } = useTabData();
@@ -74,16 +73,14 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
         let address: string = '';
 
         const newActiveKey = getNewKey();
-        const newTab = {
+        const newTabWindow = {
           label: file.name,
-          children: (
+          contents: (
             <>
               <HexViewer ref={hexViewerRef} />
             </>
           ),
-          key: newActiveKey,
         };
-        setItems((prev) => [...prev, newTab]);
         setActiveKey(newActiveKey);
 
         const result = await window.goFunc(buffer);
@@ -148,6 +145,7 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
         setTabData((prevDatas) => ({
           ...prevDatas,
           [newActiveKey]: {
+            window: newTabWindow,
             fileinfo: {
               name: file.name,
               lastModified: file.lastModified,

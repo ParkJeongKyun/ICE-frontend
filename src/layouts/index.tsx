@@ -20,7 +20,6 @@ import {
   Separator,
   ProcessMsg,
 } from './index.styles';
-import { TabItem } from '@/types';
 import MenuBtnZone, { MenuBtnZoneRef } from '@/components/MenuBtnZone';
 import TabWindow from '@/components/TabWindow';
 import ExifRowViewer from '@/components/ExifRowViewer';
@@ -35,13 +34,13 @@ import { useSelection } from '@/contexts/SelectionContext';
 import Home from '@/components/Home';
 import { isMobile } from 'react-device-detect';
 import Yara from '@/components/Yara';
+import { useTabData } from '@/contexts/TabDataContext';
 
 const MainLayout: React.FC = () => {
+  const { isEmpty } = useTabData();
   // Hex뷰어 Ref
   const hexViewerRef = useRef<HexViewerRef>(null);
   const menuBtnZoneRef = useRef<MenuBtnZoneRef>(null);
-  // Tab 데이터
-  const [items, setItems] = useState<TabItem[]>([]);
   // Modal 데이터
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalContentKey, setModalContentKey] = useState<string | null>(null);
@@ -128,8 +127,6 @@ const MainLayout: React.FC = () => {
 
   const isResizing = isLeftSideDragging || isRightSideDragging;
 
-  const isEmptyItems = items.length <= 0;
-
   // 헥스 값 렌더링
   const showHex = (deciaml: number) => {
     return (
@@ -149,13 +146,13 @@ const MainLayout: React.FC = () => {
 
   // 메인 컨텐츠 뷰
   const showContent = () => {
-    return isEmptyItems ? (
+    return isEmpty ? (
       <>
         <Home menuBtnZoneRef={menuBtnZoneRef} />
       </>
     ) : (
       <>
-        <TabWindow items={items} setItems={setItems} />
+        <TabWindow />
       </>
     );
   };
@@ -170,7 +167,6 @@ const MainLayout: React.FC = () => {
         <MenuBtnZone
           ref={menuBtnZoneRef}
           hexViewerRef={hexViewerRef}
-          setItems={setItems}
           openModal={openModal}
         />
       </IceHeader>
@@ -180,7 +176,7 @@ const MainLayout: React.FC = () => {
           {/* 모바일 버전 */}
           <IceMobileLayout>
             <IceMobileContent>{showContent()}</IceMobileContent>
-            {!isEmptyItems && (
+            {!isEmpty && (
               <IceMobileBottom>
                 <div>
                   <ExifRowViewer />
@@ -201,9 +197,7 @@ const MainLayout: React.FC = () => {
               style={{
                 width: `${leftSidePostion}px`,
                 display:
-                  leftSidePostion < minSiderWidth || isEmptyItems
-                    ? 'none'
-                    : 'block',
+                  leftSidePostion < minSiderWidth || isEmpty ? 'none' : 'block',
               }}
             >
               <ExifRowViewer />
@@ -212,7 +206,7 @@ const MainLayout: React.FC = () => {
               {...leftSideSepProps}
               $isResizing={isLeftSideDragging}
               style={{
-                display: isEmptyItems ? 'none' : 'block',
+                display: isEmpty ? 'none' : 'block',
               }}
             />
 
@@ -223,14 +217,14 @@ const MainLayout: React.FC = () => {
                 $reverse={true}
                 $isResizing={isRightSideDragging}
                 style={{
-                  display: isEmptyItems ? 'none' : 'block',
+                  display: isEmpty ? 'none' : 'block',
                 }}
               />
               <IceRightSider
                 style={{
                   width: `${rightSidePostion}px`,
                   display:
-                    rightSidePostion < minSiderWidth || isEmptyItems
+                    rightSidePostion < minSiderWidth || isEmpty
                       ? 'none'
                       : 'block',
                 }}
