@@ -16,42 +16,41 @@ import Tooltip from '@/components/common/Tooltip';
 import { useTabData } from '@/contexts/TabDataContext';
 
 const ExifRowViewer: React.FC = () => {
-  const { tabData, activeKey } = useTabData();
-  const activeItem = useMemo(() => tabData[activeKey], [tabData, activeKey]);
+  const { activeData } = useTabData();
 
   return (
     <ViewerDiv>
-      {activeItem?.thumbnail && (
+      {activeData?.thumbnail && (
         <Collapse
           title="Thumbnail"
           children={
             <>
               <ThumbDiv>
-                <Thumbnail src={activeItem?.thumbnail} />
+                <Thumbnail src={activeData?.thumbnail} />
               </ThumbDiv>
             </>
           }
           open
         />
       )}
-      {activeItem?.fileinfo && (
+      {activeData?.fileinfo && (
         <Collapse
           title="File Info"
           children={
             <>
               <ContentDiv>
                 <CellHeaderDiv>파일명</CellHeaderDiv>
-                <CellBodyDiv>{activeItem.fileinfo.name}</CellBodyDiv>
+                <CellBodyDiv>{activeData.fileinfo.name}</CellBodyDiv>
               </ContentDiv>
               <ContentDiv>
                 <CellHeaderDiv>마지막 수정 시간</CellHeaderDiv>
                 <CellBodyDiv>
-                  {getDate(activeItem.fileinfo.lastModified)}
+                  {getDate(activeData.fileinfo.lastModified)}
                 </CellBodyDiv>
               </ContentDiv>
               <ContentDiv>
                 <CellHeaderDiv>크기</CellHeaderDiv>
-                <CellBodyDiv>{getBytes(activeItem.fileinfo.size)}</CellBodyDiv>
+                <CellBodyDiv>{getBytes(activeData.fileinfo.size)}</CellBodyDiv>
               </ContentDiv>
               <ContentDiv>
                 <CellHeaderDiv>
@@ -60,7 +59,7 @@ const ExifRowViewer: React.FC = () => {
                   </Tooltip>
                 </CellHeaderDiv>
                 <CellBodyDiv>
-                  {activeItem.fileinfo.mime_type || '-'}
+                  {activeData.fileinfo.mime_type || '-'}
                 </CellBodyDiv>
               </ContentDiv>
               <ContentDiv>
@@ -72,7 +71,7 @@ const ExifRowViewer: React.FC = () => {
                   </Tooltip>
                 </CellHeaderDiv>
                 <CellBodyDiv>
-                  {activeItem.fileinfo.extension || '-'}
+                  {activeData.fileinfo.extension || '-'}
                 </CellBodyDiv>
               </ContentDiv>
             </>
@@ -80,15 +79,15 @@ const ExifRowViewer: React.FC = () => {
           open
         />
       )}
-      {activeItem?.location.address &&
-        isValidLocation(activeItem?.location.lat, activeItem?.location.lng) && (
+      {activeData?.location.address &&
+        isValidLocation(activeData?.location.lat, activeData?.location.lng) && (
           <Collapse
             title="Map"
             children={
               <>
                 <KakaoMap
-                  latitude={activeItem?.location.lat || ''}
-                  longitude={activeItem?.location.lng || ''}
+                  latitude={activeData?.location.lat || ''}
+                  longitude={activeData?.location.lng || ''}
                 />
               </>
             }
@@ -96,12 +95,12 @@ const ExifRowViewer: React.FC = () => {
             removePadding
           />
         )}
-      {activeItem?.rows && (
+      {activeData?.rows && (
         <Collapse
           title="Exif Data"
           children={
             <>
-              {activeItem.rows.map((item, index) => (
+              {activeData.rows.map((item, index) => (
                 <ContentDiv key={`${index}-info`}>
                   <CellHeaderDiv>
                     <Tooltip text={item.meta}>

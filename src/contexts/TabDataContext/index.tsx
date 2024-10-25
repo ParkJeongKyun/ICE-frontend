@@ -6,6 +6,7 @@ import React, {
   SetStateAction,
   Dispatch,
   useRef,
+  useMemo,
 } from 'react';
 
 interface TabData {
@@ -25,6 +26,7 @@ interface TabDataContextType {
   activeKey: TabKey;
   setActiveKey: Dispatch<SetStateAction<TabKey>>;
   getNewKey: () => TabKey;
+  activeData: TabData[TabKey];
 }
 
 const TabDataContext = createContext<TabDataContextType | undefined>(undefined);
@@ -42,9 +44,18 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
     return newTabIndex.current as TabKey;
   };
 
+  const activeData = useMemo(() => tabData[activeKey], [tabData, activeKey]);
+
   return (
     <TabDataContext.Provider
-      value={{ tabData, setTabData, activeKey, setActiveKey, getNewKey }}
+      value={{
+        tabData,
+        setTabData,
+        activeKey,
+        setActiveKey,
+        getNewKey,
+        activeData,
+      }}
     >
       {children}
     </TabDataContext.Provider>

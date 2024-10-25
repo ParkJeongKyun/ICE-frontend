@@ -56,8 +56,7 @@ const byteToChar = (byte: number): string => {
 };
 
 const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
-  const { tabData, activeKey } = useTabData();
-  const activeItem = useMemo(() => tabData[activeKey], [tabData, activeKey]);
+  const { activeData } = useTabData();
   const [scrollIndex, setScrollIndex] = React.useState<number>(0);
   const [isDragging, setIsDragging] = useState(false);
   const { selectionRange, setSelectionRange } = useSelection();
@@ -65,7 +64,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   const bytesPerRow = 16;
   const rowHeight = 30;
   const columnCount = 3;
-  const buffer = activeItem.buffer;
+  const buffer = activeData.buffer;
   const rowCount = Math.ceil(buffer.length / bytesPerRow);
 
   const handleMouseDown = useCallback(

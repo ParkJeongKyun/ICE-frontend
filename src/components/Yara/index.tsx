@@ -13,8 +13,7 @@ rule sample_rule {
 `;
 
 const Yara: React.FC = () => {
-  const { tabData, activeKey } = useTabData();
-  const activeItem = useMemo(() => tabData[activeKey], [tabData, activeKey]);
+  const { activeData } = useTabData();
   const { processInfo, setProcessInfo } = useProcess();
   const { isProcessing } = processInfo;
   const [worker, setWorker] = useState<Worker | null>(null);
@@ -51,11 +50,11 @@ const Yara: React.FC = () => {
     setProcessInfo({ isProcessing: true });
     if (worker) {
       worker.postMessage({
-        binaryData: activeItem.buffer,
+        binaryData: activeData.buffer,
         inputRule,
       });
     }
-  }, [worker, activeItem, inputRule, setProcessInfo]);
+  }, [worker, activeData, inputRule, setProcessInfo]);
 
   return (
     <Collapse title="Yara" open>
