@@ -82,14 +82,14 @@ export const ProcessProvider: React.FC<{ children: React.ReactNode }> = ({
   const testYara = useCallback(
     (inputRule: any, binaryData: Uint8Array) => {
       setProcessInfo({ status: 'processing' });
-      const clonedBinaryData = structuredClone(binaryData);
       if (worker) {
+        const clonedData = binaryData.slice(0);
         worker.postMessage(
           {
-            binaryData: clonedBinaryData,
+            binaryData: clonedData,
             inputRule,
           },
-          [clonedBinaryData.buffer]
+          [clonedData.buffer]
         );
       }
     },
