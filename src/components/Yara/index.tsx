@@ -26,9 +26,9 @@ const Yara: React.FC = () => {
     []
   );
 
-  const onClickBtn = () => {
+  const onClickBtn = useCallback(() => {
     testYara(inputRule, activeData.buffer);
-  };
+  }, [inputRule, activeData.buffer, testYara]);
 
   return (
     <Collapse title="Yara" open>
