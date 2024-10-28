@@ -5,7 +5,7 @@ import MenuBtn from '@/components/common/MenuBtn';
 import HexViewer, { HexViewerRef } from '@/components/HexViewer';
 import { ExifRow } from '@/types';
 import { getAddress, isValidLocation } from '@/utils/getAddress';
-import { useProcess } from '@/contexts/ProcessContext';
+import { ProcessStatus, useProcess } from '@/contexts/ProcessContext';
 import { useTabData } from '@/contexts/TabDataContext';
 
 interface Props {
@@ -25,8 +25,7 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
 ) => {
   const { setTabData, setActiveKey, getNewKey } = useTabData();
   // 처리중인 파일 정보
-  const { processInfo, setProcessInfo } = useProcess();
-  const { isProcessing } = processInfo;
+  const { setProcessInfo, isProcessing } = useProcess();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const handleOpenClick = () => {
@@ -46,8 +45,14 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
   // 탭을 추가하고 데이터를 저장하는 함수
   const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    let status: ProcessStatus = 'success';
+    let message = '';
     if (file) {
-      setProcessInfo({ fileName: file.name, isProcessing: true });
+      setProcessInfo({
+        fileName: file.name,
+        status: 'processing',
+        message: '',
+      });
       const readFileAsArrayBuffer = (file: File): Promise<ArrayBuffer> => {
         return new Promise((resolve, reject) => {
           const reader = new FileReader();
@@ -165,8 +170,9 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
         }));
       } catch (error) {
         console.error('Error reading file:', error);
+        status = 'failure';
       } finally {
-        setProcessInfo({ isProcessing: false });
+        setProcessInfo({ status: status, message });
       }
 
       // 파일 선택 input 초기화

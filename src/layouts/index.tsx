@@ -45,8 +45,8 @@ const MainLayout: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalContentKey, setModalContentKey] = useState<string | null>(null);
   // 처리중인 파일 정보
-  const { processInfo } = useProcess();
-  const { fileName, isProcessing } = processInfo;
+  const { processInfo, isProcessing } = useProcess();
+  const { fileName } = processInfo;
 
   // 선택된 셀 정보
   const { selectionRange } = useSelection();

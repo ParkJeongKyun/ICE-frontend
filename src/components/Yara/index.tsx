@@ -14,8 +14,8 @@ rule sample_rule {
 
 const Yara: React.FC = () => {
   const { activeData } = useTabData();
-  const { processInfo, setProcessInfo } = useProcess();
-  const { isProcessing } = processInfo;
+  const { processInfo, setProcessInfo, isProcessing, isFailure, isSuccess } =
+    useProcess();
   const [worker, setWorker] = useState<Worker | null>(null);
   const [inputRule, setInputRule] = useState(SAMPLE_RULE);
   const [result, setResult] = useState<string[]>([]);
@@ -32,12 +32,15 @@ const Yara: React.FC = () => {
       new URL('/worker/yara_worker.js', import.meta.url)
     );
     newWorker.onmessage = (e) => {
-      setResult(e.data as string[]);
-      setProcessInfo({ isProcessing: false });
+      const { status, matchedRuleNames } = e.data;
+      if (status === 'success') {
+        setResult(matchedRuleNames);
+      }
+      setProcessInfo({ status: 'success', message: '' });
     };
     newWorker.onerror = (e) => {
       setResult([]);
-      setProcessInfo({ isProcessing: false });
+      setProcessInfo({ status: 'failure', message: e.message });
     };
     setWorker(newWorker);
 
@@ -47,7 +50,7 @@ const Yara: React.FC = () => {
   }, [setProcessInfo]);
 
   const testYara = useCallback(() => {
-    setProcessInfo({ isProcessing: true });
+    setProcessInfo({ status: 'processing' });
     if (worker) {
       worker.postMessage({
         binaryData: activeData.buffer,
@@ -76,6 +79,7 @@ const Yara: React.FC = () => {
         ) : (
           <> - </>
         )}
+        {isFailure && <div style={{ color: 'red' }}>{processInfo.message}</div>}
       </SearchDiv>
     </Collapse>
   );
