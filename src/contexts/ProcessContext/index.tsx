@@ -59,11 +59,14 @@ export const ProcessProvider: React.FC<{ children: React.ReactNode }> = ({
       new URL('/worker/yara_worker.js', import.meta.url)
     );
     newWorker.onmessage = (e) => {
-      const { status, matchedRuleNames } = e.data;
+      const { status, matchedRuleNames, message } = e.data;
       if (status === 'success') {
         setResult(matchedRuleNames);
+        setProcessInfo({ status: 'success', message: '' });
+      } else if (status === 'failure') {
+        setResult([]);
+        setProcessInfo({ status: 'failure', message });
       }
-      setProcessInfo({ status: 'success', message: '' });
     };
     newWorker.onerror = (e) => {
       setResult([]);
