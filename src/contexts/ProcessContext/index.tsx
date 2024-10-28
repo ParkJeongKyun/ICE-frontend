@@ -5,6 +5,8 @@ import React, {
   SetStateAction,
   Dispatch,
   useMemo,
+  useEffect,
+  useCallback,
 } from 'react';
 
 export type ProcessType = 'Exif' | 'Yara';
@@ -18,11 +20,14 @@ interface ProcessInfo {
 }
 
 interface ProcessContextType {
+  worker: Worker | null;
+  result: string[];
   processInfo: ProcessInfo;
   setProcessInfo: Dispatch<SetStateAction<ProcessInfo>>;
   isProcessing: boolean;
   isSuccess: boolean;
   isFailure: boolean;
+  testYara: (inputRule: any, binaryData: Uint8Array) => void;
 }
 
 const ProcessContext = createContext<ProcessContextType | undefined>(undefined);
@@ -30,6 +35,8 @@ const ProcessContext = createContext<ProcessContextType | undefined>(undefined);
 export const ProcessProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
+  const [worker, setWorker] = useState<Worker | null>(null);
+  const [result, setResult] = useState<string[]>([]);
   const [processInfo, setProcessInfo] = useState<ProcessInfo>({
     status: 'idle',
   });
@@ -47,15 +54,57 @@ export const ProcessProvider: React.FC<{ children: React.ReactNode }> = ({
     [processInfo.status]
   );
 
+  useEffect(() => {
+    const newWorker = new Worker(
+      new URL('/worker/yara_worker.js', import.meta.url)
+    );
+    newWorker.onmessage = (e) => {
+      const { status, matchedRuleNames } = e.data;
+      if (status === 'success') {
+        setResult(matchedRuleNames);
+      }
+      setProcessInfo({ status: 'success', message: '' });
+    };
+    newWorker.onerror = (e) => {
+      setResult([]);
+      setProcessInfo({ status: 'failure', message: e.message });
+    };
+    setWorker(newWorker);
+
+    return () => {
+      newWorker.terminate();
+    };
+  }, []);
+
+  const testYara = useCallback(
+    (inputRule: any, binaryData: Uint8Array) => {
+      setProcessInfo({ status: 'processing' });
+      const clonedBinaryData = structuredClone(binaryData);
+      if (worker) {
+        worker.postMessage(
+          {
+            binaryData: clonedBinaryData,
+            inputRule,
+          },
+          [clonedBinaryData.buffer]
+        );
+      }
+    },
+    [worker, setProcessInfo]
+  );
+
   const value = useMemo(
     () => ({
+      worker,
+      result,
       processInfo,
       setProcessInfo,
       isProcessing,
       isSuccess,
       isFailure,
+      testYara,
     }),
-    [processInfo, isProcessing, isSuccess, isFailure]
+    [worker, result, processInfo, isProcessing, isSuccess, isFailure, testYara]
   );
 
   return (

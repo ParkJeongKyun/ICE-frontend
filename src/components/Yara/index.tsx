@@ -14,11 +14,10 @@ rule sample_rule {
 
 const Yara: React.FC = () => {
   const { activeData } = useTabData();
-  const { processInfo, setProcessInfo, isProcessing, isFailure, isSuccess } =
+  const { result, processInfo, isProcessing, isFailure, testYara } =
     useProcess();
-  const [worker, setWorker] = useState<Worker | null>(null);
+
   const [inputRule, setInputRule] = useState(SAMPLE_RULE);
-  const [result, setResult] = useState<string[]>([]);
 
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -27,37 +26,9 @@ const Yara: React.FC = () => {
     []
   );
 
-  useEffect(() => {
-    const newWorker = new Worker(
-      new URL('/worker/yara_worker.js', import.meta.url)
-    );
-    newWorker.onmessage = (e) => {
-      const { status, matchedRuleNames } = e.data;
-      if (status === 'success') {
-        setResult(matchedRuleNames);
-      }
-      setProcessInfo({ status: 'success', message: '' });
-    };
-    newWorker.onerror = (e) => {
-      setResult([]);
-      setProcessInfo({ status: 'failure', message: e.message });
-    };
-    setWorker(newWorker);
-
-    return () => {
-      newWorker.terminate();
-    };
-  }, [setProcessInfo]);
-
-  const testYara = useCallback(() => {
-    setProcessInfo({ status: 'processing' });
-    if (worker) {
-      worker.postMessage({
-        binaryData: activeData.buffer,
-        inputRule,
-      });
-    }
-  }, [worker, activeData, inputRule, setProcessInfo]);
+  const onClickBtn = () => {
+    testYara(inputRule, activeData.buffer);
+  };
 
   return (
     <Collapse title="Yara" open>
@@ -65,7 +36,7 @@ const Yara: React.FC = () => {
         <RuleTextarea value={inputRule} onChange={handleInputChange} />
         <Btn
           text="Rule Detection"
-          onClick={testYara}
+          onClick={onClickBtn}
           disabled={isProcessing}
           disabledTxt="분석이 종료되면 다시 시도해주세요"
         />
