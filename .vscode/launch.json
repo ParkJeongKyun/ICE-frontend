@@ -1,0 +1,19 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "chrome",
+      "request": "launch",
+      "name": "크롬_디버거_실행",
+      "url": "http://localhost:3000",
+      "webRoot": "${workspaceFolder}",
+      "preLaunchTask": "vite-dev"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "ICE_프로젝트_개발_디버깅",
+      "configurations": ["크롬_디버거_실행"]
+    }
+  ]
+}
