@@ -7,7 +7,6 @@ export const SearchDiv = styled.div`
   align-items: center;
   gap: 5px;
   margin-bottom: 10px;
-
   font-size: 0.75rem;
 `;
 
