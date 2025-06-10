@@ -1,0 +1,35 @@
+name: Deploy dist to external repo
+
+on:
+  push:
+    branches:
+      - main # 또는 배포 트리거 브랜치
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source repo
+        uses: actions/checkout@v3
+
+      - name: Install dependencies and build
+        run: |
+          npm ci
+          npm run build
+
+      - name: Clone target repo
+        run: |
+          git clone https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/사용자명/타겟레포지토리.git target-repo
+          cd target-repo
+          git rm -rf .
+        env:
+          GIT_AUTHOR_NAME: github-actions
+          GIT_COMMITTER_NAME: github-actions
+
+      - name: Copy dist to target repo
+        run: |
+          cp -r dist/* target-repo/
+          cd target-repo
+          git add .
+          git commit -m "Deploy from ICE-frontend"
+          git push origin main # 또는 gh-pages
