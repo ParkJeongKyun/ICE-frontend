@@ -32,7 +32,7 @@ const BtnDiv = styled.div<{ disabled: boolean }>`
   padding: 2px 4px 2px 4px;
   border-radius: 5px;
 
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: 600;
 
   color: var(

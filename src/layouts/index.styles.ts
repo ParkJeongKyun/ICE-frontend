@@ -86,7 +86,7 @@ export const IceFooter = styled.div<{ $isMobile?: boolean }>`
   background-color: var(--main-bg-color);
   border-top: 1px solid var(--main-line-color);
   border-bottom: 1px solid var(--main-line-color);
-  font-size: 10px;
+  font-size: 0.6rem;
 
   /* 모바일 버전용 */
   ${(props) =>
@@ -101,7 +101,7 @@ export const ProcessInfo = styled.div`
   flex-wrap: nowrap;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: 600;
 `;
 
@@ -154,7 +154,7 @@ export const ProcessMsg = styled.span`
 export const SelectInfo = styled.div`
   display: flex;
   flex-wrap: nowrap;
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: 600;
   > div {
     text-align: start;

@@ -8,7 +8,7 @@ export const SearchDiv = styled.div`
   gap: 5px;
   margin-bottom: 10px;
 
-  font-size: 12px;
+  font-size: 0.75rem;
 `;
 
 export const RuleTextarea = styled.textarea`
@@ -19,7 +19,7 @@ export const RuleTextarea = styled.textarea`
   border: none;
   border-bottom: 1px solid var(--main-line-color);
   box-sizing: border-box;
-  font-size: 12px;
+  font-size: 0.75rem;
   min-height: 100px;
   &:focus,
   &:hover {
@@ -33,7 +33,7 @@ export const RuleTag = styled.span`
   padding: 2px 4px 2px 4px;
   border-radius: 5px;
 
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: 600;
 
   color: var(--main-color);

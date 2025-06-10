@@ -6,7 +6,7 @@ export const SearchSelect = styled.select`
   color: var(--main-color);
   border: none;
   background-color: var(--main-bg-color);
-  font-size: 12px;
+  font-size: 0.75rem;
   min-height: 25px;
   border-radius: 5px;
   &:focus,
@@ -28,7 +28,7 @@ export const SearchDiv = styled.div`
 
 export const SearchLabel = styled.div`
   width: 20%;
-  font-size: 12px;
+  font-size: 0.75rem;
   text-align: start;
 `;
 
@@ -44,7 +44,7 @@ export const SearchInput = styled.input`
   border: none;
   border-bottom: 1px solid var(--main-line-color);
   box-sizing: border-box;
-  font-size: 12px;
+  font-size: 0.75rem;
   min-height: 25px;
   &:focus,
   &:hover {
@@ -71,7 +71,7 @@ export const SearchCheckBox = styled.div`
 
   > span {
     margin-left: 5px;
-    font-size: 12px;
+    font-size: 0.75rem;
     text-align: start;
   }
 `;
@@ -92,7 +92,7 @@ export const TextDiv = styled.div`
 export const Result = styled.div`
   display: flex;
   align-items: center;
-  font-size: 11px;
+  font-size: 0.7rem;
   font-weight: 600;
   margin: 2px 0px 2px 0px;
   padding: 2px 0px 2px 0px;
@@ -109,7 +109,7 @@ export const SearchBtn = styled.div<{ $disabled?: boolean }>`
   padding: 2px 4px 2px 4px;
   border-radius: 2.5px;
   font-weight: 600;
-  font-size: 10px;
+  font-size: 0.6rem;
   color: var(--main-color);
   border: 1px solid var(--main-line-color);
   &:hover {

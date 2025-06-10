@@ -93,7 +93,7 @@ const SetDefaultBtn = styled.div`
   color: var(--ice-main-color_3);
   text-decoration: underline;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 0.8rem;
   font-weight: 600;
   padding-left: 15px;
   padding-top: 10px;
@@ -111,22 +111,22 @@ export const MarkDownDiv = styled.div`
   padding-left: 15px;
   padding-right: 15px;
   padding-bottom: 15px;
-  font-size: 12px;
+  font-size: 0.75rem;
   line-height: 1.6;
 
   /* Styling for headings */
   h1 {
-    font-size: 18px;
+    font-size: 1.125rem;
     border-bottom: 1.5px solid var(--main-line-color);
   }
 
   h2 {
-    font-size: 16px;
+    font-size: 1rem;
     border-bottom: 1.5px solid var(--main-line-color);
   }
 
   h3 {
-    font-size: 14px;
+    font-size: 0.8rem;
     border-bottom: 1.5px solid var(--main-line-color);
   }
 

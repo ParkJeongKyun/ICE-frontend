@@ -53,7 +53,7 @@ export const AnimatedHeading = styled(motion.h2)`
   text-shadow: 1px 1px 2px var(--main-bg-color);
   left: calc(50% - 50px);
   top: calc(50%);
-  font-size: 50px;
+  font-size: 3rem;
   font-weight: 700;
   font-family: consolas;
   font-style: normal;

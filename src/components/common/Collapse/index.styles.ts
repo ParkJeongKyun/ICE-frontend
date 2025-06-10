@@ -15,12 +15,12 @@ export const CollapseHeader = styled.div`
 
 export const CollapsIconDiv = styled.div`
   display: flex;
-  align-items: center
+  align-items: center;
 `;
 
 export const Title = styled.div`
   font-weight: 600;
-  font-size: 13px;
+  font-size: 0.8rem;
   margin-left: 10px;
 `;
 

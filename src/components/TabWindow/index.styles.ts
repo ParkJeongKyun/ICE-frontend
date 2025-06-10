@@ -37,7 +37,7 @@ export const TabsContainer = styled.div<{ $empty: boolean }>`
 export const Tab = styled.div<{ $active: boolean }>`
   display: flex;
   align-items: center;
-  font-size: 11px;
+  font-size: 0.7rem;
   font-weight: 700;
   padding: 6px 5px 6px 10px;
   border-right: 1px solid var(--main-line-color);

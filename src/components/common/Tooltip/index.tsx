@@ -46,7 +46,7 @@ const TooltipText = styled.div`
   z-index: 1000;
   opacity: 0;
   transition: opacity 0.3s;
-  font-size: 12px;
+  font-size: 0.75rem;
   ${TooltipWrapper}:hover & {
     visibility: visible;
     opacity: 0.8;

@@ -12,7 +12,7 @@ export const ModalContainer = styled.div<{ $isOpen: boolean }>`
 `;
 
 export const ModalContent = styled.div<{ $top: string; $left: string }>`
-  font-size: 12px;
+  font-size: 0.75rem;
   position: absolute;
   top: ${({ $top }) => $top};
   left: ${({ $left }) => $left};

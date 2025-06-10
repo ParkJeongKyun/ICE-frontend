@@ -19,7 +19,7 @@ export const HomeDiv = styled.div`
 `;
 
 export const Title = styled.div`
-  font-size: 45px;
+  font-size: 2.75rem;
   font-weight: 600;
   color: var(--ice-main-color);
 `;
@@ -28,14 +28,14 @@ export const Version = styled.div`
   flex-grow: 1;
   margin-left: 10px;
   margin-bottom: 5px;
-  font-size: 16px;
+  font-size: 1rem;
   font-weight: 600;
   color: var(--main-color_1);
 `;
 
 export const SubTitle = styled.div`
   margin-left: 5px;
-  font-size: 16px;
+  font-size: 1rem;
   font-weight: 600;
   color: var(--main-color);
 `;
@@ -43,7 +43,7 @@ export const SubTitle = styled.div`
 export const StartDiv = styled.div`
   margin-left: 5px;
   margin-top: 50px;
-  font-size: 20px;
+  font-size: 1.25rem;
   font-weight: 600;
   color: var(--ice-main-color_3);
 `;
@@ -51,7 +51,7 @@ export const StartDiv = styled.div`
 export const Btn = styled.div`
   margin: 5px 0px;
   padding-left: 10px;
-  font-size: 15px;
+  font-size: 1rem;
   color: var(--ice-main-color);
   text-decoration: underline;
   font-weight: 600;
@@ -64,7 +64,7 @@ export const Btn = styled.div`
 
 export const InfoDiv = styled.div`
   margin-top: 200px;
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: 500;
   color: var(--main-color);
   > div {

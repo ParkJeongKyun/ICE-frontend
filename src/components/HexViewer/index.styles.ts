@@ -41,7 +41,7 @@ export const OffsetCell = styled.div`
   /* 폰트 */
   font-family: monospace;
   font-weight: 600;
-  font-size: 14.5px;
+  font-size: 0.9rem;
 `;
 
 // 헥스 셀
@@ -55,7 +55,7 @@ export const HexCell = styled.div`
   /* 폰트 */
   font-family: monospace;
   font-weight: 600;
-  font-size: 14.5px;
+  font-size: 0.9rem;
 `;
 
 // 텍스트 셀
@@ -69,7 +69,7 @@ export const TextCell = styled.div`
   /* 폰트 */
   font-family: monospace;
   font-weight: 600;
-  font-size: 12.5px;
+  font-size: 0.75rem;
 `;
 
 // 오프셋

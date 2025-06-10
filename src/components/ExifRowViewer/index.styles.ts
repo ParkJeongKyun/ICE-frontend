@@ -24,7 +24,7 @@ export const Thumbnail = styled.img`
 
 export const CellHeaderDiv = styled.div`
   text-align: left;
-  font-size: 12px;
+  font-size: 0.75rem;
   min-width: 40%;
   font-weight: 500;
   &:hover {
@@ -34,7 +34,7 @@ export const CellHeaderDiv = styled.div`
 
 export const CellBodyDiv = styled.div`
   text-align: left;
-  font-size: 12px;
+  font-size: 0.75rem;
   min-width: 60%;
   color: var(--ice-main-color);
   &:hover {
