@@ -9,6 +9,10 @@ jobs:
     steps:
       - name: Checkout source repo
         uses: actions/checkout@v3
+      - name: Set up Git user
+        run: |
+          git config --global user.name "ParkJeongKyun"
+          git config --global user.email "dbzoseh84@gmail.com"
       - name: Install dependencies and build
         run: |
           npm ci
