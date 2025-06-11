@@ -29,11 +29,12 @@ jobs:
           # 비공개 레포지토리 클론 및 배포
           git clone git@github.com:ParkJeongKyun/ICE-frontend.git deploy-repo
           # deploy-repo 디렉토리 정리 (CNAME과 LICENSE 제외)
-          shopt -s extglob
-          rm -rf deploy-repo/!(CNAME|LICENSE)
-          # dist 파일 복사
-          cp -r dist/* deploy-repo/
           cd deploy-repo
+          git checkout master
+          shopt -s extglob
+          rm -rf ./!(CNAME|LICENSE)
+          # dist 파일 복사
+          cp -r ../dist/* ./
           git add .
           git commit -m "Deploy on $(date '+%Y-%m-%d %H:%M:%S')"
-          git push origin main
+          git push origin master
