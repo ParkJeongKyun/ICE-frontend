@@ -26,8 +26,8 @@ jobs:
           echo "$DEPLOY_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan github.com >> ~/.ssh/known_hosts
-          # 비공개 레포지토리 클론 및 배포
-          git clone git@github.com:ParkJeongKyun/ICE-frontend.git deploy-repo
+          # 빌드 레포지토리 클론 및 배포
+          git clone git@github.com:ParkJeongKyun/ICE.git deploy-repo
           # deploy-repo 디렉토리 정리 (CNAME과 LICENSE 제외)
           cd deploy-repo
           git checkout master
