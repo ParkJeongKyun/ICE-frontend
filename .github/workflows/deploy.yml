@@ -1,35 +1,35 @@
-name: Deploy dist to external repo
-
+name: Deploy Repo
 on:
   push:
     branches:
-      - main # 또는 배포 트리거 브랜치
-
+      - master
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source repo
         uses: actions/checkout@v3
-
       - name: Install dependencies and build
         run: |
           npm ci
           npm run build
-
-      - name: Clone target repo
-        run: |
-          git clone https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/사용자명/타겟레포지토리.git target-repo
-          cd target-repo
-          git rm -rf .
+      - name: Deploy to private repo
         env:
-          GIT_AUTHOR_NAME: github-actions
-          GIT_COMMITTER_NAME: github-actions
-
-      - name: Copy dist to target repo
+          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
         run: |
-          cp -r dist/* target-repo/
-          cd target-repo
+          # 설정: SSH 키 추가
+          mkdir -p ~/.ssh
+          echo "$DEPLOY_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+          # 비공개 레포지토리 클론 및 배포
+          git clone git@github.com:ParkJeongKyun/ICE-frontend.git deploy-repo
+          # deploy-repo 디렉토리 정리 (CNAME과 LICENSE 제외)
+          shopt -s extglob
+          rm -rf deploy-repo/!(CNAME|LICENSE)
+          # dist 파일 복사
+          cp -r dist/* deploy-repo/
+          cd deploy-repo
           git add .
-          git commit -m "Deploy from ICE-frontend"
-          git push origin main # 또는 gh-pages
+          git commit -m "Deploy on $(date '+%Y-%m-%d %H:%M:%S')"
+          git push origin main
