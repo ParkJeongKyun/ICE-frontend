@@ -297,6 +297,18 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     };
   }, [contextMenu]);
 
+  useEffect(() => {
+    if (!isDragging) return;
+    // 마우스 업(드래그 종료) 전역 이벤트 등록
+    const handleGlobalMouseUp = () => {
+      setIsDragging(false);
+    };
+    window.addEventListener('mouseup', handleGlobalMouseUp);
+    return () => {
+      window.removeEventListener('mouseup', handleGlobalMouseUp);
+    };
+  }, [isDragging]);
+
   return (
     <>
       <div style={{ marginBottom: 8 }}>
