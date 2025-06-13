@@ -133,3 +133,35 @@ export const TextByte = styled.span<{ $isDot: boolean; $selected: boolean }>`
       color: var(--ice-main-color_2)
     `}
 `;
+
+// 컨텍스트 메뉴
+export const ContextMenu = styled.div`
+  position: absolute;
+  background-color: var(--main-bg-color);
+  border: 1px solid var(--main-line-color);
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  min-width: 120px;
+  padding: 0;
+  outline: none;
+  border-radius: 4px;
+  user-select: none;
+`;
+
+export const ContextMenuList = styled.ul`
+  list-style: none;
+  margin: 0;
+  padding: 8px 0;
+`;
+
+export const ContextMenuItem = styled.li`
+  padding: 2px 5px;
+  cursor: pointer;
+  color: var(--main-color);
+  background: transparent;
+  font-size: 0.75rem;
+  &:hover {
+    background: var(--main-hover-color);
+    color: var(--ice-main-color);
+  }
+`;

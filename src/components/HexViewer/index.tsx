@@ -1,9 +1,10 @@
 import React, {
-  useMemo,
   useState,
   useCallback,
   useImperativeHandle,
   forwardRef,
+  useRef,
+  useEffect,
 } from 'react';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { GridCellProps } from 'react-virtualized';
@@ -15,6 +16,9 @@ import {
   OffsetCell,
   TextByte,
   TextCell,
+  ContextMenu,
+  ContextMenuList,
+  ContextMenuItem,
 } from './index.styles';
 import { asciiToBytes, findPatternIndices } from '@/utils/byteSearch';
 import { useSelection } from '@/contexts/SelectionContext';
@@ -61,6 +65,11 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   const [isDragging, setIsDragging] = useState(false);
   const { selectionRange, setSelectionRange } = useSelection();
   const { start: startIndex, end: endIndex } = selectionRange;
+  const [contextMenu, setContextMenu] = useState<{
+    x: number;
+    y: number;
+  } | null>(null);
+  const contextMenuRef = useRef<HTMLDivElement>(null);
   const bytesPerRow = 16;
   const rowHeight = 30;
   const columnCount = 3;
@@ -68,19 +77,21 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   const rowCount = Math.ceil(buffer.length / bytesPerRow);
 
   const handleMouseDown = useCallback(
-    (byteIndex: number) => {
-      setIsDragging(true);
-      setSelectionRange((prev) => ({
-        ...prev,
-        start: byteIndex,
-        end: byteIndex,
-      }));
+    (event: React.MouseEvent, byteIndex: number) => {
+      if (event.button === 0) {
+        setIsDragging(true);
+        setSelectionRange((prev) => ({
+          ...prev,
+          start: byteIndex,
+          end: byteIndex,
+        }));
+      }
     },
     [setSelectionRange]
   );
 
   const handleMouseMove = useCallback(
-    (byteIndex: number) => {
+    (_: React.MouseEvent, byteIndex: number) => {
       if (isDragging) {
         setSelectionRange((prev) => {
           let start: number | null;
@@ -105,6 +116,20 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
 
   const handleMouseUp = useCallback(() => {
     setIsDragging(false);
+  }, []);
+
+  const handleContextMenu = useCallback(
+    (event: React.MouseEvent) => {
+      event.preventDefault();
+      if (!isDragging) {
+        setContextMenu({ x: event.clientX, y: event.clientY });
+      }
+    },
+    [isDragging]
+  );
+
+  const closeContextMenu = useCallback(() => {
+    setContextMenu(null);
   }, []);
 
   const getColumnWidth = ({ index }: { index: number }): number => {
@@ -148,9 +173,10 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
         key={i}
         $isEven={i % 2 === 0}
         $selected={selected}
-        onMouseDown={() => handleMouseDown(byteIndex)}
-        onMouseEnter={() => handleMouseMove(byteIndex)}
+        onMouseDown={(e) => handleMouseDown(e, byteIndex)}
+        onMouseEnter={(e) => handleMouseMove(e, byteIndex)}
         onMouseUp={handleMouseUp}
+        onContextMenu={handleContextMenu}
       >
         {byteToHex(byte)}
       </HexByte>
@@ -171,9 +197,10 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
         key={i}
         $isDot={str === '.'}
         $selected={selected}
-        onMouseDown={() => handleMouseDown(byteIndex)}
-        onMouseEnter={() => handleMouseMove(byteIndex)}
+        onMouseDown={(e) => handleMouseDown(e, byteIndex)}
+        onMouseEnter={(e) => handleMouseMove(e, byteIndex)}
         onMouseUp={handleMouseUp}
+        onContextMenu={handleContextMenu}
       >
         {str}
       </TextByte>
@@ -289,29 +316,64 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     [buffer, setSelectionRange]
   );
 
+  useEffect(() => {
+    if (!contextMenu) return;
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        contextMenuRef.current &&
+        !contextMenuRef.current.contains(event.target as Node)
+      ) {
+        setContextMenu(null);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [contextMenu]);
+
   return (
-    <AutoSizer>
-      {({ height, width }: { height: number; width: number }) => (
-        <GridDiv
-          height={height}
-          width={width}
-          // 가로
-          columnCount={columnCount}
-          columnWidth={getColumnWidth}
-          // 세로
-          rowCount={rowCount}
-          rowHeight={rowHeight}
-          // 랜더링 설정
-          cellRenderer={cellRenderer}
-          // 셀 고정
-          scrollToRow={scrollIndex}
-          scrollToAlignment={'start'}
-          // 오버 스캔
-          overscanColumnCount={2}
-          overscanRowCount={20}
-        />
+    <>
+      <AutoSizer>
+        {({ height, width }: { height: number; width: number }) => (
+          <GridDiv
+            height={height}
+            width={width}
+            // 가로
+            columnCount={columnCount}
+            columnWidth={getColumnWidth}
+            // 세로
+            rowCount={rowCount}
+            rowHeight={rowHeight}
+            // 랜더링 설정
+            cellRenderer={cellRenderer}
+            // 셀 고정
+            scrollToRow={scrollIndex}
+            scrollToAlignment={'start'}
+            // 오버 스캔
+            overscanColumnCount={2}
+            overscanRowCount={20}
+          />
+        )}
+      </AutoSizer>
+      {contextMenu && (
+        <ContextMenu
+          ref={contextMenuRef}
+          style={{
+            top: contextMenu.y,
+            left: contextMenu.x,
+          }}
+          onClick={closeContextMenu}
+          onBlur={closeContextMenu}
+        >
+          <ContextMenuList>
+            <ContextMenuItem>Option 1</ContextMenuItem>
+            <ContextMenuItem>Option 2</ContextMenuItem>
+            <ContextMenuItem>Option 3</ContextMenuItem>
+          </ContextMenuList>
+        </ContextMenu>
       )}
-    </AutoSizer>
+    </>
   );
 };
 
