@@ -39,19 +39,37 @@ export interface HexViewerRef {
   scrollToIndex: (rowIndex: number, offset: number) => void;
 }
 
-const byteToHex = (byte: number): string => {
-  return ('0' + byte.toString(16)).slice(-2).toUpperCase();
-};
-
 const encodingOptions = [
   { value: 'windows-1252', label: 'Windows-1252' },
   { value: 'ascii', label: 'ASCII' },
   { value: 'utf-8', label: 'UTF-8' },
 ];
 
+const byteToHex = (byte: number): string =>
+  ('0' + byte.toString(16)).slice(-2).toUpperCase();
+
+const byteToChar = (byte: number, encoding: string): string => {
+  if (encoding === 'ascii') {
+    return byte >= 0x20 && byte <= 0x7e ? String.fromCharCode(byte) : '.';
+  }
+  try {
+    const decoder = new TextDecoder(encoding as 'windows-1252' | 'utf-8');
+    const char = decoder.decode(new Uint8Array([byte]));
+    const code = char.charCodeAt(0);
+    if (
+      (encoding === 'windows-1252' &&
+        ((code >= 0x20 && code <= 0x7e) || (code >= 0xa0 && code <= 0xff))) ||
+      (encoding === 'utf-8' && code >= 0x20)
+    ) {
+      return char;
+    }
+  } catch {}
+  return '.';
+};
+
 const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   const { activeData, encoding, setEncoding } = useTabData();
-  const [scrollIndex, setScrollIndex] = React.useState<number>(0);
+  const [scrollIndex, setScrollIndex] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const { selectionRange, setSelectionRange } = useSelection();
   const { start: startIndex, end: endIndex } = selectionRange;
@@ -61,7 +79,6 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   } | null>(null);
   const contextMenuRef = useRef<HTMLDivElement>(null);
   const bytesPerRow = 16;
-  const rowHeight = 30;
   const columnCount = 3;
   const buffer = activeData.buffer;
   const rowCount = Math.ceil(buffer.length / bytesPerRow);
@@ -84,106 +101,87 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     (_: React.MouseEvent, byteIndex: number) => {
       if (isDragging) {
         setSelectionRange((prev) => {
-          let start: number | null;
-          let end: number | null;
-          if (Number(prev.start) >= byteIndex) {
-            start = byteIndex;
-            end = prev.end;
-          } else {
-            start = prev.start;
-            end = byteIndex;
-          }
-          return {
-            ...prev,
-            start: start,
-            end: end,
-          };
+          const [start, end] =
+            Number(prev.start) >= byteIndex
+              ? [byteIndex, prev.end]
+              : [prev.start, byteIndex];
+          return { ...prev, start, end };
         });
       }
     },
-    [isDragging]
+    [isDragging, setSelectionRange]
   );
 
-  const handleMouseUp = useCallback(() => {
-    setIsDragging(false);
-  }, []);
-
+  const handleMouseUp = useCallback(() => setIsDragging(false), []);
   const handleContextMenu = useCallback(
     (event: React.MouseEvent) => {
       event.preventDefault();
-      if (!isDragging) {
-        setContextMenu({ x: event.clientX, y: event.clientY });
-      }
+      if (!isDragging) setContextMenu({ x: event.clientX, y: event.clientY });
     },
     [isDragging]
   );
+  const closeContextMenu = useCallback(() => setContextMenu(null), []);
 
-  const closeContextMenu = useCallback(() => {
-    setContextMenu(null);
-  }, []);
-
-  const getColumnWidth = ({ index }: { index: number }): number => {
-    const widths = [95, 370, 175];
-    return widths[index];
-  };
+  const getColumnWidth = ({ index }: { index: number }) =>
+    [95, 370, 175][index];
 
   const getRowData = useCallback(
     (index: number) => {
       const start = index * bytesPerRow;
       const end = Math.min(start + bytesPerRow, buffer.length);
-      const bytes = buffer.slice(start, end);
-      const offset = start.toString(16).padStart(8, '0').toUpperCase();
-      return { offset, bytes, start };
+      return {
+        offset: start.toString(16).padStart(8, '0').toUpperCase(),
+        bytes: buffer.slice(start, end),
+        start,
+      };
     },
     [buffer]
   );
 
   const isSelected = useCallback(
-    (byteIndex: number) => {
-      return (
-        startIndex !== null &&
-        endIndex !== null &&
-        byteIndex >= Math.min(startIndex, endIndex) &&
-        byteIndex <= Math.max(startIndex, endIndex)
-      );
-    },
+    (byteIndex: number) =>
+      startIndex !== null &&
+      endIndex !== null &&
+      byteIndex >= Math.min(startIndex, endIndex) &&
+      byteIndex <= Math.max(startIndex, endIndex),
     [startIndex, endIndex]
   );
 
-  const renderHexByte = (
-    byte: number,
-    i: number,
-    start: number
-  ): JSX.Element => {
-    const byteIndex = start + i;
-    const selected = isSelected(byteIndex);
-
-    return (
-      <HexByte
-        key={i}
-        $isEven={i % 2 === 0}
-        $selected={selected}
-        onMouseDown={(e) => handleMouseDown(e, byteIndex)}
-        onMouseEnter={(e) => handleMouseMove(e, byteIndex)}
-        onMouseUp={handleMouseUp}
-        onContextMenu={handleContextMenu}
-      >
-        {byteToHex(byte)}
-      </HexByte>
-    );
-  };
+  const renderHexByte = useCallback(
+    (byte: number, i: number, start: number) => {
+      const byteIndex = start + i;
+      return (
+        <HexByte
+          key={i}
+          $isEven={i % 2 === 0}
+          $selected={isSelected(byteIndex)}
+          onMouseDown={(e) => handleMouseDown(e, byteIndex)}
+          onMouseEnter={(e) => handleMouseMove(e, byteIndex)}
+          onMouseUp={handleMouseUp}
+          onContextMenu={handleContextMenu}
+        >
+          {byteToHex(byte)}
+        </HexByte>
+      );
+    },
+    [
+      isSelected,
+      handleMouseDown,
+      handleMouseMove,
+      handleMouseUp,
+      handleContextMenu,
+    ]
+  );
 
   const renderTextByte = useCallback(
-    (byte: number, i: number, start: number): JSX.Element => {
+    (byte: number, i: number, start: number) => {
       const byteIndex = start + i;
-      const selected = isSelected(byteIndex);
-      const str = byteToChar(byte);
-
+      const str = byteToChar(byte, encoding);
       return (
         <TextByte
           key={i}
           $isDot={str === '.'}
-          $selected={selected}
+          $selected={isSelected(byteIndex)}
           onMouseDown={(e) => handleMouseDown(e, byteIndex)}
           onMouseEnter={(e) => handleMouseMove(e, byteIndex)}
           onMouseUp={handleMouseUp}
@@ -206,36 +204,20 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   const cellRenderer = useCallback(
     ({ columnIndex, key, rowIndex, style }: GridCellProps) => {
       const { offset, bytes, start } = getRowData(rowIndex);
-
       if (columnIndex === 0) {
         return (
           <OffsetCell key={key} style={style}>
             <OffsetByte $selected={isSelected(start)}>{offset}</OffsetByte>
           </OffsetCell>
         );
-      } else if (columnIndex === 1) {
-        const cells: JSX.Element[] = [];
-        bytes.forEach((byte, i) => {
-          cells.push(renderHexByte(byte, i, start));
-        });
-
-        return (
-          <HexCell key={key} style={style}>
-            {cells}
-          </HexCell>
-        );
-      } else {
-        const cells: JSX.Element[] = [];
-        bytes.forEach((byte, i) => {
-          cells.push(renderTextByte(byte, i, start));
-        });
-
-        return (
-          <TextCell key={key} style={style}>
-            {cells}
-          </TextCell>
-        );
       }
+      const renderFn = columnIndex === 1 ? renderHexByte : renderTextByte;
+      const CellComponent = columnIndex === 1 ? HexCell : TextCell;
+      return (
+        <CellComponent key={key} style={style}>
+          {Array.from(bytes).map((byte, i) => renderFn(byte, i, start))}
+        </CellComponent>
+      );
     },
     [getRowData, isSelected, renderHexByte, renderTextByte]
   );
@@ -243,20 +225,16 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   useImperativeHandle(
     ref,
     () => ({
-      findByOffset: async (offset: string): Promise<IndexInfo | null> => {
+      findByOffset: async (offset: string) => {
         if (offset.trim()) {
           const byteOffset = parseInt(offset, 16);
           if (byteOffset >= 0 && byteOffset < buffer.length) {
-            return {
-              index: byteOffset,
-              offset: bytesPerRow,
-            };
+            return { index: byteOffset, offset: bytesPerRow };
           }
         }
         return null;
       },
-
-      findAllByHex: async (hex: string): Promise<IndexInfo[] | null> => {
+      findAllByHex: async (hex: string) => {
         if (hex.trim()) {
           try {
             const pattern = new Uint8Array(
@@ -266,7 +244,6 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
               index: item,
               offset: pattern.length,
             }));
-
             if (result.length > 0) return result;
           } catch (e) {
             console.log(e);
@@ -274,11 +251,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
         }
         return null;
       },
-
-      findAllByAsciiText: async (
-        text: string,
-        ignoreCase: boolean
-      ): Promise<IndexInfo[] | null> => {
+      findAllByAsciiText: async (text: string, ignoreCase: boolean) => {
         if (text.trim()) {
           try {
             const pattern = asciiToBytes(text);
@@ -288,7 +261,6 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
                 offset: pattern.length,
               })
             );
-
             if (result.length > 0) return result;
           } catch (e) {
             console.log(e);
@@ -296,8 +268,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
         }
         return null;
       },
-
-      scrollToIndex: (index: number, offset: number): void => {
+      scrollToIndex: (index: number, offset: number) => {
         const rowIndex = Math.floor(index / bytesPerRow);
         setScrollIndex(rowIndex);
         setSelectionRange({
@@ -326,32 +297,8 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     };
   }, [contextMenu]);
 
-  // 인코딩에 따라 문자 변환
-  const byteToChar = (byte: number): string => {
-    try {
-      let decoder: TextDecoder;
-      if (encoding === 'ascii') {
-        // ASCII: 0x20~0x7E만 표시
-        if (byte >= 0x20 && byte <= 0x7e) return String.fromCharCode(byte);
-        return '.';
-      }
-      decoder = new TextDecoder(encoding as 'windows-1252' | 'utf-8' | 'ascii');
-      const char = decoder.decode(new Uint8Array([byte]));
-      const code = char.charCodeAt(0);
-      if (
-        (encoding === 'windows-1252' &&
-          ((code >= 0x20 && code <= 0x7e) || (code >= 0xa0 && code <= 0xff))) ||
-        (encoding === 'utf-8' && code >= 0x20)
-      ) {
-        return char;
-      }
-    } catch (e) {}
-    return '.';
-  };
-
   return (
     <>
-      {/* 인코딩 옵션 셀렉트 박스 */}
       <div style={{ marginBottom: 8 }}>
         <label>
           인코딩:&nbsp;
@@ -373,18 +320,13 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
           <GridDiv
             height={height}
             width={width}
-            // 가로
             columnCount={columnCount}
             columnWidth={getColumnWidth}
-            // 세로
             rowCount={rowCount}
-            rowHeight={rowHeight}
-            // 랜더링 설정
+            rowHeight={30}
             cellRenderer={cellRenderer}
-            // 셀 고정
             scrollToRow={scrollIndex}
             scrollToAlignment={'start'}
-            // 오버 스캔
             overscanColumnCount={2}
             overscanRowCount={20}
           />
