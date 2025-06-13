@@ -1,4 +1,4 @@
-import { ExifRow, fileinfo, TabData, TabKey } from '@/types';
+import { TabData, TabKey } from '@/types';
 import React, {
   createContext,
   useContext,
@@ -18,6 +18,8 @@ interface TabDataContextType {
   getNewKey: () => TabKey;
   activeData: TabData[TabKey];
   isEmpty: boolean;
+  encoding: string;
+  setEncoding: (encoding: string) => void;
 }
 
 const TabDataContext = createContext<TabDataContextType | undefined>(undefined);
@@ -28,6 +30,7 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [tabData, setTabData] = useState<TabData>({});
   const [activeKey, setActiveKey] = useState<TabKey>('');
+  const [encoding, setEncoding] = useState<string>('windows-1252');
   const newTabIndex = useRef(0);
 
   const getNewKey = (): TabKey => {
@@ -48,6 +51,8 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
         getNewKey,
         activeData,
         isEmpty,
+        encoding,
+        setEncoding,
       }}
     >
       {children}

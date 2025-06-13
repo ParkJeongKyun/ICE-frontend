@@ -43,24 +43,14 @@ const byteToHex = (byte: number): string => {
   return ('0' + byte.toString(16)).slice(-2).toUpperCase();
 };
 
-const byteToChar = (byte: number): string => {
-  const decoder = new TextDecoder('windows-1252');
-  const byteArr = new Uint8Array([byte]);
-
-  try {
-    const char = decoder.decode(byteArr);
-    const code = char.charCodeAt(0);
-
-    if ((code >= 0x20 && code <= 0x7e) || (code >= 0xa0 && code <= 0xff)) {
-      return char;
-    }
-  } catch (e) {}
-
-  return '.';
-};
+const encodingOptions = [
+  { value: 'windows-1252', label: 'Windows-1252' },
+  { value: 'ascii', label: 'ASCII' },
+  { value: 'utf-8', label: 'UTF-8' },
+];
 
 const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
-  const { activeData } = useTabData();
+  const { activeData, encoding, setEncoding } = useTabData();
   const [scrollIndex, setScrollIndex] = React.useState<number>(0);
   const [isDragging, setIsDragging] = useState(false);
   const { selectionRange, setSelectionRange } = useSelection();
@@ -183,68 +173,72 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     );
   };
 
-  const renderTextByte = (
-    byte: number,
-    i: number,
-    start: number
-  ): JSX.Element => {
-    const byteIndex = start + i;
-    const selected = isSelected(byteIndex);
-    const str = byteToChar(byte);
-
-    return (
-      <TextByte
-        key={i}
-        $isDot={str === '.'}
-        $selected={selected}
-        onMouseDown={(e) => handleMouseDown(e, byteIndex)}
-        onMouseEnter={(e) => handleMouseMove(e, byteIndex)}
-        onMouseUp={handleMouseUp}
-        onContextMenu={handleContextMenu}
-      >
-        {str}
-      </TextByte>
-    );
-  };
-
-  const cellRenderer = ({
-    columnIndex,
-    key,
-    rowIndex,
-    style,
-  }: GridCellProps) => {
-    const { offset, bytes, start } = getRowData(rowIndex);
-
-    if (columnIndex === 0) {
-      return (
-        <OffsetCell key={key} style={style}>
-          <OffsetByte $selected={isSelected(start)}>{offset}</OffsetByte>
-        </OffsetCell>
-      );
-    } else if (columnIndex === 1) {
-      const cells: JSX.Element[] = [];
-      bytes.forEach((byte, i) => {
-        cells.push(renderHexByte(byte, i, start));
-      });
+  const renderTextByte = useCallback(
+    (byte: number, i: number, start: number): JSX.Element => {
+      const byteIndex = start + i;
+      const selected = isSelected(byteIndex);
+      const str = byteToChar(byte);
 
       return (
-        <HexCell key={key} style={style}>
-          {cells}
-        </HexCell>
+        <TextByte
+          key={i}
+          $isDot={str === '.'}
+          $selected={selected}
+          onMouseDown={(e) => handleMouseDown(e, byteIndex)}
+          onMouseEnter={(e) => handleMouseMove(e, byteIndex)}
+          onMouseUp={handleMouseUp}
+          onContextMenu={handleContextMenu}
+        >
+          {str}
+        </TextByte>
       );
-    } else {
-      const cells: JSX.Element[] = [];
-      bytes.forEach((byte, i) => {
-        cells.push(renderTextByte(byte, i, start));
-      });
+    },
+    [
+      isSelected,
+      handleMouseDown,
+      handleMouseMove,
+      handleMouseUp,
+      handleContextMenu,
+      encoding,
+    ]
+  );
 
-      return (
-        <TextCell key={key} style={style}>
-          {cells}
-        </TextCell>
-      );
-    }
-  };
+  const cellRenderer = useCallback(
+    ({ columnIndex, key, rowIndex, style }: GridCellProps) => {
+      const { offset, bytes, start } = getRowData(rowIndex);
+
+      if (columnIndex === 0) {
+        return (
+          <OffsetCell key={key} style={style}>
+            <OffsetByte $selected={isSelected(start)}>{offset}</OffsetByte>
+          </OffsetCell>
+        );
+      } else if (columnIndex === 1) {
+        const cells: JSX.Element[] = [];
+        bytes.forEach((byte, i) => {
+          cells.push(renderHexByte(byte, i, start));
+        });
+
+        return (
+          <HexCell key={key} style={style}>
+            {cells}
+          </HexCell>
+        );
+      } else {
+        const cells: JSX.Element[] = [];
+        bytes.forEach((byte, i) => {
+          cells.push(renderTextByte(byte, i, start));
+        });
+
+        return (
+          <TextCell key={key} style={style}>
+            {cells}
+          </TextCell>
+        );
+      }
+    },
+    [getRowData, isSelected, renderHexByte, renderTextByte]
+  );
 
   useImperativeHandle(
     ref,
@@ -332,8 +326,48 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     };
   }, [contextMenu]);
 
+  // 인코딩에 따라 문자 변환
+  const byteToChar = (byte: number): string => {
+    try {
+      let decoder: TextDecoder;
+      if (encoding === 'ascii') {
+        // ASCII: 0x20~0x7E만 표시
+        if (byte >= 0x20 && byte <= 0x7e) return String.fromCharCode(byte);
+        return '.';
+      }
+      decoder = new TextDecoder(encoding as 'windows-1252' | 'utf-8' | 'ascii');
+      const char = decoder.decode(new Uint8Array([byte]));
+      const code = char.charCodeAt(0);
+      if (
+        (encoding === 'windows-1252' &&
+          ((code >= 0x20 && code <= 0x7e) || (code >= 0xa0 && code <= 0xff))) ||
+        (encoding === 'utf-8' && code >= 0x20)
+      ) {
+        return char;
+      }
+    } catch (e) {}
+    return '.';
+  };
+
   return (
     <>
+      {/* 인코딩 옵션 셀렉트 박스 */}
+      <div style={{ marginBottom: 8 }}>
+        <label>
+          인코딩:&nbsp;
+          <select
+            value={encoding}
+            onChange={(e) => setEncoding(e.target.value)}
+            style={{ fontSize: '1rem' }}
+          >
+            {encodingOptions.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
       <AutoSizer>
         {({ height, width }: { height: number; width: number }) => (
           <GridDiv
