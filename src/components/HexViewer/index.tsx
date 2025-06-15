@@ -303,6 +303,52 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     };
   }, [isDragging]);
 
+  // HEX 문자열로 복사
+  const handleCopyHex = useCallback(async () => {
+    if (
+      selectionRange.start !== null &&
+      selectionRange.end !== null &&
+      buffer &&
+      buffer.length > 0
+    ) {
+      const start = Math.min(selectionRange.start, selectionRange.end);
+      const end = Math.max(selectionRange.start, selectionRange.end) + 1;
+      const selected = buffer.slice(start, end);
+      try {
+        const hex = Array.from(selected)
+          .map((b) => b.toString(16).padStart(2, '0'))
+          .join(' ');
+        await navigator.clipboard.writeText(hex);
+      } catch {
+        console.error('HEX 문자열 복사 실패');
+      }
+    }
+    setContextMenu(null);
+  }, [selectionRange, buffer]);
+
+  // 텍스트(ASCII)로 복사
+  const handleCopyText = useCallback(async () => {
+    if (
+      selectionRange.start !== null &&
+      selectionRange.end !== null &&
+      buffer &&
+      buffer.length > 0
+    ) {
+      const start = Math.min(selectionRange.start, selectionRange.end);
+      const end = Math.max(selectionRange.start, selectionRange.end) + 1;
+      const selected = buffer.slice(start, end);
+      try {
+        const text = Array.from(selected)
+          .map((b) => (b >= 0x20 && b <= 0x7e ? String.fromCharCode(b) : '.'))
+          .join('');
+        await navigator.clipboard.writeText(text);
+      } catch {
+        console.error('텍스트 복사 실패');
+      }
+    }
+    setContextMenu(null);
+  }, [selectionRange, buffer]);
+
   return (
     <>
       <AutoSizer>
@@ -333,9 +379,12 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
           onBlur={closeContextMenu}
         >
           <ContextMenuList>
-            <ContextMenuItem>Option 1</ContextMenuItem>
-            <ContextMenuItem>Option 2</ContextMenuItem>
-            <ContextMenuItem>Option 3</ContextMenuItem>
+            <ContextMenuItem onClick={handleCopyHex}>
+              Copy (Hex String)
+            </ContextMenuItem>
+            <ContextMenuItem onClick={handleCopyText}>
+              Copy (ASCII Text)
+            </ContextMenuItem>
           </ContextMenuList>
         </ContextMenu>
       )}

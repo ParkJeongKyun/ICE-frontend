@@ -151,15 +151,16 @@ export const ContextMenu = styled.div`
 export const ContextMenuList = styled.ul`
   list-style: none;
   margin: 0;
-  padding: 8px 0;
+  padding: 5px 5px;
 `;
 
 export const ContextMenuItem = styled.li`
-  padding: 2px 5px;
+  padding: 2.5px 10px;
   cursor: pointer;
   color: var(--main-color);
   background: transparent;
   font-size: 0.75rem;
+  text-align: left;
   &:hover {
     background: var(--main-hover-color);
     color: var(--ice-main-color);
