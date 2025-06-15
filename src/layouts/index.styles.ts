@@ -286,3 +286,31 @@ export const IceMobileBottom = styled.div`
   height: 40%;
   border-top: 1px solid var(--main-line-color);
 `;
+
+// 셀렉트 박스 스타일
+export const IceSelect = styled.select`
+  width: 100px;
+  outline: none;
+  color: var(--main-color);
+  border: none;
+  background-color: var(--main-bg-color);
+  font-size: 0.75rem;
+  min-height: 25px;
+  border-radius: 5px;
+  &:focus,
+  &:hover {
+    outline: none;
+    border: none;
+    background-color: var(--main-hover-color_1);
+  }
+`;
+
+export const IceFooterRight = styled.div`
+  margin: 0px 10px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+
+  font-size: 0.75rem;
+  font-weight: 600;
+`;

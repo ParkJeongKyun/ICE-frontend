@@ -19,6 +19,8 @@ import {
   SelectInfo,
   Separator,
   ProcessMsg,
+  IceSelect,
+  IceFooterRight,
 } from './index.styles';
 import MenuBtnZone, { MenuBtnZoneRef } from '@/components/MenuBtnZone';
 import TabWindow from '@/components/TabWindow';
@@ -36,8 +38,14 @@ import { isMobile } from 'react-device-detect';
 import Yara from '@/components/Yara';
 import { useTabData } from '@/contexts/TabDataContext';
 
+const encodingOptions = [
+  { value: 'windows-1252', label: 'Windows-1252' },
+  { value: 'ascii', label: 'ASCII' },
+  { value: 'utf-8', label: 'UTF-8' },
+];
+
 const MainLayout: React.FC = () => {
-  const { isEmpty } = useTabData();
+  const { isEmpty, encoding, setEncoding } = useTabData();
   // Hex뷰어 Ref
   const hexViewerRef = useRef<HexViewerRef>(null);
   const menuBtnZoneRef = useRef<MenuBtnZoneRef>(null);
@@ -265,7 +273,24 @@ const MainLayout: React.FC = () => {
             </>
           )}
         </SelectInfo>
-        <IceCopyRight>{import.meta.env.VITE_APP_COPYRIGHT}</IceCopyRight>
+        <IceFooterRight>
+          {!isEmpty && (
+            <div>
+              인코딩:
+              <IceSelect
+                value={encoding}
+                onChange={(e) => setEncoding(e.target.value)}
+              >
+                {encodingOptions.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </IceSelect>
+            </div>
+          )}
+          <IceCopyRight>{import.meta.env.VITE_APP_COPYRIGHT}</IceCopyRight>
+        </IceFooterRight>
       </IceFooter>
 
       <Modal title={modalTitle} isOpen={isModalOpen} onClose={closeModal}>

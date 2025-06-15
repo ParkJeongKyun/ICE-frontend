@@ -39,12 +39,6 @@ export interface HexViewerRef {
   scrollToIndex: (rowIndex: number, offset: number) => void;
 }
 
-const encodingOptions = [
-  { value: 'windows-1252', label: 'Windows-1252' },
-  { value: 'ascii', label: 'ASCII' },
-  { value: 'utf-8', label: 'UTF-8' },
-];
-
 const byteToHex = (byte: number): string =>
   ('0' + byte.toString(16)).slice(-2).toUpperCase();
 
@@ -68,7 +62,7 @@ const byteToChar = (byte: number, encoding: string): string => {
 };
 
 const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
-  const { activeData, encoding, setEncoding } = useTabData();
+  const { activeData, encoding } = useTabData();
   const [scrollIndex, setScrollIndex] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const { selectionRange, setSelectionRange } = useSelection();
@@ -311,22 +305,6 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
 
   return (
     <>
-      <div style={{ marginBottom: 8 }}>
-        <label>
-          인코딩:&nbsp;
-          <select
-            value={encoding}
-            onChange={(e) => setEncoding(e.target.value)}
-            style={{ fontSize: '1rem' }}
-          >
-            {encodingOptions.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
-        </label>
-      </div>
       <AutoSizer>
         {({ height, width }: { height: number; width: number }) => (
           <GridDiv
