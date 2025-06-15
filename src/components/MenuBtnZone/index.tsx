@@ -54,23 +54,99 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
         message: '',
       });
       const readFileAsArrayBuffer = (file: File): Promise<ArrayBuffer> => {
+        // EXIF는 파일 앞/끝부분(각 256KB)에서 주로 발견됨. 파일이 512KB 미만이면 전체를 읽음
+        const EXIF_READ_SIZE = 256 * 1024; // 256KB
+        return new Promise((resolve, reject) => {
+          if (file.size <= EXIF_READ_SIZE * 2) {
+            // 파일이 512KB 이하라면 전체 파일 읽기
+            const reader = new FileReader();
+            reader.onload = (event) => {
+              if (event.target?.result instanceof ArrayBuffer) {
+                resolve(event.target.result);
+              } else {
+                reject(new Error('Failed to read file as ArrayBuffer'));
+              }
+            };
+            reader.onerror = (error) => reject(error);
+            reader.readAsArrayBuffer(file);
+          } else {
+            // 앞 256KB + 끝 256KB 읽어서 합침
+            const headBlob = file.slice(0, EXIF_READ_SIZE);
+            const tailBlob = file.slice(file.size - EXIF_READ_SIZE, file.size);
+            const headReader = new FileReader();
+            const tailReader = new FileReader();
+            let headBuffer: ArrayBuffer | null = null;
+            let tailBuffer: ArrayBuffer | null = null;
+
+            headReader.onload = () => {
+              if (headReader.result instanceof ArrayBuffer) {
+                headBuffer = headReader.result;
+                if (tailBuffer) {
+                  // 둘 다 읽었으면 합쳐서 반환
+                  const total = new Uint8Array(EXIF_READ_SIZE * 2);
+                  total.set(new Uint8Array(headBuffer), 0);
+                  total.set(new Uint8Array(tailBuffer), EXIF_READ_SIZE);
+                  resolve(total.buffer);
+                }
+              } else {
+                reject(new Error('Failed to read file head as ArrayBuffer'));
+              }
+            };
+            tailReader.onload = () => {
+              if (tailReader.result instanceof ArrayBuffer) {
+                tailBuffer = tailReader.result;
+                if (headBuffer) {
+                  // 둘 다 읽었으면 합쳐서 반환
+                  const total = new Uint8Array(EXIF_READ_SIZE * 2);
+                  total.set(new Uint8Array(headBuffer), 0);
+                  total.set(new Uint8Array(tailBuffer), EXIF_READ_SIZE);
+                  resolve(total.buffer);
+                }
+              } else {
+                reject(new Error('Failed to read file tail as ArrayBuffer'));
+              }
+            };
+            headReader.onerror = (error) => reject(error);
+            tailReader.onerror = (error) => reject(error);
+            headReader.readAsArrayBuffer(headBlob);
+            tailReader.readAsArrayBuffer(tailBlob);
+          }
+        });
+      };
+
+      // 전체 파일을 읽어서 Uint8Array로 저장 (1GB 이상인 경우 1GB까지만)
+      const readWholeFileAsUint8Array = (file: File): Promise<Uint8Array> => {
+        const MAX_SIZE = 1 * 1024 * 1024 * 1024; // 1GB
         return new Promise((resolve, reject) => {
           const reader = new FileReader();
           reader.onload = (event) => {
             if (event.target?.result instanceof ArrayBuffer) {
-              resolve(event.target.result);
+              let arrayBuffer = event.target.result as ArrayBuffer;
+              if (arrayBuffer.byteLength > MAX_SIZE) {
+                // 1GB 초과시 앞부분만 사용
+                arrayBuffer = arrayBuffer.slice(0, MAX_SIZE);
+              }
+              resolve(new Uint8Array(arrayBuffer));
             } else {
-              reject(new Error('Failed to read file as ArrayBuffer'));
+              reject(new Error('Failed to read file as Uint8Array'));
             }
           };
           reader.onerror = (error) => reject(error);
-          reader.readAsArrayBuffer(file);
+          if (file.size > MAX_SIZE) {
+            // 1GB 초과시 앞부분만 읽기
+            const blob = file.slice(0, MAX_SIZE);
+            reader.readAsArrayBuffer(blob);
+          } else {
+            reader.readAsArrayBuffer(file);
+          }
         });
       };
 
       try {
         const arrayBuffer = await readFileAsArrayBuffer(file);
-        const buffer = new Uint8Array(arrayBuffer);
+        const buffer = await readWholeFileAsUint8Array(file); // 전체 파일 데이터
+        // wasm(goFunc)에는 앞부분만 전달
+        const exifBuffer = new Uint8Array(arrayBuffer);
         let parsedRows: ExifRow[] | null = null;
         let thumbnail: string = '';
         let lat: string = 'NaN';
@@ -88,7 +164,7 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
         };
         setActiveKey(newActiveKey);
 
-        const result = await window.goFunc(buffer);
+        const result = await window.goFunc(exifBuffer);
         if (result.error) {
           console.error(result);
         }
@@ -165,7 +241,7 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
             },
             thumbnail: thumbnail,
             rows: parsedRows,
-            buffer: buffer,
+            buffer: buffer, // 전체 파일 데이터 저장
           },
         }));
       } catch (error) {
