@@ -47,6 +47,7 @@ jobs:
 
           # dist 파일 복사
           cp -r ../dist/* ./
+          cp ./index.html ./404.html
           git add .
           git commit -m "Automated Deployment: $(date '+%Y-%m-%d %H:%M:%S')"
           git push origin master
