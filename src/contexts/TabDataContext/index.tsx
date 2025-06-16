@@ -9,6 +9,9 @@ import React, {
   useMemo,
 } from 'react';
 
+// 인코딩 타입 정의
+export type EncodingType = 'latin1' | 'windows-1252' | 'ascii' | 'utf-8';
+
 // 컨텍스트 생성
 interface TabDataContextType {
   tabData: TabData;
@@ -18,11 +21,18 @@ interface TabDataContextType {
   getNewKey: () => TabKey;
   activeData: TabData[TabKey];
   isEmpty: boolean;
-  encoding: string;
-  setEncoding: (encoding: string) => void;
+  encoding: EncodingType;
+  setEncoding: (encoding: EncodingType) => void;
 }
 
 const TabDataContext = createContext<TabDataContextType | undefined>(undefined);
+
+export const encodingOptions = [
+  { value: 'latin1', label: 'ISO-8859-1' },
+  { value: 'windows-1252', label: 'Windows-1252' },
+  { value: 'ascii', label: 'ASCII' },
+  { value: 'utf-8', label: 'UTF-8' },
+];
 
 // 컨텍스트 프로바이더 컴포넌트
 export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
@@ -30,7 +40,7 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [tabData, setTabData] = useState<TabData>({});
   const [activeKey, setActiveKey] = useState<TabKey>('');
-  const [encoding, setEncoding] = useState<string>('windows-1252');
+  const [encoding, setEncoding] = useState<EncodingType>('windows-1252');
   const newTabIndex = useRef(0);
 
   const getNewKey = (): TabKey => {

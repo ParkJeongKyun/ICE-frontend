@@ -22,7 +22,7 @@ import {
 } from './index.styles';
 import { asciiToBytes, findPatternIndices } from '@/utils/byteSearch';
 import { useSelection } from '@/contexts/SelectionContext';
-import { useTabData } from '@/contexts/TabDataContext';
+import { useTabData, EncodingType } from '@/contexts/TabDataContext';
 
 export interface IndexInfo {
   index: number;
@@ -42,18 +42,20 @@ export interface HexViewerRef {
 const byteToHex = (byte: number): string =>
   ('0' + byte.toString(16)).slice(-2).toUpperCase();
 
-const byteToChar = (byte: number, encoding: string): string => {
+const byteToChar = (byte: number, encoding: EncodingType): string => {
+  // latin1, iso-8859-1, windows-1252, ascii, utf-8 지원
   if (encoding === 'ascii') {
     return byte >= 0x20 && byte <= 0x7e ? String.fromCharCode(byte) : '.';
   }
   try {
-    const decoder = new TextDecoder(encoding as 'windows-1252' | 'utf-8');
+    const decoder = new TextDecoder(encoding);
     const char = decoder.decode(new Uint8Array([byte]));
     const code = char.charCodeAt(0);
     if (
       (encoding === 'windows-1252' &&
         ((code >= 0x20 && code <= 0x7e) || (code >= 0xa0 && code <= 0xff))) ||
-      (encoding === 'utf-8' && code >= 0x20)
+      (encoding === 'utf-8' && code >= 0x20) ||
+      (encoding === 'latin1' && code >= 0x20 && code <= 0xff)
     ) {
       return char;
     }

@@ -36,13 +36,11 @@ import { useSelection } from '@/contexts/SelectionContext';
 import Home from '@/components/Home';
 import { isMobile } from 'react-device-detect';
 import Yara from '@/components/Yara';
-import { useTabData } from '@/contexts/TabDataContext';
-
-const encodingOptions = [
-  { value: 'windows-1252', label: 'Windows-1252' },
-  { value: 'ascii', label: 'ASCII' },
-  { value: 'utf-8', label: 'UTF-8' },
-];
+import {
+  encodingOptions,
+  useTabData,
+  EncodingType,
+} from '@/contexts/TabDataContext';
 
 const MainLayout: React.FC = () => {
   const { isEmpty, encoding, setEncoding } = useTabData();
@@ -279,7 +277,7 @@ const MainLayout: React.FC = () => {
               인코딩:
               <IceSelect
                 value={encoding}
-                onChange={(e) => setEncoding(e.target.value)}
+                onChange={(e) => setEncoding(e.target.value as EncodingType)}
               >
                 {encodingOptions.map((opt) => (
                   <option key={opt.value} value={opt.value}>
