@@ -59,3 +59,38 @@ export const ScrollbarThumb = styled.div<{
   opacity: 0.7;
   transition: ${({ dragging }) => (dragging ? 'none' : 'opacity 0.2s')};
 `;
+
+// 컨텍스트 메뉴
+export const ContextMenu = styled.div`
+  position: absolute;
+  background: #fff;
+  border: 1px solid #ccc;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  min-width: 120px;
+  border-radius: 4px;
+  padding: 0;
+  user-select: none;
+  outline: none;
+`;
+
+// 컨텍스트 메뉴 리스트
+export const ContextMenuList = styled.ul`
+  list-style: none;
+  margin: 0;
+  padding: 5px 5px;
+`;
+
+// 컨텍스트 메뉴 아이템
+export const ContextMenuItem = styled.li`
+  padding: 2.5px 10px;
+  cursor: pointer;
+  color: #222;
+  background: transparent;
+  font-size: 0.85rem;
+  text-align: left;
+  &:hover {
+    background: #f0f0f0;
+    color: #1976d2;
+  }
+`;

@@ -14,6 +14,9 @@ import {
   StyledCanvas,
   VirtualScrollbar,
   ScrollbarThumb,
+  ContextMenu,
+  ContextMenuList,
+  ContextMenuItem,
 } from './index.styles';
 
 export interface IndexInfo {
@@ -39,6 +42,9 @@ const hexStartX = offsetWidth + 10;
 const hexByteWidth = 26;
 const asciiStartX = hexStartX + bytesPerRow * hexByteWidth + 20;
 const asciiCharWidth = 12;
+
+// 푸터 높이(px) - 실제 푸터 높이에 맞게 조정
+// const footerHeight = 48;
 
 function byteToHex(byte: number): string {
   return ('0' + byte.toString(16)).slice(-2).toUpperCase();
@@ -132,16 +138,23 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   const [scrollbarStartY, setScrollbarStartY] = useState(0);
   const [scrollbarStartRow, setScrollbarStartRow] = useState(0);
 
-  // 전체 row, 보이는 row
+  // 전체 row, 보이는 row (100% height 기준)
   const visibleRows = Math.ceil(canvasSize.height / rowHeight);
   const maxFirstRow = Math.max(0, rowCount - visibleRows);
 
-  // 스크롤바 thumb 크기/위치 계산
+  // 스크롤바 thumb 크기/위치 계산 (100% height 기준)
+  // 수정: thumb가 영역을 벗어나지 않도록 top 계산을 max 값으로 제한
+  const scrollbarAreaHeight = canvasSize.height;
   const scrollbarHeight = Math.max(
     30,
-    (visibleRows / rowCount) * canvasSize.height
+    (visibleRows / rowCount) * scrollbarAreaHeight
   );
-  const scrollbarTop = (firstRow / rowCount) * canvasSize.height;
+  // thumb가 영역을 벗어나지 않게 보정
+  const maxScrollbarTop = scrollbarAreaHeight - scrollbarHeight;
+  const scrollbarTop = Math.min(
+    maxScrollbarTop,
+    (firstRow / maxFirstRow) * maxScrollbarTop || 0
+  );
 
   // wheel 이벤트로 한 줄씩 위/아래로 이동
   const handleWheel = useCallback(
@@ -470,8 +483,9 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
           onContextMenu={handleContextMenu}
         />
       </CanvasArea>
+      {/* 스크롤바 flex row로 우측에 고정, 100% height */}
       {rowCount > visibleRows && (
-        <VirtualScrollbar>
+        <VirtualScrollbar style={{ height: '100%', alignSelf: 'stretch' }}>
           <ScrollbarThumb
             ref={scrollbarRef}
             dragging={scrollbarDragging}
@@ -482,57 +496,28 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
         </VirtualScrollbar>
       )}
       {contextMenu && (
-        <div
+        <ContextMenu
           ref={contextMenuRef}
           style={{
-            position: 'absolute',
             top:
               contextMenu.y -
               (containerRef.current?.getBoundingClientRect().top || 0),
             left:
               contextMenu.x -
               (containerRef.current?.getBoundingClientRect().left || 0),
-            background: '#fff',
-            border: '1px solid #ccc',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-            zIndex: 1000,
-            minWidth: 120,
-            borderRadius: 4,
-            padding: 0,
-            userSelect: 'none',
           }}
           onClick={closeContextMenu}
           onBlur={closeContextMenu}
         >
-          <ul style={{ listStyle: 'none', margin: 0, padding: '5px 5px' }}>
-            <li
-              style={{
-                padding: '2.5px 10px',
-                cursor: 'pointer',
-                color: '#222',
-                background: 'transparent',
-                fontSize: '0.85rem',
-                textAlign: 'left',
-              }}
-              onClick={handleCopyHex}
-            >
+          <ContextMenuList>
+            <ContextMenuItem onClick={handleCopyHex}>
               Copy (Hex String)
-            </li>
-            <li
-              style={{
-                padding: '2.5px 10px',
-                cursor: 'pointer',
-                color: '#222',
-                background: 'transparent',
-                fontSize: '0.85rem',
-                textAlign: 'left',
-              }}
-              onClick={handleCopyText}
-            >
+            </ContextMenuItem>
+            <ContextMenuItem onClick={handleCopyText}>
               Copy (ASCII Text)
-            </li>
-          </ul>
-        </div>
+            </ContextMenuItem>
+          </ContextMenuList>
+        </ContextMenu>
       )}
     </CanvasContainer>
   );
