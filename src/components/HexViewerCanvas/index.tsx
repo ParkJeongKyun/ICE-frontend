@@ -69,6 +69,10 @@ function byteToChar(byte: number, encoding: EncodingType): string {
   return '.';
 }
 
+function getDevicePixelRatio() {
+  return window.devicePixelRatio || 1;
+}
+
 const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   const { activeData, encoding } = useTabData();
   const buffer = activeData.buffer;
@@ -115,9 +119,10 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   useEffect(() => {
     function handleResize() {
       if (containerRef.current) {
+        const dpr = getDevicePixelRatio();
         setCanvasSize({
-          width: containerRef.current.clientWidth,
-          height: containerRef.current.clientHeight,
+          width: Math.floor(containerRef.current.clientWidth * dpr),
+          height: Math.floor(containerRef.current.clientHeight), // dpr 곱하지 않음
         });
       }
     }
@@ -226,8 +231,13 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     const canvasSize = canvasSizeRef.current;
     const selectionRange = selectionRangeRef.current;
 
+    // devicePixelRatio 적용 (가로만)
+    const dpr = getDevicePixelRatio();
+    ctx.setTransform(1, 0, 0, 1, 0, 0); // reset transform
     ctx.clearRect(0, 0, canvasSize.width, canvasSize.height);
     ctx.save();
+    ctx.scale(dpr, 1); // 가로만 스케일
+
     ctx.font = font;
     ctx.textBaseline = 'top';
 
@@ -477,6 +487,10 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
           ref={canvasRef}
           width={canvasSize.width}
           height={canvasSize.height}
+          style={{
+            width: `${canvasSize.width / getDevicePixelRatio()}px`,
+            height: `${canvasSize.height}px`, // dpr 나누지 않음
+          }}
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
