@@ -8,6 +8,13 @@ import React, {
 } from 'react';
 import { useSelection } from '@/contexts/SelectionContext';
 import { useTabData, EncodingType } from '@/contexts/TabDataContext';
+import {
+  CanvasContainer,
+  CanvasArea,
+  StyledCanvas,
+  VirtualScrollbar,
+  ScrollbarThumb,
+} from './index.styles';
 
 export interface IndexInfo {
   index: number;
@@ -451,79 +458,29 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   );
 
   return (
-    <div
-      ref={containerRef}
-      style={{
-        width: '100%',
-        height: '100%',
-        overflow: 'hidden',
-        background: '#fff',
-        position: 'relative',
-      }}
-      onWheel={handleWheel}
-      tabIndex={0}
-    >
-      <div
-        style={{
-          width: '100%',
-          height: '100%',
-          position: 'relative',
-        }}
-      >
-        <canvas
+    <CanvasContainer ref={containerRef} onWheel={handleWheel} tabIndex={0}>
+      <CanvasArea>
+        <StyledCanvas
           ref={canvasRef}
           width={canvasSize.width}
           height={canvasSize.height}
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            display: 'block',
-            cursor: 'text',
-            pointerEvents: 'auto',
-            willChange: 'transform',
-          }}
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
           onContextMenu={handleContextMenu}
         />
-        {/* 가상 스크롤바 */}
-        {rowCount > visibleRows && (
-          <div
-            style={{
-              position: 'absolute',
-              top: 0,
-              right: 2,
-              width: 10,
-              height: '100%',
-              background: 'rgba(0,0,0,0.04)',
-              borderRadius: 5,
-              zIndex: 10,
-              userSelect: 'none',
-            }}
-          >
-            <div
-              ref={scrollbarRef}
-              style={{
-                position: 'absolute',
-                left: 0,
-                width: '100%',
-                height: `${scrollbarHeight}px`,
-                top: `${scrollbarTop}px`,
-                background: '#bbb',
-                borderRadius: 5,
-                cursor: 'pointer',
-                opacity: 0.7,
-                transition: scrollbarDragging ? 'none' : 'opacity 0.2s',
-              }}
-              onMouseDown={handleScrollbarMouseDown}
-            />
-          </div>
-        )}
-      </div>
+      </CanvasArea>
+      {rowCount > visibleRows && (
+        <VirtualScrollbar>
+          <ScrollbarThumb
+            ref={scrollbarRef}
+            dragging={scrollbarDragging}
+            height={scrollbarHeight}
+            top={scrollbarTop}
+            onMouseDown={handleScrollbarMouseDown}
+          />
+        </VirtualScrollbar>
+      )}
       {contextMenu && (
         <div
           ref={contextMenuRef}
@@ -577,7 +534,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
           </ul>
         </div>
       )}
-    </div>
+    </CanvasContainer>
   );
 };
 
