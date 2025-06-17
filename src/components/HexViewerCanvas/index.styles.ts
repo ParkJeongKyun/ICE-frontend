@@ -5,7 +5,7 @@ export const CanvasContainer = styled.div`
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background: #fff;
+  background: var(--main-bg-color);
   position: relative;
   display: flex;
   flex-direction: row;
@@ -33,10 +33,9 @@ export const StyledCanvas = styled.canvas`
 
 // 가상 스크롤바
 export const VirtualScrollbar = styled.div`
-  width: 14px;
+  width: 10px;
   height: 100%;
-  background: rgba(0, 0, 0, 0.04);
-  border-radius: 7px;
+  background-color: transparent;
   margin-left: 2px;
   display: flex;
   align-items: flex-start;
@@ -53,8 +52,7 @@ export const ScrollbarThumb = styled.div<{
   width: 100%;
   height: ${({ height }) => height}px;
   margin-top: ${({ top }) => top}px;
-  background: #bbb;
-  border-radius: 7px;
+  background-color: rgba(255, 255, 255, 0.3);
   cursor: pointer;
   opacity: 0.7;
   transition: ${({ dragging }) => (dragging ? 'none' : 'opacity 0.2s')};
@@ -63,8 +61,8 @@ export const ScrollbarThumb = styled.div<{
 // 컨텍스트 메뉴
 export const ContextMenu = styled.div`
   position: absolute;
-  background: #fff;
-  border: 1px solid #ccc;
+  background-color: var(--main-bg-color);
+  border: 1px solid var(--main-line-color);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   z-index: 1000;
   min-width: 120px;
@@ -85,12 +83,12 @@ export const ContextMenuList = styled.ul`
 export const ContextMenuItem = styled.li`
   padding: 2.5px 10px;
   cursor: pointer;
-  color: #222;
+  color: var(--main-color);
   background: transparent;
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   text-align: left;
   &:hover {
-    background: #f0f0f0;
-    color: #1976d2;
+    background: var(--main-hover-color);
+    color: var(--ice-main-color);
   }
 `;
