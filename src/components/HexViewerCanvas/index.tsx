@@ -164,7 +164,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   // wheel 이벤트로 한 줄씩 위/아래로 이동
   const handleWheel = useCallback(
     (e: React.WheelEvent<HTMLDivElement>) => {
-      e.preventDefault();
+      // e.preventDefault();
       let nextRow = firstRow;
       if (e.deltaY > 0) {
         // 아래로
@@ -276,7 +276,8 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
           ctx.fillRect(xHex - 2, y + 2, hexByteWidth - 2, rowHeight - 4);
           ctx.fillStyle = '#fff';
         } else {
-          ctx.fillStyle = i % 2 === 0 ? '#222' : '#444';
+          ctx.fillStyle =
+            i % 2 === 0 ? 'var(--main-color_1)' : 'var(--main-color)';
         }
         ctx.fillText(byteToHex(buffer[idx]), xHex, y + 4);
 
@@ -288,7 +289,8 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
           ctx.fillRect(xAsc - 1, y + 2, asciiCharWidth - 2, rowHeight - 4);
           ctx.fillStyle = '#fff';
         } else {
-          ctx.fillStyle = char === '.' ? '#bbb' : '#222';
+          ctx.fillStyle =
+            char === '.' ? 'var(--main-disabled-color)' : 'var(--main-color)';
         }
         ctx.fillText(char, xAsc, y + 4);
       }
