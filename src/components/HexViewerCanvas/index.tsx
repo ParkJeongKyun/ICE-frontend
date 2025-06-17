@@ -43,9 +43,6 @@ const hexByteWidth = 26;
 const asciiStartX = hexStartX + bytesPerRow * hexByteWidth + 20;
 const asciiCharWidth = 12;
 
-// 푸터 높이(px) - 실제 푸터 높이에 맞게 조정
-// const footerHeight = 48;
-
 function byteToHex(byte: number): string {
   return ('0' + byte.toString(16)).slice(-2).toUpperCase();
 }
@@ -509,6 +506,22 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [firstRow, activeKey]);
+
+  useEffect(() => {
+    if (!contextMenu) return;
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        contextMenuRef.current &&
+        !contextMenuRef.current.contains(event.target as Node)
+      ) {
+        setContextMenu(null);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [contextMenu]);
 
   return (
     <CanvasContainer ref={containerRef} onWheel={handleWheel} tabIndex={0}>
