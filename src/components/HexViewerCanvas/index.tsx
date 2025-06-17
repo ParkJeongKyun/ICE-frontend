@@ -74,7 +74,13 @@ function getDevicePixelRatio() {
 }
 
 const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
-  const { activeData, encoding } = useTabData();
+  const {
+    activeData,
+    encoding,
+    activeKey,
+    scrollPositions,
+    setScrollPositions,
+  } = useTabData();
   const buffer = activeData.buffer;
   const rowCount = Math.ceil(buffer.length / bytesPerRow);
 
@@ -481,6 +487,28 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     }),
     [buffer, setSelectionRange]
   );
+
+  // firstRow를 탭별로 저장/복원
+  useEffect(() => {
+    // 탭 변경 시 해당 탭의 스크롤 위치로 이동
+    if (activeKey && scrollPositions[activeKey] !== undefined) {
+      setFirstRow(scrollPositions[activeKey]);
+    } else {
+      setFirstRow(0);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeKey]);
+
+  useEffect(() => {
+    // firstRow가 바뀔 때마다 현재 탭의 스크롤 위치 저장
+    if (activeKey) {
+      setScrollPositions((prev) => ({
+        ...prev,
+        [activeKey]: firstRow,
+      }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [firstRow, activeKey]);
 
   return (
     <CanvasContainer ref={containerRef} onWheel={handleWheel} tabIndex={0}>

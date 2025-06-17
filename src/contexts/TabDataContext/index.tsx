@@ -23,6 +23,8 @@ interface TabDataContextType {
   isEmpty: boolean;
   encoding: EncodingType;
   setEncoding: (encoding: EncodingType) => void;
+  scrollPositions: Record<TabKey, number>;
+  setScrollPositions: Dispatch<SetStateAction<Record<TabKey, number>>>;
 }
 
 const TabDataContext = createContext<TabDataContextType | undefined>(undefined);
@@ -41,6 +43,9 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
   const [tabData, setTabData] = useState<TabData>({});
   const [activeKey, setActiveKey] = useState<TabKey>('');
   const [encoding, setEncoding] = useState<EncodingType>('windows-1252');
+  const [scrollPositions, setScrollPositions] = useState<
+    Record<TabKey, number>
+  >({});
   const newTabIndex = useRef(0);
 
   const getNewKey = (): TabKey => {
@@ -63,6 +68,8 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
         isEmpty,
         encoding,
         setEncoding,
+        scrollPositions,
+        setScrollPositions,
       }}
     >
       {children}
