@@ -147,7 +147,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   const [scrollbarStartRow, setScrollbarStartRow] = useState(0);
 
   // 전체 row, 보이는 row (100% height 기준)
-  const visibleRows = Math.ceil(canvasSize.height / rowHeight);
+  const visibleRows = Math.floor(canvasSize.height / rowHeight);
   const maxFirstRow = Math.max(0, rowCount - visibleRows);
 
   // 스크롤바 thumb 크기/위치 계산 (100% height 기준)
@@ -244,10 +244,12 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     ctx.font = font;
     ctx.textBaseline = 'top';
 
-    const visibleRows = Math.ceil(canvasSize.height / rowHeight) + 1;
+    // 마지막 행이 캔버스에 일부라도 보이면 그리기 위해 +1
+    const renderRows = Math.ceil(canvasSize.height / rowHeight) + 1;
     for (
       let row = firstRow, drawRow = 0;
-      row < Math.min(rowCount, firstRow + visibleRows);
+      row < Math.min(rowCount, firstRow + renderRows) &&
+      drawRow * rowHeight < canvasSize.height;
       row++, drawRow++
     ) {
       const y = drawRow * rowHeight;
