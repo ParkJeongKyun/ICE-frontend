@@ -236,6 +236,8 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
       style.getPropertyValue('--main-hover-color').trim() || '#494949';
     const COLOR_SELECTED_TEXT =
       style.getPropertyValue('--ice-main-color').trim() || 'rgb(156, 220, 254)';
+    const COLOR_OFFSET =
+      style.getPropertyValue('--ice-main-color_4').trim() || '#ffb86c';
 
     const dpr = getDevicePixelRatio();
     ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -257,14 +259,40 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
       const y = drawRow * rowHeight;
       const offset = row * bytesPerRow;
 
-      // 오프셋(주소) 텍스트는 기존처럼 왼쪽 정렬
-      ctx.textAlign = 'left';
-      ctx.textBaseline = 'top';
-      ctx.fillStyle = '#888';
+      // 오프셋(주소) 텍스트 선택 영역 포함 여부
+      const offsetStart = row * bytesPerRow;
+      const offsetEnd = Math.min(
+        offsetStart + bytesPerRow - 1,
+        buffer.length - 1
+      );
+      const selStart = selectionRange.start;
+      const selEnd = selectionRange.end;
+      const isOffsetSel =
+        selStart !== null &&
+        selEnd !== null &&
+        // 선택 영역이 이 줄 전체를 포함하거나, 일부라도 겹치면 true
+        offsetStart <= Math.max(selStart, selEnd) &&
+        offsetEnd >= Math.min(selStart, selEnd);
+
+      // 오프셋(주소) 텍스트
+      ctx.textAlign = 'center'; // 좌우 여백 균등하게
+      ctx.textBaseline = 'middle';
+      if (isOffsetSel) {
+        ctx.fillStyle = COLOR_SELECTED_BG;
+        ctx.fillRect(
+          0, // 좌측 여백 없이
+          y + 2,
+          offsetWidth, // 전체 영역
+          rowHeight - 4
+        );
+        ctx.fillStyle = COLOR_SELECTED_TEXT;
+      } else {
+        ctx.fillStyle = COLOR_OFFSET;
+      }
       ctx.fillText(
         offset.toString(16).padStart(8, '0').toUpperCase(),
-        10,
-        y + 4
+        offsetWidth / 2, // 중앙에 위치
+        y + rowHeight / 2
       );
 
       ctx.textAlign = 'center';
