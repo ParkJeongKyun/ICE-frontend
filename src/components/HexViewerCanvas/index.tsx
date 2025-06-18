@@ -225,14 +225,17 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     // CSS 변수에서 실제 색상값 읽기
     const style = getComputedStyle(document.documentElement);
     const COLOR_HEX_EVEN =
-      style.getPropertyValue('--main-color_1').trim() || '#222';
+      style.getPropertyValue('--main-color_1').trim() || '#ababab';
     const COLOR_HEX_ODD =
-      style.getPropertyValue('--main-color').trim() || '#444';
-    const COLOR_ASCII = style.getPropertyValue('--main-color').trim() || '#222';
+      style.getPropertyValue('--main-color').trim() || '#cfcfcf';
+    const COLOR_ASCII =
+      style.getPropertyValue('--main-color').trim() || '#cfcfcf';
     const COLOR_ASCII_DISABLED =
-      style.getPropertyValue('--main-disabled-color').trim() || '#bbb';
-    const COLOR_SELECTED_BG = '#2d8cf0';
-    const COLOR_SELECTED_TEXT = '#fff';
+      style.getPropertyValue('--main-disabled-color').trim() || '#505050';
+    const COLOR_SELECTED_BG =
+      style.getPropertyValue('--main-hover-color').trim() || '#494949';
+    const COLOR_SELECTED_TEXT =
+      style.getPropertyValue('--ice-main-color').trim() || 'rgb(156, 220, 254)';
 
     const dpr = getDevicePixelRatio();
     ctx.setTransform(1, 0, 0, 1, 0, 0);
