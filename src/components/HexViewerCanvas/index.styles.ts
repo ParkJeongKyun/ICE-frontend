@@ -45,7 +45,7 @@ export const VirtualScrollbar = styled.div`
 
 // 스크롤바 썸
 export const ScrollbarThumb = styled.div<{
-  dragging: boolean;
+  dragging: string | boolean;
   height: number;
   top: number;
 }>`
@@ -55,7 +55,8 @@ export const ScrollbarThumb = styled.div<{
   background-color: rgba(255, 255, 255, 0.3);
   cursor: pointer;
   opacity: 0.7;
-  transition: ${({ dragging }) => (dragging ? 'none' : 'opacity 0.2s')};
+  transition: ${({ dragging }) =>
+    dragging === 'true' || dragging === true ? 'none' : 'opacity 0.2s'};
 `;
 
 // 컨텍스트 메뉴

@@ -134,6 +134,26 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // 캔버스 컨테이너 width/height 변화 감지 (ResizeObserver 사용)
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const dpr = getDevicePixelRatio();
+    const observer = new window.ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const width = Math.floor(entry.contentRect.width * dpr);
+        const height = Math.floor(entry.contentRect.height);
+        setCanvasSize((prev) => {
+          if (prev.width !== width || prev.height !== height) {
+            return { width, height };
+          }
+          return prev;
+        });
+      }
+    });
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, [containerRef]);
+
   // 렌더링 예약 ref
   const rafRef = useRef<number | null>(null);
 
@@ -547,7 +567,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
         <VirtualScrollbar style={{ height: '100%', alignSelf: 'stretch' }}>
           <ScrollbarThumb
             ref={scrollbarRef}
-            dragging={scrollbarDragging}
+            dragging={scrollbarDragging.toString()}
             height={scrollbarHeight}
             top={scrollbarTop}
             onMouseDown={handleScrollbarMouseDown}
