@@ -82,7 +82,6 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   const rowCount = Math.ceil(buffer.length / bytesPerRow);
 
   const [canvasSize, setCanvasSize] = useState({ width: 800, height: 400 });
-  const [scrollTop, setScrollTop] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [contextMenu, setContextMenu] = useState<{
     x: number;
@@ -96,15 +95,11 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   const { start: startIndex, end: endIndex } = selectionRange;
 
   // 렌더링 관련 값 캐싱
-  const scrollTopRef = useRef(scrollTop);
   const selectionRangeRef = useRef(selectionRange);
   const bufferRef = useRef(buffer);
   const encodingRef = useRef(encoding);
   const canvasSizeRef = useRef(canvasSize);
 
-  useEffect(() => {
-    scrollTopRef.current = scrollTop;
-  }, [scrollTop]);
   useEffect(() => {
     selectionRangeRef.current = selectionRange;
   }, [selectionRange]);
@@ -118,23 +113,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     canvasSizeRef.current = canvasSize;
   }, [canvasSize]);
 
-  // 캔버스 크기 자동 조정 (항상 보이는 영역만큼만)
-  useEffect(() => {
-    function handleResize() {
-      if (containerRef.current) {
-        const dpr = getDevicePixelRatio();
-        setCanvasSize({
-          width: Math.floor(containerRef.current.clientWidth * dpr),
-          height: Math.floor(containerRef.current.clientHeight), // dpr 곱하지 않음
-        });
-      }
-    }
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  // 캔버스 컨테이너 width/height 변화 감지 (ResizeObserver 사용)
+  // ResizeObserver로 캔버스 크기 자동 조정
   useEffect(() => {
     if (!containerRef.current) return;
     const dpr = getDevicePixelRatio();
@@ -142,17 +121,16 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
       for (const entry of entries) {
         const width = Math.floor(entry.contentRect.width * dpr);
         const height = Math.floor(entry.contentRect.height);
-        setCanvasSize((prev) => {
-          if (prev.width !== width || prev.height !== height) {
-            return { width, height };
-          }
-          return prev;
-        });
+        setCanvasSize((prev) =>
+          prev.width !== width || prev.height !== height
+            ? { width, height }
+            : prev
+        );
       }
     });
     observer.observe(containerRef.current);
     return () => observer.disconnect();
-  }, [containerRef]);
+  }, []);
 
   // 렌더링 예약 ref
   const rafRef = useRef<number | null>(null);
@@ -170,14 +148,12 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   const visibleRows = Math.floor(canvasSize.height / rowHeight);
   const maxFirstRow = Math.max(0, rowCount - visibleRows);
 
-  // 스크롤바 thumb 크기/위치 계산 (100% height 기준)
-  // 수정: thumb가 영역을 벗어나지 않도록 top 계산을 max 값으로 제한
+  // 스크롤바 thumb 크기/위치 계산
   const scrollbarAreaHeight = canvasSize.height;
   const scrollbarHeight = Math.max(
     30,
     (visibleRows / rowCount) * scrollbarAreaHeight
   );
-  // thumb가 영역을 벗어나지 않게 보정
   const maxScrollbarTop = scrollbarAreaHeight - scrollbarHeight;
   const scrollbarTop = Math.min(
     maxScrollbarTop,
@@ -187,21 +163,15 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   // wheel 이벤트로 한 줄씩 위/아래로 이동
   const handleWheel = useCallback(
     (e: React.WheelEvent<HTMLDivElement>) => {
-      // e.preventDefault();
       let nextRow = firstRow;
-      if (e.deltaY > 0) {
-        // 아래로
-        nextRow = Math.min(firstRow + 1, maxFirstRow);
-      } else if (e.deltaY < 0) {
-        // 위로
-        nextRow = Math.max(firstRow - 1, 0);
-      }
+      if (e.deltaY > 0) nextRow = Math.min(firstRow + 1, maxFirstRow);
+      else if (e.deltaY < 0) nextRow = Math.max(firstRow - 1, 0);
       if (nextRow !== firstRow) setFirstRow(nextRow);
     },
     [firstRow, maxFirstRow]
   );
 
-  // 스크롤바 드래그 시작
+  // 스크롤바 드래그
   const handleScrollbarMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();
     setScrollbarDragging(true);
@@ -209,8 +179,6 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     setScrollbarStartRow(firstRow);
     document.body.style.userSelect = 'none';
   };
-
-  // 스크롤바 드래그 중
   useEffect(() => {
     if (!scrollbarDragging) return;
     const handleMouseMove = (e: MouseEvent) => {
@@ -245,7 +213,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     scrollbarHeight,
   ]);
 
-  // 렌더링 함수: firstRow 기준으로 데이터만 변경
+  // 렌더링 함수
   const renderCanvas = useCallback(() => {
     const ctx = canvasRef.current?.getContext('2d');
     if (!ctx) return;
@@ -254,17 +222,15 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     const canvasSize = canvasSizeRef.current;
     const selectionRange = selectionRangeRef.current;
 
-    // devicePixelRatio 적용 (가로만)
     const dpr = getDevicePixelRatio();
-    ctx.setTransform(1, 0, 0, 1, 0, 0); // reset transform
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, canvasSize.width, canvasSize.height);
     ctx.save();
-    ctx.scale(dpr, 1); // 가로만 스케일
+    ctx.scale(dpr, 1);
 
     ctx.font = font;
     ctx.textBaseline = 'top';
 
-    // 마지막 행이 캔버스에 일부라도 보이면 그리기 위해 +1
     const renderRows = Math.ceil(canvasSize.height / rowHeight) + 1;
     for (
       let row = firstRow, drawRow = 0;
@@ -275,7 +241,6 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
       const y = drawRow * rowHeight;
       const offset = row * bytesPerRow;
 
-      // Offset
       ctx.fillStyle = '#888';
       ctx.fillText(
         offset.toString(16).padStart(8, '0').toUpperCase(),
@@ -283,7 +248,6 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
         y + 4
       );
 
-      // HEX/ASCII 변환 및 그리기
       for (let i = 0; i < bytesPerRow; i++) {
         const idx = offset + i;
         if (idx >= buffer.length) break;
@@ -323,7 +287,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     ctx.restore();
   }, [firstRow, rowCount]);
 
-  // 렌더링 트리거 (firstRow, buffer 등 변경 시)
+  // 렌더링 트리거
   useEffect(() => {
     if (rafRef.current !== null) {
       cancelAnimationFrame(rafRef.current);
@@ -351,11 +315,10 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     [startIndex, endIndex]
   );
 
-  // 마우스 위치 → 바이트 인덱스 변환 (firstRow 기준으로 y좌표 변환)
+  // 마우스 위치 → 바이트 인덱스 변환
   function getByteIndexFromMouse(x: number, y: number): number | null {
     const row = firstRow + Math.floor(y / rowHeight);
     if (row < 0 || row >= rowCount) return null;
-    // HEX 영역
     if (x >= hexStartX && x < hexStartX + bytesPerRow * hexByteWidth) {
       const col = Math.floor((x - hexStartX) / hexByteWidth);
       if (col < 0 || col >= bytesPerRow) return null;
@@ -363,7 +326,6 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
       if (idx >= buffer.length) return null;
       return idx;
     }
-    // ASCII 영역
     if (x >= asciiStartX && x < asciiStartX + bytesPerRow * asciiCharWidth) {
       const col = Math.floor((x - asciiStartX) / asciiCharWidth);
       if (col < 0 || col >= bytesPerRow) return null;
@@ -374,7 +336,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     return null;
   }
 
-  // 마우스 이벤트 핸들러 (firstRow 기반)
+  // 마우스 이벤트 핸들러
   const handleMouseDown = (e: React.MouseEvent) => {
     if (e.button !== 0) return;
     const rect = (e.target as HTMLCanvasElement).getBoundingClientRect();
@@ -454,7 +416,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     setContextMenu(null);
   }, [selectionRange, buffer]);
 
-  // 검색/스크롤 API (기존과 동일)
+  // 검색/스크롤 API
   useImperativeHandle(
     ref,
     () => ({
@@ -509,7 +471,6 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
 
   // firstRow를 탭별로 저장/복원
   useEffect(() => {
-    // 탭 변경 시 해당 탭의 스크롤 위치로 이동
     if (activeKey && scrollPositions[activeKey] !== undefined) {
       setFirstRow(scrollPositions[activeKey]);
     } else {
@@ -519,7 +480,6 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   }, [activeKey]);
 
   useEffect(() => {
-    // firstRow가 바뀔 때마다 현재 탭의 스크롤 위치 저장
     if (activeKey) {
       setScrollPositions((prev) => ({
         ...prev,
@@ -554,7 +514,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
           height={canvasSize.height}
           style={{
             width: `${canvasSize.width / getDevicePixelRatio()}px`,
-            height: `${canvasSize.height}px`, // dpr 나누지 않음
+            height: `${canvasSize.height}px`,
           }}
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
@@ -562,7 +522,6 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
           onContextMenu={handleContextMenu}
         />
       </CanvasArea>
-      {/* 스크롤바 flex row로 우측에 고정, 100% height */}
       {rowCount > visibleRows && (
         <VirtualScrollbar style={{ height: '100%', alignSelf: 'stretch' }}>
           <ScrollbarThumb
