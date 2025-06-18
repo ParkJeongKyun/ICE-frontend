@@ -222,6 +222,18 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     const canvasSize = canvasSizeRef.current;
     const selectionRange = selectionRangeRef.current;
 
+    // CSS 변수에서 실제 색상값 읽기
+    const style = getComputedStyle(document.documentElement);
+    const COLOR_HEX_EVEN =
+      style.getPropertyValue('--main-color_1').trim() || '#222';
+    const COLOR_HEX_ODD =
+      style.getPropertyValue('--main-color').trim() || '#444';
+    const COLOR_ASCII = style.getPropertyValue('--main-color').trim() || '#222';
+    const COLOR_ASCII_DISABLED =
+      style.getPropertyValue('--main-disabled-color').trim() || '#bbb';
+    const COLOR_SELECTED_BG = '#2d8cf0';
+    const COLOR_SELECTED_TEXT = '#fff';
+
     const dpr = getDevicePixelRatio();
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, canvasSize.width, canvasSize.height);
@@ -229,7 +241,8 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     ctx.scale(dpr, 1);
 
     ctx.font = font;
-    ctx.textBaseline = 'top';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
 
     const renderRows = Math.ceil(canvasSize.height / rowHeight) + 1;
     for (
@@ -241,6 +254,9 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
       const y = drawRow * rowHeight;
       const offset = row * bytesPerRow;
 
+      // 오프셋(주소) 텍스트는 기존처럼 왼쪽 정렬
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'top';
       ctx.fillStyle = '#888';
       ctx.fillText(
         offset.toString(16).padStart(8, '0').toUpperCase(),
@@ -248,12 +264,16 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
         y + 4
       );
 
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+
       for (let i = 0; i < bytesPerRow; i++) {
         const idx = offset + i;
         if (idx >= buffer.length) break;
 
         // HEX
-        const xHex = hexStartX + i * hexByteWidth;
+        const xHex = hexStartX + i * hexByteWidth + hexByteWidth / 2;
+        const yHex = y + rowHeight / 2;
         const isSel =
           selectionRange.start !== null &&
           selectionRange.end !== null &&
@@ -261,27 +281,36 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
           idx <= Math.max(selectionRange.start, selectionRange.end);
 
         if (isSel) {
-          ctx.fillStyle = '#2d8cf0';
-          ctx.fillRect(xHex - 2, y + 2, hexByteWidth - 2, rowHeight - 4);
-          ctx.fillStyle = '#fff';
+          ctx.fillStyle = COLOR_SELECTED_BG;
+          ctx.fillRect(
+            xHex - hexByteWidth / 2 + 1,
+            y + 2,
+            hexByteWidth - 2,
+            rowHeight - 4
+          );
+          ctx.fillStyle = COLOR_SELECTED_TEXT;
         } else {
-          ctx.fillStyle =
-            i % 2 === 0 ? 'var(--main-color_1)' : 'var(--main-color)';
+          ctx.fillStyle = i % 2 === 0 ? COLOR_HEX_EVEN : COLOR_HEX_ODD;
         }
-        ctx.fillText(byteToHex(buffer[idx]), xHex, y + 4);
+        ctx.fillText(byteToHex(buffer[idx]), xHex, yHex);
 
         // ASCII
-        const xAsc = asciiStartX + i * asciiCharWidth;
+        const xAsc = asciiStartX + i * asciiCharWidth + asciiCharWidth / 2;
+        const yAsc = y + rowHeight / 2;
         const char = byteToChar(buffer[idx], encoding);
         if (isSel) {
-          ctx.fillStyle = '#2d8cf0';
-          ctx.fillRect(xAsc - 1, y + 2, asciiCharWidth - 2, rowHeight - 4);
-          ctx.fillStyle = '#fff';
+          ctx.fillStyle = COLOR_SELECTED_BG;
+          ctx.fillRect(
+            xAsc - asciiCharWidth / 2 + 1,
+            y + 2,
+            asciiCharWidth - 2,
+            rowHeight - 4
+          );
+          ctx.fillStyle = COLOR_SELECTED_TEXT;
         } else {
-          ctx.fillStyle =
-            char === '.' ? 'var(--main-disabled-color)' : 'var(--main-color)';
+          ctx.fillStyle = char === '.' ? COLOR_ASCII_DISABLED : COLOR_ASCII;
         }
-        ctx.fillText(char, xAsc, y + 4);
+        ctx.fillText(char, xAsc, yAsc);
       }
     }
     ctx.restore();
