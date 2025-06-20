@@ -37,14 +37,26 @@ export interface HexViewerRef {
 
 // 레이아웃 관련 상수(전체 패딩, 영역 간격 등)
 const layout = {
-  containerPadding: 16, // 전체 좌우 패딩
-  gap: 20,              // 각 영역 사이 간격
+  containerPadding: 10,
+  gap: 10,
   bytesPerRow: 16,
   rowHeight: 22,
   font: '14px monospace',
-  offsetWidth: 80,
+  offsetWidth: 75,
   hexByteWidth: 26,
   asciiCharWidth: 12,
+};
+
+// 모바일 레이아웃
+const layoutMobile = {
+  containerPadding: 5,
+  gap: 5,
+  bytesPerRow: 16,
+  rowHeight: 13,
+  font: '8px monospace',
+  offsetWidth: 42,
+  hexByteWidth: 12,
+  asciiCharWidth: 6,
 };
 
 const {
@@ -56,7 +68,7 @@ const {
   offsetWidth,
   hexByteWidth,
   asciiCharWidth,
-} = layout;
+} = isMobile ? layoutMobile : layout;
 
 // 각 영역 시작 위치 계산
 const offsetStartX = containerPadding;
