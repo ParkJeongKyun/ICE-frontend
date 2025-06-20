@@ -35,14 +35,43 @@ export interface HexViewerRef {
   scrollToIndex: (rowIndex: number, offset: number) => void;
 }
 
-const bytesPerRow = 16;
-const rowHeight = 22;
-const font = '14px monospace';
-const offsetWidth = 80;
-const hexStartX = offsetWidth + 10;
-const hexByteWidth = 26;
-const asciiStartX = hexStartX + bytesPerRow * hexByteWidth + 20;
-const asciiCharWidth = 12;
+// 레이아웃 관련 상수(전체 패딩, 영역 간격 등)
+const layout = {
+  containerPadding: 16, // 전체 좌우 패딩
+  gap: 20,              // 각 영역 사이 간격
+  bytesPerRow: 16,
+  rowHeight: 22,
+  font: '14px monospace',
+  offsetWidth: 80,
+  hexByteWidth: 26,
+  asciiCharWidth: 12,
+};
+
+const {
+  containerPadding,
+  gap,
+  bytesPerRow,
+  rowHeight,
+  font,
+  offsetWidth,
+  hexByteWidth,
+  asciiCharWidth,
+} = layout;
+
+// 각 영역 시작 위치 계산
+const offsetStartX = containerPadding;
+const hexStartX = offsetStartX + offsetWidth + gap;
+const asciiStartX = hexStartX + bytesPerRow * hexByteWidth + gap;
+
+// minHexWidth 계산도 변수 사용
+const minHexWidth =
+  containerPadding + // 좌측 패딩
+  offsetWidth +
+  gap +
+  bytesPerRow * hexByteWidth +
+  gap +
+  bytesPerRow * asciiCharWidth +
+  containerPadding; // 우측 패딩
 
 function byteToHex(byte: number): string {
   return ('0' + byte.toString(16)).slice(-2).toUpperCase();
@@ -113,14 +142,6 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   useEffect(() => {
     canvasSizeRef.current = canvasSize;
   }, [canvasSize]);
-
-  const minHexWidth =
-    offsetWidth +
-    10 +
-    bytesPerRow * hexByteWidth +
-    20 +
-    bytesPerRow * asciiCharWidth +
-    20;
 
   // ResizeObserver로 캔버스 크기 자동 조정
   useEffect(() => {
@@ -289,14 +310,14 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
         offsetEnd >= Math.min(selStart, selEnd);
 
       // 오프셋(주소) 텍스트
-      ctx.textAlign = 'center'; // 좌우 여백 균등하게
+      ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       if (isOffsetSel) {
         ctx.fillStyle = COLOR_SELECTED_BG;
         ctx.fillRect(
-          0, // 좌측 여백 없이
+          offsetStartX, // 좌측 패딩만큼 띄움
           y + 2,
-          offsetWidth, // 전체 영역
+          offsetWidth,
           rowHeight - 4
         );
         ctx.fillStyle = COLOR_SELECTED_TEXT;
@@ -305,7 +326,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
       }
       ctx.fillText(
         offset.toString(16).padStart(8, '0').toUpperCase(),
-        offsetWidth / 2, // 중앙에 위치
+        offsetStartX + offsetWidth / 2, // 중앙 위치도 패딩 반영
         y + rowHeight / 2
       );
 
