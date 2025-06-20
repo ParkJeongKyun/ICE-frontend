@@ -2,7 +2,7 @@ import React from 'react';
 import { ChangeEvent, Ref, useImperativeHandle, useRef } from 'react';
 import styled from 'styled-components';
 import MenuBtn from '@/components/common/MenuBtn';
-import HexViewer, { HexViewerRef } from '@/components/HexViewerCanvas';
+import HexViewer, { HexViewerRef } from '@/components/HexViewer';
 import { ExifRow } from '@/types';
 import { getAddress, isValidLocation } from '@/utils/getAddress';
 import { ProcessStatus, useProcess } from '@/contexts/ProcessContext';

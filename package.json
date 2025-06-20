@@ -24,8 +24,6 @@
     "react-router-dom": "^6.23.1",
     "react-spring": "^9.7.1",
     "react-use-measure": "^2.1.1",
-    "react-virtualized": "^9.22.5",
-    "react-virtualized-auto-sizer": "^1.0.24",
     "sass": "^1.63.6",
     "styled-components": "^6.0.0-rc.3",
     "typescript": "^4.9.5",

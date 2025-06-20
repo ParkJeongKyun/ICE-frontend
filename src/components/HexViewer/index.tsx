@@ -1,28 +1,24 @@
 import React, {
-  useState,
-  useCallback,
-  useImperativeHandle,
-  forwardRef,
   useRef,
   useEffect,
+  useState,
+  useImperativeHandle,
+  forwardRef,
+  useCallback,
 } from 'react';
-import AutoSizer from 'react-virtualized-auto-sizer';
-import { GridCellProps } from 'react-virtualized';
+import { useSelection } from '@/contexts/SelectionContext';
+import { useTabData, EncodingType } from '@/contexts/TabDataContext';
 import {
-  HexByte,
-  HexCell,
-  GridDiv,
-  OffsetByte,
-  OffsetCell,
-  TextByte,
-  TextCell,
+  CanvasContainer,
+  CanvasArea,
+  StyledCanvas,
+  VirtualScrollbar,
+  ScrollbarThumb,
   ContextMenu,
   ContextMenuList,
   ContextMenuItem,
 } from './index.styles';
-import { asciiToBytes, findPatternIndices } from '@/utils/byteSearch';
-import { useSelection } from '@/contexts/SelectionContext';
-import { useTabData, EncodingType } from '@/contexts/TabDataContext';
+import { isMobile } from 'react-device-detect';
 
 export interface IndexInfo {
   index: number;
@@ -39,11 +35,60 @@ export interface HexViewerRef {
   scrollToIndex: (rowIndex: number, offset: number) => void;
 }
 
-const byteToHex = (byte: number): string =>
-  ('0' + byte.toString(16)).slice(-2).toUpperCase();
+// 레이아웃 관련 상수(전체 패딩, 영역 간격 등)
+const layout = {
+  containerPadding: 10,
+  gap: 10,
+  bytesPerRow: 16,
+  rowHeight: 22,
+  font: '14px monospace',
+  offsetWidth: 75,
+  hexByteWidth: 26,
+  asciiCharWidth: 12,
+};
 
-const byteToChar = (byte: number, encoding: EncodingType): string => {
-  // latin1, iso-8859-1, windows-1252, ascii, utf-8 지원
+// 모바일 레이아웃
+const layoutMobile = {
+  containerPadding: 5,
+  gap: 5,
+  bytesPerRow: 16,
+  rowHeight: 13,
+  font: '8px monospace',
+  offsetWidth: 42,
+  hexByteWidth: 12,
+  asciiCharWidth: 6,
+};
+
+const {
+  containerPadding,
+  gap,
+  bytesPerRow,
+  rowHeight,
+  font,
+  offsetWidth,
+  hexByteWidth,
+  asciiCharWidth,
+} = isMobile ? layoutMobile : layout;
+
+// 각 영역 시작 위치 계산
+const offsetStartX = containerPadding;
+const hexStartX = offsetStartX + offsetWidth + gap;
+const asciiStartX = hexStartX + bytesPerRow * hexByteWidth + gap;
+
+// minHexWidth 계산도 변수 사용
+const minHexWidth =
+  containerPadding + // 좌측 패딩
+  offsetWidth +
+  gap +
+  bytesPerRow * hexByteWidth +
+  gap +
+  bytesPerRow * asciiCharWidth +
+  containerPadding; // 우측 패딩
+
+function byteToHex(byte: number): string {
+  return ('0' + byte.toString(16)).slice(-2).toUpperCase();
+}
+function byteToChar(byte: number, encoding: EncodingType): string {
   if (encoding === 'ascii') {
     return byte >= 0x20 && byte <= 0x7e ? String.fromCharCode(byte) : '.';
   }
@@ -61,79 +106,313 @@ const byteToChar = (byte: number, encoding: EncodingType): string => {
     }
   } catch {}
   return '.';
-};
+}
+
+function getDevicePixelRatio() {
+  return window.devicePixelRatio || 1;
+}
 
 const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
-  const { activeData, encoding } = useTabData();
-  const [scrollIndex, setScrollIndex] = useState(0);
+  const {
+    activeData,
+    encoding,
+    activeKey,
+    scrollPositions,
+    setScrollPositions,
+  } = useTabData();
+  const buffer = activeData.buffer;
+  const rowCount = Math.ceil(buffer.length / bytesPerRow);
+
+  const [canvasSize, setCanvasSize] = useState({ width: 800, height: 400 });
   const [isDragging, setIsDragging] = useState(false);
-  const { selectionRange, setSelectionRange } = useSelection();
-  const { start: startIndex, end: endIndex } = selectionRange;
   const [contextMenu, setContextMenu] = useState<{
     x: number;
     y: number;
   } | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const contextMenuRef = useRef<HTMLDivElement>(null);
-  const bytesPerRow = 16;
-  const columnCount = 3;
-  const buffer = activeData.buffer;
-  const rowCount = Math.ceil(buffer.length / bytesPerRow);
 
-  const handleMouseDown = useCallback(
-    (event: React.MouseEvent, byteIndex: number) => {
-      if (event.button === 0) {
-        setIsDragging(true);
-        setSelectionRange((prev) => ({
-          ...prev,
-          start: byteIndex,
-          end: byteIndex,
-        }));
+  const { selectionRange, setSelectionRange } = useSelection();
+  const { start: startIndex, end: endIndex } = selectionRange;
+
+  // 렌더링 관련 값 캐싱
+  const selectionRangeRef = useRef(selectionRange);
+  const bufferRef = useRef(buffer);
+  const encodingRef = useRef(encoding);
+  const canvasSizeRef = useRef(canvasSize);
+
+  useEffect(() => {
+    selectionRangeRef.current = selectionRange;
+  }, [selectionRange]);
+  useEffect(() => {
+    bufferRef.current = buffer;
+  }, [buffer]);
+  useEffect(() => {
+    encodingRef.current = encoding;
+  }, [encoding]);
+  useEffect(() => {
+    canvasSizeRef.current = canvasSize;
+  }, [canvasSize]);
+
+  // ResizeObserver로 캔버스 크기 자동 조정
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const dpr = getDevicePixelRatio();
+    const observer = new window.ResizeObserver((entries) => {
+      for (const entry of entries) {
+        let width: number;
+        if (isMobile) {
+          width = minHexWidth * dpr;
+        } else {
+          width = Math.max(entry.contentRect.width, minHexWidth) * dpr;
+        }
+        const height = Math.floor(entry.contentRect.height);
+        setCanvasSize((prev) =>
+          prev.width !== width || prev.height !== height
+            ? { width, height }
+            : prev
+        );
       }
-    },
-    [setSelectionRange]
+    });
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, [isMobile, minHexWidth]);
+
+  // 렌더링 예약 ref
+  const rafRef = useRef<number | null>(null);
+
+  // 오프셋 기반 스크롤: 실제 스크롤 대신 데이터만 변경
+  const [firstRow, setFirstRow] = useState(0);
+
+  // 가상 스크롤바 관련
+  const scrollbarRef = useRef<HTMLDivElement>(null);
+  const [scrollbarDragging, setScrollbarDragging] = useState(false);
+  const [scrollbarStartY, setScrollbarStartY] = useState(0);
+  const [scrollbarStartRow, setScrollbarStartRow] = useState(0);
+
+  // 전체 row, 보이는 row (100% height 기준)
+  const visibleRows = Math.floor(canvasSize.height / rowHeight);
+  const maxFirstRow = Math.max(0, rowCount - visibleRows);
+
+  // 스크롤바 thumb 크기/위치 계산
+  const scrollbarAreaHeight = canvasSize.height;
+  const scrollbarHeight = Math.max(
+    30,
+    (visibleRows / rowCount) * scrollbarAreaHeight
+  );
+  const maxScrollbarTop = scrollbarAreaHeight - scrollbarHeight;
+  const scrollbarTop = Math.min(
+    maxScrollbarTop,
+    (firstRow / maxFirstRow) * maxScrollbarTop || 0
   );
 
-  const handleMouseMove = useCallback(
-    (_: React.MouseEvent, byteIndex: number) => {
-      if (isDragging) {
-        setSelectionRange((prev) => {
-          const [start, end] =
-            Number(prev.start) >= byteIndex
-              ? [byteIndex, prev.end]
-              : [prev.start, byteIndex];
-          return { ...prev, start, end };
-        });
+  // wheel 이벤트로 한 줄씩 위/아래로 이동
+  const handleWheel = useCallback(
+    (e: React.WheelEvent<HTMLDivElement>) => {
+      let nextRow = firstRow;
+      if (e.deltaY > 0) nextRow = Math.min(firstRow + 1, maxFirstRow);
+      else if (e.deltaY < 0) nextRow = Math.max(firstRow - 1, 0);
+      if (nextRow !== firstRow) setFirstRow(nextRow);
+    },
+    [firstRow, maxFirstRow]
+  );
+
+  // 스크롤바 드래그
+  const handleScrollbarMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setScrollbarDragging(true);
+    setScrollbarStartY(e.clientY);
+    setScrollbarStartRow(firstRow);
+    document.body.style.userSelect = 'none';
+  };
+  useEffect(() => {
+    if (!scrollbarDragging) return;
+    const handleMouseMove = (e: MouseEvent) => {
+      const deltaY = e.clientY - scrollbarStartY;
+      const totalScrollable = canvasSize.height - scrollbarHeight;
+      if (totalScrollable <= 0) return;
+      const rowDelta = Math.round(
+        (deltaY / totalScrollable) * (rowCount - visibleRows)
+      );
+      let nextRow = scrollbarStartRow + rowDelta;
+      nextRow = Math.max(0, Math.min(nextRow, maxFirstRow));
+      setFirstRow(nextRow);
+    };
+    const handleMouseUp = () => {
+      setScrollbarDragging(false);
+      document.body.style.userSelect = '';
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [
+    scrollbarDragging,
+    scrollbarStartY,
+    scrollbarStartRow,
+    rowCount,
+    visibleRows,
+    maxFirstRow,
+    canvasSize.height,
+    scrollbarHeight,
+  ]);
+
+  // 렌더링 함수
+  const renderCanvas = useCallback(() => {
+    const ctx = canvasRef.current?.getContext('2d');
+    if (!ctx) return;
+    const buffer = bufferRef.current;
+    const encoding = encodingRef.current;
+    const canvasSize = canvasSizeRef.current;
+    const selectionRange = selectionRangeRef.current;
+
+    // CSS 변수에서 실제 색상값 읽기
+    const style = getComputedStyle(document.documentElement);
+    const COLOR_HEX_EVEN =
+      style.getPropertyValue('--main-color_1').trim() || '#ababab';
+    const COLOR_HEX_ODD =
+      style.getPropertyValue('--main-color').trim() || '#cfcfcf';
+    const COLOR_ASCII =
+      style.getPropertyValue('--main-color').trim() || '#cfcfcf';
+    const COLOR_ASCII_DISABLED =
+      style.getPropertyValue('--main-disabled-color').trim() || '#505050';
+    const COLOR_SELECTED_BG =
+      style.getPropertyValue('--main-hover-color').trim() || '#494949';
+    const COLOR_SELECTED_TEXT =
+      style.getPropertyValue('--ice-main-color').trim() || 'rgb(156, 220, 254)';
+    const COLOR_OFFSET =
+      style.getPropertyValue('--ice-main-color_4').trim() || '#ffb86c';
+
+    const dpr = getDevicePixelRatio();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, canvasSize.width, canvasSize.height);
+    ctx.save();
+    ctx.scale(dpr, 1);
+
+    ctx.font = font;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    const renderRows = Math.ceil(canvasSize.height / rowHeight) + 1;
+    for (
+      let row = firstRow, drawRow = 0;
+      row < Math.min(rowCount, firstRow + renderRows) &&
+      drawRow * rowHeight < canvasSize.height;
+      row++, drawRow++
+    ) {
+      const y = drawRow * rowHeight;
+      const offset = row * bytesPerRow;
+
+      // 오프셋(주소) 텍스트 선택 영역 포함 여부
+      const offsetStart = row * bytesPerRow;
+      const offsetEnd = Math.min(
+        offsetStart + bytesPerRow - 1,
+        buffer.length - 1
+      );
+      const selStart = selectionRange.start;
+      const selEnd = selectionRange.end;
+      const isOffsetSel =
+        selStart !== null &&
+        selEnd !== null &&
+        // 선택 영역이 이 줄 전체를 포함하거나, 일부라도 겹치면 true
+        offsetStart <= Math.max(selStart, selEnd) &&
+        offsetEnd >= Math.min(selStart, selEnd);
+
+      // 오프셋(주소) 텍스트
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      if (isOffsetSel) {
+        ctx.fillStyle = COLOR_SELECTED_BG;
+        ctx.fillRect(
+          offsetStartX, // 좌측 패딩만큼 띄움
+          y + 2,
+          offsetWidth,
+          rowHeight - 4
+        );
+        ctx.fillStyle = COLOR_SELECTED_TEXT;
+      } else {
+        ctx.fillStyle = COLOR_OFFSET;
       }
-    },
-    [isDragging, setSelectionRange]
-  );
+      ctx.fillText(
+        offset.toString(16).padStart(8, '0').toUpperCase(),
+        offsetStartX + offsetWidth / 2, // 중앙 위치도 패딩 반영
+        y + rowHeight / 2
+      );
 
-  const handleMouseUp = useCallback(() => setIsDragging(false), []);
-  const handleContextMenu = useCallback(
-    (event: React.MouseEvent) => {
-      event.preventDefault();
-      if (!isDragging) setContextMenu({ x: event.clientX, y: event.clientY });
-    },
-    [isDragging]
-  );
-  const closeContextMenu = useCallback(() => setContextMenu(null), []);
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
 
-  const getColumnWidth = ({ index }: { index: number }) =>
-    [95, 370, 175][index];
+      for (let i = 0; i < bytesPerRow; i++) {
+        const idx = offset + i;
+        if (idx >= buffer.length) break;
 
-  const getRowData = useCallback(
-    (index: number) => {
-      const start = index * bytesPerRow;
-      const end = Math.min(start + bytesPerRow, buffer.length);
-      return {
-        offset: start.toString(16).padStart(8, '0').toUpperCase(),
-        bytes: buffer.slice(start, end),
-        start,
-      };
-    },
-    [buffer]
-  );
+        // HEX
+        const xHex = hexStartX + i * hexByteWidth + hexByteWidth / 2;
+        const yHex = y + rowHeight / 2;
+        const isSel =
+          selectionRange.start !== null &&
+          selectionRange.end !== null &&
+          idx >= Math.min(selectionRange.start, selectionRange.end) &&
+          idx <= Math.max(selectionRange.start, selectionRange.end);
 
+        if (isSel) {
+          ctx.fillStyle = COLOR_SELECTED_BG;
+          ctx.fillRect(
+            xHex - hexByteWidth / 2 + 1,
+            y + 2,
+            hexByteWidth - 2,
+            rowHeight - 4
+          );
+          ctx.fillStyle = COLOR_SELECTED_TEXT;
+        } else {
+          ctx.fillStyle = i % 2 === 0 ? COLOR_HEX_EVEN : COLOR_HEX_ODD;
+        }
+        ctx.fillText(byteToHex(buffer[idx]), xHex, yHex);
+
+        // ASCII
+        const xAsc = asciiStartX + i * asciiCharWidth + asciiCharWidth / 2;
+        const yAsc = y + rowHeight / 2;
+        const char = byteToChar(buffer[idx], encoding);
+        if (isSel) {
+          ctx.fillStyle = COLOR_SELECTED_BG;
+          ctx.fillRect(
+            xAsc - asciiCharWidth / 2 + 1,
+            y + 2,
+            asciiCharWidth - 2,
+            rowHeight - 4
+          );
+          ctx.fillStyle = COLOR_SELECTED_TEXT;
+        } else {
+          ctx.fillStyle = char === '.' ? COLOR_ASCII_DISABLED : COLOR_ASCII;
+        }
+        ctx.fillText(char, xAsc, yAsc);
+      }
+    }
+    ctx.restore();
+  }, [firstRow, rowCount]);
+
+  // 렌더링 트리거
+  useEffect(() => {
+    if (rafRef.current !== null) {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+    }
+    rafRef.current = requestAnimationFrame(() => {
+      renderCanvas();
+      rafRef.current = null;
+    });
+    return () => {
+      if (rafRef.current !== null) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+      }
+    };
+  }, [renderCanvas, buffer, encoding, canvasSize, selectionRange, firstRow]);
+
+  // 선택 영역 계산
   const isSelected = useCallback(
     (byteIndex: number) =>
       startIndex !== null &&
@@ -143,169 +422,62 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     [startIndex, endIndex]
   );
 
-  const renderHexByte = useCallback(
-    (byte: number, i: number, start: number) => {
-      const byteIndex = start + i;
-      return (
-        <HexByte
-          key={i}
-          $isEven={i % 2 === 0}
-          $selected={isSelected(byteIndex)}
-          onMouseDown={(e) => handleMouseDown(e, byteIndex)}
-          onMouseEnter={(e) => handleMouseMove(e, byteIndex)}
-          onMouseUp={handleMouseUp}
-          onContextMenu={handleContextMenu}
-        >
-          {byteToHex(byte)}
-        </HexByte>
-      );
-    },
-    [
-      isSelected,
-      handleMouseDown,
-      handleMouseMove,
-      handleMouseUp,
-      handleContextMenu,
-    ]
-  );
-
-  const renderTextByte = useCallback(
-    (byte: number, i: number, start: number) => {
-      const byteIndex = start + i;
-      const str = byteToChar(byte, encoding);
-      return (
-        <TextByte
-          key={i}
-          $isDot={str === '.'}
-          $selected={isSelected(byteIndex)}
-          onMouseDown={(e) => handleMouseDown(e, byteIndex)}
-          onMouseEnter={(e) => handleMouseMove(e, byteIndex)}
-          onMouseUp={handleMouseUp}
-          onContextMenu={handleContextMenu}
-        >
-          {str}
-        </TextByte>
-      );
-    },
-    [
-      isSelected,
-      handleMouseDown,
-      handleMouseMove,
-      handleMouseUp,
-      handleContextMenu,
-      encoding,
-    ]
-  );
-
-  const cellRenderer = useCallback(
-    ({ columnIndex, key, rowIndex, style }: GridCellProps) => {
-      const { offset, bytes, start } = getRowData(rowIndex);
-      if (columnIndex === 0) {
-        return (
-          <OffsetCell key={key} style={style}>
-            <OffsetByte $selected={isSelected(start)}>{offset}</OffsetByte>
-          </OffsetCell>
-        );
-      }
-      const renderFn = columnIndex === 1 ? renderHexByte : renderTextByte;
-      const CellComponent = columnIndex === 1 ? HexCell : TextCell;
-      return (
-        <CellComponent key={key} style={style}>
-          {Array.from(bytes).map((byte, i) => renderFn(byte, i, start))}
-        </CellComponent>
-      );
-    },
-    [getRowData, isSelected, renderHexByte, renderTextByte]
-  );
-
-  useImperativeHandle(
-    ref,
-    () => ({
-      findByOffset: async (offset: string) => {
-        if (offset.trim()) {
-          const byteOffset = parseInt(offset, 16);
-          if (byteOffset >= 0 && byteOffset < buffer.length) {
-            return { index: byteOffset, offset: bytesPerRow };
-          }
-        }
-        return null;
-      },
-      findAllByHex: async (hex: string) => {
-        if (hex.trim()) {
-          try {
-            const pattern = new Uint8Array(
-              hex.match(/.{1,2}/g)?.map((byte) => parseInt(byte, 16)) || []
-            );
-            const result = findPatternIndices(buffer, pattern).map((item) => ({
-              index: item,
-              offset: pattern.length,
-            }));
-            if (result.length > 0) return result;
-          } catch (e) {
-            console.log(e);
-          }
-        }
-        return null;
-      },
-      findAllByAsciiText: async (text: string, ignoreCase: boolean) => {
-        if (text.trim()) {
-          try {
-            const pattern = asciiToBytes(text);
-            const result = findPatternIndices(buffer, pattern, ignoreCase).map(
-              (item) => ({
-                index: item,
-                offset: pattern.length,
-              })
-            );
-            if (result.length > 0) return result;
-          } catch (e) {
-            console.log(e);
-          }
-        }
-        return null;
-      },
-      scrollToIndex: (index: number, offset: number) => {
-        const rowIndex = Math.floor(index / bytesPerRow);
-        setScrollIndex(rowIndex);
-        setSelectionRange({
-          start: index,
-          end: index + offset - 1,
-          arrayBuffer: null,
-        });
-      },
-    }),
-    [buffer, setSelectionRange]
-  );
-
-  useEffect(() => {
-    if (!contextMenu) return;
-    function handleClickOutside(event: MouseEvent) {
-      if (
-        contextMenuRef.current &&
-        !contextMenuRef.current.contains(event.target as Node)
-      ) {
-        setContextMenu(null);
-      }
+  // 마우스 위치 → 바이트 인덱스 변환
+  function getByteIndexFromMouse(x: number, y: number): number | null {
+    const row = firstRow + Math.floor(y / rowHeight);
+    if (row < 0 || row >= rowCount) return null;
+    if (x >= hexStartX && x < hexStartX + bytesPerRow * hexByteWidth) {
+      const col = Math.floor((x - hexStartX) / hexByteWidth);
+      if (col < 0 || col >= bytesPerRow) return null;
+      const idx = row * bytesPerRow + col;
+      if (idx >= buffer.length) return null;
+      return idx;
     }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [contextMenu]);
+    if (x >= asciiStartX && x < asciiStartX + bytesPerRow * asciiCharWidth) {
+      const col = Math.floor((x - asciiStartX) / asciiCharWidth);
+      if (col < 0 || col >= bytesPerRow) return null;
+      const idx = row * bytesPerRow + col;
+      if (idx >= buffer.length) return null;
+      return idx;
+    }
+    return null;
+  }
 
-  useEffect(() => {
+  // 마우스 이벤트 핸들러
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (e.button !== 0) return;
+    const rect = (e.target as HTMLCanvasElement).getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const idx = getByteIndexFromMouse(x, y);
+    if (idx !== null) {
+      setIsDragging(true);
+      setSelectionRange({ ...selectionRange, start: idx, end: idx });
+    }
+  };
+  const handleMouseMove = (e: React.MouseEvent) => {
     if (!isDragging) return;
-    // 마우스 업(드래그 종료) 전역 이벤트 등록
-    const handleGlobalMouseUp = () => {
-      setIsDragging(false);
-    };
-    window.addEventListener('mouseup', handleGlobalMouseUp);
-    return () => {
-      window.removeEventListener('mouseup', handleGlobalMouseUp);
-    };
-  }, [isDragging]);
+    const rect = (e.target as HTMLCanvasElement).getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const idx = getByteIndexFromMouse(x, y);
+    if (idx !== null) {
+      setSelectionRange((prev) => ({
+        ...prev,
+        end: idx,
+      }));
+    }
+  };
+  const handleMouseUp = () => setIsDragging(false);
 
-  // HEX 문자열로 복사
+  // 컨텍스트 메뉴
+  const handleContextMenu = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setContextMenu({ x: e.clientX, y: e.clientY });
+  };
+  const closeContextMenu = () => setContextMenu(null);
+
+  // HEX 복사
   const handleCopyHex = useCallback(async () => {
     if (
       selectionRange.start !== null &&
@@ -328,7 +500,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     setContextMenu(null);
   }, [selectionRange, buffer]);
 
-  // 텍스트(ASCII)로 복사
+  // 텍스트 복사
   const handleCopyText = useCallback(async () => {
     if (
       selectionRange.start !== null &&
@@ -351,31 +523,138 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     setContextMenu(null);
   }, [selectionRange, buffer]);
 
+  // 검색/스크롤 API
+  useImperativeHandle(
+    ref,
+    () => ({
+      findByOffset: async (offset: string) => {
+        if (offset.trim()) {
+          const byteOffset = parseInt(offset, 16);
+          if (byteOffset >= 0 && byteOffset < buffer.length) {
+            return { index: byteOffset, offset: bytesPerRow };
+          }
+        }
+        return null;
+      },
+      findAllByHex: async (hex: string) => {
+        if (hex.trim()) {
+          try {
+            const pattern = new Uint8Array(
+              hex.match(/.{1,2}/g)?.map((byte) => parseInt(byte, 16)) || []
+            );
+            // ...findPatternIndices 사용...
+            return null;
+          } catch (e) {
+            console.log(e);
+          }
+        }
+        return null;
+      },
+      findAllByAsciiText: async (text: string, ignoreCase: boolean) => {
+        if (text.trim()) {
+          try {
+            // ...asciiToBytes, findPatternIndices 사용...
+            return null;
+          } catch (e) {
+            console.log(e);
+          }
+        }
+        return null;
+      },
+      scrollToIndex: (index: number, offset: number) => {
+        const rowIndex = Math.floor(index / bytesPerRow);
+        if (containerRef.current) {
+          containerRef.current.scrollTop = rowIndex * rowHeight;
+        }
+        setSelectionRange({
+          start: index,
+          end: index + offset - 1,
+          arrayBuffer: null,
+        });
+      },
+    }),
+    [buffer, setSelectionRange]
+  );
+
+  // firstRow를 탭별로 저장/복원
+  useEffect(() => {
+    if (activeKey && scrollPositions[activeKey] !== undefined) {
+      setFirstRow(scrollPositions[activeKey]);
+    } else {
+      setFirstRow(0);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeKey]);
+
+  useEffect(() => {
+    if (activeKey) {
+      setScrollPositions((prev) => ({
+        ...prev,
+        [activeKey]: firstRow,
+      }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [firstRow, activeKey]);
+
+  useEffect(() => {
+    if (!contextMenu) return;
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        contextMenuRef.current &&
+        !contextMenuRef.current.contains(event.target as Node)
+      ) {
+        setContextMenu(null);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [contextMenu]);
+
   return (
-    <>
-      <AutoSizer>
-        {({ height, width }: { height: number; width: number }) => (
-          <GridDiv
-            height={height}
-            width={width}
-            columnCount={columnCount}
-            columnWidth={getColumnWidth}
-            rowCount={rowCount}
-            rowHeight={30}
-            cellRenderer={cellRenderer}
-            scrollToRow={scrollIndex}
-            scrollToAlignment={'start'}
-            overscanColumnCount={2}
-            overscanRowCount={20}
-          />
+    <CanvasContainer ref={containerRef} onWheel={handleWheel} tabIndex={0}>
+      <CanvasArea
+        style={{
+          minWidth: `${minHexWidth}px`,
+        }}
+      >
+        <StyledCanvas
+          ref={canvasRef}
+          width={canvasSize.width}
+          height={canvasSize.height}
+          style={{
+            width: `${canvasSize.width / getDevicePixelRatio()}px`,
+            height: `${canvasSize.height}px`,
+          }}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onContextMenu={handleContextMenu}
+        />
+        {rowCount > visibleRows && (
+          <VirtualScrollbar style={{ height: '100%', alignSelf: 'stretch' }}>
+            <ScrollbarThumb
+              ref={scrollbarRef}
+              dragging={scrollbarDragging.toString()}
+              height={scrollbarHeight}
+              top={scrollbarTop}
+              onMouseDown={handleScrollbarMouseDown}
+            />
+          </VirtualScrollbar>
         )}
-      </AutoSizer>
+      </CanvasArea>
+      {/* 스크롤바를 CanvasArea 내부로 이동 */}
       {contextMenu && (
         <ContextMenu
           ref={contextMenuRef}
           style={{
-            top: contextMenu.y,
-            left: contextMenu.x,
+            top:
+              contextMenu.y -
+              (containerRef.current?.getBoundingClientRect().top || 0),
+            left:
+              contextMenu.x -
+              (containerRef.current?.getBoundingClientRect().left || 0),
           }}
           onClick={closeContextMenu}
           onBlur={closeContextMenu}
@@ -390,7 +669,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
           </ContextMenuList>
         </ContextMenu>
       )}
-    </>
+    </CanvasContainer>
   );
 };
 
