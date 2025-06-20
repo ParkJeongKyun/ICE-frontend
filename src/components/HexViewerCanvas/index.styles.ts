@@ -4,11 +4,13 @@ import styled from 'styled-components';
 export const CanvasContainer = styled.div`
   width: 100%;
   height: 100%;
-  overflow: hidden;
+  overflow-x: scroll;
+  overflow-y: hidden;
   background: var(--main-bg-color);
   position: relative;
   display: flex;
   flex-direction: row;
+  -webkit-overflow-scrolling: touch;
 `;
 
 // 캔버스 영역
@@ -40,7 +42,10 @@ export const VirtualScrollbar = styled.div`
   display: flex;
   align-items: flex-start;
   user-select: none;
-  position: relative;
+  position: absolute;
+  right: 0;
+  top: 0;
+  z-index: 10;
 `;
 
 // 스크롤바 썸

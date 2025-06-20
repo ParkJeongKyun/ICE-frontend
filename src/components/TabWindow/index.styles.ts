@@ -78,4 +78,9 @@ export const TabContentContainer = styled.div`
   flex-grow: 1; // 남는 부분을 전부 차지
   padding: 0px;
   overflow: hidden; // 콘텐츠가 많을 경우 스크롤
+
+  @media (max-width: 900px) {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
 `;

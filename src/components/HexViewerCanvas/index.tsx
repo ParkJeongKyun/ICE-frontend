@@ -18,6 +18,7 @@ import {
   ContextMenuList,
   ContextMenuItem,
 } from './index.styles';
+import { isMobile } from 'react-device-detect';
 
 export interface IndexInfo {
   index: number;
@@ -113,13 +114,26 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     canvasSizeRef.current = canvasSize;
   }, [canvasSize]);
 
+  const minHexWidth =
+    offsetWidth +
+    10 +
+    bytesPerRow * hexByteWidth +
+    20 +
+    bytesPerRow * asciiCharWidth +
+    20;
+
   // ResizeObserver로 캔버스 크기 자동 조정
   useEffect(() => {
     if (!containerRef.current) return;
     const dpr = getDevicePixelRatio();
     const observer = new window.ResizeObserver((entries) => {
       for (const entry of entries) {
-        const width = Math.floor(entry.contentRect.width * dpr);
+        let width: number;
+        if (isMobile) {
+          width = minHexWidth * dpr;
+        } else {
+          width = Math.max(entry.contentRect.width, minHexWidth) * dpr;
+        }
         const height = Math.floor(entry.contentRect.height);
         setCanvasSize((prev) =>
           prev.width !== width || prev.height !== height
@@ -130,7 +144,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     });
     observer.observe(containerRef.current);
     return () => observer.disconnect();
-  }, []);
+  }, [isMobile, minHexWidth]);
 
   // 렌더링 예약 ref
   const rafRef = useRef<number | null>(null);
@@ -567,7 +581,11 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
 
   return (
     <CanvasContainer ref={containerRef} onWheel={handleWheel} tabIndex={0}>
-      <CanvasArea>
+      <CanvasArea
+        style={{
+          minWidth: `${minHexWidth}px`,
+        }}
+      >
         <StyledCanvas
           ref={canvasRef}
           width={canvasSize.width}
