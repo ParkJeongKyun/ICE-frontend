@@ -49,12 +49,15 @@ const txt = `
   - [Pixabay - 무료 사진](https://pixabay.com/)
   - [Framer Motion - 인터렉티브 웹 라이브러리](https://www.framer.com/motion/)
   - [Go Exif - GoLang Exif 분석 라이브러리](https://pkg.go.dev/github.com/dsoprea/go-exi)
-  - [react-virtualized - 리액트 가상화 리스트 라이브러리](https://bvaughn.github.io/react-virtualized/#/components/Masonry)
-  - [react-resizable-layout - 리액트 레이아웃 크기 조절 라이브러리](https://github.com/RyoSogawa/react-resizable-layout)
+  - [Yara - 악성코드 탐지 도구](https://github.com/VirusTotal/yara)
 `;
 
 const relase_txt = `
 ## 릴리즈 노트
+
+### v2025.06.22-demo
+  - 가상화라이브러리를 캔버스로 변경
+  - 헥스뷰어 랜더링 속도 개선 최적화
 
 ### v2025.06.15-demo
   - 헥스 뷰어 선택 버그 수정
