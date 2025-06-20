@@ -19,6 +19,7 @@ import {
   ContextMenuItem,
 } from './index.styles';
 import { isMobile } from 'react-device-detect';
+import { findPatternIndices, asciiToBytes } from '@/utils/byteSearch';
 
 export interface IndexInfo {
   index: number;
@@ -530,7 +531,11 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
       findByOffset: async (offset: string) => {
         if (offset.trim()) {
           const byteOffset = parseInt(offset, 16);
-          if (byteOffset >= 0 && byteOffset < buffer.length) {
+          if (
+            !isNaN(byteOffset) &&
+            byteOffset >= 0 &&
+            byteOffset < buffer.length
+          ) {
             return { index: byteOffset, offset: bytesPerRow };
           }
         }
@@ -539,11 +544,13 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
       findAllByHex: async (hex: string) => {
         if (hex.trim()) {
           try {
+            const cleanHex = hex.replace(/\s+/g, '');
+            if (cleanHex.length % 2 !== 0) return null;
             const pattern = new Uint8Array(
-              hex.match(/.{1,2}/g)?.map((byte) => parseInt(byte, 16)) || []
+              cleanHex.match(/.{1,2}/g)?.map((byte) => parseInt(byte, 16)) || []
             );
-            // ...findPatternIndices 사용...
-            return null;
+            const indices = findPatternIndices(buffer, pattern);
+            return indices.map((index) => ({ index, offset: pattern.length }));
           } catch (e) {
             console.log(e);
           }
@@ -553,8 +560,9 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
       findAllByAsciiText: async (text: string, ignoreCase: boolean) => {
         if (text.trim()) {
           try {
-            // ...asciiToBytes, findPatternIndices 사용...
-            return null;
+            const pattern = asciiToBytes(text);
+            const indices = findPatternIndices(buffer, pattern, ignoreCase);
+            return indices.map((index) => ({ index, offset: pattern.length }));
           } catch (e) {
             console.log(e);
           }
@@ -563,9 +571,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
       },
       scrollToIndex: (index: number, offset: number) => {
         const rowIndex = Math.floor(index / bytesPerRow);
-        if (containerRef.current) {
-          containerRef.current.scrollTop = rowIndex * rowHeight;
-        }
+        setFirstRow(rowIndex);
         setSelectionRange({
           start: index,
           end: index + offset - 1,

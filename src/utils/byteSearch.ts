@@ -1,6 +1,10 @@
-// ASCII 문자열을 바이트 배열로 변환하는 함수
+// ASCII 문자열을 바이트 배열로 변환하는 함수 (for문으로 최적화)
 export const asciiToBytes = (text: string): Uint8Array => {
-  return new Uint8Array(Array.from(text).map((char) => char.charCodeAt(0)));
+  const arr = new Uint8Array(text.length);
+  for (let i = 0; i < text.length; i++) {
+    arr[i] = text.charCodeAt(i);
+  }
+  return arr;
 };
 
 export function computeLPSArray(pattern: Uint8Array): number[] {
@@ -29,7 +33,8 @@ export function computeLPSArray(pattern: Uint8Array): number[] {
 export function findPatternIndices(
   array: Uint8Array,
   pattern: Uint8Array,
-  ignoreCase: boolean = false
+  ignoreCase: boolean = false,
+  maxCount: number = 1000
 ): number[] {
   const indices: number[] = [];
   if (pattern.length === 0) return indices;
@@ -38,10 +43,16 @@ export function findPatternIndices(
   let i = 0; // index for array[]
   let j = 0; // index for pattern[]
   let count = 0; // count of pattern occurrences
-  const maxCount = 1000;
   while (i < array.length) {
-    const currentPatternByte = ignoreCase ? pattern[j] | 32 : pattern[j];
-    const currentArrayByte = ignoreCase ? array[i] | 32 : array[i];
+    let currentPatternByte = pattern[j];
+    let currentArrayByte = array[i];
+    if (ignoreCase) {
+      // ASCII 대문자/소문자만 변환
+      if (currentPatternByte >= 0x41 && currentPatternByte <= 0x5a)
+        currentPatternByte += 0x20;
+      if (currentArrayByte >= 0x41 && currentArrayByte <= 0x5a)
+        currentArrayByte += 0x20;
+    }
     if (currentArrayByte === currentPatternByte) {
       i++;
       j++;
