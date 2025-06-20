@@ -599,18 +599,19 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
           onMouseUp={handleMouseUp}
           onContextMenu={handleContextMenu}
         />
+        {rowCount > visibleRows && (
+          <VirtualScrollbar style={{ height: '100%', alignSelf: 'stretch' }}>
+            <ScrollbarThumb
+              ref={scrollbarRef}
+              dragging={scrollbarDragging.toString()}
+              height={scrollbarHeight}
+              top={scrollbarTop}
+              onMouseDown={handleScrollbarMouseDown}
+            />
+          </VirtualScrollbar>
+        )}
       </CanvasArea>
-      {rowCount > visibleRows && (
-        <VirtualScrollbar style={{ height: '100%', alignSelf: 'stretch' }}>
-          <ScrollbarThumb
-            ref={scrollbarRef}
-            dragging={scrollbarDragging.toString()}
-            height={scrollbarHeight}
-            top={scrollbarTop}
-            onMouseDown={handleScrollbarMouseDown}
-          />
-        </VirtualScrollbar>
-      )}
+      {/* 스크롤바를 CanvasArea 내부로 이동 */}
       {contextMenu && (
         <ContextMenu
           ref={contextMenuRef}
