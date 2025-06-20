@@ -154,24 +154,27 @@ const Searcher: React.FC<Props> = ({ hexViewerRef }) => {
   );
 
   const handlePrevButtonClick = useCallback(() => {
+    const result = searchResults[activeKey];
+    if (!result || result.results.length <= 1) return;
     dispatch({
       type: 'SET_CURRENT_INDEX',
       key: activeKey,
       index:
-        searchResults[activeKey].currentIndex > 0
-          ? searchResults[activeKey].currentIndex - 1
-          : searchResults[activeKey].results.length - 1,
+        result.currentIndex > 0
+          ? result.currentIndex - 1
+          : result.results.length - 1,
     });
   }, [activeKey, searchResults]);
 
   const handleNextButtonClick = useCallback(() => {
+    const result = searchResults[activeKey];
+    if (!result || result.results.length <= 1) return;
     dispatch({
       type: 'SET_CURRENT_INDEX',
       key: activeKey,
       index:
-        searchResults[activeKey].currentIndex <
-        searchResults[activeKey].results.length - 1
-          ? searchResults[activeKey].currentIndex + 1
+        result.currentIndex < result.results.length - 1
+          ? result.currentIndex + 1
           : 0,
     });
   }, [activeKey, searchResults]);
@@ -179,32 +182,22 @@ const Searcher: React.FC<Props> = ({ hexViewerRef }) => {
   const handleResetButtonClick = useCallback(() => {
     dispatch({ type: 'RESET_RESULTS' });
     setInputValue('');
-  }, [activeKey]);
+  }, []);
 
   const currentResult = useMemo(() => {
-    return (
-      searchResults[activeKey]?.results[
-        searchResults[activeKey]?.currentIndex
-      ] || null
-    );
+    const result = searchResults[activeKey];
+    if (!result || result.currentIndex < 0) return null;
+    return result.results[result.currentIndex] || null;
   }, [searchResults, activeKey]);
 
   useEffect(() => {
-    if (currentResult) {
-      hexViewerRef.current?.scrollToIndex(
+    if (currentResult && hexViewerRef.current) {
+      hexViewerRef.current.scrollToIndex(
         currentResult.index,
         currentResult.offset
       );
     }
   }, [currentResult, hexViewerRef]);
-
-  useEffect(() => {
-    if (
-      (inputValue && inputValue != searchResults[activeKey]?.inputValue) ||
-      searchType != searchResults[activeKey]?.searchType
-    )
-      search(inputValue, searchType);
-  }, [activeKey, search]);
 
   useEffect(() => {
     setInputValue('');
@@ -252,24 +245,22 @@ const Searcher: React.FC<Props> = ({ hexViewerRef }) => {
         <ResultDiv>
           <TextDiv>
             <Result>
-              <div>
-                <Tooltip text="최대 1000개까지 검색 가능">
-                  총{' '}
-                  <span style={{ color: 'var(--ice-main-color_1)' }}>
-                    {searchResults[activeKey].results.length}
-                  </span>
-                  개의 결과{' '}
-                  {searchResults[activeKey].results.length > 1 && (
-                    <>
-                      중{' '}
-                      <span style={{ color: 'var(--ice-main-color)' }}>
-                        {searchResults[activeKey].currentIndex + 1}
-                      </span>
-                      번째
-                    </>
-                  )}
-                </Tooltip>
-              </div>
+              <Tooltip text="최대 1000개까지 검색 가능">
+                총{' '}
+                <span style={{ color: 'var(--ice-main-color_1)' }}>
+                  {searchResults[activeKey].results.length}
+                </span>
+                개의 결과{' '}
+                {searchResults[activeKey].results.length > 1 && (
+                  <>
+                    중{' '}
+                    <span style={{ color: 'var(--ice-main-color)' }}>
+                      {searchResults[activeKey].currentIndex + 1}
+                    </span>
+                    번째
+                  </>
+                )}
+              </Tooltip>
               <ResetBtn onClick={handleResetButtonClick}>
                 <Tooltip text="검색 종료">
                   <XIcon height={15} width={15} />

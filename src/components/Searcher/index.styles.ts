@@ -86,12 +86,14 @@ export const ResultDiv = styled.div`
 export const TextDiv = styled.div`
   display: flex;
   min-height: 25px;
-  align-items: end;
+  align-items: center;
+  justify-content: center;
 `;
 
 export const Result = styled.div`
   display: flex;
   align-items: center;
+  justify-content: center;
   font-size: 0.7rem;
   font-weight: 600;
   margin: 2px 0px 2px 0px;
@@ -101,7 +103,8 @@ export const Result = styled.div`
 export const ButtonDiv = styled.div`
   display: flex;
   min-height: 25px;
-  align-items: end;
+  align-items: center;
+  justify-content: center;
 `;
 
 export const SearchBtn = styled.div<{ $disabled?: boolean }>`
@@ -123,6 +126,8 @@ export const SearchBtn = styled.div<{ $disabled?: boolean }>`
 export const ResetBtn = styled.div`
   display: inline-flex;
   margin: 0px 5px;
+  align-items: center;
+  justify-content: center;
   svg {
     stroke: var(--main-color);
   }

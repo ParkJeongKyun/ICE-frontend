@@ -536,7 +536,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
             byteOffset >= 0 &&
             byteOffset < buffer.length
           ) {
-            return { index: byteOffset, offset: bytesPerRow };
+            return { index: byteOffset, offset: 1 };
           }
         }
         return null;
