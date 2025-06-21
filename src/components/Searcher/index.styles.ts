@@ -108,6 +108,9 @@ export const ButtonDiv = styled.div`
 `;
 
 export const SearchBtn = styled.div<{ $disabled?: boolean }>`
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin: 2px 1px 2px 1px;
   padding: 2px 4px 2px 4px;
   border-radius: 2.5px;

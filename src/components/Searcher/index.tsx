@@ -217,7 +217,7 @@ const Searcher: React.FC<Props> = ({ hexViewerRef }) => {
       </SearchDiv>
       <SearchDiv>
         <SearchLabel>검색어</SearchLabel>
-        <SearchData>
+        <SearchData style={{ display: 'flex', gap: 8 }}>
           <Tooltip text="엔터시 검색">
             <SearchInput
               value={inputValue}
@@ -227,6 +227,11 @@ const Searcher: React.FC<Props> = ({ hexViewerRef }) => {
               placeholder={`${searchType} 값을 입력하세요.`}
             />
           </Tooltip>
+          <SearchBtn
+            onClick={() => inputValue && search(inputValue, searchType)}
+          >
+            SEARCH
+          </SearchBtn>
         </SearchData>
       </SearchDiv>
       {searchType == 'ascii' && (
