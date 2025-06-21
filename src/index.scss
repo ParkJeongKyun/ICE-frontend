@@ -34,4 +34,6 @@ body,
   ::-webkit-scrollbar {
     display: none;
   }
+  // Pull to Refresh 방지
+  overscroll-behavior: none;
 }

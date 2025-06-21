@@ -11,7 +11,7 @@ export const CanvasContainer = styled.div`
   display: flex;
   flex-direction: row;
   -webkit-overflow-scrolling: touch;
-  overscroll-behavior: contain;
+  overscroll-behavior: none;
 `;
 
 // 캔버스 영역

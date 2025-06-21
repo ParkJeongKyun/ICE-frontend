@@ -293,6 +293,37 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     scrollbarHeight,
   ]);
 
+  // 모바일 터치 스크롤 구현
+  const touchStartYRef = useRef<number | null>(null);
+  const touchStartRowRef = useRef<number | null>(null);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length === 1) {
+      touchStartYRef.current = e.touches[0].clientY;
+      touchStartRowRef.current = firstRow;
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (
+      e.touches.length === 1 &&
+      touchStartYRef.current !== null &&
+      touchStartRowRef.current !== null
+    ) {
+      const deltaY = e.touches[0].clientY - touchStartYRef.current;
+      const rowDelta = -Math.round(deltaY / rowHeight);
+      let nextRow = touchStartRowRef.current + rowDelta;
+      nextRow = Math.max(0, Math.min(nextRow, maxFirstRow));
+      setFirstRow(nextRow);
+      e.preventDefault(); // pull-to-refresh 방지
+    }
+  };
+
+  const handleTouchEnd = () => {
+    touchStartYRef.current = null;
+    touchStartRowRef.current = null;
+  };
+
   // 렌더링 함수
   const renderCanvas = useCallback(() => {
     const ctx = canvasRef.current?.getContext('2d');
@@ -651,7 +682,14 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   }, [contextMenu]);
 
   return (
-    <CanvasContainer ref={containerRef} onWheel={handleWheel} tabIndex={0}>
+    <CanvasContainer
+      ref={containerRef}
+      onWheel={handleWheel}
+      tabIndex={0}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
       <CanvasArea
         style={{
           minWidth: `${minHexWidth}px`,
