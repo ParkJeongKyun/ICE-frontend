@@ -2,7 +2,8 @@ import styled from 'styled-components';
 
 // 메인 레이아웃
 export const IceMainLayout = styled.div<{ $isResizing: boolean }>`
-  height: 100vh;
+  width: 100%;
+  height: 100%;
   background-color: var(--main-bg-color);
   color: var(--main-color);
   border: none;
