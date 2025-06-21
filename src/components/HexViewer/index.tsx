@@ -51,13 +51,13 @@ const layout = {
 // 모바일 레이아웃
 const layoutMobile = {
   containerPadding: 5,
-  gap: 5,
+  gap: 4,
   bytesPerRow: 16,
-  rowHeight: 13,
-  font: '8px monospace',
-  offsetWidth: 42,
-  hexByteWidth: 12,
-  asciiCharWidth: 6,
+  rowHeight: 15,
+  font: '9px monospace',
+  offsetWidth: 44,
+  hexByteWidth: 14,
+  asciiCharWidth: 7,
 };
 
 const {
