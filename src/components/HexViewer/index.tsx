@@ -219,6 +219,43 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     [firstRow, maxFirstRow]
   );
 
+  // 모바일 터치 스크롤 지원
+  useEffect(() => {
+    if (!isMobile) return;
+    let startY = 0;
+    let startRow = 0;
+    const handleTouchStart = (e: TouchEvent) => {
+      if (e.touches.length === 1) {
+        startY = e.touches[0].clientY;
+        startRow = firstRow;
+      }
+    };
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.touches.length === 1) {
+        const deltaY = e.touches[0].clientY - startY;
+        const rowDelta = -Math.round(deltaY / rowHeight);
+        let nextRow = startRow + rowDelta;
+        nextRow = Math.max(0, Math.min(nextRow, maxFirstRow));
+        setFirstRow(nextRow);
+      }
+    };
+    const container = containerRef.current;
+    if (container) {
+      container.addEventListener('touchstart', handleTouchStart, {
+        passive: false,
+      });
+      container.addEventListener('touchmove', handleTouchMove, {
+        passive: false,
+      });
+    }
+    return () => {
+      if (container) {
+        container.removeEventListener('touchstart', handleTouchStart);
+        container.removeEventListener('touchmove', handleTouchMove);
+      }
+    };
+  }, [isMobile, firstRow, maxFirstRow, rowHeight]);
+
   // 스크롤바 드래그
   const handleScrollbarMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -227,6 +264,16 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     setScrollbarStartRow(firstRow);
     document.body.style.userSelect = 'none';
   };
+  // 모바일 터치 스크롤바 지원
+  const handleScrollbarTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length === 1) {
+      setScrollbarDragging(true);
+      setScrollbarStartY(e.touches[0].clientY);
+      setScrollbarStartRow(firstRow);
+      document.body.style.userSelect = 'none';
+    }
+  };
+
   useEffect(() => {
     if (!scrollbarDragging) return;
     const handleMouseMove = (e: MouseEvent) => {
@@ -244,11 +291,33 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
       setScrollbarDragging(false);
       document.body.style.userSelect = '';
     };
+    // 모바일 터치 이동
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.touches.length === 1) {
+        const deltaY = e.touches[0].clientY - scrollbarStartY;
+        const totalScrollable = canvasSize.height - scrollbarHeight;
+        if (totalScrollable <= 0) return;
+        const rowDelta = Math.round(
+          (deltaY / totalScrollable) * (rowCount - visibleRows)
+        );
+        let nextRow = scrollbarStartRow + rowDelta;
+        nextRow = Math.max(0, Math.min(nextRow, maxFirstRow));
+        setFirstRow(nextRow);
+      }
+    };
+    const handleTouchEnd = () => {
+      setScrollbarDragging(false);
+      document.body.style.userSelect = '';
+    };
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('mouseup', handleMouseUp);
+    window.addEventListener('touchmove', handleTouchMove);
+    window.addEventListener('touchend', handleTouchEnd);
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('touchend', handleTouchEnd);
     };
   }, [
     scrollbarDragging,
@@ -646,6 +715,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
               height={scrollbarHeight}
               top={scrollbarTop}
               onMouseDown={handleScrollbarMouseDown}
+              onTouchStart={handleScrollbarTouchStart}
             />
           </VirtualScrollbar>
         )}
