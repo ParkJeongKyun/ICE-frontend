@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { isMobile } from 'react-device-detect';
 
 // 캔버스 컨테이너
 export const CanvasContainer = styled.div`
@@ -36,7 +37,7 @@ export const StyledCanvas = styled.canvas`
 
 // 가상 스크롤바
 export const VirtualScrollbar = styled.div`
-  width: 10px;
+  width: ${isMobile ? '15px' : '12px'};
   height: 100%;
   background-color: transparent;
   margin-left: 2px;
