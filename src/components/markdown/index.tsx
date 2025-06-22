@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Markdown from 'react-markdown';
 import styled from 'styled-components';
+import BackArrowIcon from '@/components/common/Icons/BackArrowIcon';
 
 export interface Props {
   defaultText: string;
@@ -70,7 +71,15 @@ const ICEMarkDown: React.FC<Props> = ({ defaultText, childTexts }) => {
     <MarkdownContainer>
       {/* 기본 텍스트로 변경 */}
       {markdownText != defaultText && (
-        <SetDefaultBtn onClick={setDefaultText}>돌아가기</SetDefaultBtn>
+        <MarkdownHeader>
+          <SetDefaultBtn onClick={setDefaultText}>
+            <BackArrowIcon
+              width={22}
+              height={22}
+              color="var(--ice-main-color_3)"
+            />
+          </SetDefaultBtn>
+        </MarkdownHeader>
       )}
       <MarkDownDiv>
         <Markdown components={components}>{markdownText}</Markdown>
@@ -83,20 +92,27 @@ export default ICEMarkDown;
 
 // 메인 컨테이너
 const MarkdownContainer = styled.div`
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  overflow-y: hidden;
   text-align: left;
   height: 100%;
 `;
 
+const MarkdownHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: end;
+  padding: 0px 5px;
+  border-bottom: 1.5px solid var(--main-line-color);
+`;
+
 // 기본 텍스트로 변경 버튼
 const SetDefaultBtn = styled.div`
-  color: var(--ice-main-color_3);
-  text-decoration: underline;
   cursor: pointer;
-  font-size: 0.8rem;
-  font-weight: 600;
-  padding-left: 15px;
-  padding-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
 
 // 마크다운 링크
@@ -108,6 +124,7 @@ const MarkDownLink = styled.span`
 
 // 마크다운 컨테이너
 export const MarkDownDiv = styled.div`
+  overflow-y: auto;
   padding-left: 15px;
   padding-right: 15px;
   padding-bottom: 15px;
