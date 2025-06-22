@@ -10,6 +10,7 @@ function setVhVar() {
 }
 setVhVar();
 window.addEventListener('resize', setVhVar);
+window.addEventListener('orientationchange', setVhVar);
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
