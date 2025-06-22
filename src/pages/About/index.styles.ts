@@ -19,7 +19,7 @@ export const AppContainer = styled.div`
 `;
 
 export const Section = styled.section<{ $bgColor?: string }>`
-  height: 100vh;
+  height: 100dvh;
   display: flex;
   justify-content: center;
   align-items: center;

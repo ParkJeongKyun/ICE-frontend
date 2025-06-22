@@ -315,7 +315,6 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
       let nextRow = touchStartRowRef.current + rowDelta;
       nextRow = Math.max(0, Math.min(nextRow, maxFirstRow));
       setFirstRow(nextRow);
-      e.preventDefault(); // pull-to-refresh 방지
     }
   };
 
