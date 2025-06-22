@@ -177,11 +177,12 @@ export const IceCopyRight = styled.div`
 
 // 중간 컨텐츠 레이아웃
 export const IceLayout = styled.div`
+  display: flex;
+  flex: 1;
+  height: 100%;
   background-color: var(--main-bg-color);
   color: var(--main-color);
-  flex: 1;
   overflow: hidden; /* 스크롤 숨기기 */
-  display: flex;
 `;
 
 // 크기 조절 바
@@ -242,11 +243,11 @@ export const FlexGrow = styled.div`
 
 // 중간 부분
 export const IceContent = styled.div`
-  display: block;
+  display: flex;
+  flex: 1;
   background-color: var(--main-bg-color);
   color: var(--main-color);
   overflow: hidden;
-  flex-grow: 1;
 `;
 
 // 오른쪽 사이드바
@@ -260,21 +261,21 @@ export const IceRightSider = styled.div`
 
 // 모바일 레이아웃
 export const IceMobileLayout = styled.div`
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  height: 100%;
   background-color: var(--main-bg-color);
   color: var(--main-color);
   overflow: hidden; /* 스크롤 숨기기 */
-  display: flex;
-  flex-direction: column;
-  height: 100%;
 `;
 
 // 모바일
 export const IceMobileContent = styled.div`
-  display: block;
+  display: flex;
+  flex-grow: 1;
   background-color: var(--main-bg-color);
   color: var(--main-color);
-  overflow: hidden;
-  flex-grow: 1;
 `;
 
 // 모바일
