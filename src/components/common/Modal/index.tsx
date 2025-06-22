@@ -25,9 +25,21 @@ const Modal: React.FC<ModalProps> = ({
   top,
   left,
 }) => {
+  if (!isOpen) return null;
+
+  const handleContainerClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget && onClose) {
+      onClose();
+    }
+  };
+
   return (
-    <ModalContainer $isOpen={isOpen}>
-      <ModalContent $top={top || '50%'} $left={left || '50%'}>
+    <ModalContainer $isOpen={isOpen} onClick={handleContainerClick}>
+      <ModalContent
+        $top={top || '50%'}
+        $left={left || '50%'}
+        onClick={(e) => e.stopPropagation()}
+      >
         <ModalHeader>
           <div>{title}</div>
           <CloseBtn onClick={onClose}>
