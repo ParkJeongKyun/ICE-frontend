@@ -5,7 +5,8 @@ export const CollapseContainer = styled.div``;
 export const CollapseHeader = styled.div`
   display: flex;
   align-items: center;
-  padding: 4px 15px 4px 15px;
+  height: 25px;
+  padding: 0px 15px 0px 15px;
   cursor: pointer;
   border-bottom: 1px solid var(--main-line-color);
   &:hover {

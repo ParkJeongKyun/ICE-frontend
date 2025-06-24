@@ -39,23 +39,48 @@ export const Tab = styled.div<{ $active: boolean }>`
   align-items: center;
   font-size: 0.7rem;
   font-weight: 700;
-  padding: 6px 5px 6px 10px;
+  height: 25px;
+  padding: 0px 5px 0px 15px;
   border-right: 1px solid var(--main-line-color);
   cursor: pointer;
-  border-bottom: ${(props) =>
-    props.$active ? '2px solid var(--ice-main-color)' : 'none'};
+  /* border-bottom 제거 */
+  /* color 스타일은 그대로 */
   color: ${(props) =>
     props.$active ? 'var(--ice-main-color)' : 'var(--main-color)'};
+  position: relative; /* ::after 위치 기준 */
   &:hover {
     color: var(--ice-main-color);
     background-color: var(--main-hover-color);
     ${(props) =>
       props.$active
         ? ''
-        : 'border-bottom: 2px solid var(--main-hover-line-color);'};
+        : `
+          &::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 2px;
+            background: var(--main-hover-line-color);
+            pointer-events: none;
+          }
+        `};
     svg {
       stroke: var(--main-hover-line-color);
     }
+  }
+  /* 내부선 효과: 활성화 시 ::after로 표시 */
+  &::after {
+    content: '';
+    display: ${(props) => (props.$active ? 'block' : 'none')};
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 2px;
+    background: var(--ice-main-color);
+    pointer-events: none;
   }
   white-space: nowrap; /* 줄 바꿈 방지 */
 `;
