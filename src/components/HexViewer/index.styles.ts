@@ -1,6 +1,13 @@
 import styled from 'styled-components';
 import { isMobile } from 'react-device-detect';
 
+// 최상위 컨테이너
+export const HexViewerContainer = styled.div`
+  position: relative;
+  width: 100%;
+  height: 100%;
+`;
+
 // 캔버스 컨테이너
 export const CanvasContainer = styled.div`
   width: 100%;
@@ -40,14 +47,14 @@ export const VirtualScrollbar = styled.div`
   width: ${isMobile ? '15px' : '12px'};
   height: 100%;
   background-color: transparent;
-  margin-left: 2px;
   display: flex;
   align-items: flex-start;
   user-select: none;
   position: absolute;
   right: 0;
   top: 0;
-  z-index: 10;
+  z-index: 100;
+  pointer-events: all;
 `;
 
 // 스크롤바 썸
@@ -59,9 +66,10 @@ export const ScrollbarThumb = styled.div<{
   width: 100%;
   height: ${({ height }) => height}px;
   margin-top: ${({ top }) => top}px;
-  background-color: rgba(255, 255, 255, 0.3);
+  background-color: rgba(255, 255, 255, 0.5);
   cursor: pointer;
-  opacity: 0.7;
+  opacity: ${({ dragging }) =>
+    dragging === 'true' || dragging === true ? '0.9' : '0.5'};
   transition: ${({ dragging }) =>
     dragging === 'true' || dragging === true ? 'none' : 'opacity 0.2s'};
 `;
