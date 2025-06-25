@@ -9,6 +9,7 @@ import React, {
 import { useSelection } from '@/contexts/SelectionContext';
 import { useTabData, EncodingType } from '@/contexts/TabDataContext';
 import {
+  HexViewerContainer,
   CanvasContainer,
   CanvasArea,
   StyledCanvas,
@@ -681,46 +682,45 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   }, [contextMenu]);
 
   return (
-    <CanvasContainer
-      ref={containerRef}
+    <HexViewerContainer
       onWheel={handleWheel}
-      tabIndex={0}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
-      <CanvasArea
-        style={{
-          minWidth: `${minHexWidth}px`,
-        }}
-      >
-        <StyledCanvas
-          ref={canvasRef}
-          width={canvasSize.width}
-          height={canvasSize.height}
+      <CanvasContainer ref={containerRef} tabIndex={0}>
+        <CanvasArea
           style={{
-            width: `${canvasSize.width / getDevicePixelRatio()}px`,
-            height: `${canvasSize.height}px`,
+            minWidth: `${minHexWidth}px`,
           }}
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          onContextMenu={handleContextMenu}
-        />
-        {rowCount > visibleRows && (
-          <VirtualScrollbar style={{ height: '100%', alignSelf: 'stretch' }}>
-            <ScrollbarThumb
-              ref={scrollbarRef}
-              dragging={scrollbarDragging.toString()}
-              height={scrollbarHeight}
-              top={scrollbarTop}
-              onMouseDown={handleScrollbarMouseDown}
-              onTouchStart={handleScrollbarTouchStart}
-            />
-          </VirtualScrollbar>
-        )}
-      </CanvasArea>
-      {/* 스크롤바를 CanvasArea 내부로 이동 */}
+        >
+          <StyledCanvas
+            ref={canvasRef}
+            width={canvasSize.width}
+            height={canvasSize.height}
+            style={{
+              width: `${canvasSize.width / getDevicePixelRatio()}px`,
+              height: `${canvasSize.height}px`,
+            }}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onContextMenu={handleContextMenu}
+          />
+        </CanvasArea>
+      </CanvasContainer>
+      {rowCount > visibleRows && (
+        <VirtualScrollbar>
+          <ScrollbarThumb
+            ref={scrollbarRef}
+            dragging={scrollbarDragging.toString()}
+            height={scrollbarHeight}
+            top={scrollbarTop}
+            onMouseDown={handleScrollbarMouseDown}
+            onTouchStart={handleScrollbarTouchStart}
+          />
+        </VirtualScrollbar>
+      )}
       {contextMenu && (
         <ContextMenu
           ref={contextMenuRef}
@@ -745,7 +745,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
           </ContextMenuList>
         </ContextMenu>
       )}
-    </CanvasContainer>
+    </HexViewerContainer>
   );
 };
 
