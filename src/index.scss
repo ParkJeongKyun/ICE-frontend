@@ -10,23 +10,23 @@ body,
   text-align: center;
 
   // 메인 색
-  --main-bg-color: #1e1e1e;
-  --main-bg-color_1: #9cdcfe;
-  --main-bg-color_reverse: #ffffff;
-  --main-hover-color: #494949;
-  --main-hover-color_1: #111111;
-  --main-hover-line-color: #999999;
-  --main-color: #cfcfcf;
-  --main-color_1: #ababab;
-  --main-line-color: #494949;
-  --main-disabled-color: #505050;
+  --main-bg-color: #121820; // Darker with blue tint
+  --main-bg-color_1: #81d4fe; // Lighter ice blue
+  --main-bg-color_reverse: #e8f4ff; // Cool white with blue tint
+  --main-hover-color: #243240; // Blue-gray hover
+  --main-hover-color_1: #0a1218; // Darker ice blue
+  --main-hover-line-color: #7aa8c8; // Frosted blue
+  --main-color: #d8e8f0; // Cool white text
+  --main-color_1: #a0c0d8; // Light blue-gray
+  --main-line-color: #345167; // Medium blue-gray line
+  --main-disabled-color: #3a4754; // Disabled blue-gray
 
   // 강조 색
-  --ice-main-color: #9cdcfe;
-  --ice-main-color_1: #cc4141;
-  --ice-main-color_2: #23d17c;
-  --ice-main-color_3: #cca700;
-  --ice-main-color_4: #c8e7ff;
+  --ice-main-color: #60c8ff; // Bright ice blue
+  --ice-main-color_1: #e05858; // Cooler red
+  --ice-main-color_2: #40e0a0; // Cool mint green
+  --ice-main-color_3: #e0c040; // Cool gold
+  --ice-main-color_4: #d8f0ff; // Very light ice blue
 
   background-color: var(--main-bg-color);
 

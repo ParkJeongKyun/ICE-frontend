@@ -66,7 +66,7 @@ export const ScrollbarThumb = styled.div<{
   width: 100%;
   height: ${({ height }) => height}px;
   margin-top: ${({ top }) => top}px;
-  background-color: rgba(255, 255, 255, 0.5);
+  background-color: var(--main-hover-color);
   cursor: pointer;
   opacity: ${({ dragging }) =>
     dragging === 'true' || dragging === true ? '0.9' : '0.5'};
