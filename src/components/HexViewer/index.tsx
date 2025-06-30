@@ -336,19 +336,19 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     // CSS 변수에서 실제 색상값 읽기
     const style = getComputedStyle(document.documentElement);
     const COLOR_HEX_EVEN =
-      style.getPropertyValue('--main-color_1').trim() || '#ababab';
+      style.getPropertyValue('--main-color_1').trim() || '#a0c0d8';
     const COLOR_HEX_ODD =
-      style.getPropertyValue('--main-color').trim() || '#cfcfcf';
+      style.getPropertyValue('--main-color').trim() || '#d8e8f0';
     const COLOR_ASCII =
-      style.getPropertyValue('--main-color').trim() || '#cfcfcf';
+      style.getPropertyValue('--main-color').trim() || '#d8e8f0';
     const COLOR_ASCII_DISABLED =
-      style.getPropertyValue('--main-disabled-color').trim() || '#505050';
+      style.getPropertyValue('--main-disabled-color').trim() || '#3a4754';
     const COLOR_SELECTED_BG =
-      style.getPropertyValue('--main-hover-color').trim() || '#494949';
+      style.getPropertyValue('--main-hover-color').trim() || '#243240';
     const COLOR_SELECTED_TEXT =
-      style.getPropertyValue('--ice-main-color').trim() || 'rgb(156, 220, 254)';
+      style.getPropertyValue('--ice-main-color').trim() || '#60c8ff';
     const COLOR_OFFSET =
-      style.getPropertyValue('--ice-main-color_4').trim() || '#ffb86c';
+      style.getPropertyValue('--ice-main-color_4').trim() || '#d8f0ff';
 
     const dpr = getDevicePixelRatio();
     ctx.setTransform(1, 0, 0, 1, 0, 0);
