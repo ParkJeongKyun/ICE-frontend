@@ -213,49 +213,33 @@ const Game: React.FC = () => {
     }
   }, [currentPiece, checkCollision, isPaused, isGameOver]);
 
-  // 테트로미노 하드 드롭 함수 (한번에 끝까지 내리기)
-  const hardDrop = useCallback(() => {
-    if (!currentPiece || isPaused || isGameOver) return;
-
-    let newY = currentPiece.position.y;
-
-    while (
-      !checkCollision(currentPiece.shape, {
-        x: currentPiece.position.x,
-        y: newY + 1,
-      })
-    ) {
-      newY++;
-    }
-
-    setCurrentPiece({
-      ...currentPiece,
-      position: { ...currentPiece.position, y: newY },
-    });
-
-    // 바로 고정시키기
-    mergePiece();
-  }, [currentPiece, checkCollision, isPaused, isGameOver]);
-
   // 보드에 테트로미노 합치기
   const mergePiece = useCallback(() => {
-    if (!currentPiece) return;
+    if (!currentPiece || isPaused || isGameOver) return;
 
-    const newBoard = [...board];
+    // 새 보드 상태 직접 계산
+    const newBoard = board.map((row) => [...row]);
 
+    // 현재 블록을 보드에 직접 병합
     currentPiece.shape.forEach((row, y) => {
       row.forEach((value, x) => {
         if (value !== 0) {
           const boardY = y + currentPiece.position.y;
           const boardX = x + currentPiece.position.x;
 
-          if (boardY >= 0) {
+          if (
+            boardY >= 0 &&
+            boardY < BOARD_HEIGHT &&
+            boardX >= 0 &&
+            boardX < BOARD_WIDTH
+          ) {
             newBoard[boardY][boardX] = currentPiece.color;
           }
         }
       });
     });
 
+    // 보드 상태 업데이트
     setBoard(newBoard);
 
     // 완성된 라인 체크 및 제거
@@ -272,7 +256,7 @@ const Game: React.FC = () => {
       const additionalScore = linePoints[completedLines.length - 1] * level;
       setScore((prev) => prev + additionalScore);
 
-      // 레벨업 체크 (10점당 1레벨)
+      // 레벨업 체크
       const newScore = score + additionalScore;
       const newLevel = Math.floor(newScore / 1000) + 1;
       if (newLevel > level) {
@@ -289,8 +273,113 @@ const Game: React.FC = () => {
       setBoard(newBoardAfterLineRemoval);
     }
 
-    // 새 테트로미노 생성
-    generateNewPiece();
+    // 게임 오버 체크
+    if (newBoard[0].some((cell) => cell !== null)) {
+      setIsGameOver(true);
+      if (gameInterval.current) {
+        clearInterval(gameInterval.current);
+        gameInterval.current = null;
+      }
+    } else {
+      // 새 테트로미노 생성
+      generateNewPiece();
+    }
+  }, [
+    currentPiece,
+    board,
+    isPaused,
+    isGameOver,
+    BOARD_HEIGHT,
+    BOARD_WIDTH,
+    level,
+    score,
+    generateNewPiece,
+  ]);
+
+  // 테트로미노 하드 드롭 함수 (한번에 끝까지 내리기)
+  const hardDrop = useCallback(() => {
+    if (!currentPiece || isPaused || isGameOver) return;
+
+    let newY = currentPiece.position.y;
+    let foundBottom = false;
+
+    // 충돌이 발생할 때까지 블록을 아래로 이동
+    while (!foundBottom) {
+      if (
+        checkCollision(currentPiece.shape, {
+          x: currentPiece.position.x,
+          y: newY + 1,
+        })
+      ) {
+        foundBottom = true;
+      } else {
+        newY++;
+      }
+    }
+
+    // 업데이트된 테트로미노로 임시 상태 생성
+    const updatedPiece = {
+      ...currentPiece,
+      position: { ...currentPiece.position, y: newY },
+    };
+
+    // 상태 업데이트
+    setCurrentPiece(updatedPiece);
+
+    // 위치가 업데이트된 블록을 사용하여 보드에 병합
+    // 블록이 완전히 바닥에 위치했으므로 충돌 검사 없이 바로 병합
+    const newBoard = board.map((row) => [...row]);
+
+    updatedPiece.shape.forEach((row, y) => {
+      row.forEach((value, x) => {
+        if (value !== 0) {
+          const boardY = y + updatedPiece.position.y;
+          const boardX = x + updatedPiece.position.x;
+
+          if (
+            boardY >= 0 &&
+            boardY < BOARD_HEIGHT &&
+            boardX >= 0 &&
+            boardX < BOARD_WIDTH
+          ) {
+            newBoard[boardY][boardX] = updatedPiece.color;
+          }
+        }
+      });
+    });
+
+    setBoard(newBoard);
+
+    // 완성된 라인 체크 및 제거 로직 수행
+    const completedLines = newBoard.reduce((acc, row, idx) => {
+      if (row.every((cell) => cell !== null)) {
+        return [...acc, idx];
+      }
+      return acc;
+    }, [] as number[]);
+
+    if (completedLines.length > 0) {
+      // 점수 추가
+      const linePoints = [40, 100, 300, 1200];
+      const additionalScore = linePoints[completedLines.length - 1] * level;
+      setScore((prev) => prev + additionalScore);
+
+      // 레벨업 체크
+      const newScore = score + additionalScore;
+      const newLevel = Math.floor(newScore / 1000) + 1;
+      if (newLevel > level) {
+        setLevel(newLevel);
+      }
+
+      // 완성된 라인 제거
+      const newBoardAfterLineRemoval = newBoard.slice();
+      completedLines.forEach((lineIdx) => {
+        newBoardAfterLineRemoval.splice(lineIdx, 1);
+        newBoardAfterLineRemoval.unshift(Array(BOARD_WIDTH).fill(null));
+      });
+
+      setBoard(newBoardAfterLineRemoval);
+    }
 
     // 게임 오버 체크
     if (newBoard[0].some((cell) => cell !== null)) {
@@ -299,8 +388,22 @@ const Game: React.FC = () => {
         clearInterval(gameInterval.current);
         gameInterval.current = null;
       }
+    } else {
+      // 새 테트로미노 생성
+      generateNewPiece();
     }
-  }, [currentPiece, board, generateNewPiece, level, score]);
+  }, [
+    currentPiece,
+    board,
+    isPaused,
+    isGameOver,
+    checkCollision,
+    BOARD_HEIGHT,
+    BOARD_WIDTH,
+    level,
+    score,
+    generateNewPiece,
+  ]);
 
   // 키보드 이벤트 핸들러
   useEffect(() => {
@@ -321,6 +424,7 @@ const Game: React.FC = () => {
           rotatePiece();
           break;
         case ' ':
+          e.preventDefault(); // 스페이스바 기본 동작 방지
           hardDrop();
           break;
         case 'p':
