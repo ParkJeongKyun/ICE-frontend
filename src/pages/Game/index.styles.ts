@@ -31,18 +31,31 @@ export const Board = styled.div`
   background-color: var(--main-hover-color);
 `;
 
-export const Cell = styled.div<{ $color: string | null; $isActive: boolean }>`
+export const Cell = styled.div<{
+  $color: string | null;
+  $isActive: boolean;
+  $isGhost?: boolean;
+}>`
   width: 100%;
   height: 100%;
   border-radius: 2px;
   background-color: ${(props) =>
-    props.$color ? props.$color : 'var(--main-hover-color_1)'};
+    props.$isGhost
+      ? 'transparent' // 그림자 블록은 배경색 투명
+      : props.$color
+        ? props.$color
+        : 'var(--main-hover-color_1)'};
   border: ${(props) =>
-    props.$isActive
-      ? '1px solid var(--main-hover-line-color)'
-      : '1px solid var(--main-line-color)'};
+    props.$isGhost
+      ? `1px dashed ${props.$color || 'var(--ice-main-color)'}` // 그림자 블록은 점선 테두리
+      : props.$isActive
+        ? '1px solid var(--main-hover-line-color)'
+        : '1px solid var(--main-line-color)'};
   box-shadow: ${(props) =>
-    props.$isActive ? 'inset 0 0 5px rgba(255, 255, 255, 0.3)' : 'none'};
+    props.$isActive && !props.$isGhost
+      ? 'inset 0 0 5px rgba(255, 255, 255, 0.3)'
+      : 'none'};
+  opacity: ${(props) => (props.$isGhost ? 0.5 : 1)}; // 그림자 블록은 반투명
   transition: background-color 0.1s ease;
 `;
 

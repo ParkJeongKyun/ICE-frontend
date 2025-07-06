@@ -496,10 +496,65 @@ const Game: React.FC = () => {
     generateNewPiece();
   };
 
+  // 그림자 블록(고스트 피스)의 위치 계산 함수
+  const getGhostPosition = useCallback(() => {
+    if (!currentPiece) return null;
+
+    let ghostY = currentPiece.position.y;
+
+    // 충돌이 발생할 때까지 블록을 아래로 이동
+    while (
+      !checkCollision(currentPiece.shape, {
+        x: currentPiece.position.x,
+        y: ghostY + 1,
+      })
+    ) {
+      ghostY++;
+    }
+
+    // 현재 블록과 그림자 블록이 같은 위치에 있으면 그림자를 표시하지 않음
+    if (ghostY === currentPiece.position.y) {
+      return null;
+    }
+
+    return {
+      ...currentPiece,
+      position: { ...currentPiece.position, y: ghostY },
+    };
+  }, [currentPiece, checkCollision]);
+
   // 현재 테트로미노를 보드에 그리기
   const renderBoard = () => {
     const boardWithCurrentPiece = board.map((row) => [...row]);
 
+    // 그림자 블록 위치 계산
+    const ghostPiece = getGhostPosition();
+
+    // 그림자 블록 렌더링 (실제 블록보다 먼저 그려서 실제 블록이 우선 표시되도록 함)
+    if (ghostPiece) {
+      ghostPiece.shape.forEach((row, y) => {
+        row.forEach((value, x) => {
+          if (value !== 0) {
+            const boardY = y + ghostPiece.position.y;
+            const boardX = x + ghostPiece.position.x;
+
+            if (
+              boardY >= 0 &&
+              boardY < BOARD_HEIGHT &&
+              boardX >= 0 &&
+              boardX < BOARD_WIDTH &&
+              boardWithCurrentPiece[boardY][boardX] === null // 기존 블록이 없는 경우에만 그림자 표시
+            ) {
+              // 그림자 블록을 위한 특별한 표시
+              boardWithCurrentPiece[boardY][boardX] =
+                `ghost:${ghostPiece.color}`;
+            }
+          }
+        });
+      });
+    }
+
+    // 실제 블록 렌더링
     if (currentPiece) {
       currentPiece.shape.forEach((row, y) => {
         row.forEach((value, x) => {
@@ -523,9 +578,24 @@ const Game: React.FC = () => {
     return (
       <S.Board>
         {boardWithCurrentPiece.map((row, y) =>
-          row.map((cell, x) => (
-            <S.Cell key={`${y}-${x}`} $color={cell} $isActive={cell !== null} />
-          ))
+          row.map((cell, x) => {
+            // 그림자 블록 여부 확인
+            const isGhost =
+              cell !== null &&
+              typeof cell === 'string' &&
+              cell.startsWith('ghost:');
+            // 그림자 블록의 실제 색상 추출
+            const color = isGhost ? cell.substring(6) : cell;
+
+            return (
+              <S.Cell
+                key={`${y}-${x}`}
+                $color={color}
+                $isActive={cell !== null}
+                $isGhost={isGhost}
+              />
+            );
+          })
         )}
       </S.Board>
     );
