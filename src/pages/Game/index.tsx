@@ -94,6 +94,10 @@ const Game: React.FC = () => {
   const [level, setLevel] = useState<number>(1);
   const [isGameOver, setIsGameOver] = useState<boolean>(false);
   const [isPaused, setIsPaused] = useState<boolean>(false);
+  // 마지막 하강 시간을 추적하는 ref
+  const lastDropTime = useRef<number>(Date.now());
+
+  // 타이머 ID를 저장하는 ref - useEffect cleanup을 위해
   const gameInterval = useRef<NodeJS.Timeout | null>(null);
 
   // 랜덤 테트로미노 생성 함수
@@ -405,10 +409,15 @@ const Game: React.FC = () => {
     generateNewPiece,
   ]);
 
-  // 키보드 이벤트 핸들러
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (isGameOver) return;
+  // togglePause 함수를 먼저 선언
+  const togglePause = () => {
+    setIsPaused(!isPaused);
+  };
+
+  // 키보드 이벤트 핸들러 - useCallback으로 최적화
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (isGameOver || isPaused) return;
 
       switch (e.key) {
         case 'ArrowLeft':
@@ -419,6 +428,7 @@ const Game: React.FC = () => {
           break;
         case 'ArrowDown':
           movePiece(0, 1);
+          // 아래 방향키는 lastDropTime을 재설정하지 않음 (의도적으로 블록을 더 빨리 내림)
           break;
         case 'ArrowUp':
           rotatePiece();
@@ -434,50 +444,55 @@ const Game: React.FC = () => {
         default:
           break;
       }
-    };
+    },
+    [movePiece, rotatePiece, hardDrop, isGameOver, isPaused, togglePause]
+  );
 
+  // 키보드 이벤트 리스너 등록
+  useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [movePiece, rotatePiece, hardDrop, isGameOver]);
+  }, [handleKeyDown]);
 
-  // 자동 하강 타이머
+  // 자동 하강 게임 루프 - requestAnimationFrame 사용
   useEffect(() => {
-    if (!isPaused && !isGameOver && currentPiece) {
-      const speed = Math.max(100, 1000 - (level - 1) * 100); // 레벨에 따라 속도 증가
+    if (isPaused || isGameOver || !currentPiece) return;
 
-      gameInterval.current = setInterval(() => {
+    let animationFrameId: number;
+    const dropSpeed = Math.max(100, 1000 - (level - 1) * 100); // 레벨에 따라 속도 조정
+
+    const gameLoop = () => {
+      const now = Date.now();
+      // 마지막 하강 시간에서 일정 시간이 지났으면 블록 하강
+      if (now - lastDropTime.current > dropSpeed) {
         const moved = movePiece(0, 1);
         if (!moved) {
           mergePiece();
         }
-      }, speed);
+        lastDropTime.current = now;
+      }
+      animationFrameId = requestAnimationFrame(gameLoop);
+    };
 
-      return () => {
-        if (gameInterval.current) {
-          clearInterval(gameInterval.current);
-          gameInterval.current = null;
-        }
-      };
-    }
+    // 게임 루프 시작
+    animationFrameId = requestAnimationFrame(gameLoop);
+
+    // cleanup function
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+    };
   }, [currentPiece, isPaused, isGameOver, level, movePiece, mergePiece]);
 
-  // 게임 시작 시 초기화
-  useEffect(() => {
-    startGame();
-  }, []);
-
-  const togglePause = () => {
-    setIsPaused(!isPaused);
-  };
-
+  // 게임 시작/재시작 시 마지막 하강 시간 초기화
   const startGame = () => {
     setBoard(createEmptyBoard());
     setScore(0);
     setLevel(1);
     setIsGameOver(false);
     setIsPaused(false);
+    lastDropTime.current = Date.now(); // 마지막 하강 시간 초기화
     generateNewPiece();
   };
 
