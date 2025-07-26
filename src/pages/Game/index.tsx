@@ -632,45 +632,100 @@ const Game: React.FC = () => {
     );
   };
 
+  const isMobile = window.innerWidth <= 600;
+
+  // 모바일용 컨트롤 버튼 핸들러
+  const handleMobileControl = (action: string) => {
+    if (isGameOver) return;
+    switch (action) {
+      case 'left':
+        movePiece(-1, 0);
+        break;
+      case 'right':
+        movePiece(1, 0);
+        break;
+      case 'down':
+        movePiece(0, 1);
+        break;
+      case 'rotate':
+        rotatePiece();
+        break;
+      case 'drop':
+        hardDrop();
+        break;
+      case 'pause':
+        togglePause();
+        break;
+      default:
+        break;
+    }
+  };
+
   return (
-    <S.GameContainer>
-      <S.GameTitle>ICE Tetris</S.GameTitle>
+    <>
+      <S.NoScroll /> {/* 스크롤 차단 글로벌 스타일 적용 */}
+      <S.GameContainer>
+        <S.GameTitle>ICE Tetris</S.GameTitle>
+        <S.GameWrapper>
+          <S.BoardContainer>{renderBoard()}</S.BoardContainer>
+          <S.SidePanel>
+            <S.NextPieceContainer>
+              <S.NextPieceTitle>다음 블록</S.NextPieceTitle>
+              {renderNextPiece()}
+            </S.NextPieceContainer>
+            <S.ScorePanel>
+              <S.ScoreTitle>점수</S.ScoreTitle>
+              <S.ScoreValue>{score}</S.ScoreValue>
+            </S.ScorePanel>
+            <S.ScorePanel>
+              <S.ScoreTitle>레벨</S.ScoreTitle>
+              <S.ScoreValue>{level}</S.ScoreValue>
+            </S.ScorePanel>
+            <S.GameControls>
+              <S.Button onClick={togglePause} disabled={isGameOver}>
+                {isPaused ? '계속하기' : '일시정지'}
+              </S.Button>
+              <S.Button onClick={startGame}>새 게임</S.Button>
+            </S.GameControls>
+          </S.SidePanel>
+        </S.GameWrapper>
 
-      <S.GameWrapper>
-        <S.BoardContainer>{renderBoard()}</S.BoardContainer>
+        {/* 모바일 컨트롤 버튼 */}
+        {isMobile && !isGameOver && (
+          <S.MobileControls>
+            <S.MobileRow>
+              <S.MobileButton onClick={() => handleMobileControl('rotate')}>
+                ⟳
+              </S.MobileButton>
+              <S.MobileButton onClick={() => handleMobileControl('drop')}>
+                ↓↓
+              </S.MobileButton>
+              <S.MobileButton onClick={() => handleMobileControl('pause')}>
+                {isPaused ? '▶' : '⏸'}
+              </S.MobileButton>
+            </S.MobileRow>
+            <S.MobileRow>
+              <S.MobileButton onClick={() => handleMobileControl('left')}>
+                ←
+              </S.MobileButton>
+              <S.MobileButton onClick={() => handleMobileControl('down')}>
+                ↓
+              </S.MobileButton>
+              <S.MobileButton onClick={() => handleMobileControl('right')}>
+                →
+              </S.MobileButton>
+            </S.MobileRow>
+          </S.MobileControls>
+        )}
 
-        <S.SidePanel>
-          <S.NextPieceContainer>
-            <S.NextPieceTitle>다음 블록</S.NextPieceTitle>
-            {renderNextPiece()}
-          </S.NextPieceContainer>
-
-          <S.ScorePanel>
-            <S.ScoreTitle>점수</S.ScoreTitle>
-            <S.ScoreValue>{score}</S.ScoreValue>
-          </S.ScorePanel>
-
-          <S.ScorePanel>
-            <S.ScoreTitle>레벨</S.ScoreTitle>
-            <S.ScoreValue>{level}</S.ScoreValue>
-          </S.ScorePanel>
-
-          <S.GameControls>
-            <S.Button onClick={togglePause} disabled={isGameOver}>
-              {isPaused ? '계속하기' : '일시정지'}
-            </S.Button>
-            <S.Button onClick={startGame}>새 게임</S.Button>
-          </S.GameControls>
-        </S.SidePanel>
-      </S.GameWrapper>
-
-      {isGameOver && (
-        <S.GameOver>
-          <S.GameOverText>Game Over</S.GameOverText>
-          <S.Button onClick={startGame}>다시 시작</S.Button>
-        </S.GameOver>
-      )}
-    </S.GameContainer>
+        {isGameOver && (
+          <S.GameOver>
+            <S.GameOverText>Game Over</S.GameOverText>
+            <S.Button onClick={startGame}>다시 시작</S.Button>
+          </S.GameOver>
+        )}
+      </S.GameContainer>
+    </>
   );
 };
 
