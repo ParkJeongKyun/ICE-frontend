@@ -1,7 +1,7 @@
 import MainLayout from '@/layouts';
 import HomePage from '@/pages';
 import About from '@/pages/About';
-import Game from '@/pages/Game';
+import LinkNote from '@/pages/LinkNote';
 import { Navigate, Outlet, useRoutes } from 'react-router-dom';
 
 const RouterList = () => {
@@ -21,8 +21,8 @@ const RouterList = () => {
       element: <About />,
     },
     {
-      path: '/Game',
-      element: <Game />,
+      path: '/LinkNote',
+      element: <LinkNote />,
     },
     // Not Found Page
     {
