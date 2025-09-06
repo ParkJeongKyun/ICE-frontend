@@ -37,4 +37,45 @@ body,
   }
   // Pull to Refresh 방지
   overscroll-behavior: none;
+
+  // Crepe 테마 변수 설정
+  --crepe-color-background: var(--main-bg-color); /* Main background color */
+  --crepe-color-surface: var(
+    --main-hover-color
+  ); /* Surface color for cards/panels */
+  --crepe-color-surface-low: var(
+    --main-hover-color_1
+  ); /* Lower surface color for depth */
+
+  /* Text Colors */
+  --crepe-color-on-background: var(--main-color); /* Text color on background */
+  --crepe-color-on-surface: var(--main-color); /* Text color on surface */
+  --crepe-color-on-surface-variant: var(
+    --main-color_1
+  ); /* Secondary text color */
+
+  /* Accent Colors */
+  --crepe-color-primary: var(--ice-main-color); /* Primary brand color */
+  --crepe-color-secondary: var(--main-hover-color); /* Secondary accent color */
+  --crepe-color-on-secondary: var(
+    --ice-main-color_4
+  ); /* Text color on secondary */
+
+  /* UI Colors */
+  --crepe-color-outline: var(--main-color_1);
+  --crepe-color-inverse: var(
+    --main-bg-color_reverse
+  ); /* Inverse color for contrast */
+  --crepe-color-on-inverse: var(--main-bg-color); /* Text color on inverse */
+  --crepe-color-inline-code: var(--ice-main-color_1); /* Inline code color */
+  --crepe-color-error: var(--ice-main-color_1); /* Error state color */
+
+  /* Interactive Colors */
+  --crepe-color-hover: var(--main-hover-color); /* Hover state color */
+  --crepe-color-selected: var(
+    --main-hover-line-color
+  ); /* Selected state color */
+  --crepe-color-inline-area: var(
+    --main-hover-color
+  ); /* Inline editing area color */
 }
