@@ -3,12 +3,13 @@ import { Milkdown, MilkdownProvider, useEditor } from '@milkdown/react';
 import '@milkdown/crepe/theme/common/style.css';
 import { useEffect, useRef, useState } from 'react';
 import LZString from 'lz-string';
+import EditIcon from '@/components/common/Icons/EditIcon';
+import ReadIcon from '@/components/common/Icons/ReadIcon';
 
 // Interface for our data structure
 interface NoteData {
-  content?: string;
-  password?: string;
-  lastModified?: string;
+  c?: string; // content
+  lm?: string; // lastModified
 }
 
 const CrepeEditor: React.FC = () => {
@@ -23,12 +24,11 @@ const CrepeEditor: React.FC = () => {
     if (!compressedData) return '';
 
     try {
-      const jsonString =
-        LZString.decompressFromEncodedURIComponent(compressedData);
-      if (!jsonString) return '';
+      const decompressed = LZString.decompressFromEncodedURIComponent(compressedData);
+      if (!decompressed) return '';
 
-      const data: NoteData = JSON.parse(jsonString);
-      return data.content || '';
+      const data: NoteData = JSON.parse(decompressed);
+      return data.c || '';
     } catch (error) {
       console.error('Error parsing URL data:', error);
       return '';
@@ -76,12 +76,13 @@ const CrepeEditor: React.FC = () => {
           position: 'fixed',
           bottom: '20px',
           right: '20px',
+          zIndex: 1000,
         }}
       >
         <button
           onClick={() => setIsReadOnly(!isReadOnly)}
           style={{
-            padding: '6px 12px',
+            padding: '6px 6px',
             backgroundColor: isReadOnly ? '#4CAF50' : '#2196F3',
             color: 'white',
             border: 'none',
@@ -89,7 +90,7 @@ const CrepeEditor: React.FC = () => {
             cursor: 'pointer',
           }}
         >
-          {isReadOnly ? 'EDIT' : 'READ'}
+          {isReadOnly ? <EditIcon /> : <ReadIcon />}
         </button>
       </div>
       <div style={{ textAlign: 'start' }}>
@@ -110,14 +111,9 @@ export const LinkNote: React.FC = () => {
 // Utility function to create compressed URL data
 export const createNoteUrl = (content: string, password?: string): string => {
   const data: NoteData = {
-    content: content,
-    lastModified: new Date().toISOString(), // Add current date as lastModified
+    c: content, // Use shortened key
+    lm: new Date().toISOString(), // Add current date as lastModified
   };
-
-  if (password) {
-    // In a real app, hash the password first
-    data.password = password;
-  }
 
   const jsonString = JSON.stringify(data);
   const compressed = LZString.compressToEncodedURIComponent(jsonString);
