@@ -8,6 +8,7 @@ import LZString from 'lz-string';
 interface NoteData {
   content?: string;
   password?: string;
+  lastModified?: string;
 }
 
 const CrepeEditor: React.FC = () => {
@@ -50,12 +51,9 @@ const CrepeEditor: React.FC = () => {
     // Register event listeners
     editor.on((listener) => {
       listener.blur((ctx) => {
-        console.log('Editor blurred', editor.getMarkdown());
-
         // Get current content and create URL with compressed data
         const content = editor.getMarkdown();
         const newUrl = createNoteUrl(content);
-
         // Update the URL without refreshing the page
         window.history.replaceState({}, '', newUrl);
       });
@@ -73,7 +71,13 @@ const CrepeEditor: React.FC = () => {
 
   return (
     <div>
-      <div style={{ marginBottom: '10px' }}>
+      <div
+        style={{
+          position: 'fixed',
+          bottom: '20px',
+          right: '20px',
+        }}
+      >
         <button
           onClick={() => setIsReadOnly(!isReadOnly)}
           style={{
@@ -85,7 +89,7 @@ const CrepeEditor: React.FC = () => {
             cursor: 'pointer',
           }}
         >
-          {isReadOnly ? '편집 모드로 전환' : '읽기 모드로 전환'}
+          {isReadOnly ? 'EDIT' : 'READ'}
         </button>
       </div>
       <div style={{ textAlign: 'start' }}>
@@ -107,6 +111,7 @@ export const LinkNote: React.FC = () => {
 export const createNoteUrl = (content: string, password?: string): string => {
   const data: NoteData = {
     content: content,
+    lastModified: new Date().toISOString(), // Add current date as lastModified
   };
 
   if (password) {
