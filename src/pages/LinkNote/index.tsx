@@ -20,7 +20,26 @@ const CrepeEditor: React.FC = () => {
 
   const handleShare = () => {
     const url = window.location.href;
-    navigator.clipboard.writeText(url).then(() => {});
+
+    if (navigator.share) {
+      navigator
+        .share({
+          title: 'LinkNote',
+          text: 'Check out this note!',
+          url: url,
+        })
+        .then(() => {
+          console.log('Shared successfully');
+        })
+        .catch((error) => {
+          console.error('Error sharing:', error);
+        });
+    } else {
+      // Fallback for browsers that do not support Web Share API
+      navigator.clipboard.writeText(url).then(() => {
+        alert('Link copied to clipboard!');
+      });
+    }
   };
 
   // Function to extract note data from URL
@@ -86,7 +105,7 @@ const CrepeEditor: React.FC = () => {
           {isReadOnly ? <EditIcon /> : <ReadIcon />}
         </ToggleButton>
         <ShareButton onClick={handleShare}>
-          <ShareIcon/>
+          <ShareIcon />
         </ShareButton>
       </ButtonZone>
       <div style={{ textAlign: 'start' }}>
