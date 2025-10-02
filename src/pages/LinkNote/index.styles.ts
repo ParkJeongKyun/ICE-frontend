@@ -21,3 +21,17 @@ export const ToggleButton = styled.button<{ isReadOnly: boolean }>`
     opacity: 0.9;
   }
 `;
+
+export const ShareButton = styled.button`
+  padding: 6px 6px;
+  background-color: #60c8ff; /* Bright ice blue */
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-left: 8px;
+
+  &:hover {
+    opacity: 0.9;
+  }
+`;

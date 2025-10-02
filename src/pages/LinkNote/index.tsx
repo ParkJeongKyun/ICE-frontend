@@ -5,7 +5,8 @@ import { useEffect, useRef, useState } from 'react';
 import LZString from 'lz-string';
 import EditIcon from '@/components/common/Icons/EditIcon';
 import ReadIcon from '@/components/common/Icons/ReadIcon';
-import { MainContainer, ButtonZone, ToggleButton } from './index.styles';
+import ShareIcon from '@/components/common/Icons/ShareIcon';
+import { MainContainer, ButtonZone, ToggleButton, ShareButton } from './index.styles';
 
 // Interface for our data structure
 interface NoteData {
@@ -16,6 +17,11 @@ interface NoteData {
 const CrepeEditor: React.FC = () => {
   const [isReadOnly, setIsReadOnly] = useState(true);
   const editorRef = useRef<Crepe | null>(null);
+
+  const handleShare = () => {
+    const url = window.location.href;
+    navigator.clipboard.writeText(url).then(() => {});
+  };
 
   // Function to extract note data from URL
   const getNoteDataFromUrl = (): string => {
@@ -79,6 +85,9 @@ const CrepeEditor: React.FC = () => {
         >
           {isReadOnly ? <EditIcon /> : <ReadIcon />}
         </ToggleButton>
+        <ShareButton onClick={handleShare}>
+          <ShareIcon/>
+        </ShareButton>
       </ButtonZone>
       <div style={{ textAlign: 'start' }}>
         <Milkdown />
