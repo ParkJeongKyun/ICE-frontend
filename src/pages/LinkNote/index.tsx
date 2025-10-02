@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 import LZString from 'lz-string';
 import EditIcon from '@/components/common/Icons/EditIcon';
 import ReadIcon from '@/components/common/Icons/ReadIcon';
+import { MainContainer, ButtonZone, ToggleButton } from './index.styles';
 
 // Interface for our data structure
 interface NoteData {
@@ -70,33 +71,19 @@ const CrepeEditor: React.FC = () => {
   }, [isReadOnly]);
 
   return (
-    <div>
-      <div
-        style={{
-          position: 'fixed',
-          bottom: '20px',
-          right: '20px',
-          zIndex: 1000,
-        }}
-      >
-        <button
+    <MainContainer>
+      <ButtonZone>
+        <ToggleButton
+          isReadOnly={isReadOnly}
           onClick={() => setIsReadOnly(!isReadOnly)}
-          style={{
-            padding: '6px 6px',
-            backgroundColor: isReadOnly ? '#4CAF50' : '#2196F3',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-          }}
         >
           {isReadOnly ? <EditIcon /> : <ReadIcon />}
-        </button>
-      </div>
+        </ToggleButton>
+      </ButtonZone>
       <div style={{ textAlign: 'start' }}>
         <Milkdown />
       </div>
-    </div>
+    </MainContainer>
   );
 };
 
