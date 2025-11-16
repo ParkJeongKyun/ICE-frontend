@@ -12,6 +12,7 @@ import {
   SubTitleDiv,
 } from './index.styles';
 import { isMobile } from 'react-device-detect';
+import Logo from '../common/Icons/Logo';
 
 interface Props {
   menuBtnZoneRef: React.RefObject<MenuBtnZoneRef>;
@@ -22,6 +23,7 @@ const Home: React.FC<Props> = ({ menuBtnZoneRef }) => {
     <HomeDiv>
       <ContientDiv>
         <TitleDiv>
+          <Logo />
           <Title>
             ICE
             <Version>
