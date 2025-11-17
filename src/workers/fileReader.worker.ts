@@ -1,35 +1,34 @@
-// 요청 큐 (동시 처리 제한)
+// 동시 처리 제한 (3개까지 동시 처리)
+const MAX_CONCURRENT = 3;
 const queue: Array<{ file: File; offset: number; length: number }> = [];
-let processing = false;
+let processingCount = 0;
 
 async function processQueue() {
-  if (processing || queue.length === 0) return;
-  
-  processing = true;
-  const { file, offset, length } = queue.shift()!;
-  
-  try {
-    const blob = file.slice(offset, offset + length);
-    const arrayBuffer = await blob.arrayBuffer();
-    const data = new Uint8Array(arrayBuffer);
+  while (processingCount < MAX_CONCURRENT && queue.length > 0) {
+    processingCount++;
+    const { file, offset, length } = queue.shift()!;
     
-    self.postMessage({
-      type: 'CHUNK_DATA',
-      offset,
-      data,
-    });
-  } catch (error: any) {
-    self.postMessage({
-      type: 'ERROR',
-      error: error.message,
-      offset,
-    });
-  }
-  
-  processing = false;
-  // 다음 작업 처리
-  if (queue.length > 0) {
-    processQueue();
+    try {
+      const blob = file.slice(offset, offset + length);
+      const arrayBuffer = await blob.arrayBuffer();
+      const data = new Uint8Array(arrayBuffer);
+      
+      self.postMessage({
+        type: 'CHUNK_DATA',
+        offset,
+        data,
+      });
+    } catch (error: any) {
+      self.postMessage({
+        type: 'ERROR',
+        error: error.message,
+        offset,
+      });
+    } finally {
+      processingCount--;
+      // 다음 작업 처리
+      processQueue();
+    }
   }
 }
 
@@ -37,7 +36,6 @@ self.addEventListener('message', async (e) => {
   const { type, file, offset, length } = e.data;
 
   if (type === 'READ_CHUNK') {
-    // 큐에 추가
     queue.push({ file, offset, length });
     processQueue();
   }

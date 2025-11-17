@@ -140,9 +140,15 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
 
   const { selectionRange, setSelectionRange } = useSelection();
 
-  // Worker 인스턴스
+  // Worker 참조
   const workerRef = useRef<Worker | null>(null);
-  // 현재 로드된 청크 데이터 캐시
+  
+  // Worker 및 캐시를 탭별로 관리
+  const workerCacheRef = useRef<Map<string, {
+    worker: Worker;
+    cache: Map<number, Uint8Array>;
+  }>>(new Map());
+  
   const [chunkCache, setChunkCache] = useState<Map<number, Uint8Array>>(new Map());
 
   // 오프셋 기반 스크롤
@@ -153,6 +159,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   const [scrollbarDragging, setScrollbarDragging] = useState(false);
   const [scrollbarStartY, setScrollbarStartY] = useState(0);
   const [scrollbarStartRow, setScrollbarStartRow] = useState(0);
+  const isDraggingRef = useRef(false); // 드래그 상태 추적용 ref
 
   // 전체 row, 보이는 row
   const visibleRows = Math.floor(canvasSize.height / rowHeight);
@@ -209,56 +216,266 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     return () => observer.disconnect();
   }, [isMobile, minHexWidth]);
 
+  // 오프스크린 캔버스 (더블 버퍼링용)
+  const offscreenCanvasRef = useRef<HTMLCanvasElement | null>(null);
+
   // 렌더링 예약 ref
   const rafRef = useRef<number | null>(null);
   
-  // Worker 초기화 - activeKey 변경 시 캐시 초기화
-  useEffect(() => {
-    if (!file) return;
-    
-    // 캐시 초기화 (다른 탭으로 전환 시)
-    setChunkCache(new Map());
-    
-    workerRef.current = new Worker(
-      new URL('../../workers/fileReader.worker.ts', import.meta.url)
-    );
-    
-    workerRef.current.onmessage = (e) => {
-      const { type, offset, data } = e.data;
-      if (type === 'CHUNK_DATA') {
-        setChunkCache((prev) => new Map(prev).set(offset, data));
-      }
-    };
-    
-    return () => {
-      workerRef.current?.terminate();
-      workerRef.current = null;
-    };
-  }, [file, activeKey]); // activeKey 추가로 탭 전환 시 재초기화
-
-  // 필요한 청크 요청 - 디바운싱 추가
-  const chunkRequestTimerRef = useRef<NodeJS.Timeout | null>(null);
+  // 마지막 렌더링된 firstRow 추적
+  const lastRenderedRowRef = useRef<number>(-1);
   
+  // 스크롤바 드래그 종료 후 렌더링 딜레이
+  const renderDelayTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const [shouldRender, setShouldRender] = useState(true);
+  const [renderTrigger, setRenderTrigger] = useState(0); // 렌더링 트리거 카운터
+  
+  // Worker 초기화 - 탭별로 Worker와 캐시 유지
   useEffect(() => {
-    if (!file || !workerRef.current) return;
+    if (!file || !activeKey) return;
     
-    // 이전 타이머 취소
-    if (chunkRequestTimerRef.current) {
-      clearTimeout(chunkRequestTimerRef.current);
+    // 현재 탭의 Worker와 캐시 가져오기 또는 생성
+    let tabWorkerCache = workerCacheRef.current.get(activeKey);
+    
+    if (!tabWorkerCache) {
+      const worker = new Worker(
+        new URL('../../workers/fileReader.worker.ts', import.meta.url)
+      );
+      
+      const cache = new Map<number, Uint8Array>();
+      
+      worker.onmessage = (e) => {
+        const { type, offset, data } = e.data;
+        if (type === 'CHUNK_DATA') {
+          cache.set(offset, data);
+          // 현재 활성 탭이면 state 업데이트
+          if (activeKey === activeKey) {
+            setChunkCache(new Map(cache));
+          }
+        }
+      };
+      
+      tabWorkerCache = { worker, cache };
+      workerCacheRef.current.set(activeKey, tabWorkerCache);
     }
     
-    // 50ms 디바운싱
-    chunkRequestTimerRef.current = setTimeout(() => {
-      const CHUNK_SIZE = 1024 * 1024;
+    // 현재 탭의 캐시로 state 설정
+    setChunkCache(new Map(tabWorkerCache.cache));
+    workerRef.current = tabWorkerCache.worker;
+    
+    // cleanup - 컴포넌트 언마운트 시에만 모든 Worker 정리
+    return () => {
+      // 탭 전환 시에는 Worker 유지, 언마운트 시에만 정리
+    };
+  }, [file, activeKey]);
+  
+  // 컴포넌트 언마운트 시 모든 Worker 정리
+  useEffect(() => {
+    return () => {
+      workerCacheRef.current.forEach(({ worker }) => {
+        worker.terminate();
+      });
+      workerCacheRef.current.clear();
+    };
+  }, []);
+
+  // 스크롤바 드래그 시 - 주기적 렌더링
+  useEffect(() => {
+    if (!scrollbarDragging) return;
+    
+    // 드래그 시작 시 즉시 렌더링 중단
+    setShouldRender(false);
+    
+    // 드래그 시작 시 즉시 주변 청크 로드
+    if (workerRef.current && file) {
+      const CHUNK_SIZE = 256 * 1024;
       const startByte = firstRow * bytesPerRow;
       const endByte = Math.min(
-        startByte + (visibleRows + 5) * bytesPerRow, // 5줄 미리 로드
+        startByte + (visibleRows + 100) * bytesPerRow, // 100줄 미리 로드
         fileSize
       );
       
       const startChunk = Math.floor(startByte / CHUNK_SIZE);
       const endChunk = Math.floor(endByte / CHUNK_SIZE);
       
+      // 즉시 모든 청크 요청
+      for (let i = startChunk; i <= endChunk; i++) {
+        const offset = i * CHUNK_SIZE;
+        if (!chunkCache.has(offset)) {
+          workerRef.current.postMessage({
+            type: 'READ_CHUNK',
+            file,
+            offset,
+            length: Math.min(CHUNK_SIZE, fileSize - offset),
+          });
+        }
+      }
+    }
+    
+    // RAF를 사용한 주기적 렌더링 (더 부드러움)
+    let lastRenderTime = 0;
+    const RENDER_INTERVAL = 100; // 100ms (오타 수정: 100000 → 100)
+    let rafId: number | null = null;
+    
+    const periodicRender = (timestamp: number) => {
+      if (!isDraggingRef.current) return;
+      
+      if (timestamp - lastRenderTime >= RENDER_INTERVAL) {
+        setRenderTrigger(prev => prev + 1); // 렌더링 트리거
+        lastRenderTime = timestamp;
+      }
+      
+      rafId = requestAnimationFrame(periodicRender);
+    };
+    
+    rafId = requestAnimationFrame(periodicRender);
+    
+    let animationFrameId: number | null = null;
+    let lastUpdateTime = 0;
+    const UPDATE_INTERVAL = 50;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const currentTime = Date.now();
+      
+      if (currentTime - lastUpdateTime < UPDATE_INTERVAL) {
+        return;
+      }
+      
+      if (animationFrameId !== null) {
+        cancelAnimationFrame(animationFrameId);
+      }
+      
+      animationFrameId = requestAnimationFrame(() => {
+        const deltaY = e.clientY - scrollbarStartY;
+        const totalScrollable = canvasSize.height - scrollbarHeight;
+        if (totalScrollable <= 0) return;
+        const rowDelta = Math.round(
+          (deltaY / totalScrollable) * (rowCount - visibleRows)
+        );
+        let nextRow = scrollbarStartRow + rowDelta;
+        nextRow = Math.max(0, Math.min(nextRow, maxFirstRow));
+        setFirstRow(nextRow);
+        lastUpdateTime = currentTime;
+      });
+    };
+
+    const handleMouseUp = () => {
+      if (animationFrameId !== null) {
+        cancelAnimationFrame(animationFrameId);
+      }
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+      }
+      setScrollbarDragging(false);
+      isDraggingRef.current = false;
+      document.body.style.userSelect = '';
+      
+      // 드래그 종료 후 즉시 렌더링
+      setShouldRender(true);
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.touches.length === 1) {
+        const currentTime = Date.now();
+        
+        if (currentTime - lastUpdateTime < UPDATE_INTERVAL) {
+          return;
+        }
+        
+        if (animationFrameId !== null) {
+          cancelAnimationFrame(animationFrameId);
+        }
+        
+        animationFrameId = requestAnimationFrame(() => {
+          const deltaY = e.touches[0].clientY - scrollbarStartY;
+          const totalScrollable = canvasSize.height - scrollbarHeight;
+          if (totalScrollable <= 0) return;
+          const rowDelta = Math.round(
+            (deltaY / totalScrollable) * (rowCount - visibleRows)
+          );
+          let nextRow = scrollbarStartRow + rowDelta;
+          nextRow = Math.max(0, Math.min(nextRow, maxFirstRow));
+          setFirstRow(nextRow);
+          lastUpdateTime = currentTime;
+        });
+      }
+    };
+
+    const handleTouchEnd = () => {
+      if (animationFrameId !== null) {
+        cancelAnimationFrame(animationFrameId);
+      }
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+      }
+      setScrollbarDragging(false);
+      isDraggingRef.current = false;
+      document.body.style.userSelect = '';
+      
+      // 드래그 종료 후 즉시 렌더링
+      setShouldRender(true);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+    window.addEventListener('touchmove', handleTouchMove);
+    window.addEventListener('touchend', handleTouchEnd);
+    
+    return () => {
+      if (animationFrameId !== null) {
+        cancelAnimationFrame(animationFrameId);
+      }
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+      }
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [
+    scrollbarDragging,
+    scrollbarStartY,
+    scrollbarStartRow,
+    rowCount,
+    visibleRows,
+    maxFirstRow,
+    canvasSize.height,
+    scrollbarHeight,
+    firstRow, // 추가
+    bytesPerRow, // 추가
+    fileSize, // 추가
+    file, // 추가
+    chunkCache, // 추가
+  ]);
+
+  // 필요한 청크 요청 - 초기 로딩 시 병렬 요청
+  const chunkRequestTimerRef = useRef<NodeJS.Timeout | null>(null);
+  
+  useEffect(() => {
+    if (!file || !workerRef.current) return;
+    
+    if (chunkRequestTimerRef.current) {
+      clearTimeout(chunkRequestTimerRef.current);
+    }
+    
+    if (isDraggingRef.current) return;
+    
+    const debounceTime = 50;
+    
+    chunkRequestTimerRef.current = setTimeout(() => {
+      const CHUNK_SIZE = 256 * 1024;
+      const startByte = firstRow * bytesPerRow;
+      const preloadRows = 30;
+      const endByte = Math.min(
+        startByte + (visibleRows + preloadRows) * bytesPerRow,
+        fileSize
+      );
+      
+      const startChunk = Math.floor(startByte / CHUNK_SIZE);
+      const endChunk = Math.floor(endByte / CHUNK_SIZE);
+      
+      // 필요한 청크 모두 병렬 요청 (Worker가 알아서 큐 처리)
       for (let i = startChunk; i <= endChunk; i++) {
         const offset = i * CHUNK_SIZE;
         if (!chunkCache.has(offset)) {
@@ -271,39 +488,48 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
         }
       }
       
-      // 오래된 캐시 정리 (현재 화면에서 멀리 떨어진 청크)
-      const maxCacheSize = 10; // 최대 10개 청크만 유지
+      // 캐시 정리 로직
+      const maxCacheSize = 60;
       if (chunkCache.size > maxCacheSize) {
         const currentChunks = new Set();
-        for (let i = startChunk; i <= endChunk; i++) {
+        for (let i = startChunk - 10; i <= endChunk + 10; i++) {
           currentChunks.add(i * CHUNK_SIZE);
         }
         
-        setChunkCache((prev) => {
-          const newCache = new Map();
-          let count = 0;
-          for (const [offset, data] of prev) {
-            if (currentChunks.has(offset) || count < maxCacheSize) {
+        // 현재 탭의 캐시 업데이트
+        const tabWorkerCache = workerCacheRef.current.get(activeKey!);
+        if (tabWorkerCache) {
+          const newCache = new Map<number, Uint8Array>();
+          for (const [offset, data] of tabWorkerCache.cache) {
+            if (currentChunks.has(offset)) {
+              newCache.set(offset, data);
+            }
+          }
+          let count = newCache.size;
+          for (const [offset, data] of tabWorkerCache.cache) {
+            if (count >= maxCacheSize) break;
+            if (!currentChunks.has(offset)) {
               newCache.set(offset, data);
               count++;
             }
           }
-          return newCache;
-        });
+          tabWorkerCache.cache = newCache;
+          setChunkCache(new Map(newCache));
+        }
       }
-    }, 50);
+    }, debounceTime);
     
     return () => {
       if (chunkRequestTimerRef.current) {
         clearTimeout(chunkRequestTimerRef.current);
       }
     };
-  }, [file, firstRow, visibleRows, fileSize, chunkCache]);
+  }, [file, firstRow, visibleRows, fileSize, chunkCache, activeKey]);
 
-  // 바이트 가져오기 (캐시에서) - useMemo로 최적화
+  // 바이트 가져오기 (캐시에서) - CHUNK_SIZE 동일하게 변경
   const getByte = useMemo(
     () => (index: number): number | null => {
-      const CHUNK_SIZE = 1024 * 1024;
+      const CHUNK_SIZE = 256 * 1024; // 1MB → 256KB
       const chunkOffset = Math.floor(index / CHUNK_SIZE) * CHUNK_SIZE;
       const chunk = chunkCache.get(chunkOffset);
       if (!chunk) return null;
@@ -327,6 +553,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   const handleScrollbarMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();
     setScrollbarDragging(true);
+    isDraggingRef.current = true;
     setScrollbarStartY(e.clientY);
     setScrollbarStartRow(firstRow);
     document.body.style.userSelect = 'none';
@@ -335,67 +562,12 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   const handleScrollbarTouchStart = (e: React.TouchEvent) => {
     if (e.touches.length === 1) {
       setScrollbarDragging(true);
+      isDraggingRef.current = true;
       setScrollbarStartY(e.touches[0].clientY);
       setScrollbarStartRow(firstRow);
       document.body.style.userSelect = 'none';
     }
   };
-
-  useEffect(() => {
-    if (!scrollbarDragging) return;
-    const handleMouseMove = (e: MouseEvent) => {
-      const deltaY = e.clientY - scrollbarStartY;
-      const totalScrollable = canvasSize.height - scrollbarHeight;
-      if (totalScrollable <= 0) return;
-      const rowDelta = Math.round(
-        (deltaY / totalScrollable) * (rowCount - visibleRows)
-      );
-      let nextRow = scrollbarStartRow + rowDelta;
-      nextRow = Math.max(0, Math.min(nextRow, maxFirstRow));
-      setFirstRow(nextRow);
-    };
-    const handleMouseUp = () => {
-      setScrollbarDragging(false);
-      document.body.style.userSelect = '';
-    };
-    // 모바일 터치 이동
-    const handleTouchMove = (e: TouchEvent) => {
-      if (e.touches.length === 1) {
-        const deltaY = e.touches[0].clientY - scrollbarStartY;
-        const totalScrollable = canvasSize.height - scrollbarHeight;
-        if (totalScrollable <= 0) return;
-        const rowDelta = Math.round(
-          (deltaY / totalScrollable) * (rowCount - visibleRows)
-        );
-        let nextRow = scrollbarStartRow + rowDelta;
-        nextRow = Math.max(0, Math.min(nextRow, maxFirstRow));
-        setFirstRow(nextRow);
-      }
-    };
-    const handleTouchEnd = () => {
-      setScrollbarDragging(false);
-      document.body.style.userSelect = '';
-    };
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseup', handleMouseUp);
-    window.addEventListener('touchmove', handleTouchMove);
-    window.addEventListener('touchend', handleTouchEnd);
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
-      window.removeEventListener('touchmove', handleTouchMove);
-      window.removeEventListener('touchend', handleTouchEnd);
-    };
-  }, [
-    scrollbarDragging,
-    scrollbarStartY,
-    scrollbarStartRow,
-    rowCount,
-    visibleRows,
-    maxFirstRow,
-    canvasSize.height,
-    scrollbarHeight,
-  ]);
 
   // 모바일 터치 스크롤 구현
   const touchStartYRef = useRef<number | null>(null);
@@ -427,10 +599,21 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     touchStartRowRef.current = null;
   };
 
-  // 렌더링 함수
+  // 렌더링 함수 - renderTrigger 의존성 추가
   const renderCanvas = useCallback(() => {
-    const ctx = canvasRef.current?.getContext('2d', { alpha: false }); // alpha: false로 성능 개선
+    const ctx = canvasRef.current?.getContext('2d', { alpha: false });
     if (!ctx) return;
+    
+    // 오프스크린 캔버스 초기화
+    if (!offscreenCanvasRef.current) {
+      offscreenCanvasRef.current = document.createElement('canvas');
+    }
+    
+    const offscreenCanvas = offscreenCanvasRef.current;
+    offscreenCanvas.width = canvasSize.width;
+    offscreenCanvas.height = canvasSize.height;
+    const offCtx = offscreenCanvas.getContext('2d', { alpha: false });
+    if (!offCtx) return;
     
     // CSS 변수에서 실제 색상값 읽기
     const style = getComputedStyle(document.documentElement);
@@ -448,18 +631,24 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
       style.getPropertyValue('--ice-main-color').trim() || '#60c8ff';
     const COLOR_OFFSET =
       style.getPropertyValue('--ice-main-color_4').trim() || '#d8f0ff';
+    const COLOR_BG =
+      style.getPropertyValue('--main-bg-color').trim() || '#1a1f28';
 
     const dpr = getDevicePixelRatio();
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.clearRect(0, 0, canvasSize.width, canvasSize.height);
-    ctx.save();
-    ctx.scale(dpr, 1);
+    
+    // 오프스크린 캔버스에 먼저 그리기
+    offCtx.setTransform(1, 0, 0, 1, 0, 0);
+    offCtx.fillStyle = COLOR_BG;
+    offCtx.fillRect(0, 0, canvasSize.width, canvasSize.height);
+    offCtx.save();
+    offCtx.scale(dpr, 1);
 
-    ctx.font = font;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
+    offCtx.font = font;
+    offCtx.textAlign = 'center';
+    offCtx.textBaseline = 'middle';
 
     const renderRows = Math.ceil(canvasSize.height / rowHeight) + 1;
+    
     for (
       let row = firstRow, drawRow = 0;
       row < Math.min(rowCount, firstRow + renderRows) &&
@@ -469,7 +658,6 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
       const y = drawRow * rowHeight;
       const offset = row * bytesPerRow;
 
-      // 오프셋 렌더링
       // 오프셋(주소) 텍스트 선택 영역 포함 여부
       const offsetStart = row * bytesPerRow;
       const offsetEnd = Math.min(
@@ -481,40 +669,60 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
       const isOffsetSel =
         selStart !== null &&
         selEnd !== null &&
-        // 선택 영역이 이 줄 전체를 포함하거나, 일부라도 겹치면 true
         offsetStart <= Math.max(selStart, selEnd) &&
         offsetEnd >= Math.min(selStart, selEnd);
 
       // 오프셋(주소) 텍스트
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
+      offCtx.textAlign = 'center';
+      offCtx.textBaseline = 'middle';
       if (isOffsetSel) {
-        ctx.fillStyle = COLOR_SELECTED_BG;
-        ctx.fillRect(
-          offsetStartX, // 좌측 패딩만큼 띄움
+        offCtx.fillStyle = COLOR_SELECTED_BG;
+        offCtx.fillRect(
+          offsetStartX,
           y + 2,
           offsetWidth,
           rowHeight - 4
         );
-        ctx.fillStyle = COLOR_SELECTED_TEXT;
+        offCtx.fillStyle = COLOR_SELECTED_TEXT;
       } else {
-        ctx.fillStyle = COLOR_OFFSET;
+        offCtx.fillStyle = COLOR_OFFSET;
       }
-      ctx.fillText(
+      offCtx.fillText(
         offset.toString(16).padStart(8, '0').toUpperCase(),
-        offsetStartX + offsetWidth / 2, // 중앙 위치도 패딩 반영
+        offsetStartX + offsetWidth / 2,
         y + rowHeight / 2
       );
 
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
+      offCtx.textAlign = 'center';
+      offCtx.textBaseline = 'middle';
 
       for (let i = 0; i < bytesPerRow; i++) {
         const idx = offset + i;
         if (idx >= fileSize) break;
         
         const byte = getByte(idx);
-        if (byte === null) continue; // 아직 로드 안됨
+        
+        // 바이트가 없으면 로딩 표시 (회색)
+        if (byte === null) {
+          const xHex = hexStartX + i * hexByteWidth + hexByteWidth / 2;
+          const yHex = y + rowHeight / 2;
+          offCtx.fillStyle = 'rgba(128, 128, 128, 0.15)';
+          offCtx.fillRect(
+            xHex - hexByteWidth / 2 + 1,
+            y + 2,
+            hexByteWidth - 2,
+            rowHeight - 4
+          );
+          
+          const xAsc = asciiStartX + i * asciiCharWidth + asciiCharWidth / 2;
+          offCtx.fillRect(
+            xAsc - asciiCharWidth / 2 + 1,
+            y + 2,
+            asciiCharWidth - 2,
+            rowHeight - 4
+          );
+          continue;
+        }
         
         // HEX 렌더링
         const xHex = hexStartX + i * hexByteWidth + hexByteWidth / 2;
@@ -526,51 +734,67 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
           idx <= Math.max(selectionRange.start, selectionRange.end);
 
         if (isSel) {
-          ctx.fillStyle = COLOR_SELECTED_BG;
-          ctx.fillRect(
+          offCtx.fillStyle = COLOR_SELECTED_BG;
+          offCtx.fillRect(
             xHex - hexByteWidth / 2 + 1,
             y + 2,
             hexByteWidth - 2,
             rowHeight - 4
           );
-          ctx.fillStyle = COLOR_SELECTED_TEXT;
+          offCtx.fillStyle = COLOR_SELECTED_TEXT;
         } else {
-          ctx.fillStyle = i % 2 === 0 ? COLOR_HEX_EVEN : COLOR_HEX_ODD;
+          offCtx.fillStyle = i % 2 === 0 ? COLOR_HEX_EVEN : COLOR_HEX_ODD;
         }
-        ctx.fillText(byteToHex(byte), xHex, yHex);
+        offCtx.fillText(byteToHex(byte), xHex, yHex);
 
         // ASCII 렌더링
         const xAsc = asciiStartX + i * asciiCharWidth + asciiCharWidth / 2;
         const yAsc = y + rowHeight / 2;
         const char = byteToChar(byte, encoding);
         if (isSel) {
-          ctx.fillStyle = COLOR_SELECTED_BG;
-          ctx.fillRect(
+          offCtx.fillStyle = COLOR_SELECTED_BG;
+          offCtx.fillRect(
             xAsc - asciiCharWidth / 2 + 1,
             y + 2,
             asciiCharWidth - 2,
             rowHeight - 4
           );
-          ctx.fillStyle = COLOR_SELECTED_TEXT;
+          offCtx.fillStyle = COLOR_SELECTED_TEXT;
         } else {
-          ctx.fillStyle = char === '.' ? COLOR_ASCII_DISABLED : COLOR_ASCII;
+          offCtx.fillStyle = char === '.' ? COLOR_ASCII_DISABLED : COLOR_ASCII;
         }
-        ctx.fillText(char, xAsc, yAsc);
+        offCtx.fillText(char, xAsc, yAsc);
       }
     }
-    ctx.restore();
-  }, [firstRow, rowCount, fileSize, chunkCache, encoding, canvasSize.width, canvasSize.height, selectionRange.start, selectionRange.end]);
+    offCtx.restore();
+    
+    // 오프스크린 캔버스를 메인 캔버스에 복사
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, canvasSize.width, canvasSize.height);
+    ctx.drawImage(offscreenCanvas, 0, 0);
+    
+    lastRenderedRowRef.current = firstRow;
+    
+  }, [firstRow, rowCount, fileSize, chunkCache, encoding, canvasSize.width, canvasSize.height, selectionRange.start, selectionRange.end, getByte, renderTrigger]); // renderTrigger 추가
 
-  // 렌더링 트리거 - 불필요한 재렌더링 방지
+  // 렌더링 트리거
   useEffect(() => {
+    // 드래그 중이고 shouldRender가 false면 renderTrigger 변경 시에만 렌더링
+    if (isDraggingRef.current && !shouldRender) {
+      // renderTrigger가 0이면 아직 렌더링 안 함
+      if (renderTrigger === 0) return;
+    }
+    
     if (rafRef.current !== null) {
       cancelAnimationFrame(rafRef.current);
       rafRef.current = null;
     }
+    
     rafRef.current = requestAnimationFrame(() => {
       renderCanvas();
       rafRef.current = null;
     });
+    
     return () => {
       if (rafRef.current !== null) {
         cancelAnimationFrame(rafRef.current);
@@ -578,6 +802,15 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
       }
     };
   }, [renderCanvas]);
+
+  // cleanup
+  useEffect(() => {
+    return () => {
+      if (renderDelayTimerRef.current) {
+        clearTimeout(renderDelayTimerRef.current);
+      }
+    };
+  }, []);
 
   // 검색 API 수정 (전체 파일 스캔)
   useImperativeHandle(
