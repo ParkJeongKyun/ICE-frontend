@@ -149,7 +149,9 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     cache: Map<number, Uint8Array>;
   }>>(new Map());
   
-  const [chunkCache, setChunkCache] = useState<Map<number, Uint8Array>>(new Map());
+  // chunkCache를 state에서 ref로 변경 (렌더링 트리거용 카운터만 state로)
+  const chunkCacheRef = useRef<Map<number, Uint8Array>>(new Map());
+  const [cacheUpdateTrigger, setCacheUpdateTrigger] = useState(0);
 
   // 오프셋 기반 스크롤
   const [firstRow, setFirstRow] = useState(0);
@@ -248,9 +250,11 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
         const { type, offset, data } = e.data;
         if (type === 'CHUNK_DATA') {
           cache.set(offset, data);
-          // 현재 활성 탭이면 state 업데이트
-          if (activeKey === activeKey) {
-            setChunkCache(new Map(cache));
+          // 현재 활성 탭이면 ref 업데이트 + 렌더링 트리거
+          const currentActiveKey = activeKey;
+          if (currentActiveKey === activeKey) {
+            chunkCacheRef.current = cache;
+            setCacheUpdateTrigger(prev => prev + 1);
           }
         }
       };
@@ -259,11 +263,11 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
       workerCacheRef.current.set(activeKey, tabWorkerCache);
     }
     
-    // 현재 탭의 캐시로 state 설정
-    setChunkCache(new Map(tabWorkerCache.cache));
+    // 현재 탭의 캐시로 ref 설정
+    chunkCacheRef.current = tabWorkerCache.cache;
     workerRef.current = tabWorkerCache.worker;
+    setCacheUpdateTrigger(prev => prev + 1);
     
-    // cleanup - 컴포넌트 언마운트 시에만 모든 Worker 정리
     return () => {
       // 탭 전환 시에는 Worker 유지, 언마운트 시에만 정리
     };
@@ -291,7 +295,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
       const CHUNK_SIZE = 256 * 1024;
       const startByte = firstRow * bytesPerRow;
       const endByte = Math.min(
-        startByte + (visibleRows + 100) * bytesPerRow, // 100줄 미리 로드
+        startByte + (visibleRows + 100) * bytesPerRow,
         fileSize
       );
       
@@ -301,7 +305,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
       // 즉시 모든 청크 요청
       for (let i = startChunk; i <= endChunk; i++) {
         const offset = i * CHUNK_SIZE;
-        if (!chunkCache.has(offset)) {
+        if (!chunkCacheRef.current.has(offset)) {
           workerRef.current.postMessage({
             type: 'READ_CHUNK',
             file,
@@ -370,35 +374,9 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
       isDraggingRef.current = false;
       document.body.style.userSelect = '';
       
-      // 드래그 종료 후 즉시 렌더링
+      // 드래그 종료 후 즉시 렌더링 + renderTrigger 초기화
+      setRenderTrigger(0);
       setShouldRender(true);
-    };
-
-    const handleTouchMove = (e: TouchEvent) => {
-      if (e.touches.length === 1) {
-        const currentTime = Date.now();
-        
-        if (currentTime - lastUpdateTime < UPDATE_INTERVAL) {
-          return;
-        }
-        
-        if (animationFrameId !== null) {
-          cancelAnimationFrame(animationFrameId);
-        }
-        
-        animationFrameId = requestAnimationFrame(() => {
-          const deltaY = e.touches[0].clientY - scrollbarStartY;
-          const totalScrollable = canvasSize.height - scrollbarHeight;
-          if (totalScrollable <= 0) return;
-          const rowDelta = Math.round(
-            (deltaY / totalScrollable) * (rowCount - visibleRows)
-          );
-          let nextRow = scrollbarStartRow + rowDelta;
-          nextRow = Math.max(0, Math.min(nextRow, maxFirstRow));
-          setFirstRow(nextRow);
-          lastUpdateTime = currentTime;
-        });
-      }
     };
 
     const handleTouchEnd = () => {
@@ -412,13 +390,14 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
       isDraggingRef.current = false;
       document.body.style.userSelect = '';
       
-      // 드래그 종료 후 즉시 렌더링
+      // 드래그 종료 후 즉시 렌더링 + renderTrigger 초기화
+      setRenderTrigger(0);
       setShouldRender(true);
     };
 
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('mouseup', handleMouseUp);
-    window.addEventListener('touchmove', handleTouchMove);
+    // window.addEventListener('touchmove', handleTouchMove);
     window.addEventListener('touchend', handleTouchEnd);
     
     return () => {
@@ -430,7 +409,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
       }
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
-      window.removeEventListener('touchmove', handleTouchMove);
+      // window.removeEventListener('touchmove', handleTouchMove);
       window.removeEventListener('touchend', handleTouchEnd);
     };
   }, [
@@ -442,11 +421,11 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     maxFirstRow,
     canvasSize.height,
     scrollbarHeight,
-    firstRow, // 추가
-    bytesPerRow, // 추가
-    fileSize, // 추가
-    file, // 추가
-    chunkCache, // 추가
+    firstRow,
+    bytesPerRow,
+    fileSize,
+    file,
+    // chunkCache 제거
   ]);
 
   // 필요한 청크 요청 - 초기 로딩 시 병렬 요청
@@ -478,7 +457,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
       // 필요한 청크 모두 병렬 요청 (Worker가 알아서 큐 처리)
       for (let i = startChunk; i <= endChunk; i++) {
         const offset = i * CHUNK_SIZE;
-        if (!chunkCache.has(offset)) {
+        if (!chunkCacheRef.current.has(offset)) {
           workerRef.current?.postMessage({
             type: 'READ_CHUNK',
             file,
@@ -490,7 +469,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
       
       // 캐시 정리 로직
       const maxCacheSize = 60;
-      if (chunkCache.size > maxCacheSize) {
+      if (chunkCacheRef.current.size > maxCacheSize) {
         const currentChunks = new Set();
         for (let i = startChunk - 10; i <= endChunk + 10; i++) {
           currentChunks.add(i * CHUNK_SIZE);
@@ -514,7 +493,8 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
             }
           }
           tabWorkerCache.cache = newCache;
-          setChunkCache(new Map(newCache));
+          chunkCacheRef.current = newCache;
+          setCacheUpdateTrigger(prev => prev + 1);
         }
       }
     }, debounceTime);
@@ -524,19 +504,16 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
         clearTimeout(chunkRequestTimerRef.current);
       }
     };
-  }, [file, firstRow, visibleRows, fileSize, chunkCache, activeKey]);
+  }, [file, firstRow, visibleRows, fileSize, activeKey]); // chunkCache 제거
 
-  // 바이트 가져오기 (캐시에서) - CHUNK_SIZE 동일하게 변경
-  const getByte = useMemo(
-    () => (index: number): number | null => {
-      const CHUNK_SIZE = 256 * 1024; // 1MB → 256KB
-      const chunkOffset = Math.floor(index / CHUNK_SIZE) * CHUNK_SIZE;
-      const chunk = chunkCache.get(chunkOffset);
-      if (!chunk) return null;
-      return chunk[index - chunkOffset];
-    },
-    [chunkCache]
-  );
+  // 바이트 가져오기 (캐시에서) - ref 사용
+  const getByte = useCallback((index: number): number | null => {
+    const CHUNK_SIZE = 256 * 1024;
+    const chunkOffset = Math.floor(index / CHUNK_SIZE) * CHUNK_SIZE;
+    const chunk = chunkCacheRef.current.get(chunkOffset);
+    if (!chunk) return null;
+    return chunk[index - chunkOffset];
+  }, []); // 의존성 없음 - ref 사용
 
   // wheel 이벤트로 한 줄씩 위/아래로 이동
   const handleWheel = useCallback(
@@ -599,7 +576,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     touchStartRowRef.current = null;
   };
 
-  // 렌더링 함수 - renderTrigger 의존성 추가
+  // 렌더링 함수 - chunkCache 의존성 제거
   const renderCanvas = useCallback(() => {
     const ctx = canvasRef.current?.getContext('2d', { alpha: false });
     if (!ctx) return;
@@ -775,14 +752,16 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     
     lastRenderedRowRef.current = firstRow;
     
-  }, [firstRow, rowCount, fileSize, chunkCache, encoding, canvasSize.width, canvasSize.height, selectionRange.start, selectionRange.end, getByte, renderTrigger]); // renderTrigger 추가
+  }, [firstRow, rowCount, fileSize, encoding, canvasSize.width, canvasSize.height, selectionRange.start, selectionRange.end, getByte, renderTrigger]); // chunkCache 제거
 
-  // 렌더링 트리거
+  // 렌더링 트리거 - cacheUpdateTrigger 추가
   useEffect(() => {
-    // 드래그 중이고 shouldRender가 false면 renderTrigger 변경 시에만 렌더링
     if (isDraggingRef.current && !shouldRender) {
-      // renderTrigger가 0이면 아직 렌더링 안 함
       if (renderTrigger === 0) return;
+    }
+    
+    if (!isDraggingRef.current && renderTrigger === 0 && shouldRender) {
+      // 정상 렌더링
     }
     
     if (rafRef.current !== null) {
@@ -801,7 +780,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
         rafRef.current = null;
       }
     };
-  }, [renderCanvas]);
+  }, [renderCanvas, renderTrigger, shouldRender, cacheUpdateTrigger]); // cacheUpdateTrigger 추가
 
   // cleanup
   useEffect(() => {
