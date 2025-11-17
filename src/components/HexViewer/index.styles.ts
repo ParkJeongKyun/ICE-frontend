@@ -40,6 +40,9 @@ export const StyledCanvas = styled.canvas`
   cursor: text;
   pointer-events: auto;
   will-change: transform;
+  /* GPU 가속 최적화 */
+  transform: translateZ(0);
+  backface-visibility: hidden;
 `;
 
 // 가상 스크롤바

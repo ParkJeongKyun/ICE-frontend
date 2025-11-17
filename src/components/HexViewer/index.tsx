@@ -5,6 +5,7 @@ import React, {
   useImperativeHandle,
   forwardRef,
   useCallback,
+  useMemo,
 } from 'react';
 import { useSelection } from '@/contexts/SelectionContext';
 import { useTabData, EncodingType } from '@/contexts/TabDataContext';
@@ -211,9 +212,12 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   // 렌더링 예약 ref
   const rafRef = useRef<number | null>(null);
   
-  // Worker 초기화
+  // Worker 초기화 - activeKey 변경 시 캐시 초기화
   useEffect(() => {
     if (!file) return;
+    
+    // 캐시 초기화 (다른 탭으로 전환 시)
+    setChunkCache(new Map());
     
     workerRef.current = new Worker(
       new URL('../../workers/fileReader.worker.ts', import.meta.url)
@@ -228,39 +232,77 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     
     return () => {
       workerRef.current?.terminate();
+      workerRef.current = null;
     };
-  }, [file]);
+  }, [file, activeKey]); // activeKey 추가로 탭 전환 시 재초기화
 
-  // 필요한 청크 요청
+  // 필요한 청크 요청 - 디바운싱 추가
+  const chunkRequestTimerRef = useRef<NodeJS.Timeout | null>(null);
+  
   useEffect(() => {
     if (!file || !workerRef.current) return;
     
-    const CHUNK_SIZE = 1024 * 1024;
-    const startByte = firstRow * bytesPerRow;
-    const endByte = Math.min(
-      startByte + visibleRows * bytesPerRow,
-      fileSize
-    );
+    // 이전 타이머 취소
+    if (chunkRequestTimerRef.current) {
+      clearTimeout(chunkRequestTimerRef.current);
+    }
     
-    const startChunk = Math.floor(startByte / CHUNK_SIZE);
-    const endChunk = Math.floor(endByte / CHUNK_SIZE);
-    
-    for (let i = startChunk; i <= endChunk; i++) {
-      const offset = i * CHUNK_SIZE;
-      if (!chunkCache.has(offset)) {
-        workerRef.current.postMessage({
-          type: 'READ_CHUNK',
-          file,
-          offset,
-          length: Math.min(CHUNK_SIZE, fileSize - offset),
+    // 50ms 디바운싱
+    chunkRequestTimerRef.current = setTimeout(() => {
+      const CHUNK_SIZE = 1024 * 1024;
+      const startByte = firstRow * bytesPerRow;
+      const endByte = Math.min(
+        startByte + (visibleRows + 5) * bytesPerRow, // 5줄 미리 로드
+        fileSize
+      );
+      
+      const startChunk = Math.floor(startByte / CHUNK_SIZE);
+      const endChunk = Math.floor(endByte / CHUNK_SIZE);
+      
+      for (let i = startChunk; i <= endChunk; i++) {
+        const offset = i * CHUNK_SIZE;
+        if (!chunkCache.has(offset)) {
+          workerRef.current?.postMessage({
+            type: 'READ_CHUNK',
+            file,
+            offset,
+            length: Math.min(CHUNK_SIZE, fileSize - offset),
+          });
+        }
+      }
+      
+      // 오래된 캐시 정리 (현재 화면에서 멀리 떨어진 청크)
+      const maxCacheSize = 10; // 최대 10개 청크만 유지
+      if (chunkCache.size > maxCacheSize) {
+        const currentChunks = new Set();
+        for (let i = startChunk; i <= endChunk; i++) {
+          currentChunks.add(i * CHUNK_SIZE);
+        }
+        
+        setChunkCache((prev) => {
+          const newCache = new Map();
+          let count = 0;
+          for (const [offset, data] of prev) {
+            if (currentChunks.has(offset) || count < maxCacheSize) {
+              newCache.set(offset, data);
+              count++;
+            }
+          }
+          return newCache;
         });
       }
-    }
+    }, 50);
+    
+    return () => {
+      if (chunkRequestTimerRef.current) {
+        clearTimeout(chunkRequestTimerRef.current);
+      }
+    };
   }, [file, firstRow, visibleRows, fileSize, chunkCache]);
 
-  // 바이트 가져오기 (캐시에서)
-  const getByte = useCallback(
-    (index: number): number | null => {
+  // 바이트 가져오기 (캐시에서) - useMemo로 최적화
+  const getByte = useMemo(
+    () => (index: number): number | null => {
       const CHUNK_SIZE = 1024 * 1024;
       const chunkOffset = Math.floor(index / CHUNK_SIZE) * CHUNK_SIZE;
       const chunk = chunkCache.get(chunkOffset);
@@ -387,7 +429,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
 
   // 렌더링 함수
   const renderCanvas = useCallback(() => {
-    const ctx = canvasRef.current?.getContext('2d');
+    const ctx = canvasRef.current?.getContext('2d', { alpha: false }); // alpha: false로 성능 개선
     if (!ctx) return;
     
     // CSS 변수에서 실제 색상값 읽기
@@ -517,9 +559,9 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
       }
     }
     ctx.restore();
-  }, [firstRow, rowCount, fileSize, getByte, encoding, canvasSize, selectionRange]);
+  }, [firstRow, rowCount, fileSize, chunkCache, encoding, canvasSize.width, canvasSize.height, selectionRange.start, selectionRange.end]);
 
-  // 렌더링 트리거
+  // 렌더링 트리거 - 불필요한 재렌더링 방지
   useEffect(() => {
     if (rafRef.current !== null) {
       cancelAnimationFrame(rafRef.current);
@@ -535,7 +577,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
         rafRef.current = null;
       }
     };
-  }, [renderCanvas, encoding, canvasSize, selectionRange, firstRow, chunkCache]);
+  }, [renderCanvas]);
 
   // 검색 API 수정 (전체 파일 스캔)
   useImperativeHandle(
@@ -685,7 +727,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
 
   const closeContextMenu = () => setContextMenu(null);
 
-  // HEX 복사
+  // HEX 복사 - 대용량 선택 시 청크 단위로 처리
   const handleCopyHex = useCallback(async () => {
     if (
       selectionRange.start !== null &&
@@ -694,23 +736,44 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     ) {
       const start = Math.min(selectionRange.start, selectionRange.end);
       const end = Math.max(selectionRange.start, selectionRange.end) + 1;
+      const size = end - start;
+      
+      // 1MB 이상 선택 시 경고
+      if (size > 1024 * 1024) {
+        const confirm = window.confirm(
+          `${(size / 1024 / 1024).toFixed(2)}MB의 데이터를 복사하시겠습니까? 시간이 오래 걸릴 수 있습니다.`
+        );
+        if (!confirm) {
+          setContextMenu(null);
+          return;
+        }
+      }
       
       try {
         const blob = file.slice(start, end);
         const arrayBuffer = await blob.arrayBuffer();
         const selected = new Uint8Array(arrayBuffer);
-        const hex = Array.from(selected)
-          .map((b) => b.toString(16).padStart(2, '0'))
-          .join(' ');
-        await navigator.clipboard.writeText(hex);
-      } catch {
-        console.error('HEX 문자열 복사 실패');
+        
+        // 청크 단위로 문자열 생성 (메모리 효율)
+        const CHUNK_SIZE = 100000;
+        let hex = '';
+        for (let i = 0; i < selected.length; i += CHUNK_SIZE) {
+          const chunk = selected.slice(i, Math.min(i + CHUNK_SIZE, selected.length));
+          hex += Array.from(chunk)
+            .map((b) => b.toString(16).padStart(2, '0'))
+            .join(' ') + ' ';
+        }
+        
+        await navigator.clipboard.writeText(hex.trim());
+      } catch (error) {
+        console.error('HEX 문자열 복사 실패:', error);
+        alert('복사 실패: ' + (error as Error).message);
       }
     }
     setContextMenu(null);
   }, [selectionRange, file]);
 
-  // 텍스트 복사
+  // 텍스트 복사 - 대용량 선택 시 청크 단위로 처리
   const handleCopyText = useCallback(async () => {
     if (
       selectionRange.start !== null &&
@@ -719,17 +782,38 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     ) {
       const start = Math.min(selectionRange.start, selectionRange.end);
       const end = Math.max(selectionRange.start, selectionRange.end) + 1;
+      const size = end - start;
+      
+      // 1MB 이상 선택 시 경고
+      if (size > 1024 * 1024) {
+        const confirm = window.confirm(
+          `${(size / 1024 / 1024).toFixed(2)}MB의 데이터를 복사하시겠습니까? 시간이 오래 걸릴 수 있습니다.`
+        );
+        if (!confirm) {
+          setContextMenu(null);
+          return;
+        }
+      }
       
       try {
         const blob = file.slice(start, end);
         const arrayBuffer = await blob.arrayBuffer();
         const selected = new Uint8Array(arrayBuffer);
-        const text = Array.from(selected)
-          .map((b) => (b >= 0x20 && b <= 0x7e ? String.fromCharCode(b) : '.'))
-          .join('');
+        
+        // 청크 단위로 문자열 생성 (메모리 효율)
+        const CHUNK_SIZE = 100000;
+        let text = '';
+        for (let i = 0; i < selected.length; i += CHUNK_SIZE) {
+          const chunk = selected.slice(i, Math.min(i + CHUNK_SIZE, selected.length));
+          text += Array.from(chunk)
+            .map((b) => (b >= 0x20 && b <= 0x7e ? String.fromCharCode(b) : '.'))
+            .join('');
+        }
+        
         await navigator.clipboard.writeText(text);
-      } catch {
-        console.error('텍스트 복사 실패');
+      } catch (error) {
+        console.error('텍스트 복사 실패:', error);
+        alert('복사 실패: ' + (error as Error).message);
       }
     }
     setContextMenu(null);
