@@ -14,17 +14,6 @@ export const IceMainLayout = styled.div<{ $isResizing: boolean }>`
   ${(props) => (props.$isResizing ? 'user-select: none;' : '')}
 `;
 
-// 로고
-export const LogoDiv = styled.div`
-  display: flex;
-  align-items: center;
-`;
-
-export const LogoImage = styled.img<{ $height?: string }>`
-  max-height: ${(props) => (props.$height ? props.$height : '18px')};
-  min-height: ${(props) => (props.$height ? props.$height : '18px')};
-`;
-
 // 헤더
 export const IceHeader = styled.div<{
   $isMobile?: boolean;

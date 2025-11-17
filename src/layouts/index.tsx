@@ -41,6 +41,7 @@ import {
   useTabData,
   EncodingType,
 } from '@/contexts/TabDataContext';
+import Logo from '@/components/common/Icons/Logo';
 
 const MainLayout: React.FC = () => {
   const { isEmpty, encoding, setEncoding } = useTabData();
@@ -166,9 +167,7 @@ const MainLayout: React.FC = () => {
   return (
     <IceMainLayout $isResizing={isResizing}>
       <IceHeader $isMobile={isMobile} $isProcessing={isProcessing}>
-        <LogoDiv>
-          <LogoImage src={'pullLogo.png'} />
-        </LogoDiv>
+        <Logo showText size={16} textSize={16} />
 
         <MenuBtnZone
           ref={menuBtnZoneRef}

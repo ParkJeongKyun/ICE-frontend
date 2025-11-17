@@ -24,7 +24,7 @@ const Home: React.FC<Props> = ({ menuBtnZoneRef }) => {
       <ContientDiv>
         <TitleDiv>
           <Title>
-            <Logo showText/>
+            <Logo showText size={36} textSize={36} />
             <Version>
               <span>
                 {import.meta.env.VITE_APP_VERSION}
