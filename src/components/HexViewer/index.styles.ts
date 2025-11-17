@@ -59,19 +59,19 @@ export const VirtualScrollbar = styled.div`
 
 // 스크롤바 썸
 export const ScrollbarThumb = styled.div<{
-  dragging: string | boolean;
-  height: number;
-  top: number;
+  $dragging: string | boolean;
+  $height: number;
+  $top: number;
 }>`
   width: 100%;
-  height: ${({ height }) => height}px;
-  margin-top: ${({ top }) => top}px;
+  height: ${({ $height }) => $height}px;
+  margin-top: ${({ $top }) => $top}px;
   background-color: var(--main-hover-line-color);
   cursor: pointer;
-  opacity: ${({ dragging }) =>
-    dragging === 'true' || dragging === true ? '0.9' : '0.5'};
-  transition: ${({ dragging }) =>
-    dragging === 'true' || dragging === true ? 'none' : 'opacity 0.2s'};
+  opacity: ${({ $dragging }) =>
+    $dragging === 'true' || $dragging === true ? '0.9' : '0.5'};
+  transition: ${({ $dragging }) =>
+    $dragging === 'true' || $dragging === true ? 'none' : 'opacity 0.2s'};
 `;
 
 // 컨텍스트 메뉴

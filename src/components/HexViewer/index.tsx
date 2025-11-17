@@ -122,8 +122,10 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     scrollPositions,
     setScrollPositions,
   } = useTabData();
-  const buffer = activeData.buffer;
-  const rowCount = Math.ceil(buffer.length / bytesPerRow);
+  
+  const file = activeData?.file;
+  const fileSize = file?.size || 0;
+  const rowCount = Math.ceil(fileSize / bytesPerRow);
 
   const [canvasSize, setCanvasSize] = useState({ width: 800, height: 400 });
   const [isDragging, setIsDragging] = useState(false);
@@ -136,20 +138,45 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   const contextMenuRef = useRef<HTMLDivElement>(null);
 
   const { selectionRange, setSelectionRange } = useSelection();
-  const { start: startIndex, end: endIndex } = selectionRange;
+
+  // Worker 인스턴스
+  const workerRef = useRef<Worker | null>(null);
+  // 현재 로드된 청크 데이터 캐시
+  const [chunkCache, setChunkCache] = useState<Map<number, Uint8Array>>(new Map());
+
+  // 오프셋 기반 스크롤
+  const [firstRow, setFirstRow] = useState(0);
+
+  // 가상 스크롤바 관련
+  const scrollbarRef = useRef<HTMLDivElement>(null);
+  const [scrollbarDragging, setScrollbarDragging] = useState(false);
+  const [scrollbarStartY, setScrollbarStartY] = useState(0);
+  const [scrollbarStartRow, setScrollbarStartRow] = useState(0);
+
+  // 전체 row, 보이는 row
+  const visibleRows = Math.floor(canvasSize.height / rowHeight);
+  const maxFirstRow = Math.max(0, rowCount - visibleRows);
+
+  // 스크롤바 thumb 크기/위치 계산
+  const scrollbarAreaHeight = canvasSize.height;
+  const scrollbarHeight = Math.max(
+    30,
+    (visibleRows / rowCount) * scrollbarAreaHeight
+  );
+  const maxScrollbarTop = scrollbarAreaHeight - scrollbarHeight;
+  const scrollbarTop = Math.min(
+    maxScrollbarTop,
+    (firstRow / maxFirstRow) * maxScrollbarTop || 0
+  );
 
   // 렌더링 관련 값 캐싱
   const selectionRangeRef = useRef(selectionRange);
-  const bufferRef = useRef(buffer);
   const encodingRef = useRef(encoding);
   const canvasSizeRef = useRef(canvasSize);
 
   useEffect(() => {
     selectionRangeRef.current = selectionRange;
   }, [selectionRange]);
-  useEffect(() => {
-    bufferRef.current = buffer;
-  }, [buffer]);
   useEffect(() => {
     encodingRef.current = encoding;
   }, [encoding]);
@@ -183,30 +210,64 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
 
   // 렌더링 예약 ref
   const rafRef = useRef<number | null>(null);
+  
+  // Worker 초기화
+  useEffect(() => {
+    if (!file) return;
+    
+    workerRef.current = new Worker(
+      new URL('../../workers/fileReader.worker.ts', import.meta.url)
+    );
+    
+    workerRef.current.onmessage = (e) => {
+      const { type, offset, data } = e.data;
+      if (type === 'CHUNK_DATA') {
+        setChunkCache((prev) => new Map(prev).set(offset, data));
+      }
+    };
+    
+    return () => {
+      workerRef.current?.terminate();
+    };
+  }, [file]);
 
-  // 오프셋 기반 스크롤: 실제 스크롤 대신 데이터만 변경
-  const [firstRow, setFirstRow] = useState(0);
+  // 필요한 청크 요청
+  useEffect(() => {
+    if (!file || !workerRef.current) return;
+    
+    const CHUNK_SIZE = 1024 * 1024;
+    const startByte = firstRow * bytesPerRow;
+    const endByte = Math.min(
+      startByte + visibleRows * bytesPerRow,
+      fileSize
+    );
+    
+    const startChunk = Math.floor(startByte / CHUNK_SIZE);
+    const endChunk = Math.floor(endByte / CHUNK_SIZE);
+    
+    for (let i = startChunk; i <= endChunk; i++) {
+      const offset = i * CHUNK_SIZE;
+      if (!chunkCache.has(offset)) {
+        workerRef.current.postMessage({
+          type: 'READ_CHUNK',
+          file,
+          offset,
+          length: Math.min(CHUNK_SIZE, fileSize - offset),
+        });
+      }
+    }
+  }, [file, firstRow, visibleRows, fileSize, chunkCache]);
 
-  // 가상 스크롤바 관련
-  const scrollbarRef = useRef<HTMLDivElement>(null);
-  const [scrollbarDragging, setScrollbarDragging] = useState(false);
-  const [scrollbarStartY, setScrollbarStartY] = useState(0);
-  const [scrollbarStartRow, setScrollbarStartRow] = useState(0);
-
-  // 전체 row, 보이는 row (100% height 기준)
-  const visibleRows = Math.floor(canvasSize.height / rowHeight);
-  const maxFirstRow = Math.max(0, rowCount - visibleRows);
-
-  // 스크롤바 thumb 크기/위치 계산
-  const scrollbarAreaHeight = canvasSize.height;
-  const scrollbarHeight = Math.max(
-    30,
-    (visibleRows / rowCount) * scrollbarAreaHeight
-  );
-  const maxScrollbarTop = scrollbarAreaHeight - scrollbarHeight;
-  const scrollbarTop = Math.min(
-    maxScrollbarTop,
-    (firstRow / maxFirstRow) * maxScrollbarTop || 0
+  // 바이트 가져오기 (캐시에서)
+  const getByte = useCallback(
+    (index: number): number | null => {
+      const CHUNK_SIZE = 1024 * 1024;
+      const chunkOffset = Math.floor(index / CHUNK_SIZE) * CHUNK_SIZE;
+      const chunk = chunkCache.get(chunkOffset);
+      if (!chunk) return null;
+      return chunk[index - chunkOffset];
+    },
+    [chunkCache]
   );
 
   // wheel 이벤트로 한 줄씩 위/아래로 이동
@@ -328,11 +389,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   const renderCanvas = useCallback(() => {
     const ctx = canvasRef.current?.getContext('2d');
     if (!ctx) return;
-    const buffer = bufferRef.current;
-    const encoding = encodingRef.current;
-    const canvasSize = canvasSizeRef.current;
-    const selectionRange = selectionRangeRef.current;
-
+    
     // CSS 변수에서 실제 색상값 읽기
     const style = getComputedStyle(document.documentElement);
     const COLOR_HEX_EVEN =
@@ -370,11 +427,12 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
       const y = drawRow * rowHeight;
       const offset = row * bytesPerRow;
 
+      // 오프셋 렌더링
       // 오프셋(주소) 텍스트 선택 영역 포함 여부
       const offsetStart = row * bytesPerRow;
       const offsetEnd = Math.min(
         offsetStart + bytesPerRow - 1,
-        buffer.length - 1
+        fileSize - 1
       );
       const selStart = selectionRange.start;
       const selEnd = selectionRange.end;
@@ -411,9 +469,12 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
 
       for (let i = 0; i < bytesPerRow; i++) {
         const idx = offset + i;
-        if (idx >= buffer.length) break;
-
-        // HEX
+        if (idx >= fileSize) break;
+        
+        const byte = getByte(idx);
+        if (byte === null) continue; // 아직 로드 안됨
+        
+        // HEX 렌더링
         const xHex = hexStartX + i * hexByteWidth + hexByteWidth / 2;
         const yHex = y + rowHeight / 2;
         const isSel =
@@ -434,12 +495,12 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
         } else {
           ctx.fillStyle = i % 2 === 0 ? COLOR_HEX_EVEN : COLOR_HEX_ODD;
         }
-        ctx.fillText(byteToHex(buffer[idx]), xHex, yHex);
+        ctx.fillText(byteToHex(byte), xHex, yHex);
 
-        // ASCII
+        // ASCII 렌더링
         const xAsc = asciiStartX + i * asciiCharWidth + asciiCharWidth / 2;
         const yAsc = y + rowHeight / 2;
-        const char = byteToChar(buffer[idx], encoding);
+        const char = byteToChar(byte, encoding);
         if (isSel) {
           ctx.fillStyle = COLOR_SELECTED_BG;
           ctx.fillRect(
@@ -456,7 +517,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
       }
     }
     ctx.restore();
-  }, [firstRow, rowCount]);
+  }, [firstRow, rowCount, fileSize, getByte, encoding, canvasSize, selectionRange]);
 
   // 렌더링 트리거
   useEffect(() => {
@@ -474,162 +535,47 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
         rafRef.current = null;
       }
     };
-  }, [renderCanvas, buffer, encoding, canvasSize, selectionRange, firstRow]);
+  }, [renderCanvas, encoding, canvasSize, selectionRange, firstRow, chunkCache]);
 
-  // 선택 영역 계산
-  const isSelected = useCallback(
-    (byteIndex: number) =>
-      startIndex !== null &&
-      endIndex !== null &&
-      byteIndex >= Math.min(startIndex, endIndex) &&
-      byteIndex <= Math.max(startIndex, endIndex),
-    [startIndex, endIndex]
-  );
-
-  // 마우스 위치 → 바이트 인덱스 변환
-  function getByteIndexFromMouse(x: number, y: number): number | null {
-    const row = firstRow + Math.floor(y / rowHeight);
-    if (row < 0 || row >= rowCount) return null;
-    if (x >= hexStartX && x < hexStartX + bytesPerRow * hexByteWidth) {
-      const col = Math.floor((x - hexStartX) / hexByteWidth);
-      if (col < 0 || col >= bytesPerRow) return null;
-      const idx = row * bytesPerRow + col;
-      if (idx >= buffer.length) return null;
-      return idx;
-    }
-    if (x >= asciiStartX && x < asciiStartX + bytesPerRow * asciiCharWidth) {
-      const col = Math.floor((x - asciiStartX) / asciiCharWidth);
-      if (col < 0 || col >= bytesPerRow) return null;
-      const idx = row * bytesPerRow + col;
-      if (idx >= buffer.length) return null;
-      return idx;
-    }
-    return null;
-  }
-
-  // 마우스 이벤트 핸들러
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (e.button !== 0) return;
-    const rect = (e.target as HTMLCanvasElement).getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const idx = getByteIndexFromMouse(x, y);
-    if (idx !== null) {
-      setIsDragging(true);
-      setSelectionRange({ ...selectionRange, start: idx, end: idx });
-    }
-  };
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging) return;
-    const rect = (e.target as HTMLCanvasElement).getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const idx = getByteIndexFromMouse(x, y);
-    if (idx !== null) {
-      setSelectionRange((prev) => ({
-        ...prev,
-        end: idx,
-      }));
-    }
-  };
-  const handleMouseUp = () => setIsDragging(false);
-
-  // 컨텍스트 메뉴
-  const handleContextMenu = (e: React.MouseEvent) => {
-    e.preventDefault();
-    setContextMenu({ x: e.clientX, y: e.clientY });
-  };
-  const closeContextMenu = () => setContextMenu(null);
-
-  // HEX 복사
-  const handleCopyHex = useCallback(async () => {
-    if (
-      selectionRange.start !== null &&
-      selectionRange.end !== null &&
-      buffer &&
-      buffer.length > 0
-    ) {
-      const start = Math.min(selectionRange.start, selectionRange.end);
-      const end = Math.max(selectionRange.start, selectionRange.end) + 1;
-      const selected = buffer.slice(start, end);
-      try {
-        const hex = Array.from(selected)
-          .map((b) => b.toString(16).padStart(2, '0'))
-          .join(' ');
-        await navigator.clipboard.writeText(hex);
-      } catch {
-        console.error('HEX 문자열 복사 실패');
-      }
-    }
-    setContextMenu(null);
-  }, [selectionRange, buffer]);
-
-  // 텍스트 복사
-  const handleCopyText = useCallback(async () => {
-    if (
-      selectionRange.start !== null &&
-      selectionRange.end !== null &&
-      buffer &&
-      buffer.length > 0
-    ) {
-      const start = Math.min(selectionRange.start, selectionRange.end);
-      const end = Math.max(selectionRange.start, selectionRange.end) + 1;
-      const selected = buffer.slice(start, end);
-      try {
-        const text = Array.from(selected)
-          .map((b) => (b >= 0x20 && b <= 0x7e ? String.fromCharCode(b) : '.'))
-          .join('');
-        await navigator.clipboard.writeText(text);
-      } catch {
-        console.error('텍스트 복사 실패');
-      }
-    }
-    setContextMenu(null);
-  }, [selectionRange, buffer]);
-
-  // 검색/스크롤 API
+  // 검색 API 수정 (전체 파일 스캔)
   useImperativeHandle(
     ref,
     () => ({
       findByOffset: async (offset: string) => {
         if (offset.trim()) {
           const byteOffset = parseInt(offset, 16);
-          if (
-            !isNaN(byteOffset) &&
-            byteOffset >= 0 &&
-            byteOffset < buffer.length
-          ) {
+          if (!isNaN(byteOffset) && byteOffset >= 0 && byteOffset < fileSize) {
             return { index: byteOffset, offset: 1 };
           }
         }
         return null;
       },
       findAllByHex: async (hex: string) => {
-        if (hex.trim()) {
-          try {
-            const cleanHex = hex.replace(/\s+/g, '');
-            if (cleanHex.length % 2 !== 0) return null;
-            const pattern = new Uint8Array(
-              cleanHex.match(/.{1,2}/g)?.map((byte) => parseInt(byte, 16)) || []
-            );
-            const indices = findPatternIndices(buffer, pattern);
-            return indices.map((index) => ({ index, offset: pattern.length }));
-          } catch (e) {
-            console.log(e);
-          }
-        }
+        // if (hex.trim()) {
+        //   try {
+        //     const cleanHex = hex.replace(/\s+/g, '');
+        //     if (cleanHex.length % 2 !== 0) return null;
+        //     const pattern = new Uint8Array(
+        //       cleanHex.match(/.{1,2}/g)?.map((byte) => parseInt(byte, 16)) || []
+        //     );
+        //     const indices = findPatternIndices(buffer, pattern);
+        //     return indices.map((index) => ({ index, offset: pattern.length }));
+        //   } catch (e) {
+        //     console.log(e);
+        //   }
+        // }
         return null;
       },
       findAllByAsciiText: async (text: string, ignoreCase: boolean) => {
-        if (text.trim()) {
-          try {
-            const pattern = asciiToBytes(text);
-            const indices = findPatternIndices(buffer, pattern, ignoreCase);
-            return indices.map((index) => ({ index, offset: pattern.length }));
-          } catch (e) {
-            console.log(e);
-          }
-        }
+        // if (text.trim()) {
+        //   try {
+        //     const pattern = asciiToBytes(text);
+        //     const indices = findPatternIndices(buffer, pattern, ignoreCase);
+        //     return indices.map((index) => ({ index, offset: pattern.length }));
+        //   } catch (e) {
+        //     console.log(e);
+        //   }
+        // }
         return null;
       },
       scrollToIndex: (index: number, offset: number) => {
@@ -642,7 +588,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
         });
       },
     }),
-    [buffer, setSelectionRange]
+    [fileSize, setSelectionRange]
   );
 
   // firstRow를 탭별로 저장/복원
@@ -681,6 +627,129 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     };
   }, [contextMenu]);
 
+  // 마우스 위치 → 바이트 인덱스 변환
+  function getByteIndexFromMouse(x: number, y: number): number | null {
+    const row = firstRow + Math.floor(y / rowHeight);
+    if (row < 0 || row >= rowCount) return null;
+    if (x >= hexStartX && x < hexStartX + bytesPerRow * hexByteWidth) {
+      const col = Math.floor((x - hexStartX) / hexByteWidth);
+      if (col < 0 || col >= bytesPerRow) return null;
+      const idx = row * bytesPerRow + col;
+      if (idx >= fileSize) return null;
+      return idx;
+    }
+    if (x >= asciiStartX && x < asciiStartX + bytesPerRow * asciiCharWidth) {
+      const col = Math.floor((x - asciiStartX) / asciiCharWidth);
+      if (col < 0 || col >= bytesPerRow) return null;
+      const idx = row * bytesPerRow + col;
+      if (idx >= fileSize) return null;
+      return idx;
+    }
+    return null;
+  }
+
+  // 마우스 이벤트 핸들러
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (e.button !== 0) return;
+    const rect = (e.target as HTMLCanvasElement).getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const idx = getByteIndexFromMouse(x, y);
+    if (idx !== null) {
+      setIsDragging(true);
+      setSelectionRange({ ...selectionRange, start: idx, end: idx });
+    }
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging) return;
+    const rect = (e.target as HTMLCanvasElement).getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const idx = getByteIndexFromMouse(x, y);
+    if (idx !== null) {
+      setSelectionRange((prev) => ({
+        ...prev,
+        end: idx,
+      }));
+    }
+  };
+
+  const handleMouseUp = () => setIsDragging(false);
+
+  // 컨텍스트 메뉴
+  const handleContextMenu = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setContextMenu({ x: e.clientX, y: e.clientY });
+  };
+
+  const closeContextMenu = () => setContextMenu(null);
+
+  // HEX 복사
+  const handleCopyHex = useCallback(async () => {
+    if (
+      selectionRange.start !== null &&
+      selectionRange.end !== null &&
+      file
+    ) {
+      const start = Math.min(selectionRange.start, selectionRange.end);
+      const end = Math.max(selectionRange.start, selectionRange.end) + 1;
+      
+      try {
+        const blob = file.slice(start, end);
+        const arrayBuffer = await blob.arrayBuffer();
+        const selected = new Uint8Array(arrayBuffer);
+        const hex = Array.from(selected)
+          .map((b) => b.toString(16).padStart(2, '0'))
+          .join(' ');
+        await navigator.clipboard.writeText(hex);
+      } catch {
+        console.error('HEX 문자열 복사 실패');
+      }
+    }
+    setContextMenu(null);
+  }, [selectionRange, file]);
+
+  // 텍스트 복사
+  const handleCopyText = useCallback(async () => {
+    if (
+      selectionRange.start !== null &&
+      selectionRange.end !== null &&
+      file
+    ) {
+      const start = Math.min(selectionRange.start, selectionRange.end);
+      const end = Math.max(selectionRange.start, selectionRange.end) + 1;
+      
+      try {
+        const blob = file.slice(start, end);
+        const arrayBuffer = await blob.arrayBuffer();
+        const selected = new Uint8Array(arrayBuffer);
+        const text = Array.from(selected)
+          .map((b) => (b >= 0x20 && b <= 0x7e ? String.fromCharCode(b) : '.'))
+          .join('');
+        await navigator.clipboard.writeText(text);
+      } catch {
+        console.error('텍스트 복사 실패');
+      }
+    }
+    setContextMenu(null);
+  }, [selectionRange, file]);
+
+  // 파일이 없으면 빈 화면
+  if (!file) {
+    return (
+      <HexViewerContainer>
+        <CanvasContainer ref={containerRef} tabIndex={0}>
+          <CanvasArea style={{ minWidth: `${minHexWidth}px` }}>
+            <div style={{ padding: '20px', color: 'var(--main-color)' }}>
+              No file loaded
+            </div>
+          </CanvasArea>
+        </CanvasContainer>
+      </HexViewerContainer>
+    );
+  }
+
   return (
     <HexViewerContainer
       onWheel={handleWheel}
@@ -713,9 +782,9 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
         <VirtualScrollbar>
           <ScrollbarThumb
             ref={scrollbarRef}
-            dragging={scrollbarDragging.toString()}
-            height={scrollbarHeight}
-            top={scrollbarTop}
+            $dragging={scrollbarDragging.toString()}
+            $height={scrollbarHeight}
+            $top={scrollbarTop}
             onMouseDown={handleScrollbarMouseDown}
             onTouchStart={handleScrollbarTouchStart}
           />

@@ -114,38 +114,8 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
         });
       };
 
-      // 전체 파일을 읽어서 Uint8Array로 저장 (1GB 이상인 경우 1GB까지만)
-      const readWholeFileAsUint8Array = (file: File): Promise<Uint8Array> => {
-        const MAX_SIZE = 1 * 1024 * 1024 * 1024; // 1GB
-        return new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = (event) => {
-            if (event.target?.result instanceof ArrayBuffer) {
-              let arrayBuffer = event.target.result as ArrayBuffer;
-              if (arrayBuffer.byteLength > MAX_SIZE) {
-                // 1GB 초과시 앞부분만 사용
-                arrayBuffer = arrayBuffer.slice(0, MAX_SIZE);
-              }
-              resolve(new Uint8Array(arrayBuffer));
-            } else {
-              reject(new Error('Failed to read file as Uint8Array'));
-            }
-          };
-          reader.onerror = (error) => reject(error);
-          if (file.size > MAX_SIZE) {
-            // 1GB 초과시 앞부분만 읽기
-            const blob = file.slice(0, MAX_SIZE);
-            reader.readAsArrayBuffer(blob);
-          } else {
-            reader.readAsArrayBuffer(file);
-          }
-        });
-      };
-
       try {
         const arrayBuffer = await readFileAsArrayBuffer(file);
-        const buffer = await readWholeFileAsUint8Array(file); // 전체 파일 데이터
-        // wasm(goFunc)에는 앞부분만 전달
         const exifBuffer = new Uint8Array(arrayBuffer);
         let parsedRows: ExifRow[] | null = null;
         let thumbnail: string = '';
@@ -241,7 +211,7 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
             },
             thumbnail: thumbnail,
             rows: parsedRows,
-            buffer: buffer, // 전체 파일 데이터 저장
+            file: file, // File 객체 저장
           },
         }));
       } catch (error) {
@@ -251,9 +221,8 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
         setProcessInfo({ status: status, message });
       }
 
-      // 파일 선택 input 초기화
       if (fileInputRef.current) {
-        fileInputRef.current.value = ''; // value를 빈 문자열("")로 설정하여 초기화합니다.
+        fileInputRef.current.value = '';
       }
     }
   };

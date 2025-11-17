@@ -78,6 +78,6 @@ export interface TabData {
     thumbnail: string;
     location: { lat: string; lng: string; address: string };
     rows: ExifRow[] | null;
-    buffer: Uint8Array;
+    file: File; // Uint8Array → File 객체로 변경
   };
 }
