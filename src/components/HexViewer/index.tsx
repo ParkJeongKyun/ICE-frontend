@@ -250,10 +250,9 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
         const { type, offset, data } = e.data;
         if (type === 'CHUNK_DATA') {
           cache.set(offset, data);
-          // 현재 활성 탭이면 ref 업데이트 + 렌더링 트리거
-          const currentActiveKey = activeKey;
-          if (currentActiveKey === activeKey) {
-            chunkCacheRef.current = cache;
+          chunkCacheRef.current = cache;
+          // 드래그 중이 아닐 때만 렌더링 트리거
+          if (!isDraggingRef.current) {
             setCacheUpdateTrigger(prev => prev + 1);
           }
         }
@@ -752,16 +751,13 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     
     lastRenderedRowRef.current = firstRow;
     
-  }, [firstRow, rowCount, fileSize, encoding, canvasSize.width, canvasSize.height, selectionRange.start, selectionRange.end, getByte, renderTrigger]); // chunkCache 제거
+  }, [firstRow, rowCount, fileSize, encoding, canvasSize.width, canvasSize.height, selectionRange.start, selectionRange.end, getByte, renderTrigger]);
 
-  // 렌더링 트리거 - cacheUpdateTrigger 추가
+  // 통합된 렌더링 트리거 - 단일 useEffect로 처리
   useEffect(() => {
+    // 드래그 중이고 shouldRender가 false면 renderTrigger 변경 시에만 렌더링
     if (isDraggingRef.current && !shouldRender) {
       if (renderTrigger === 0) return;
-    }
-    
-    if (!isDraggingRef.current && renderTrigger === 0 && shouldRender) {
-      // 정상 렌더링
     }
     
     if (rafRef.current !== null) {
@@ -780,7 +776,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
         rafRef.current = null;
       }
     };
-  }, [renderCanvas, renderTrigger, shouldRender, cacheUpdateTrigger]); // cacheUpdateTrigger 추가
+  }, [renderCanvas, renderTrigger, shouldRender, cacheUpdateTrigger]);
 
   // cleanup
   useEffect(() => {
