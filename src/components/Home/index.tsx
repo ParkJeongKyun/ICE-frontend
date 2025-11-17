@@ -23,9 +23,8 @@ const Home: React.FC<Props> = ({ menuBtnZoneRef }) => {
     <HomeDiv>
       <ContientDiv>
         <TitleDiv>
-          <Logo />
           <Title>
-            ICE
+            <Logo showText/>
             <Version>
               <span>
                 {import.meta.env.VITE_APP_VERSION}
