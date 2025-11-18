@@ -12,8 +12,6 @@ import {
   IceMobileContent,
   IceMobileLayout,
   IceRightSider,
-  LogoDiv,
-  LogoImage,
   ProcessInfo,
   Spinner,
   SelectInfo,
@@ -168,7 +166,6 @@ const MainLayout: React.FC = () => {
     <IceMainLayout $isResizing={isResizing}>
       <IceHeader $isMobile={isMobile} $isProcessing={isProcessing}>
         <Logo showText size={16} textSize={16} />
-
         <MenuBtnZone
           ref={menuBtnZoneRef}
           hexViewerRef={hexViewerRef}
@@ -188,7 +185,7 @@ const MainLayout: React.FC = () => {
                 </div>
                 <div>
                   <Searcher hexViewerRef={hexViewerRef} />
-                  <Yara />
+                  {/* <Yara /> */}
                 </div>
               </IceMobileBottom>
             )}

@@ -209,19 +209,51 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
           chunkCacheRef.current = cache;
           // 드래그 중이 아닐 때만 렌더링
           if (!isDraggingRef.current) {
-            directRenderRef.current(); // ref로 직접 호출
+            directRenderRef.current();
           }
         }
       };
       
       tabWorkerCache = { worker, cache };
       workerCacheRef.current.set(activeKey, tabWorkerCache);
+      
+      // ✅ 새 탭: 초기 청크 로딩 후 렌더링
+      chunkCacheRef.current = cache;
+      workerRef.current = worker;
+      
+      // 초기 청크 요청
+      const CHUNK_SIZE = 256 * 1024;
+      const startRow = scrollPositions[activeKey] || 0;
+      const startByte = startRow * bytesPerRow;
+      const endByte = Math.min(startByte + visibleRows * bytesPerRow, fileSize);
+      const startChunk = Math.floor(startByte / CHUNK_SIZE);
+      const endChunk = Math.floor(endByte / CHUNK_SIZE);
+      
+      for (let i = startChunk; i <= endChunk; i++) {
+        const offset = i * CHUNK_SIZE;
+        worker.postMessage({
+          type: 'READ_CHUNK',
+          file,
+          offset,
+          length: Math.min(CHUNK_SIZE, fileSize - offset),
+        });
+      }
+      
+      // ✅ 첫 청크 로딩 대기 후 렌더링
+      return; // 렌더링하지 않음 (worker.onmessage에서 렌더링)
     }
     
+    // ✅ 기존 탭: 즉시 렌더링
     chunkCacheRef.current = tabWorkerCache.cache;
     workerRef.current = tabWorkerCache.worker;
-    directRenderRef.current(); // ref로 직접 호출
-  }, [file, activeKey]);
+    
+    if (rafRef.current !== null) {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+    }
+    
+    directRenderRef.current();
+  }, [file, activeKey, scrollPositions, visibleRows, bytesPerRow, fileSize]);
 
   // Worker 정리
   useEffect(() => {
@@ -452,9 +484,18 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
       workerCacheRef.current.set(activeKey, tabWorkerCache);
     }
     
+    // ✅ 캐시 즉시 동기화 (탭 전환 시 깜빡임 방지)
     chunkCacheRef.current = tabWorkerCache.cache;
     workerRef.current = tabWorkerCache.worker;
-    directRenderRef.current(); // ref로 직접 호출
+    
+    // ✅ RAF 취소 후 즉시 렌더링 (이전 탭 렌더링 방지)
+    if (rafRef.current !== null) {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+    }
+    
+    // ✅ 동기 렌더링 (RAF 없이)
+    directRenderRef.current();
   }, [file, activeKey]);
 
   // 스크롤바 드래그 처리
@@ -705,18 +746,12 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
       const end = Math.max(selectionRange.start, selectionRange.end) + 1;
       const size = end - start;
       
-      if (size > 1024 * 1024) {
-        const confirm = window.confirm(
-          `${(size / 1024 / 1024).toFixed(2)}MB의 데이터를 복사하시겠습니까?`
-        );
-        if (!confirm) {
-          setContextMenu(null);
-          return;
-        }
-      }
+      // 최대 256KB 제한 (자동 잘라내기)
+      const MAX_COPY_SIZE = 256 * 1024; // 256KB
+      const actualEnd = start + Math.min(size, MAX_COPY_SIZE);
       
       try {
-        const arrayBuffer = await file.slice(start, end).arrayBuffer();
+        const arrayBuffer = await file.slice(start, actualEnd).arrayBuffer();
         const selected = new Uint8Array(arrayBuffer);
         const CHUNK_SIZE = 100000;
         let hex = '';
@@ -739,18 +774,12 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
       const end = Math.max(selectionRange.start, selectionRange.end) + 1;
       const size = end - start;
       
-      if (size > 1024 * 1024) {
-        const confirm = window.confirm(
-          `${(size / 1024 / 1024).toFixed(2)}MB의 데이터를 복사하시겠습니까?`
-        );
-        if (!confirm) {
-          setContextMenu(null);
-          return;
-        }
-      }
+      // 최대 256KB 제한 (자동 잘라내기)
+      const MAX_COPY_SIZE = 256 * 1024; // 256KB
+      const actualEnd = start + Math.min(size, MAX_COPY_SIZE);
       
       try {
-        const arrayBuffer = await file.slice(start, end).arrayBuffer();
+        const arrayBuffer = await file.slice(start, actualEnd).arrayBuffer();
         const selected = new Uint8Array(arrayBuffer);
         const CHUNK_SIZE = 100000;
         let text = '';
@@ -796,16 +825,56 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
 
   // 스크롤 위치 저장/복원
   useEffect(() => {
-    if (activeKey && scrollPositions[activeKey] !== undefined) {
-      setFirstRow(scrollPositions[activeKey]);
-    } else {
+    if (!activeKey) return;
+    
+    const savedPosition = scrollPositions[activeKey];
+    
+    // ✅ 저장된 위치가 있고, 현재 위치와 다를 때만 복원
+    if (savedPosition !== undefined && savedPosition !== firstRowRef.current) {
+      if (rafRef.current !== null) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+      }
+      
+      setFirstRow(savedPosition);
+      firstRowRef.current = savedPosition;
+      
+      // ✅ 청크가 로딩되어 있으면 즉시 렌더링, 없으면 대기
+      const CHUNK_SIZE = 256 * 1024;
+      const startByte = savedPosition * bytesPerRow;
+      const chunkOffset = Math.floor(startByte / CHUNK_SIZE) * CHUNK_SIZE;
+      
+      if (chunkCacheRef.current.has(chunkOffset)) {
+        // 청크 있음: 즉시 렌더링
+        requestAnimationFrame(() => {
+          directRenderRef.current();
+        });
+      }
+      // 청크 없음: worker.onmessage에서 렌더링
+    } else if (savedPosition === undefined && firstRowRef.current !== 0) {
+      if (rafRef.current !== null) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+      }
       setFirstRow(0);
+      firstRowRef.current = 0;
+      
+      // 첫 청크 확인
+      if (chunkCacheRef.current.has(0)) {
+        requestAnimationFrame(() => {
+          directRenderRef.current();
+        });
+      }
     }
-  }, [activeKey, scrollPositions]);
+  }, [activeKey, bytesPerRow]); // ✅ firstRow, scrollPositions 제거!
 
   useEffect(() => {
     if (activeKey) {
-      setScrollPositions((prev) => ({ ...prev, [activeKey]: firstRow }));
+      setScrollPositions((prev) => {
+        // ✅ 값이 실제로 변경될 때만 업데이트 (불필요한 재렌더링 방지)
+        if (prev[activeKey] === firstRow) return prev;
+        return { ...prev, [activeKey]: firstRow };
+      });
     }
   }, [firstRow, activeKey, setScrollPositions]);
 

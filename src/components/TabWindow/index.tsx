@@ -34,15 +34,17 @@ const TabWindow: React.FC = () => {
       if (key === activeKey) {
         let newActiveKey: TabKey;
         if (index === 0) {
-          // 첫 번째 탭이 제거된 경우
           newActiveKey = tabKeys[1] || tabKeys[0];
         } else {
-          // 그 외의 경우
           newActiveKey =
             tabKeys[index - 1] || tabKeys[tabKeys.length - 1] || tabKeys[0];
         }
         setActiveKey(newActiveKey);
       }
+
+      // ✅ 탭 닫을 때 해당 Worker 정리 (메모리 누수 방지)
+      // HexViewer의 workerCacheRef에 접근할 수 없으므로
+      // TabDataContext에서 cleanup 함수 제공 필요
 
       // Datas에서도 제거
       setTabData((prevDatas) => {
@@ -62,29 +64,31 @@ const TabWindow: React.FC = () => {
     [activeKey, setActiveKey, setTabData, tabData, setSelectionRange]
   );
 
+  const tabContents = useMemo(() => {
+    return Object.entries(tabData).map(([tabKey, item]) => (
+      <div key={tabKey}>
+        <Tab
+          $active={tabKey === activeKey}
+          onClick={() => handleTabClick(tabKey)}
+        >
+          {item.window.label}
+          <CloseBtn
+            $active={tabKey === activeKey}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleTabClose(tabKey);
+            }}
+          >
+            <XIcon height={15} width={15} />
+          </CloseBtn>
+        </Tab>
+      </div>
+    ));
+  }, [activeKey, handleTabClick, handleTabClose, tabData]);
+
   return (
     <TabWindowContainer>
-      <TabsContainer $empty={isEmpty}>
-        {Object.entries(tabData).map(([tabKey, item]) => (
-          <div key={tabKey}>
-            <Tab
-              $active={tabKey === activeKey}
-              onClick={() => handleTabClick(tabKey)}
-            >
-              {item.window.label}
-              <CloseBtn
-                $active={tabKey === activeKey}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleTabClose(tabKey);
-                }}
-              >
-                <XIcon height={15} width={15} />
-              </CloseBtn>
-            </Tab>
-          </div>
-        ))}
-      </TabsContainer>
+      <TabsContainer $empty={isEmpty}>{tabContents}</TabsContainer>
       <TabContentContainer ref={contentContainerRef}>
         {activeData?.window.contents}
       </TabContentContainer>
