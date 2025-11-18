@@ -1,5 +1,5 @@
-// 동시 처리 제한 (3개까지 동시 처리)
-const MAX_CONCURRENT = 3;
+// 동시 처리 제한 (5개까지 동시 처리 - 3에서 증가)
+const MAX_CONCURRENT = 5;
 const queue: Array<{ file: File; offset: number; length: number }> = [];
 let processingCount = 0;
 
