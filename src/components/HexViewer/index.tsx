@@ -415,11 +415,21 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     const chunkOffset = Math.floor(index / CHUNK_SIZE) * CHUNK_SIZE;
     const chunk = chunkCacheRef.current.get(chunkOffset);
     if (!chunk) return null;
-    return chunk[index - chunkOffset];
+
+    const localIndex = index - chunkOffset;
+    // ✅ 범위 체크 추가
+    if (localIndex < 0 || localIndex >= chunk.length) return null;
+
+    const byteValue = chunk[localIndex];
+    return byteValue !== undefined ? byteValue : null;
   }, []);
 
   // ✅ 렌더링 최적화 - 색상 캐시 사용
   const directRender = useCallback(() => {
+    // ✅ 성능 측정 (개발 환경에서만)
+    const perfStart =
+      process.env.NODE_ENV === 'development' ? performance.now() : 0;
+
     const ctx = canvasRef.current?.getContext('2d', { alpha: false });
     if (!ctx || !colorsRef.current) return;
 
@@ -498,7 +508,8 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
 
         const byte = getByte(idx);
 
-        if (byte === null) {
+        // ✅ null과 undefined 모두 체크
+        if (byte === null || byte === undefined) {
           const xHex = hexStartX + i * hexByteWidth + hexByteWidth / 2;
           offCtx.fillStyle = 'rgba(128, 128, 128, 0.15)';
           offCtx.fillRect(
@@ -526,6 +537,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
           idx >= Math.min(selStart, selEnd) &&
           idx <= Math.max(selStart, selEnd);
 
+        // ✅ Hex 영역 렌더링
         const xHex = hexStartX + i * hexByteWidth + hexByteWidth / 2;
         const yHex = y + rowHeight / 2;
         if (isSel) {
@@ -542,6 +554,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
         }
         offCtx.fillText(byteToHex(byte), xHex, yHex);
 
+        // ✅ ASCII 영역 렌더링
         const xAsc = asciiStartX + i * asciiCharWidth + asciiCharWidth / 2;
         const yAsc = y + rowHeight / 2;
         const char = byteToChar(byte, currentEncoding);
@@ -577,6 +590,16 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
 
       if (validByteCount > 0) {
         hasValidDataRef.current = true;
+      }
+
+      // ✅ 성능 로그 (개발 환경에서만)
+      if (process.env.NODE_ENV === 'development') {
+        const perfEnd = performance.now();
+        const renderTime = perfEnd - perfStart;
+        if (renderTime > 16.67) {
+          // 60fps 기준
+          console.warn(`[HexViewer] 느린 렌더링: ${renderTime.toFixed(2)}ms`);
+        }
       }
     }
   }, [fileSize, rowCount, getByte]);
@@ -772,11 +795,13 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
       findAllByHex: async () => null,
       findAllByAsciiText: async () => null,
       scrollToIndex: (index: number, offset: number) => {
-        setFirstRow(Math.floor(index / bytesPerRow));
+        // ✅ setFirstRow 대신 updateScrollPosition 사용
+        const targetRow = Math.floor(index / bytesPerRow);
+        updateScrollPosition(targetRow);
         updateSelection(index, index + offset - 1);
       },
     }),
-    [fileSize, updateSelection]
+    [fileSize, updateScrollPosition, updateSelection]
   );
 
   // ==================== useEffect - 3개로 축소 ====================
@@ -808,9 +833,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   useEffect(() => {
     if (!file || !activeKey) return;
 
-    // ✅ 이미 초기화된 탭은 스킵 (중복 실행 방지)
     if (tabInitialized.current.has(activeKey)) {
-      // 이미 초기화된 탭 - 복원만 수행
       const existingCache = getWorkerCache(activeKey);
       if (existingCache) {
         const savedPosition = scrollPositions[activeKey] ?? 0;
@@ -843,10 +866,12 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     const existingCache = getWorkerCache(activeKey);
 
     if (!existingCache) {
-      // ✅ 새 탭 - 1번만 실행
-      console.log(`[HexViewer] 새 탭 생성: ${activeKey}`);
-      tabInitialized.current.add(activeKey);
+      // ✅ Development 환경에서만 로그 출력
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`[HexViewer] 새 탭 생성: ${activeKey}`);
+      }
 
+      tabInitialized.current.add(activeKey);
       isInitialLoadingRef.current = true;
       hasValidDataRef.current = false;
       firstRowRef.current = 0;

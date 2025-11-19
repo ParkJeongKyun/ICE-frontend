@@ -35,7 +35,6 @@ const TabWindow: React.FC = () => {
       const tabKeys = Object.keys(tabData) as TabKey[];
       const index = tabKeys.indexOf(key);
 
-      // 삭제된 탭이 활성화된 탭인 경우, 새로운 활성화된 탭을 선택.
       if (key === activeKey) {
         let newActiveKey: TabKey;
         if (index === 0) {
@@ -47,10 +46,14 @@ const TabWindow: React.FC = () => {
         setActiveKey(newActiveKey);
       }
 
-      // ✅ 탭 cleanup (스크롤 위치, 선택 영역, Worker 등 제거)
-      cleanupTab(key);
+      // ✅ 탭 cleanup (비동기 처리로 UI 블로킹 방지)
+      requestIdleCallback(
+        () => {
+          cleanupTab(key);
+        },
+        { timeout: 100 }
+      );
 
-      // Datas에서도 제거
       setTabData((prevDatas) => {
         const { [key]: _, ...newDatas } = prevDatas;
         return newDatas;
