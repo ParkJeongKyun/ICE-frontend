@@ -31,8 +31,9 @@ export const LogoInner = styled.div`
 
   ${LogoWrapper}:hover &,
   ${LogoContainer}:hover & {
-    box-shadow: 0 12px 32px var(--hover-shadow);
-    transform: rotate(360deg) scale(0.8);
+    background: transparent;
+    box-shadow: none;
+    transform: rotate(360deg) scale(0.95);
   }
 
   ${LogoWrapper}:active &,
@@ -50,7 +51,7 @@ export const Star = styled.div`
 
   ${LogoWrapper}:hover &,
   ${LogoContainer}:hover & {
-    transform: rotate(360deg) scale(1.15);
+    transform: rotate(360deg) scale(1.2);
   }
 
   ${LogoWrapper}:active &,
@@ -72,8 +73,8 @@ export const Star = styled.div`
 
   ${LogoWrapper}:hover & span,
   ${LogoContainer}:hover & span {
-    box-shadow: 0 0 14px var(--arm-glow);
-    width: calc(var(--arm-w) * 1.2);
+    box-shadow: 0 0 18px var(--arm-glow);
+    width: calc(var(--arm-w) * 1.3);
   }
 
   span:nth-child(1) { transform: translate(-50%, -100%) rotate(0deg); }
@@ -93,4 +94,8 @@ export const LogoText = styled.div`
   color: var(--text-color);
   letter-spacing: var(--letter-spacing);
   user-select: none;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
 `;

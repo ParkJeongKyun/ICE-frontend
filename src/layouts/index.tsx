@@ -175,7 +175,7 @@ const MainLayout: React.FC = () => {
   return (
     <IceMainLayout $isResizing={isResizing}>
       <IceHeader $isMobile={isMobile} $isProcessing={isProcessing}>
-        <Logo showText size={16} textSize={16} />
+        <Logo showText />
         <MenuBtnZone
           ref={menuBtnZoneRef}
           hexViewerRef={hexViewerRef}
