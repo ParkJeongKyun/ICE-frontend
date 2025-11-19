@@ -57,6 +57,16 @@ const MainLayout: React.FC = () => {
   const { selectionRange } = useSelection();
   const { start: startIndex, end: endIndex } = selectionRange;
 
+  const selectionInfo = useMemo(() => {
+    if (startIndex === null || endIndex === null) return null;
+
+    const minOffset = Math.min(startIndex, endIndex);
+    const maxOffset = Math.max(startIndex, endIndex);
+    const length = maxOffset - minOffset + 1;
+
+    return { minOffset, maxOffset, length };
+  }, [startIndex, endIndex]);
+
   // 모달 Open 이벤트
   const openModal = (key: string) => {
     setModalContentKey(key);
@@ -247,22 +257,22 @@ const MainLayout: React.FC = () => {
           </ProcessInfo>
         )}
         <SelectInfo>
-          {startIndex != null && endIndex != null && (
+          {selectionInfo && (
             <>
               {'선택됨:'}
               <div>
                 {`오프셋: `}
-                {showHex(startIndex)}
+                {showHex(selectionInfo.minOffset)}
               </div>
               <div>
                 {` 범위: `}
-                {showHex(startIndex)}
+                {showHex(selectionInfo.minOffset)}
                 {`-`}
-                {showHex(endIndex)}
+                {showHex(selectionInfo.maxOffset)}
               </div>
               <div>
                 {` 길이: `}
-                {showHex(endIndex - startIndex + 1)}
+                {showHex(selectionInfo.length)}
               </div>
             </>
           )}
