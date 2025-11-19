@@ -72,15 +72,14 @@ export const ScrollbarThumb = styled.div.attrs<{
   },
 }))<{ $dragging: string; $height: number; $top: number }>`
   position: absolute;
-  right: 2px;
-  width: 8px;
-  background-color: ${props => props.$dragging === 'true' ? '#5a7a94' : '#3d5a73'};
-  border-radius: 4px;
+  right: 0;
+  width: 100%;
+  background-color: var(--main-hover-line-color);
+  opacity: ${props => props.$dragging === 'true' ? '0.9' : '0.5'};
   cursor: pointer;
-  transition: background-color 0.2s;
-
+  transition: opacity 0.2s;
   &:hover {
-    background-color: #5a7a94;
+    opacity: 0.9;
   }
 `;
 
