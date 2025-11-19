@@ -30,7 +30,6 @@ import { useResizable } from 'react-resizable-layout';
 import Searcher from '@/components/Searcher';
 import { HexViewerRef } from '@/components/HexViewer';
 import { useProcess } from '@/contexts/ProcessContext';
-import { useSelection } from '@/contexts/SelectionContext';
 import Home from '@/components/Home';
 import { isMobile } from 'react-device-detect';
 import Yara from '@/components/Yara';
@@ -42,19 +41,27 @@ import {
 import Logo from '@/components/common/Icons/Logo';
 
 const MainLayout: React.FC = () => {
-  const { isEmpty, encoding, setEncoding } = useTabData();
+  // ✅ TabDataContext에서 선택 영역 가져오기
+  const { isEmpty, encoding, setEncoding, activeKey, selectionStates } =
+    useTabData();
+
   // Hex뷰어 Ref
   const hexViewerRef = useRef<HexViewerRef>(null);
   const menuBtnZoneRef = useRef<MenuBtnZoneRef>(null);
+
   // Modal 데이터
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalContentKey, setModalContentKey] = useState<string | null>(null);
+
   // 처리중인 파일 정보
   const { processInfo, isProcessing } = useProcess();
   const { fileName } = processInfo;
 
-  // 선택된 셀 정보
-  const { selectionRange } = useSelection();
+  // ✅ 선택된 셀 정보 - TabDataContext에서 가져오기
+  const selectionRange = selectionStates[activeKey] || {
+    start: null,
+    end: null,
+  };
   const { start: startIndex, end: endIndex } = selectionRange;
 
   const selectionInfo = useMemo(() => {

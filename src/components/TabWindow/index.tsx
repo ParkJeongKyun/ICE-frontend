@@ -7,16 +7,21 @@ import {
   TabsContainer,
 } from './index.styles';
 import XIcon from '@/components/common/Icons/XIcon';
-import { useSelection } from '@/contexts/SelectionContext';
 import { useTabData } from '@/contexts/TabDataContext';
 import { TabKey } from '@/types';
 
 // TabWindow 컴포넌트
 const TabWindow: React.FC = () => {
   const contentContainerRef = useRef<HTMLDivElement>(null);
-  const { tabData, setTabData, activeKey, setActiveKey, activeData, isEmpty, cleanupTab } =
-    useTabData();
-  const { setSelectionRange } = useSelection();
+  const {
+    tabData,
+    setTabData,
+    activeKey,
+    setActiveKey,
+    activeData,
+    isEmpty,
+    cleanupTab,
+  } = useTabData();
 
   const handleTabClick = useCallback(
     (key: TabKey) => {
@@ -42,7 +47,7 @@ const TabWindow: React.FC = () => {
         setActiveKey(newActiveKey);
       }
 
-      // ✅ 탭 cleanup (스크롤 위치 등 제거)
+      // ✅ 탭 cleanup (스크롤 위치, 선택 영역, Worker 등 제거)
       cleanupTab(key);
 
       // Datas에서도 제거
@@ -50,17 +55,8 @@ const TabWindow: React.FC = () => {
         const { [key]: _, ...newDatas } = prevDatas;
         return newDatas;
       });
-
-      // 선택도 비활성화
-      if (Object.keys(tabData).length === 1) {
-        setSelectionRange({
-          start: null,
-          end: null,
-          arrayBuffer: null,
-        });
-      }
     },
-    [activeKey, setActiveKey, setTabData, tabData, setSelectionRange, cleanupTab]
+    [activeKey, setActiveKey, setTabData, tabData, cleanupTab]
   );
 
   const tabContents = useMemo(() => {

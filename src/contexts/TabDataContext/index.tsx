@@ -19,6 +19,12 @@ export interface WorkerCache {
   cache: Map<number, Uint8Array>;
 }
 
+// ✅ 선택 영역 타입 추가
+export interface SelectionState {
+  start: number | null;
+  end: number | null;
+}
+
 // 컨텍스트 생성
 interface TabDataContextType {
   tabData: TabData;
@@ -32,6 +38,9 @@ interface TabDataContextType {
   setEncoding: (encoding: EncodingType) => void;
   scrollPositions: Record<TabKey, number>;
   setScrollPositions: Dispatch<SetStateAction<Record<TabKey, number>>>;
+  // ✅ 선택 영역 관리 추가
+  selectionStates: Record<TabKey, SelectionState>;
+  setSelectionStates: Dispatch<SetStateAction<Record<TabKey, SelectionState>>>;
   // ✅ Worker 관리 추가
   getWorkerCache: (key: TabKey) => WorkerCache | undefined;
   setWorkerCache: (key: TabKey, cache: WorkerCache) => void;
@@ -57,6 +66,10 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
   const [scrollPositions, setScrollPositions] = useState<
     Record<TabKey, number>
   >({});
+  // ✅ 선택 영역 상태 추가
+  const [selectionStates, setSelectionStates] = useState<
+    Record<TabKey, SelectionState>
+  >({});
 
   const newTabIndex = useRef(0);
   // ✅ Worker 캐시를 Context에서 관리
@@ -80,18 +93,33 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   const cleanupTab = useCallback((key: TabKey) => {
+    // ✅ 로그 레벨 낮추기 (필요시 제거)
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`[TabDataContext] 탭 cleanup: ${key}`);
+    }
+
     // 스크롤 위치 제거
     setScrollPositions((prev) => {
       const { [key]: _, ...rest } = prev;
       return rest;
     });
 
-    // ✅ Worker 정리
+    // 선택 영역 제거
+    setSelectionStates((prev) => {
+      const { [key]: _, ...rest } = prev;
+      return rest;
+    });
+
+    // Worker 정리
     const cache = workerCacheRef.current.get(key);
     if (cache) {
       cache.worker.terminate();
       cache.cache.clear();
       workerCacheRef.current.delete(key);
+
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`[TabDataContext] Worker 정리 완료: ${key}`);
+      }
     }
   }, []);
 
@@ -117,6 +145,8 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
         setEncoding,
         scrollPositions,
         setScrollPositions,
+        selectionStates,
+        setSelectionStates,
         getWorkerCache,
         setWorkerCache,
         cleanupTab,
