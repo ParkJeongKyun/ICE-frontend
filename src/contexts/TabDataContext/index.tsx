@@ -7,6 +7,7 @@ import React, {
   Dispatch,
   useRef,
   useMemo,
+  useCallback,
 } from 'react';
 
 // 인코딩 타입 정의
@@ -25,6 +26,7 @@ interface TabDataContextType {
   setEncoding: (encoding: EncodingType) => void;
   scrollPositions: Record<TabKey, number>;
   setScrollPositions: Dispatch<SetStateAction<Record<TabKey, number>>>;
+  cleanupTab: (key: TabKey) => void; // ✅ 추가
 }
 
 const TabDataContext = createContext<TabDataContextType | undefined>(undefined);
@@ -56,6 +58,13 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
   const activeData = useMemo(() => tabData[activeKey], [tabData, activeKey]);
   const isEmpty = useMemo(() => Object.keys(tabData).length === 0, [tabData]);
 
+  const cleanupTab = useCallback((key: TabKey) => {
+    setScrollPositions((prev) => {
+      const { [key]: _, ...rest } = prev;
+      return rest;
+    });
+  }, []);
+
   return (
     <TabDataContext.Provider
       value={{
@@ -70,6 +79,7 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
         setEncoding,
         scrollPositions,
         setScrollPositions,
+        cleanupTab, // ✅ 추가
       }}
     >
       {children}

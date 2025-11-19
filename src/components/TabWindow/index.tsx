@@ -14,7 +14,7 @@ import { TabKey } from '@/types';
 // TabWindow 컴포넌트
 const TabWindow: React.FC = () => {
   const contentContainerRef = useRef<HTMLDivElement>(null);
-  const { tabData, setTabData, activeKey, setActiveKey, activeData, isEmpty } =
+  const { tabData, setTabData, activeKey, setActiveKey, activeData, isEmpty, cleanupTab } =
     useTabData();
   const { setSelectionRange } = useSelection();
 
@@ -42,9 +42,8 @@ const TabWindow: React.FC = () => {
         setActiveKey(newActiveKey);
       }
 
-      // ✅ 탭 닫을 때 해당 Worker 정리 (메모리 누수 방지)
-      // HexViewer의 workerCacheRef에 접근할 수 없으므로
-      // TabDataContext에서 cleanup 함수 제공 필요
+      // ✅ 탭 cleanup (스크롤 위치 등 제거)
+      cleanupTab(key);
 
       // Datas에서도 제거
       setTabData((prevDatas) => {
@@ -61,7 +60,7 @@ const TabWindow: React.FC = () => {
         });
       }
     },
-    [activeKey, setActiveKey, setTabData, tabData, setSelectionRange]
+    [activeKey, setActiveKey, setTabData, tabData, setSelectionRange, cleanupTab]
   );
 
   const tabContents = useMemo(() => {

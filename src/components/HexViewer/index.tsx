@@ -132,6 +132,8 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   }>>(new Map());
   const chunkCacheRef = useRef<Map<number, Uint8Array>>(new Map());
   const workerRef = useRef<Worker | null>(null);
+  const isInitialLoadingRef = useRef(false);
+  const hasRestoredScrollRef = useRef<Set<string>>(new Set()); // ✅ 복원 완료된 탭 추적
 
   // 스크롤 상태
   const [firstRow, setFirstRow] = useState(0);
@@ -189,26 +191,66 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     return () => observer.disconnect();
   }, []);
 
-  // Worker 초기화 (탭별 캐시 유지)
+  // ✅ Worker 초기화 (scrollPositions 의존성 제거)
   useEffect(() => {
     if (!file || !activeKey) return;
     
     let tabWorkerCache = workerCacheRef.current.get(activeKey);
     
     if (!tabWorkerCache) {
+      // ✅ 새 탭: Worker 생성 및 초기 청크 로딩
+      isInitialLoadingRef.current = true;
+      hasValidDataRef.current = false; // 초기화
+      
       const worker = new Worker(
         new URL('../../workers/fileReader.worker.ts', import.meta.url)
       );
       
       const cache = new Map<number, Uint8Array>();
+      let initialChunkLoaded = false;
       
       worker.onmessage = (e) => {
         const { type, offset, data } = e.data;
         if (type === 'CHUNK_DATA') {
           cache.set(offset, data);
           chunkCacheRef.current = cache;
-          // 드래그 중이 아닐 때만 렌더링
-          if (!isDraggingRef.current) {
+          
+          if (!initialChunkLoaded) {
+            initialChunkLoaded = true;
+            isInitialLoadingRef.current = false;
+            
+            // ✅ 스크롤 위치 복원 (초기 로딩 직후)
+            const savedPosition = scrollPositions[activeKey];
+            if (savedPosition !== undefined && savedPosition !== 0) {
+              setFirstRow(savedPosition);
+              firstRowRef.current = savedPosition;
+              
+              // 복원된 위치 청크 요청
+              const CHUNK_SIZE = 256 * 1024;
+              const startByte = savedPosition * bytesPerRow;
+              const endByte = Math.min(startByte + visibleRows * bytesPerRow, fileSize);
+              const startChunk = Math.floor(startByte / CHUNK_SIZE);
+              const endChunk = Math.floor(endByte / CHUNK_SIZE);
+              
+              for (let i = startChunk; i <= endChunk; i++) {
+                const chunkOffset = i * CHUNK_SIZE;
+                if (!cache.has(chunkOffset)) {
+                  worker.postMessage({
+                    type: 'READ_CHUNK',
+                    file,
+                    offset: chunkOffset,
+                    length: Math.min(CHUNK_SIZE, fileSize - chunkOffset),
+                  });
+                }
+              }
+            }
+            
+            hasRestoredScrollRef.current.add(activeKey);
+            
+            requestAnimationFrame(() => {
+              directRenderRef.current();
+            });
+          } else if (!isDraggingRef.current) {
             directRenderRef.current();
           }
         }
@@ -217,14 +259,13 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
       tabWorkerCache = { worker, cache };
       workerCacheRef.current.set(activeKey, tabWorkerCache);
       
-      // ✅ 새 탭: 초기 청크 로딩 후 렌더링
       chunkCacheRef.current = cache;
       workerRef.current = worker;
       
-      // 초기 청크 요청
+      // ✅ 초기 청크 요청 (저장된 스크롤 위치 기준)
       const CHUNK_SIZE = 256 * 1024;
-      const startRow = scrollPositions[activeKey] || 0;
-      const startByte = startRow * bytesPerRow;
+      const savedPosition = scrollPositions[activeKey] || 0;
+      const startByte = savedPosition * bytesPerRow;
       const endByte = Math.min(startByte + visibleRows * bytesPerRow, fileSize);
       const startChunk = Math.floor(startByte / CHUNK_SIZE);
       const endChunk = Math.floor(endByte / CHUNK_SIZE);
@@ -239,11 +280,11 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
         });
       }
       
-      // ✅ 첫 청크 로딩 대기 후 렌더링
-      return; // 렌더링하지 않음 (worker.onmessage에서 렌더링)
+      return;
     }
     
-    // ✅ 기존 탭: 즉시 렌더링
+    // ✅ 기존 탭: 캐시 동기화 및 즉시 렌더링
+    isInitialLoadingRef.current = false;
     chunkCacheRef.current = tabWorkerCache.cache;
     workerRef.current = tabWorkerCache.worker;
     
@@ -252,8 +293,44 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
       rafRef.current = null;
     }
     
-    directRenderRef.current();
-  }, [file, activeKey, scrollPositions, visibleRows, bytesPerRow, fileSize]);
+    // ✅ 스크롤 위치 복원 (기존 탭 전환 시)
+    if (!hasRestoredScrollRef.current.has(activeKey)) {
+      const savedPosition = scrollPositions[activeKey];
+      
+      if (savedPosition !== undefined && savedPosition !== firstRowRef.current) {
+        setFirstRow(savedPosition);
+        firstRowRef.current = savedPosition;
+        
+        // 복원된 위치 청크 요청
+        const CHUNK_SIZE = 256 * 1024;
+        const startByte = savedPosition * bytesPerRow;
+        const endByte = Math.min(startByte + visibleRows * bytesPerRow, fileSize);
+        const startChunk = Math.floor(startByte / CHUNK_SIZE);
+        const endChunk = Math.floor(endByte / CHUNK_SIZE);
+        
+        for (let i = startChunk; i <= endChunk; i++) {
+          const offset = i * CHUNK_SIZE;
+          if (!chunkCacheRef.current.has(offset)) {
+            workerRef.current.postMessage({
+              type: 'READ_CHUNK',
+              file,
+              offset,
+              length: Math.min(CHUNK_SIZE, fileSize - offset),
+            });
+          }
+        }
+      } else if (savedPosition === undefined && firstRowRef.current !== 0) {
+        setFirstRow(0);
+        firstRowRef.current = 0;
+      }
+      
+      hasRestoredScrollRef.current.add(activeKey);
+    }
+    
+    requestAnimationFrame(() => {
+      directRenderRef.current();
+    });
+  }, [file, activeKey, visibleRows, bytesPerRow, fileSize, scrollPositions]);
 
   // Worker 정리
   useEffect(() => {
@@ -455,48 +532,100 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     scheduleRender();
   }, [canvasSize.width, canvasSize.height, encoding, scheduleRender]);
 
-  // Worker 초기화 (탭별 캐시 유지)
+  // ✅ 스크롤 위치 복원 (activeKey 변경 시에만)
   useEffect(() => {
-    if (!file || !activeKey) return;
+    if (!activeKey) return;
     
-    let tabWorkerCache = workerCacheRef.current.get(activeKey);
+    const savedPosition = scrollPositions[activeKey];
     
-    if (!tabWorkerCache) {
-      const worker = new Worker(
-        new URL('../../workers/fileReader.worker.ts', import.meta.url)
-      );
+    // ✅ 저장된 위치가 있을 때만 복원
+    if (savedPosition !== undefined && savedPosition !== firstRowRef.current) {
+      if (rafRef.current !== null) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+      }
       
-      const cache = new Map<number, Uint8Array>();
+      setFirstRow(savedPosition);
+      firstRowRef.current = savedPosition;
       
-      worker.onmessage = (e) => {
-        const { type, offset, data } = e.data;
-        if (type === 'CHUNK_DATA') {
-          cache.set(offset, data);
-          chunkCacheRef.current = cache;
-          // 드래그 중이 아닐 때만 렌더링
-          if (!isDraggingRef.current) {
-            directRenderRef.current(); // ref로 직접 호출
+      // ✅ 청크 요청 (복원된 위치 기준)
+      if (workerRef.current && file) {
+        const CHUNK_SIZE = 256 * 1024;
+        const startByte = savedPosition * bytesPerRow;
+        const endByte = Math.min(startByte + visibleRows * bytesPerRow, fileSize);
+        const startChunk = Math.floor(startByte / CHUNK_SIZE);
+        const endChunk = Math.floor(endByte / CHUNK_SIZE);
+        
+        for (let i = startChunk; i <= endChunk; i++) {
+          const offset = i * CHUNK_SIZE;
+          if (!chunkCacheRef.current.has(offset)) {
+            workerRef.current.postMessage({
+              type: 'READ_CHUNK',
+              file,
+              offset,
+              length: Math.min(CHUNK_SIZE, fileSize - offset),
+            });
           }
         }
-      };
+      }
       
-      tabWorkerCache = { worker, cache };
-      workerCacheRef.current.set(activeKey, tabWorkerCache);
+      // ✅ 렌더링
+      if (chunkCacheRef.current.size > 0) {
+        requestAnimationFrame(() => {
+          directRenderRef.current();
+        });
+      }
+    } else if (savedPosition === undefined && firstRowRef.current !== 0) {
+      // ✅ 저장된 위치가 없으면 0으로 초기화
+      if (rafRef.current !== null) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+      }
+      setFirstRow(0);
+      firstRowRef.current = 0;
+      
+      if (chunkCacheRef.current.has(0)) {
+        requestAnimationFrame(() => {
+          directRenderRef.current();
+        });
+      }
     }
-    
-    // ✅ 캐시 즉시 동기화 (탭 전환 시 깜빡임 방지)
-    chunkCacheRef.current = tabWorkerCache.cache;
-    workerRef.current = tabWorkerCache.worker;
-    
-    // ✅ RAF 취소 후 즉시 렌더링 (이전 탭 렌더링 방지)
-    if (rafRef.current !== null) {
-      cancelAnimationFrame(rafRef.current);
-      rafRef.current = null;
+  }, [activeKey]); // ✅ activeKey만 의존성으로 (scrollPositions, bytesPerRow 등 제거)
+
+  // ✅ 스크롤 위치 저장 (firstRow 변경 시)
+  useEffect(() => {
+    if (activeKey && !isInitialLoadingRef.current) {
+      setScrollPositions((prev) => {
+        if (prev[activeKey] === firstRow) return prev;
+        return { ...prev, [activeKey]: firstRow };
+      });
     }
-    
-    // ✅ 동기 렌더링 (RAF 없이)
-    directRenderRef.current();
-  }, [file, activeKey]);
+  }, [firstRow, activeKey, setScrollPositions]);
+
+  // 터치 스크롤
+  useEffect(() => {
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.touches.length === 1 && touchStartYRef.current !== null && touchStartRowRef.current !== null) {
+        const deltaY = e.touches[0].clientY - touchStartYRef.current;
+        const rowDelta = -Math.round(deltaY / rowHeight);
+        const nextRow = Math.max(0, Math.min(touchStartRowRef.current + rowDelta, maxFirstRow));
+        setFirstRow(nextRow);
+      }
+    };
+
+    const handleTouchEnd = () => {
+      touchStartYRef.current = null;
+      touchStartRowRef.current = null;
+    };
+
+    window.addEventListener('touchmove', handleTouchMove);
+    window.addEventListener('touchend', handleTouchEnd);
+
+    return () => {
+      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [maxFirstRow, rowHeight]);
 
   // 스크롤바 드래그 처리
   useEffect(() => {
@@ -504,11 +633,11 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     
     isDraggingRef.current = true;
     
-    // 드래그 시작 시 주변 청크 미리 로드 (범위 확대)
+    // 드래그 시작 시 주변 청크 미리 로드
     if (workerRef.current && file) {
       const CHUNK_SIZE = 256 * 1024;
       const startByte = firstRow * bytesPerRow;
-      const endByte = Math.min(startByte + (visibleRows + 200) * bytesPerRow, fileSize); // 100 → 200
+      const endByte = Math.min(startByte + (visibleRows + 100) * bytesPerRow, fileSize);
       const startChunk = Math.floor(startByte / CHUNK_SIZE);
       const endChunk = Math.floor(endByte / CHUNK_SIZE);
       
@@ -525,9 +654,9 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
       }
     }
     
-    // 주기적 렌더링 (200ms 간격으로 증가)
+    // 주기적 렌더링
     let lastRenderTime = 0;
-    const RENDER_INTERVAL = 200; // 100ms → 200ms (청크 로딩 시간 확보)
+    const RENDER_INTERVAL = 150;
     let periodicRafId: number | null = null;
     
     const periodicRender = (timestamp: number) => {
@@ -541,7 +670,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     
     periodicRafId = requestAnimationFrame(periodicRender);
     
-    // 마우스 이동 처리 (50ms throttle)
+    // 마우스 이동 처리
     let animationFrameId: number | null = null;
     let lastUpdateTime = 0;
     const UPDATE_INTERVAL = 50;
@@ -563,7 +692,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
         setFirstRow(nextRow);
         lastUpdateTime = currentTime;
         
-        // 마우스 이동 시 해당 영역 청크 즉시 요청
+        // 청크 요청
         if (workerRef.current && file) {
           const CHUNK_SIZE = 256 * 1024;
           const startByte = nextRow * bytesPerRow;
@@ -593,7 +722,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
       isDraggingRef.current = false;
       document.body.style.userSelect = '';
       
-      // 드래그 종료 후 약간 지연 후 최종 렌더링 (청크 로딩 대기)
+      // 드래그 종료 후 최종 렌더링
       setTimeout(() => {
         directRenderRef.current();
       }, 100);
@@ -610,7 +739,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
       window.removeEventListener('mouseup', handleEnd);
       window.removeEventListener('touchend', handleEnd);
     };
-  }, [scrollbarDragging, scrollbarStartY, scrollbarStartRow, rowCount, visibleRows, maxFirstRow, canvasSize.height, scrollbarHeight, firstRow, bytesPerRow, fileSize, file]);
+  }, [scrollbarDragging, scrollbarStartY, scrollbarStartRow, rowCount, visibleRows, maxFirstRow, canvasSize.height, scrollbarHeight, bytesPerRow, fileSize, file]);
 
   // 청크 요청 (debounce 50ms)
   useEffect(() => {
@@ -822,73 +951,6 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     }),
     [fileSize, setSelectionRange]
   );
-
-  // 스크롤 위치 저장/복원
-  useEffect(() => {
-    if (!activeKey) return;
-    
-    const savedPosition = scrollPositions[activeKey];
-    
-    // ✅ 저장된 위치가 있고, 현재 위치와 다를 때만 복원
-    if (savedPosition !== undefined && savedPosition !== firstRowRef.current) {
-      if (rafRef.current !== null) {
-        cancelAnimationFrame(rafRef.current);
-        rafRef.current = null;
-      }
-      
-      setFirstRow(savedPosition);
-      firstRowRef.current = savedPosition;
-      
-      // ✅ 청크가 로딩되어 있으면 즉시 렌더링, 없으면 대기
-      const CHUNK_SIZE = 256 * 1024;
-      const startByte = savedPosition * bytesPerRow;
-      const chunkOffset = Math.floor(startByte / CHUNK_SIZE) * CHUNK_SIZE;
-      
-      if (chunkCacheRef.current.has(chunkOffset)) {
-        // 청크 있음: 즉시 렌더링
-        requestAnimationFrame(() => {
-          directRenderRef.current();
-        });
-      }
-      // 청크 없음: worker.onmessage에서 렌더링
-    } else if (savedPosition === undefined && firstRowRef.current !== 0) {
-      if (rafRef.current !== null) {
-        cancelAnimationFrame(rafRef.current);
-        rafRef.current = null;
-      }
-      setFirstRow(0);
-      firstRowRef.current = 0;
-      
-      // 첫 청크 확인
-      if (chunkCacheRef.current.has(0)) {
-        requestAnimationFrame(() => {
-          directRenderRef.current();
-        });
-      }
-    }
-  }, [activeKey, bytesPerRow]); // ✅ firstRow, scrollPositions 제거!
-
-  useEffect(() => {
-    if (activeKey) {
-      setScrollPositions((prev) => {
-        // ✅ 값이 실제로 변경될 때만 업데이트 (불필요한 재렌더링 방지)
-        if (prev[activeKey] === firstRow) return prev;
-        return { ...prev, [activeKey]: firstRow };
-      });
-    }
-  }, [firstRow, activeKey, setScrollPositions]);
-
-  // 컨텍스트 메뉴 외부 클릭
-  useEffect(() => {
-    if (!contextMenu) return;
-    const handleClickOutside = (event: MouseEvent) => {
-      if (contextMenuRef.current && !contextMenuRef.current.contains(event.target as Node)) {
-        setContextMenu(null);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [contextMenu]);
 
   if (!file) {
     return (
