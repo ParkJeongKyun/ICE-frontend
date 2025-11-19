@@ -769,20 +769,6 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   }, [file, firstRow, visibleRows, fileSize, requestChunks]);
 
   // ==================== Render ====================
-  if (!file) {
-    return (
-      <HexViewerContainer>
-        <CanvasContainer ref={containerRef} tabIndex={0}>
-          <CanvasArea style={{ minWidth: `${minHexWidth}px` }}>
-            <div style={{ padding: '20px', color: 'var(--main-color)' }}>
-              No file loaded
-            </div>
-          </CanvasArea>
-        </CanvasContainer>
-      </HexViewerContainer>
-    );
-  }
-
   return (
     <HexViewerContainer
       onWheel={handleWheel}
