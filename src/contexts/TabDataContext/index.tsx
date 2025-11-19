@@ -13,6 +13,12 @@ import React, {
 // 인코딩 타입 정의
 export type EncodingType = 'latin1' | 'windows-1252' | 'ascii' | 'utf-8';
 
+// ✅ Worker 캐시 타입 정의
+export interface WorkerCache {
+  worker: Worker;
+  cache: Map<number, Uint8Array>;
+}
+
 // 컨텍스트 생성
 interface TabDataContextType {
   tabData: TabData;
@@ -26,7 +32,10 @@ interface TabDataContextType {
   setEncoding: (encoding: EncodingType) => void;
   scrollPositions: Record<TabKey, number>;
   setScrollPositions: Dispatch<SetStateAction<Record<TabKey, number>>>;
-  cleanupTab: (key: TabKey) => void; // ✅ 추가
+  // ✅ Worker 관리 추가
+  getWorkerCache: (key: TabKey) => WorkerCache | undefined;
+  setWorkerCache: (key: TabKey, cache: WorkerCache) => void;
+  cleanupTab: (key: TabKey) => void;
 }
 
 const TabDataContext = createContext<TabDataContextType | undefined>(undefined);
@@ -48,21 +57,50 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
   const [scrollPositions, setScrollPositions] = useState<
     Record<TabKey, number>
   >({});
-  const newTabIndex = useRef(0);
 
-  const getNewKey = (): TabKey => {
+  const newTabIndex = useRef(0);
+  // ✅ Worker 캐시를 Context에서 관리
+  const workerCacheRef = useRef<Map<TabKey, WorkerCache>>(new Map());
+
+  const getNewKey = useCallback((): TabKey => {
     newTabIndex.current += 1;
     return `tab-${newTabIndex.current}` as TabKey;
-  };
+  }, []);
 
   const activeData = useMemo(() => tabData[activeKey], [tabData, activeKey]);
   const isEmpty = useMemo(() => Object.keys(tabData).length === 0, [tabData]);
 
+  // ✅ Worker 캐시 getter/setter
+  const getWorkerCache = useCallback((key: TabKey) => {
+    return workerCacheRef.current.get(key);
+  }, []);
+
+  const setWorkerCache = useCallback((key: TabKey, cache: WorkerCache) => {
+    workerCacheRef.current.set(key, cache);
+  }, []);
+
   const cleanupTab = useCallback((key: TabKey) => {
+    // 스크롤 위치 제거
     setScrollPositions((prev) => {
       const { [key]: _, ...rest } = prev;
       return rest;
     });
+
+    // ✅ Worker 정리
+    const cache = workerCacheRef.current.get(key);
+    if (cache) {
+      cache.worker.terminate();
+      cache.cache.clear();
+      workerCacheRef.current.delete(key);
+    }
+  }, []);
+
+  // ✅ 컴포넌트 언마운트 시 모든 Worker 정리
+  React.useEffect(() => {
+    return () => {
+      workerCacheRef.current.forEach(({ worker }) => worker.terminate());
+      workerCacheRef.current.clear();
+    };
   }, []);
 
   return (
@@ -79,7 +117,9 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
         setEncoding,
         scrollPositions,
         setScrollPositions,
-        cleanupTab, // ✅ 추가
+        getWorkerCache,
+        setWorkerCache,
+        cleanupTab,
       }}
     >
       {children}
