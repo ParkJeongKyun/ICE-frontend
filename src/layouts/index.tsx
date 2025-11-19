@@ -232,7 +232,7 @@ const MainLayout: React.FC = () => {
                 }}
               >
                 <Searcher hexViewerRef={hexViewerRef} />
-                <Yara />
+                {/* <Yara /> */}
               </IceRightSider>
             </FlexGrow>
           </IceLayout>
