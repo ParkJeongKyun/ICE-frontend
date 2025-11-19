@@ -6,33 +6,32 @@ let processingCount = 0;
 async function processQueue() {
   while (processingCount < MAX_CONCURRENT && queue.length > 0) {
     processingCount++;
-    const { file, offset, length } = queue.shift()!;
+    const task = queue.shift()!;
     
     try {
-      const blob = file.slice(offset, offset + length);
+      const blob = task.file.slice(task.offset, task.offset + task.length);
       const arrayBuffer = await blob.arrayBuffer();
       const data = new Uint8Array(arrayBuffer);
       
       self.postMessage({
         type: 'CHUNK_DATA',
-        offset,
+        offset: task.offset,
         data,
       });
     } catch (error: any) {
       self.postMessage({
         type: 'ERROR',
         error: error.message,
-        offset,
+        offset: task.offset,
       });
     } finally {
       processingCount--;
-      // 다음 작업 처리
       processQueue();
     }
   }
 }
 
-self.addEventListener('message', async (e) => {
+self.addEventListener('message', (e) => {
   const { type, file, offset, length } = e.data;
 
   if (type === 'READ_CHUNK') {

@@ -20,6 +20,14 @@ import {
   ContextMenuItem,
 } from './index.styles';
 import { isMobile } from 'react-device-detect';
+import { 
+  CHUNK_SIZE, 
+  MAX_COPY_SIZE, 
+  COPY_CHUNK_SIZE,
+  RENDER_INTERVAL,
+  UPDATE_INTERVAL,
+  CHUNK_REQUEST_DEBOUNCE
+} from '@/constants/hexViewer';
 
 export interface IndexInfo {
   index: number;
@@ -167,7 +175,6 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
 
   // ==================== 유틸리티 함수 ====================
   const requestChunks = useCallback((startRow: number, worker: Worker, currentFile: File, currentFileSize: number, currentVisibleRows: number) => {
-    const CHUNK_SIZE = 256 * 1024;
     const startByte = startRow * bytesPerRow;
     const endByte = Math.min(startByte + currentVisibleRows * bytesPerRow, currentFileSize);
     const startChunk = Math.floor(startByte / CHUNK_SIZE);
@@ -187,7 +194,6 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   }, []);
 
   const getByte = useCallback((index: number): number | null => {
-    const CHUNK_SIZE = 256 * 1024;
     const chunkOffset = Math.floor(index / CHUNK_SIZE) * CHUNK_SIZE;
     const chunk = chunkCacheRef.current.get(chunkOffset);
     if (!chunk) return null;
@@ -448,16 +454,14 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
       const start = Math.min(selectionRange.start, selectionRange.end);
       const end = Math.max(selectionRange.start, selectionRange.end) + 1;
       const size = end - start;
-      const MAX_COPY_SIZE = 256 * 1024;
       const actualEnd = start + Math.min(size, MAX_COPY_SIZE);
       
       try {
         const arrayBuffer = await file.slice(start, actualEnd).arrayBuffer();
         const selected = new Uint8Array(arrayBuffer);
-        const CHUNK_SIZE = 100000;
         let hex = '';
-        for (let i = 0; i < selected.length; i += CHUNK_SIZE) {
-          const chunk = selected.slice(i, Math.min(i + CHUNK_SIZE, selected.length));
+        for (let i = 0; i < selected.length; i += COPY_CHUNK_SIZE) {
+          const chunk = selected.slice(i, Math.min(i + COPY_CHUNK_SIZE, selected.length));
           hex += Array.from(chunk).map((b) => b.toString(16).padStart(2, '0')).join(' ') + ' ';
         }
         await navigator.clipboard.writeText(hex.trim());
@@ -474,16 +478,14 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
       const start = Math.min(selectionRange.start, selectionRange.end);
       const end = Math.max(selectionRange.start, selectionRange.end) + 1;
       const size = end - start;
-      const MAX_COPY_SIZE = 256 * 1024;
       const actualEnd = start + Math.min(size, MAX_COPY_SIZE);
       
       try {
         const arrayBuffer = await file.slice(start, actualEnd).arrayBuffer();
         const selected = new Uint8Array(arrayBuffer);
-        const CHUNK_SIZE = 100000;
         let text = '';
-        for (let i = 0; i < selected.length; i += CHUNK_SIZE) {
-          const chunk = selected.slice(i, Math.min(i + CHUNK_SIZE, selected.length));
+        for (let i = 0; i < selected.length; i += COPY_CHUNK_SIZE) {
+          const chunk = selected.slice(i, Math.min(i + COPY_CHUNK_SIZE, selected.length));
           text += Array.from(chunk).map((b) => (b >= 0x20 && b <= 0x7e ? String.fromCharCode(b) : '.')).join('');
         }
         await navigator.clipboard.writeText(text);
@@ -691,7 +693,6 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     }
     
     let lastRenderTime = 0;
-    const RENDER_INTERVAL = 150;
     let periodicRafId: number | null = null;
     
     const periodicRender = (timestamp: number) => {
@@ -707,7 +708,6 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     
     let animationFrameId: number | null = null;
     let lastUpdateTime = 0;
-    const UPDATE_INTERVAL = 50;
 
     const handleMouseMove = (e: MouseEvent) => {
       const currentTime = Date.now();
@@ -763,7 +763,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     
     const timer = setTimeout(() => {
       requestChunks(firstRow, workerRef.current!, file, fileSize, visibleRows + 30);
-    }, 50);
+    }, CHUNK_REQUEST_DEBOUNCE);
     
     return () => clearTimeout(timer);
   }, [file, firstRow, visibleRows, fileSize, requestChunks]);
