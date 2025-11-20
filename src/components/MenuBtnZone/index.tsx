@@ -126,12 +126,12 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
         disabledTxt="파일 분석이 완료되면 시도해주세요"
       />
       <FileInput type="file" ref={fileInputRef} onChange={handleFileChange} />
-      <MenuBtn
+      {/* <MenuBtn
         onClick={() => {}}
         text="Save"
         disabled
         disabledTxt="기능 추가 업데이트 예정"
-      />
+      /> */}
       <MenuBtn
         onClick={() => {}}
         text="Tools"
