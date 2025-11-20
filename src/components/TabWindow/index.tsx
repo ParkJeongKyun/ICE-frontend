@@ -10,7 +10,6 @@ import XIcon from '@/components/common/Icons/XIcon';
 import { useTabData } from '@/contexts/TabDataContext';
 import { TabKey } from '@/types';
 
-// TabWindow 컴포넌트
 const TabWindow: React.FC = () => {
   const contentContainerRef = useRef<HTMLDivElement>(null);
   const tabsContainerRef = useRef<HTMLDivElement>(null);
@@ -26,9 +25,16 @@ const TabWindow: React.FC = () => {
     reorderTabs,
   } = useTabData();
 
-  // ✅ 드래그 상태 관리
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
-  const [dropTarget, setDropTarget] = useState<{ index: number; position: 'left' | 'right' } | null>(null);
+  const [dropTarget, setDropTarget] = useState<{
+    index: number;
+    position: 'left' | 'right';
+  } | null>(null);
+  const lastValidDropTarget = useRef<{
+    index: number;
+    position: 'left' | 'right';
+  } | null>(null);
+  const hasDropped = useRef(false);
 
   const handleTabClick = useCallback(
     (key: TabKey) => {
@@ -39,44 +45,30 @@ const TabWindow: React.FC = () => {
 
   const handleTabClose = useCallback(
     (key: TabKey) => {
-      const tabKeys = Object.keys(tabData) as TabKey[];
-      const index = tabKeys.indexOf(key);
+      const currentIndex = tabOrder.indexOf(key);
 
-      if (key === activeKey) {
-        let newActiveKey: TabKey;
-        if (index === 0) {
-          newActiveKey = tabKeys[1] || tabKeys[0];
-        } else {
-          newActiveKey =
-            tabKeys[index - 1] || tabKeys[tabKeys.length - 1] || tabKeys[0];
-        }
-        setActiveKey(newActiveKey);
+      if (key === activeKey && tabOrder.length > 1) {
+        const nextIndex = currentIndex === 0 ? 1 : currentIndex - 1;
+        setActiveKey(tabOrder[nextIndex]);
       }
 
-      // ✅ 탭 cleanup (비동기 처리로 UI 블로킹 방지)
-      requestIdleCallback(
-        () => {
-          cleanupTab(key);
-        },
-        { timeout: 100 }
-      );
+      requestIdleCallback(() => cleanupTab(key), { timeout: 100 });
 
-      setTabData((prevDatas) => {
-        const { [key]: _, ...newDatas } = prevDatas;
-        return newDatas;
+      setTabData((prev) => {
+        const { [key]: _, ...rest } = prev;
+        return rest;
       });
     },
-    [activeKey, setActiveKey, setTabData, tabData, cleanupTab]
+    [activeKey, tabOrder, setActiveKey, setTabData, cleanupTab]
   );
 
-  // ✅ 드래그 핸들러들
   const handleDragStart = useCallback(
     (e: React.DragEvent, index: number, tabKey: TabKey) => {
       setDraggedIndex(index);
-      // ✅ 드래그 시작 시 해당 탭으로 전환
       setActiveKey(tabKey);
       e.dataTransfer.effectAllowed = 'move';
       e.dataTransfer.setData('text/plain', index.toString());
+      hasDropped.current = false;
     },
     [setActiveKey]
   );
@@ -86,63 +78,63 @@ const TabWindow: React.FC = () => {
       e.preventDefault();
       e.dataTransfer.dropEffect = 'move';
 
-      if (draggedIndex === null || draggedIndex === index) {
-        return;
-      }
+      if (draggedIndex === null || draggedIndex === index) return;
 
-      // 마우스 위치에 따라 왼쪽/오른쪽 결정
       const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-      const mouseX = e.clientX - rect.left;
-      const position = mouseX < rect.width / 2 ? 'left' : 'right';
+      const position: 'left' | 'right' =
+        e.clientX - rect.left < rect.width / 2 ? 'left' : 'right';
 
-      setDropTarget({ index, position });
+      const newTarget = { index, position };
+      setDropTarget(newTarget);
+      lastValidDropTarget.current = newTarget;
     },
     [draggedIndex]
   );
 
+  const performReorder = useCallback(() => {
+    if (draggedIndex === null || !lastValidDropTarget.current) return;
+
+    const { index: dropIdx, position } = lastValidDropTarget.current;
+    let targetIdx = position === 'right' ? dropIdx + 1 : dropIdx;
+    if (draggedIndex < targetIdx) targetIdx -= 1;
+
+    if (draggedIndex !== targetIdx) {
+      reorderTabs(draggedIndex, targetIdx);
+    }
+
+    setDraggedIndex(null);
+    setDropTarget(null);
+    lastValidDropTarget.current = null;
+    hasDropped.current = false;
+  }, [draggedIndex, reorderTabs]);
+
   const handleDrop = useCallback(
     (e: React.DragEvent) => {
       e.preventDefault();
-      
-      if (draggedIndex === null || dropTarget === null) {
-        return;
-      }
-
-      let targetIndex = dropTarget.index;
-      
-      // 오른쪽에 드롭하면 다음 인덱스로
-      if (dropTarget.position === 'right') {
-        targetIndex += 1;
-      }
-
-      // 드래그 소스가 타겟보다 앞에 있으면 인덱스 조정
-      if (draggedIndex < targetIndex) {
-        targetIndex -= 1;
-      }
-
-      reorderTabs(draggedIndex, targetIndex);
-      setDraggedIndex(null);
-      setDropTarget(null);
+      e.stopPropagation();
+      hasDropped.current = true;
+      performReorder();
     },
-    [draggedIndex, dropTarget, reorderTabs]
+    [performReorder]
   );
 
   const handleDragEnd = useCallback(() => {
-    setDraggedIndex(null);
-    setDropTarget(null);
-  }, []);
-
-  const handleDragLeave = useCallback((e: React.DragEvent) => {
-    // TabsContainer 영역을 완전히 벗어났을 때만 리셋
-    if (e.currentTarget === e.target) {
+    if (!hasDropped.current) {
+      performReorder();
+    } else {
+      setDraggedIndex(null);
       setDropTarget(null);
+      lastValidDropTarget.current = null;
+      hasDropped.current = false;
     }
-  }, []);
+  }, [performReorder]);
 
-  // ✅ TabsContainer 영역 벗어나면 맨 끝으로 이동
-  const handleContainerDragOver = useCallback(
+  const handleGlobalDragOver = useCallback(
     (e: React.DragEvent) => {
       if (draggedIndex === null) return;
+
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
 
       const container = tabsContainerRef.current;
       if (!container) return;
@@ -150,13 +142,17 @@ const TabWindow: React.FC = () => {
       const rect = container.getBoundingClientRect();
       const mouseX = e.clientX;
 
-      // 왼쪽 영역을 벗어나면 맨 앞으로
       if (mouseX < rect.left) {
-        setDropTarget({ index: 0, position: 'left' });
-      }
-      // 오른쪽 영역을 벗어나면 맨 뒤로
-      else if (mouseX > rect.right) {
-        setDropTarget({ index: tabOrder.length - 1, position: 'right' });
+        const newTarget = { index: 0, position: 'left' as const };
+        setDropTarget(newTarget);
+        lastValidDropTarget.current = newTarget;
+      } else if (mouseX > rect.right) {
+        const newTarget = {
+          index: tabOrder.length - 1,
+          position: 'right' as const,
+        };
+        setDropTarget(newTarget);
+        lastValidDropTarget.current = newTarget;
       }
     },
     [draggedIndex, tabOrder.length]
@@ -168,8 +164,10 @@ const TabWindow: React.FC = () => {
       if (!item) return null;
 
       const isDragging = draggedIndex === index;
-      const showLeftIndicator = dropTarget?.index === index && dropTarget?.position === 'left';
-      const showRightIndicator = dropTarget?.index === index && dropTarget?.position === 'right';
+      const showLeftIndicator =
+        dropTarget?.index === index && dropTarget.position === 'left';
+      const showRightIndicator =
+        dropTarget?.index === index && dropTarget.position === 'right';
 
       return (
         <div
@@ -195,6 +193,7 @@ const TabWindow: React.FC = () => {
                 height: '100%',
                 backgroundColor: 'var(--main-line-color)',
                 zIndex: 1000,
+                pointerEvents: 'none',
               }}
             />
           )}
@@ -208,6 +207,7 @@ const TabWindow: React.FC = () => {
                 height: '100%',
                 backgroundColor: 'var(--main-line-color)',
                 zIndex: 1000,
+                pointerEvents: 'none',
               }}
             />
           )}
@@ -230,27 +230,25 @@ const TabWindow: React.FC = () => {
       );
     });
   }, [
-    activeKey,
-    handleTabClick,
-    handleTabClose,
-    tabData,
     tabOrder,
+    tabData,
     draggedIndex,
     dropTarget,
+    activeKey,
     handleDragStart,
     handleDragOver,
     handleDrop,
     handleDragEnd,
+    handleTabClick,
+    handleTabClose,
   ]);
 
   return (
-    <TabWindowContainer>
-      <TabsContainer 
-        ref={tabsContainerRef}
-        $empty={isEmpty}
-        onDragOver={handleContainerDragOver}
-        onDragLeave={handleDragLeave}
-      >
+    <TabWindowContainer
+      onDragOver={handleGlobalDragOver}
+      onDrop={handleDrop}
+    >
+      <TabsContainer ref={tabsContainerRef} $empty={isEmpty}>
         {tabContents}
       </TabsContainer>
       <TabContentContainer ref={contentContainerRef}>

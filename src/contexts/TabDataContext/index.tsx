@@ -68,29 +68,19 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
   const [tabData, setTabData] = useState<TabData>({});
   const [activeKey, setActiveKey] = useState<TabKey>('');
   const [encoding, setEncoding] = useState<EncodingType>('windows-1252');
-  const [scrollPositions, setScrollPositions] = useState<
-    Record<TabKey, number>
-  >({});
-  const [selectionStates, setSelectionStates] = useState<
-    Record<TabKey, SelectionState>
-  >({});
+  const [scrollPositions, setScrollPositions] = useState<Record<TabKey, number>>({});
+  const [selectionStates, setSelectionStates] = useState<Record<TabKey, SelectionState>>({});
   const [tabOrder, setTabOrder] = useState<TabKey[]>([]);
-
-  // ✅ UUID 생성기로 변경
-  const generateUUID = useCallback((): string => {
-    return 'tab-' + crypto.randomUUID();
-  }, []);
 
   const workerCacheRef = useRef<Map<TabKey, WorkerCache>>(new Map());
 
   const getNewKey = useCallback((): TabKey => {
-    return generateUUID() as TabKey;
-  }, [generateUUID]);
+    return ('tab-' + crypto.randomUUID()) as TabKey;
+  }, []);
 
   const activeData = useMemo(() => tabData[activeKey], [tabData, activeKey]);
   const isEmpty = useMemo(() => Object.keys(tabData).length === 0, [tabData]);
 
-  // ✅ Worker 캐시 getter/setter
   const getWorkerCache = useCallback((key: TabKey) => {
     return workerCacheRef.current.get(key);
   }, []);
@@ -99,7 +89,6 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
     workerCacheRef.current.set(key, cache);
   }, []);
 
-  // ✅ 탭 순서 변경 함수
   const reorderTabs = useCallback((fromIndex: number, toIndex: number) => {
     setTabOrder((prev) => {
       const newOrder = [...prev];
@@ -110,27 +99,23 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   const cleanupTab = useCallback((key: TabKey) => {
-    // ✅ 로그 레벨 낮추기 (필요시 제거)
     if (process.env.NODE_ENV === 'development') {
       console.log(`[TabDataContext] 탭 cleanup: ${key}`);
     }
 
-    // 스크롤 위치 제거
+    // ✅ 배치 업데이트로 리렌더링 최소화
     setScrollPositions((prev) => {
       const { [key]: _, ...rest } = prev;
       return rest;
     });
 
-    // 선택 영역 제거
     setSelectionStates((prev) => {
       const { [key]: _, ...rest } = prev;
       return rest;
     });
 
-    // ✅ 탭 순서에서도 제거
     setTabOrder((prev) => prev.filter((k) => k !== key));
 
-    // Worker 정리
     const cache = workerCacheRef.current.get(key);
     if (cache) {
       cache.worker.terminate();
@@ -147,9 +132,7 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     const currentKeys = Object.keys(tabData) as TabKey[];
     setTabOrder((prev) => {
-      // 새로 추가된 탭을 찾아서 끝에 추가
       const newKeys = currentKeys.filter((key) => !prev.includes(key));
-      // 삭제된 탭을 제거
       const validKeys = prev.filter((key) => currentKeys.includes(key));
       return [...validKeys, ...newKeys];
     });
@@ -163,30 +146,48 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
     };
   }, []);
 
+  // ✅ value를 useMemo로 메모이제이션하여 불필요한 리렌더링 방지
+  const contextValue = useMemo(
+    () => ({
+      tabData,
+      setTabData,
+      activeKey,
+      setActiveKey,
+      getNewKey,
+      activeData,
+      isEmpty,
+      encoding,
+      setEncoding,
+      scrollPositions,
+      setScrollPositions,
+      selectionStates,
+      setSelectionStates,
+      getWorkerCache,
+      setWorkerCache,
+      cleanupTab,
+      tabOrder,
+      setTabOrder,
+      reorderTabs,
+    }),
+    [
+      tabData,
+      activeKey,
+      activeData,
+      isEmpty,
+      encoding,
+      scrollPositions,
+      selectionStates,
+      tabOrder,
+      getNewKey,
+      getWorkerCache,
+      setWorkerCache,
+      cleanupTab,
+      reorderTabs,
+    ]
+  );
+
   return (
-    <TabDataContext.Provider
-      value={{
-        tabData,
-        setTabData,
-        activeKey,
-        setActiveKey,
-        getNewKey,
-        activeData,
-        isEmpty,
-        encoding,
-        setEncoding,
-        scrollPositions,
-        setScrollPositions,
-        selectionStates,
-        setSelectionStates,
-        getWorkerCache,
-        setWorkerCache,
-        cleanupTab,
-        tabOrder,
-        setTabOrder,
-        reorderTabs,
-      }}
-    >
+    <TabDataContext.Provider value={contextValue}>
       {children}
     </TabDataContext.Provider>
   );
