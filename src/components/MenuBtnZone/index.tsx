@@ -183,8 +183,9 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
 
 const Div = styled.div`
   display: flex;
-  gap: 10px;
-  margin-top: 2px;
+  align-items: center;
+  gap: 2px;
+  height: 100%;
 `;
 
 const FileInput = styled.input`

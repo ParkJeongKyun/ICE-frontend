@@ -47,7 +47,6 @@ export const StyledCanvas = styled.canvas`
   /*  추가: 캔버스 자체도 overflow 제한 */
   max-width: 100%;
   max-height: 100%;
-  object-fit: contain;
 `;
 
 // 가상 스크롤바

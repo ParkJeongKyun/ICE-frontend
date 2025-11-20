@@ -32,22 +32,29 @@ const BtnDiv = styled.div<{ disabled: boolean }>`
   align-items: center;
   justify-content: center;
 
-  margin: 2px 1px 2px 1px;
-  padding: 2px 4px 2px 4px;
-  border-radius: 5px;
+  padding: 2px 6px;
+  border-radius: 4px;
 
   font-size: 0.75rem;
   font-weight: 600;
+  line-height: 1;
 
   color: var(
     ${({ disabled }) => (disabled ? '--main-disabled-color' : '--main-color')}
   );
   pointer-events: ${({ disabled }) => (disabled ? 'none' : 'auto')};
+
+  transition: all 0.15s ease;
+
   &:hover {
     cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
     color: ${({ disabled }) => (disabled ? '' : 'var(--ice-main-color)')};
     background-color: ${({ disabled }) =>
       disabled ? '' : 'var(--main-hover-color)'};
+  }
+
+  &:active {
+    opacity: 0.8;
   }
 `;
 

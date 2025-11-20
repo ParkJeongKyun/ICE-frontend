@@ -20,11 +20,10 @@ export const IceHeader = styled.div<{
   $isProcessing?: boolean;
 }>`
   display: flex;
-  gap: 5px;
-  /* 위 | 오른쪽 | 아래 | 왼쪽 */
-  padding: 0 5px 0 5px;
-  height: 27px;
-  line-height: 15px;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 8px;
+  height: 26px;
   background-color: var(--main-bg-color);
   color: var(--main-color);
   border-bottom: 1.5px solid var(--main-line-color);
@@ -33,7 +32,10 @@ export const IceHeader = styled.div<{
   ${(props) =>
     props.$isMobile &&
     `
-      overflow-x:auto
+      overflow-x: auto;
+      gap: 6px;
+      padding: 2px 6px;
+      height: 22px;
     `}
 
   /* 로딩 이벤트 */
@@ -43,7 +45,7 @@ export const IceHeader = styled.div<{
       &:after {
         content: '';
         position: absolute;
-        top: 27px;
+        top: calc(26px - 1.5px);
         left: 0;
         width: 5vw;
         height: 1.5px;
