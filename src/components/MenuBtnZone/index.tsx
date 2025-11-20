@@ -1,5 +1,5 @@
-import React from 'react';
-import { ChangeEvent, Ref, useImperativeHandle, useRef } from 'react';
+import React, { useEffect } from 'react';
+import { ChangeEvent, Ref, useImperativeHandle, useRef, useState } from 'react';
 import styled from 'styled-components';
 import MenuBtn from '@/components/common/MenuBtn';
 import HexViewer, { HexViewerRef } from '@/components/HexViewer';
@@ -26,6 +26,8 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
   const { setTabData, setActiveKey, getNewKey } = useTabData();
   const { setProcessInfo, isProcessing } = useProcess();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const toolsMenuRef = useRef<HTMLDivElement>(null);
+  const [showToolsMenu, setShowToolsMenu] = useState(false);
 
   const handleOpenClick = () => {
     fileInputRef.current?.click();
@@ -37,6 +39,23 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
 
   const handleAboutClick = () => {
     openModal('about');
+  };
+
+  const handleToolsClick = () => {
+    setShowToolsMenu(!showToolsMenu);
+  };
+
+  const handleToolsMenuItemClick = (action: string) => {
+    setShowToolsMenu(false);
+
+    switch (action) {
+      case 'linknote':
+        window.open('/linknote', '_blank');
+        break;
+      // 추가 기능은 여기에
+      default:
+        break;
+    }
   };
 
   const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
@@ -117,6 +136,23 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
     aboutBtnClick: handleAboutClick,
   }));
 
+  // 메뉴 외부 클릭 감지
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (toolsMenuRef.current && !toolsMenuRef.current.contains(event.target as Node)) {
+        setShowToolsMenu(false);
+      }
+    };
+
+    if (showToolsMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showToolsMenu]);
+
   return (
     <Div>
       <MenuBtn
@@ -126,18 +162,19 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
         disabledTxt="파일 분석이 완료되면 시도해주세요"
       />
       <FileInput type="file" ref={fileInputRef} onChange={handleFileChange} />
-      {/* <MenuBtn
-        onClick={() => {}}
-        text="Save"
-        disabled
-        disabledTxt="기능 추가 업데이트 예정"
-      /> */}
-      <MenuBtn
-        onClick={() => {}}
-        text="Tools"
-        disabled
-        disabledTxt="기능 추가 업데이트 예정"
-      />
+      <ToolsMenuContainer ref={toolsMenuRef}>
+        <MenuBtn onClick={handleToolsClick} text="Tools" />
+        {showToolsMenu && (
+          <ToolsDropdownMenu>
+            <ToolsMenuList>
+              <ToolsMenuItem onClick={() => handleToolsMenuItemClick('linknote')}>
+                LinkNote
+              </ToolsMenuItem>
+              {/* 추가 메뉴 아이템 */}
+            </ToolsMenuList>
+          </ToolsDropdownMenu>
+        )}
+      </ToolsMenuContainer>
       <MenuBtn onClick={handleHelpClick} text="Help" />
       <MenuBtn onClick={handleAboutClick} text="About" />
     </Div>
@@ -152,6 +189,47 @@ const Div = styled.div`
 
 const FileInput = styled.input`
   display: none;
+`;
+
+const ToolsMenuContainer = styled.div`
+  position: relative;
+`;
+
+const ToolsDropdownMenu = styled.div`
+  position: absolute;
+  top: calc(100%);
+  left: 0;
+  background-color: var(--main-bg-color);
+  border: 1px solid var(--main-line-color);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  min-width: 120px;
+  border-radius: 4px;
+  padding: 0;
+  user-select: none;
+  outline: none;
+`;
+
+const ToolsMenuList = styled.ul`
+  list-style: none;
+  margin: 0;
+  padding: 5px 5px;
+`;
+
+const ToolsMenuItem = styled.li`
+  padding: 3px 12px;
+  cursor: pointer;
+  color: var(--main-color);
+  background: transparent;
+  font-size: 0.75rem;
+  text-align: left;
+  border-radius: 3px;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: var(--main-hover-color);
+    color: var(--ice-main-color);
+  }
 `;
 
 export default React.forwardRef(MenuBtnZone);

@@ -1002,6 +1002,22 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     return () => clearTimeout(timer);
   }, [renderTrigger, file, visibleRows, fileSize, requestChunks]);
 
+  useEffect(() => {
+    if (!contextMenu) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (contextMenuRef.current && !contextMenuRef.current.contains(event.target as Node)) {
+        closeContextMenu();
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [contextMenu]);
+
   // ==================== Render ====================
   return (
     <HexViewerContainer

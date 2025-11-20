@@ -12,7 +12,7 @@ export const HexViewerContainer = styled.div`
 export const CanvasContainer = styled.div`
   width: 100%;
   height: 100%;
-  overflow-x: scroll;
+  overflow-x: auto;
   overflow-y: hidden;
   background: var(--main-bg-color);
   position: relative;
@@ -27,6 +27,7 @@ export const CanvasArea = styled.div`
   flex: 1;
   height: 100%;
   position: relative;
+  overflow: hidden;
 `;
 
 // 스타일 캔버스
@@ -43,6 +44,10 @@ export const StyledCanvas = styled.canvas`
   /* GPU 가속 최적화 */
   transform: translateZ(0);
   backface-visibility: hidden;
+  /*  추가: 캔버스 자체도 overflow 제한 */
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
 `;
 
 // 가상 스크롤바
@@ -89,12 +94,13 @@ export const ContextMenu = styled.div`
   background-color: var(--main-bg-color);
   border: 1px solid var(--main-line-color);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  z-index: 1000;
+  z-index: 1;
   min-width: 120px;
   border-radius: 4px;
   padding: 0;
   user-select: none;
   outline: none;
+  overflow: hidden;
 `;
 
 // 컨텍스트 메뉴 리스트
@@ -112,6 +118,9 @@ export const ContextMenuItem = styled.li`
   background: transparent;
   font-size: 0.75rem;
   text-align: left;
+  overflow: hidden;
+  white-space: nowrap;
+  
   &:hover {
     background: var(--main-hover-color);
     color: var(--ice-main-color);
