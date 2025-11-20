@@ -8,6 +8,7 @@ import React, {
   useRef,
   useMemo,
   useCallback,
+  useEffect,
 } from 'react';
 
 // 인코딩 타입 정의
@@ -45,6 +46,10 @@ interface TabDataContextType {
   getWorkerCache: (key: TabKey) => WorkerCache | undefined;
   setWorkerCache: (key: TabKey, cache: WorkerCache) => void;
   cleanupTab: (key: TabKey) => void;
+  // ✅ 탭 순서 관리 추가
+  tabOrder: TabKey[];
+  setTabOrder: Dispatch<SetStateAction<TabKey[]>>;
+  reorderTabs: (fromIndex: number, toIndex: number) => void;
 }
 
 const TabDataContext = createContext<TabDataContextType | undefined>(undefined);
@@ -66,19 +71,21 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
   const [scrollPositions, setScrollPositions] = useState<
     Record<TabKey, number>
   >({});
-  // ✅ 선택 영역 상태 추가
   const [selectionStates, setSelectionStates] = useState<
     Record<TabKey, SelectionState>
   >({});
+  const [tabOrder, setTabOrder] = useState<TabKey[]>([]);
 
-  const newTabIndex = useRef(0);
-  // ✅ Worker 캐시를 Context에서 관리
+  // ✅ UUID 생성기로 변경
+  const generateUUID = useCallback((): string => {
+    return 'tab-' + crypto.randomUUID();
+  }, []);
+
   const workerCacheRef = useRef<Map<TabKey, WorkerCache>>(new Map());
 
   const getNewKey = useCallback((): TabKey => {
-    newTabIndex.current += 1;
-    return `tab-${newTabIndex.current}` as TabKey;
-  }, []);
+    return generateUUID() as TabKey;
+  }, [generateUUID]);
 
   const activeData = useMemo(() => tabData[activeKey], [tabData, activeKey]);
   const isEmpty = useMemo(() => Object.keys(tabData).length === 0, [tabData]);
@@ -90,6 +97,16 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const setWorkerCache = useCallback((key: TabKey, cache: WorkerCache) => {
     workerCacheRef.current.set(key, cache);
+  }, []);
+
+  // ✅ 탭 순서 변경 함수
+  const reorderTabs = useCallback((fromIndex: number, toIndex: number) => {
+    setTabOrder((prev) => {
+      const newOrder = [...prev];
+      const [movedTab] = newOrder.splice(fromIndex, 1);
+      newOrder.splice(toIndex, 0, movedTab);
+      return newOrder;
+    });
   }, []);
 
   const cleanupTab = useCallback((key: TabKey) => {
@@ -110,6 +127,9 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
       return rest;
     });
 
+    // ✅ 탭 순서에서도 제거
+    setTabOrder((prev) => prev.filter((k) => k !== key));
+
     // Worker 정리
     const cache = workerCacheRef.current.get(key);
     if (cache) {
@@ -123,8 +143,20 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, []);
 
+  // ✅ tabData 변경 시 tabOrder 동기화
+  useEffect(() => {
+    const currentKeys = Object.keys(tabData) as TabKey[];
+    setTabOrder((prev) => {
+      // 새로 추가된 탭을 찾아서 끝에 추가
+      const newKeys = currentKeys.filter((key) => !prev.includes(key));
+      // 삭제된 탭을 제거
+      const validKeys = prev.filter((key) => currentKeys.includes(key));
+      return [...validKeys, ...newKeys];
+    });
+  }, [tabData]);
+
   // ✅ 컴포넌트 언마운트 시 모든 Worker 정리
-  React.useEffect(() => {
+  useEffect(() => {
     return () => {
       workerCacheRef.current.forEach(({ worker }) => worker.terminate());
       workerCacheRef.current.clear();
@@ -150,6 +182,9 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
         getWorkerCache,
         setWorkerCache,
         cleanupTab,
+        tabOrder,
+        setTabOrder,
+        reorderTabs,
       }}
     >
       {children}

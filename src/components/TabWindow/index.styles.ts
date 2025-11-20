@@ -109,3 +109,22 @@ export const TabContentContainer = styled.div`
     -webkit-overflow-scrolling: touch;
   }
 `;
+
+export const TabWrapper = styled.div<{ $isDragging?: boolean; $dropPosition?: 'left' | 'right' | null }>`
+  position: relative;
+  opacity: ${props => props.$isDragging ? 0.5 : 1};
+  cursor: move;
+
+  ${props => props.$dropPosition && `
+    &::${props.$dropPosition === 'left' ? 'before' : 'after'} {
+      content: '';
+      position: absolute;
+      top: 0;
+      ${props.$dropPosition}: 0;
+      width: 3px;
+      height: 100%;
+      background-color: var(--main-line-color);
+      z-index: 1000;
+    }
+  `}
+`;
