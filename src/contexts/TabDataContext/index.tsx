@@ -12,7 +12,7 @@ import React, {
 } from 'react';
 
 // 인코딩 타입 정의
-export type EncodingType = 'latin1' | 'windows-1252' | 'ascii' | 'utf-8';
+export type EncodingType = 'ansi' | 'oem' | 'ascii' | 'mac' | 'ebcdic';
 
 // ✅ Worker 캐시 타입 정의
 export interface WorkerCache {
@@ -55,10 +55,11 @@ interface TabDataContextType {
 const TabDataContext = createContext<TabDataContextType | undefined>(undefined);
 
 export const encodingOptions = [
-  { value: 'latin1', label: 'ISO-8859-1' },
-  { value: 'windows-1252', label: 'Windows-1252' },
   { value: 'ascii', label: 'ASCII' },
-  { value: 'utf-8', label: 'UTF-8' },
+  { value: 'ansi', label: 'ANSI(Windows-1252)' },
+  { value: 'oem', label: 'OEM(CP437)' },
+  { value: 'mac', label: 'Macintosh(Mac Roman)' },
+  { value: 'ebcdic', label: 'EBCDIC(IBM Mainframe)' },
 ];
 
 // 컨텍스트 프로바이더 컴포넌트
@@ -67,7 +68,7 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [tabData, setTabData] = useState<TabData>({});
   const [activeKey, setActiveKey] = useState<TabKey>('');
-  const [encoding, setEncoding] = useState<EncodingType>('windows-1252');
+  const [encoding, setEncoding] = useState<EncodingType>('ansi');
   const [scrollPositions, setScrollPositions] = useState<Record<TabKey, number>>({});
   const [selectionStates, setSelectionStates] = useState<Record<TabKey, SelectionState>>({});
   const [tabOrder, setTabOrder] = useState<TabKey[]>([]);

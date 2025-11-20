@@ -27,6 +27,7 @@ import {
   UPDATE_INTERVAL,
   CHUNK_REQUEST_DEBOUNCE,
 } from '@/constants/hexViewer';
+import { byteToHex, byteToChar } from '@/utils/encoding';
 
 export interface IndexInfo {
   index: number;
@@ -87,31 +88,6 @@ const minHexWidth =
   gap * 2 +
   bytesPerRow * hexByteWidth +
   bytesPerRow * asciiCharWidth;
-
-// ==================== 헬퍼 함수 ====================
-function byteToHex(byte: number): string {
-  return ('0' + byte.toString(16)).slice(-2).toUpperCase();
-}
-
-function byteToChar(byte: number, encoding: EncodingType): string {
-  if (encoding === 'ascii') {
-    return byte >= 0x20 && byte <= 0x7e ? String.fromCharCode(byte) : '.';
-  }
-  try {
-    const decoder = new TextDecoder(encoding);
-    const char = decoder.decode(new Uint8Array([byte]));
-    const code = char.charCodeAt(0);
-    if (
-      (encoding === 'windows-1252' &&
-        ((code >= 0x20 && code <= 0x7e) || (code >= 0xa0 && code <= 0xff))) ||
-      (encoding === 'utf-8' && code >= 0x20) ||
-      (encoding === 'latin1' && code >= 0x20 && code <= 0xff)
-    ) {
-      return char;
-    }
-  } catch {}
-  return '.';
-}
 
 function getDevicePixelRatio() {
   return window.devicePixelRatio || 1;
