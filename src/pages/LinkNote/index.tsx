@@ -150,10 +150,8 @@ const CrepeEditor: React.FC = () => {
               
               window.history.replaceState({}, '', newUrl);
               setError(null);
-              setIsSaving(false);
               setLastModified(new Date().toISOString());
               
-              // 3초 후 "저장됨" 메시지 숨김
               hideStatusTimeoutRef.current = setTimeout(() => {
                 setIsSaving(false);
               }, 3000);
@@ -204,7 +202,7 @@ const CrepeEditor: React.FC = () => {
   return (
     <MainContainer>
       {error && <ErrorMessage>{error}</ErrorMessage>}
-      {!isReadOnly && isSaving && <StatusIndicator saving={isSaving}>{isSaving ? '저장 중...' : '저장됨'}</StatusIndicator>}
+      {!isReadOnly && <StatusIndicator saving={isSaving}>{isSaving ? '저장 중...' : '저장됨'}</StatusIndicator>}
       <ButtonZone>
         <ToggleButton
           isReadOnly={isReadOnly}

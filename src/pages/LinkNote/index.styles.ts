@@ -93,7 +93,6 @@ export const StatusIndicator = styled.div<{ saving: boolean }>`
   padding: 4px 8px;
   z-index: 999;
   transition: opacity 0.3s ease;
-  opacity: ${({ saving }) => (saving ? 1 : 0)};
   font-weight: 500;
   pointer-events: none;
 `;
