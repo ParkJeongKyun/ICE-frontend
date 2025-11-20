@@ -71,12 +71,14 @@ const TabWindow: React.FC = () => {
 
   // ✅ 드래그 핸들러들
   const handleDragStart = useCallback(
-    (e: React.DragEvent, index: number) => {
+    (e: React.DragEvent, index: number, tabKey: TabKey) => {
       setDraggedIndex(index);
+      // ✅ 드래그 시작 시 해당 탭으로 전환
+      setActiveKey(tabKey);
       e.dataTransfer.effectAllowed = 'move';
       e.dataTransfer.setData('text/plain', index.toString());
     },
-    []
+    [setActiveKey]
   );
 
   const handleDragOver = useCallback(
@@ -173,7 +175,7 @@ const TabWindow: React.FC = () => {
         <div
           key={tabKey}
           draggable
-          onDragStart={(e) => handleDragStart(e, index)}
+          onDragStart={(e) => handleDragStart(e, index, tabKey)}
           onDragOver={(e) => handleDragOver(e, index)}
           onDrop={handleDrop}
           onDragEnd={handleDragEnd}
