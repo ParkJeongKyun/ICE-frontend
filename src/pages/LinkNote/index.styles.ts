@@ -1,4 +1,56 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
+
+const ButtonBase = css`
+  padding: 8px 8px;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: opacity 0.3s, transform 0.2s;
+  opacity: 0.8;
+  position: relative;
+  font-family: monospace;
+
+  &:hover {
+    opacity: 1;
+    transform: translateY(-1px);
+  }
+  &:active {
+    transform: translateY(0);
+  }
+`;
+
+const TooltipBase = css`
+  font-family: monospace;
+  position: absolute;
+  bottom: 110%;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  padding: 0.3rem 0.7rem;
+  font-size: 0.8rem;
+  z-index: 2000;
+  pointer-events: none;
+  background: var(--main-bg-color);
+  color: var(--ice-main-color);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.18s, visibility 0.18s;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 6px;
+    border-style: solid;
+    border-color: var(--main-bg-color) transparent transparent transparent;
+    display: block;
+  }
+`;
 
 export const MainContainer = styled.div`
   .milkdown {
@@ -18,7 +70,8 @@ export const MainContainer = styled.div`
         margin: 0;
         gap: 0.25rem;
       }
-      th, td {
+      th,
+      td {
         padding: 0.25em;
       }
       .list-item {
@@ -45,6 +98,7 @@ export const MainContainer = styled.div`
 `;
 
 export const ButtonZone = styled.div`
+  font-family: monospace;
   position: fixed;
   bottom: 2%;
   right: 4%;
@@ -54,56 +108,54 @@ export const ButtonZone = styled.div`
   &:hover {
     opacity: 1;
   }
+  .btn-tooltip-wrap {
+    position: relative;
+    display: inline-block;
+  }
 `;
 
 export const ToggleButton = styled.button<{ $isReadOnly: boolean }>`
-  padding: 8px 8px;
-  background-color: transparent;
+  ${ButtonBase}
   color: ${({ $isReadOnly }) => ($isReadOnly ? 'var(--ice-main-color_2)' : 'var(--ice-main-color)')};
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  opacity: 0.8;
-  transition: opacity 0.3s;
 
   svg {
     stroke: ${({ $isReadOnly }) => ($isReadOnly ? 'var(--ice-main-color_2)' : 'var(--ice-main-color)')};
     fill: ${({ $isReadOnly }) => ($isReadOnly ? 'var(--ice-main-color_2)' : 'var(--ice-main-color)')};
   }
 
-  &:hover {
-    transform: translateY(-1px);
+  &:hover .btn-tooltip,
+  &:focus .btn-tooltip,
+  &:active .btn-tooltip {
     opacity: 1;
+    visibility: visible;
+    pointer-events: none;
   }
 
-  &:active {
-    transform: translateY(0);
+  .btn-tooltip {
+    ${TooltipBase}
   }
 `;
 
 export const ShareButton = styled.button`
-  padding: 8px 8px;
-  background-color: transparent;
+  ${ButtonBase}
   color: var(--ice-main-color);
-  border-radius: 8px;
-  cursor: pointer;
   margin-left: 8px;
-  transition: all 0.2s ease;
-  opacity: 0.8;
-  transition: opacity 0.3s;
 
   svg {
     stroke: var(--ice-main-color);
     fill: var(--ice-main-color);
   }
 
-  &:hover {
-    transform: translateY(-1px);
+  &:hover .btn-tooltip,
+  &:focus .btn-tooltip,
+  &:active .btn-tooltip {
     opacity: 1;
+    visibility: visible;
+    pointer-events: none;
   }
 
-  &:active {
-    transform: translateY(0);
+  .btn-tooltip {
+    ${TooltipBase}
   }
 `;
 
@@ -111,22 +163,26 @@ export const Toast = styled.div<{ $show: boolean }>`
   position: fixed;
   top: 2%;
   left: 4%;
-  border: 1px solid var(--ice-main-color);
-  background-color: var(--main-bg-color);
+  font-size: 1rem;
+  font-family: monospace;
+  background: var(--main-bg-color);
   color: var(--ice-main-color);
-  padding: 0.5rem 1rem;
+  padding: 0.25rem 0.7rem;
   border-radius: 8px;
-  opacity: ${({ $show }) => ($show ? 0.8 : 0)};
+  opacity: ${({ $show }) => ($show ? 0.95 : 0)};
   visibility: ${({ $show }) => ($show ? 'visible' : 'hidden')};
-  transition: opacity 0.3s, visibility 0.3s;
+  transition: opacity 0.18s, visibility 0.18s;
   z-index: 1000;
+  pointer-events: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 `;
 
 export const ErrorMessage = styled.div`
   position: fixed;
+  font-size: 1rem;
+  font-family: monospace;
   top: 2%;
   left: 4%;
-  transform: translateX(-50%);
   border: 1px solid var(--ice-main-color_1);
   background-color: var(--main-bg-color);
   color: var(--ice-main-color_1);
@@ -144,7 +200,7 @@ export const StatusIndicator = styled.div<{ $saving: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
-  
+
   svg {
     width: 16px;
     height: 16px;
@@ -160,7 +216,8 @@ export const StatusIndicator = styled.div<{ $saving: boolean }>`
   }
 
   @keyframes subtlePulse {
-    0%, 100% {
+    0%,
+    100% {
       opacity: 0.2;
       transform: scale(0.98);
     }
