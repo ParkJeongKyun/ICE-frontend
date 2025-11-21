@@ -27,12 +27,12 @@ export const IceHeader = styled.div<{
   background-color: var(--main-bg-color);
   color: var(--main-color);
   border-bottom: 1.5px solid var(--main-line-color);
+  overflow: visible;
 
   /* 모바일 버전용 */
   ${(props) =>
     props.$isMobile &&
     `
-      overflow-x: auto;
       gap: 6px;
       padding: 2px 6px;
       height: 22px;
