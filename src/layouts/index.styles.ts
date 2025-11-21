@@ -17,7 +17,6 @@ export const IceMainLayout = styled.div<{ $isResizing: boolean }>`
 // 헤더
 export const IceHeader = styled.div<{
   $isMobile?: boolean;
-  $isProcessing?: boolean;
 }>`
   display: flex;
   align-items: center;
@@ -28,6 +27,7 @@ export const IceHeader = styled.div<{
   color: var(--main-color);
   border-bottom: 1.5px solid var(--main-line-color);
   overflow: visible;
+  position: relative;
 
   /* 모바일 버전용 */
   ${(props) =>
@@ -37,29 +37,39 @@ export const IceHeader = styled.div<{
       padding: 2px 6px;
       height: 22px;
     `}
+`;
 
-  /* 로딩 이벤트 */
-  ${(props) =>
-    props.$isProcessing &&
+// 진행률 바 (헤더 내부에서 사용)
+export const IceHeaderProgressBar = styled.div<{ $progress?: number }>`
+  position: absolute;
+  left: 0;
+  top: 100%; /* 헤더 바로 아래 */
+  width: 100%;
+  height: 1.5px;
+  background: transparent;
+  z-index: 1001;
+  pointer-events: none;
+
+  /* 실제 진행률 바 */
+  & > div {
+    height: 100%;
+    background: var(--ice-main-color);
+    width: 10%;
+    transition: none;
+    ${({ $progress }) =>
+      typeof $progress !== 'number'
+        ? `
+      animation: loading-bar-move 4s linear infinite;
     `
-      &:after {
-        content: '';
-        position: absolute;
-        top: calc(26px - 1.5px);
-        left: 0;
-        width: 5vw;
-        height: 1.5px;
-        background-color: var(--ice-main-color);
-        animation: loading 5s linear infinite;
-      }
-    `}
+        : ''}
+  }
 
-  @keyframes loading {
+  @keyframes loading-bar-move {
     0% {
-      left: 0;
+      transform: translateX(0);
     }
     100% {
-      left: 100%;
+      transform: translateX(calc(100vw - 80px));
     }
   }
 `;

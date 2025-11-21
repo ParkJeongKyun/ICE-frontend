@@ -5,6 +5,7 @@ import {
   IceCopyRight,
   IceFooter,
   IceHeader,
+  IceHeaderProgressBar,
   IceLayout,
   IceLeftSider,
   IceMainLayout,
@@ -181,13 +182,18 @@ const MainLayout: React.FC = () => {
 
   return (
     <IceMainLayout $isResizing={isResizing}>
-      <IceHeader $isMobile={isMobile} $isProcessing={isProcessing}>
+      <IceHeader $isMobile={isMobile}>
         <Logo showText />
         <MenuBtnZone
           ref={menuBtnZoneRef}
           hexViewerRef={hexViewerRef}
           openModal={openModal}
         />
+        {isProcessing && (
+          <IceHeaderProgressBar $progress={undefined}>
+            <div />
+          </IceHeaderProgressBar>
+        )}
       </IceHeader>
 
       {isMobile ? (
