@@ -122,8 +122,8 @@ const CrepeEditor: React.FC = () => {
           inputPlaceholder: 'URL을 입력하세요',
         },
         [Crepe.Feature.Placeholder]: {
-          text: '여기에 입력하세요...',
-        }
+          text: '입력하세요...',
+        },
       }
     });
 

@@ -1,6 +1,45 @@
 import styled from 'styled-components';
 
-export const MainContainer = styled.div``;
+export const MainContainer = styled.div`
+  .milkdown {
+    /* Font Families */
+    --crepe-font-title: monospace;
+    --crepe-font-default: monospace;
+    --crepe-font-code: monospace;
+    .editor {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 1rem;
+      p {
+        margin: 0;
+        line-height: 1;
+      }
+      li {
+        margin: 0;
+        gap: 0.25rem;
+      }
+      .list-item {
+        align-items: center;
+      }
+      .paragraph {
+        margin: 1rem 0;
+      }
+      .heading {
+        font-weight: 600;
+        margin: 1.5rem 0 1rem;
+      }
+      .bullet-list {
+        padding-left: 1.5rem;
+      }
+      .ordered-list {
+        padding-left: 1.5rem;
+      }
+      .milkdown-code-block {
+        padding: 0;
+      }
+    }
+  }
+`;
 
 export const ButtonZone = styled.div`
   position: fixed;
