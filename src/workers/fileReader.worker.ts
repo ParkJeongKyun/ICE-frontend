@@ -168,3 +168,5 @@ async function searchInFile(
     });
   }
 }
+
+export {};
