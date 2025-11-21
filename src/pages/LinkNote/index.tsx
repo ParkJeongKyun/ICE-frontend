@@ -7,6 +7,7 @@ import EditIcon from '@/components/common/Icons/EditIcon';
 import ReadIcon from '@/components/common/Icons/ReadIcon';
 import ShareIcon from '@/components/common/Icons/ShareIcon';
 import { MainContainer, ButtonZone, ToggleButton, ShareButton, Toast, ErrorMessage, StatusIndicator, LastModifiedTime } from './index.styles';
+import FlopyIcon from '@/components/common/Icons/FlopyIcon';
 
 // 데이터 구조 인터페이스
 interface NoteData {
@@ -26,6 +27,12 @@ const CrepeEditor: React.FC = () => {
   const [lastModified, setLastModified] = useState<string>('');
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const hideStatusTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isReadOnlyRef = useRef(isReadOnly);
+
+  // isReadOnly 상태를 ref에 동기화
+  useEffect(() => {
+    isReadOnlyRef.current = isReadOnly;
+  }, [isReadOnly]);
 
   const showToastMessage = (message: string) => {
     setToastMessage(message);
@@ -124,11 +131,10 @@ const CrepeEditor: React.FC = () => {
     editor.setReadonly(isReadOnly);
     editorRef.current = editor;
 
-    // 디바운스가 적용된 이벤트 리스너 등록
+    // 이벤트 리스너 등록
     editor.on((listener) => {
       listener.updated((ctx) => {
-        if (!isReadOnly) {
-          // URL 업데이트 디바운스
+        if (!isReadOnlyRef.current) {
           if (saveTimeoutRef.current) {
             clearTimeout(saveTimeoutRef.current);
           }
@@ -137,10 +143,13 @@ const CrepeEditor: React.FC = () => {
           }
           
           setIsSaving(true);
+          
           saveTimeoutRef.current = setTimeout(() => {
             try {
-              const content = editor.getMarkdown();
-              const newUrl = createNoteUrl(content);
+              // 에디터에서 직접 마크다운 가져오기
+              const markdown = editor.getMarkdown();
+              
+              const newUrl = createNoteUrl(markdown);
               
               if (newUrl.length > MAX_URL_LENGTH) {
                 setError('내용이 너무 깁니다. URL 최대 길이를 초과했습니다.');
@@ -150,17 +159,18 @@ const CrepeEditor: React.FC = () => {
               
               window.history.replaceState({}, '', newUrl);
               setError(null);
-              setLastModified(new Date().toISOString());
+              const now = new Date().toISOString();
+              setLastModified(now);
               
               hideStatusTimeoutRef.current = setTimeout(() => {
                 setIsSaving(false);
-              }, 3000);
+              }, 1000);
             } catch (err) {
               console.error('URL 업데이트 오류:', err);
               setError('변경사항 저장 실패');
               setIsSaving(false);
             }
-          }, 1000); // 1초 디바운스
+          }, 500);
         }
       });
     });
@@ -202,10 +212,14 @@ const CrepeEditor: React.FC = () => {
   return (
     <MainContainer>
       {error && <ErrorMessage>{error}</ErrorMessage>}
-      {!isReadOnly && <StatusIndicator saving={isSaving}>{isSaving ? '저장 중...' : '저장됨'}</StatusIndicator>}
+      {!isReadOnly && isSaving && (
+        <StatusIndicator $saving={isSaving}>
+          <FlopyIcon />
+        </StatusIndicator>
+      )}
       <ButtonZone>
         <ToggleButton
-          isReadOnly={isReadOnly}
+          $isReadOnly={isReadOnly}
           onClick={() => setIsReadOnly(!isReadOnly)}
           aria-label={isReadOnly ? '편집 모드로 전환' : '읽기 모드로 전환'}
         >
@@ -216,7 +230,7 @@ const CrepeEditor: React.FC = () => {
         </ShareButton>
       </ButtonZone>
       {lastModified && <LastModifiedTime>{formatLastModified(lastModified)}</LastModifiedTime>}
-      <Toast show={showToast}>{toastMessage}</Toast>
+      <Toast $show={showToast}>{toastMessage}</Toast>
       <div style={{ textAlign: 'start' }}>
         <Milkdown />
       </div>

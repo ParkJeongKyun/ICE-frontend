@@ -9,18 +9,18 @@ export const ButtonZone = styled.div`
   z-index: 1000;
 `;
 
-export const ToggleButton = styled.button<{ isReadOnly: boolean }>`
+export const ToggleButton = styled.button<{ $isReadOnly: boolean }>`
   padding: 8px 8px;
   background-color: transparent;
-  color: ${({ isReadOnly }) => (isReadOnly ? 'var(--ice-main-color_2)' : 'var(--ice-main-color)')};
-  border: 1.5px solid ${({ isReadOnly }) => (isReadOnly ? 'var(--ice-main-color_2)' : 'var(--ice-main-color)')};
+  color: ${({ $isReadOnly }) => ($isReadOnly ? 'var(--ice-main-color_2)' : 'var(--ice-main-color)')};
+  border: 1.5px solid ${({ $isReadOnly }) => ($isReadOnly ? 'var(--ice-main-color_2)' : 'var(--ice-main-color)')};
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
 
   svg {
-    stroke: ${({ isReadOnly }) => (isReadOnly ? 'var(--ice-main-color_2)' : 'var(--ice-main-color)')};
-    fill: ${({ isReadOnly }) => (isReadOnly ? 'var(--ice-main-color_2)' : 'var(--ice-main-color)')};
+    stroke: ${({ $isReadOnly }) => ($isReadOnly ? 'var(--ice-main-color_2)' : 'var(--ice-main-color)')};
+    fill: ${({ $isReadOnly }) => ($isReadOnly ? 'var(--ice-main-color_2)' : 'var(--ice-main-color)')};
   }
 
   &:hover {
@@ -58,7 +58,7 @@ export const ShareButton = styled.button`
   }
 `;
 
-export const Toast = styled.div<{ show: boolean }>`
+export const Toast = styled.div<{ $show: boolean }>`
   position: fixed;
   bottom: 80px;
   right: 20px;
@@ -66,8 +66,8 @@ export const Toast = styled.div<{ show: boolean }>`
   color: var(--main-color);
   padding: 12px 20px;
   border-radius: 8px;
-  opacity: ${({ show }) => (show ? 1 : 0)};
-  visibility: ${({ show }) => (show ? 'visible' : 'hidden')};
+  opacity: ${({ $show }) => ($show ? 1 : 0)};
+  visibility: ${({ $show }) => ($show ? 'visible' : 'hidden')};
   transition: opacity 0.3s, visibility 0.3s;
   z-index: 1001;
 `;
@@ -84,17 +84,40 @@ export const ErrorMessage = styled.div`
   z-index: 1002;
 `;
 
-export const StatusIndicator = styled.div<{ saving: boolean }>`
+export const StatusIndicator = styled.div<{ $saving: boolean }>`
   position: fixed;
   top: 20px;
   right: 20px;
-  font-size: 12px;
-  color: ${({ saving }) => (saving ? 'var(--ice-main-color_3)' : 'var(--ice-main-color_2)')};
-  padding: 4px 8px;
   z-index: 999;
-  transition: opacity 0.3s ease;
-  font-weight: 500;
   pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  svg {
+    width: 16px;
+    height: 16px;
+    color: var(--ice-main-color);
+    opacity: 0.15;
+    transition: opacity 0.3s ease;
+    ${({ $saving }) =>
+      $saving &&
+      `
+      opacity: 0.45;
+      animation: subtlePulse 3s ease-in-out infinite;
+    `}
+  }
+
+  @keyframes subtlePulse {
+    0%, 100% {
+      opacity: 0.2;
+      transform: scale(0.98);
+    }
+    50% {
+      opacity: 0.5;
+      transform: scale(1.01);
+    }
+  }
 `;
 
 export const LastModifiedTime = styled.div`
