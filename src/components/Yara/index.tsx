@@ -27,7 +27,7 @@ const Yara: React.FC = () => {
   );
 
   const onClickBtn = useCallback(() => {
-    testYara(inputRule, activeData?.buffer);
+    // testYara(inputRule, activeData?.buffer);
   }, [inputRule, activeData, testYara]);
 
   return (
