@@ -7,7 +7,8 @@ import React, {
   useCallback,
   useLayoutEffect,
 } from 'react';
-import { useTabData, EncodingType } from '@/contexts/TabDataContext';
+import { useTabData } from '@/contexts/TabDataContext';
+import { useProcess } from '@/contexts/ProcessContext';
 import {
   HexViewerContainer,
   CanvasContainer,
@@ -29,6 +30,7 @@ import {
   CHUNK_REQUEST_DEBOUNCE,
 } from '@/constants/hexViewer';
 import { byteToHex, byteToChar } from '@/utils/encoding';
+import { asciiToBytes } from '@/utils/byteSearch';
 
 export interface IndexInfo {
   index: number;
@@ -108,6 +110,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     getWorkerCache,
     setWorkerCache,
   } = useTabData();
+  const { setProcessInfo } = useProcess();
 
   const selectionRange = selectionStates[activeKey] || {
     start: null,
@@ -804,6 +807,10 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   const handleCopyText = useCallback(() => handleCopy('text'), [handleCopy]);
 
   // ==================== useImperativeHandle ====================
+  // 검색 요청 고유 ID 관리
+  const hexSearchIdRef = useRef<number>(0);
+  const asciiSearchIdRef = useRef<number>(0);
+
   useImperativeHandle(
     ref,
     () => ({
@@ -816,16 +823,129 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
         }
         return null;
       },
-      findAllByHex: async () => null,
-      findAllByAsciiText: async () => null,
+      findAllByHex: async (hex: string) => {
+        if (!file || !hex.trim()) return null;
+        setProcessInfo({
+          status: 'processing',
+          type: 'Hex' as any,
+          message: '검색중...',
+        });
+        const hexPattern = hex.replace(/[^0-9a-fA-F]/g, '').toLowerCase();
+        if (hexPattern.length % 2 !== 0) {
+          setProcessInfo({
+            status: 'failure',
+            type: 'Hex',
+            message: 'HEX 길이 오류',
+          });
+          return null;
+        }
+        const patternBytes = new Uint8Array(
+          hexPattern.match(/.{2}/g)!.map((b) => parseInt(b, 16))
+        );
+        hexSearchIdRef.current += 1;
+        const searchId = hexSearchIdRef.current;
+        return new Promise<IndexInfo[] | null>((resolve) => {
+          const worker = workerRef.current;
+          if (!worker) {
+            setProcessInfo({
+              status: 'failure',
+              type: 'Hex',
+              message: '워커 없음',
+            });
+            return resolve(null);
+          }
+          const handleMessage = (e: MessageEvent) => {
+            // searchId가 현재 요청과 일치할 때만 결과 반영
+            if (
+              e.data.type === 'SEARCH_RESULT_HEX' &&
+              e.data.searchId === hexSearchIdRef.current
+            ) {
+              worker.removeEventListener('message', handleMessage);
+              if (e.data.results && e.data.results.length > 0) {
+                setProcessInfo({
+                  status: 'success',
+                  type: 'Hex',
+                  message: `검색 성공 (${e.data.results.length}개)`,
+                });
+              } else {
+                setProcessInfo({
+                  status: 'success',
+                  type: 'Hex',
+                  message: '검색 결과 없음',
+                });
+              }
+              resolve(e.data.results);
+            }
+          };
+          worker.addEventListener('message', handleMessage);
+          worker.postMessage({
+            type: 'SEARCH_HEX',
+            file,
+            pattern: patternBytes,
+            searchId,
+          });
+        });
+      },
+      findAllByAsciiText: async (text: string, ignoreCase: boolean) => {
+        if (!file || !text.trim()) return null;
+        setProcessInfo({
+          status: 'processing',
+          type: 'Ascii',
+          message: '검색중...',
+        });
+        const patternBytes = asciiToBytes(text);
+        asciiSearchIdRef.current += 1;
+        const searchId = asciiSearchIdRef.current;
+        return new Promise<IndexInfo[] | null>((resolve) => {
+          const worker = workerRef.current;
+          if (!worker) {
+            setProcessInfo({
+              status: 'failure',
+              type: 'Ascii',
+              message: '워커 없음',
+            });
+            return resolve(null);
+          }
+          const handleMessage = (e: MessageEvent) => {
+            // searchId가 현재 요청과 일치할 때만 결과 반영
+            if (
+              e.data.type === 'SEARCH_RESULT_ASCII' &&
+              e.data.searchId === asciiSearchIdRef.current
+            ) {
+              worker.removeEventListener('message', handleMessage);
+              if (e.data.results && e.data.results.length > 0) {
+                setProcessInfo({
+                  status: 'success',
+                  type: 'Ascii',
+                  message: `검색 성공 (${e.data.results.length}개)`,
+                });
+              } else {
+                setProcessInfo({
+                  status: 'success',
+                  type: 'Ascii',
+                  message: '검색 결과 없음',
+                });
+              }
+              resolve(e.data.results);
+            }
+          };
+          worker.addEventListener('message', handleMessage);
+          worker.postMessage({
+            type: 'SEARCH_ASCII',
+            file,
+            pattern: patternBytes,
+            ignoreCase,
+            searchId,
+          });
+        });
+      },
       scrollToIndex: (index: number, offset: number) => {
-        // ✅ setFirstRow 대신 updateScrollPosition 사용
         const targetRow = Math.floor(index / bytesPerRow);
         updateScrollPosition(targetRow);
         updateSelection(index, index + offset - 1);
       },
     }),
-    [fileSize, updateScrollPosition, updateSelection]
+    [file, fileSize, updateScrollPosition, updateSelection, setProcessInfo]
   );
 
   // ==================== useEffect - 3개로 축소 ====================

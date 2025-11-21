@@ -9,7 +9,7 @@ import React, {
   useCallback,
 } from 'react';
 
-export type ProcessType = 'Exif' | 'Yara';
+export type ProcessType = 'Exif' | 'Yara' | 'Hex' | 'Ascii';
 export type ProcessStatus = 'idle' | 'processing' | 'success' | 'failure';
 
 interface ProcessInfo {
