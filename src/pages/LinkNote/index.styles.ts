@@ -18,6 +18,9 @@ export const MainContainer = styled.div`
         margin: 0;
         gap: 0.25rem;
       }
+      th, td {
+        padding: 0.25em;
+      }
       .list-item {
         align-items: center;
       }
@@ -43,19 +46,25 @@ export const MainContainer = styled.div`
 
 export const ButtonZone = styled.div`
   position: fixed;
-  bottom: 20px;
-  right: 20px;
+  bottom: 2%;
+  right: 4%;
   z-index: 1000;
+  opacity: 0.5;
+  transition: opacity 0.3s;
+  &:hover {
+    opacity: 1;
+  }
 `;
 
 export const ToggleButton = styled.button<{ $isReadOnly: boolean }>`
   padding: 8px 8px;
   background-color: transparent;
   color: ${({ $isReadOnly }) => ($isReadOnly ? 'var(--ice-main-color_2)' : 'var(--ice-main-color)')};
-  border: 1.5px solid ${({ $isReadOnly }) => ($isReadOnly ? 'var(--ice-main-color_2)' : 'var(--ice-main-color)')};
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
+  opacity: 0.8;
+  transition: opacity 0.3s;
 
   svg {
     stroke: ${({ $isReadOnly }) => ($isReadOnly ? 'var(--ice-main-color_2)' : 'var(--ice-main-color)')};
@@ -63,8 +72,8 @@ export const ToggleButton = styled.button<{ $isReadOnly: boolean }>`
   }
 
   &:hover {
-    background-color: var(--main-hover-color);
     transform: translateY(-1px);
+    opacity: 1;
   }
 
   &:active {
@@ -76,11 +85,12 @@ export const ShareButton = styled.button`
   padding: 8px 8px;
   background-color: transparent;
   color: var(--ice-main-color);
-  border: 1.5px solid var(--ice-main-color);
   border-radius: 8px;
   cursor: pointer;
   margin-left: 8px;
   transition: all 0.2s ease;
+  opacity: 0.8;
+  transition: opacity 0.3s;
 
   svg {
     stroke: var(--ice-main-color);
@@ -88,8 +98,8 @@ export const ShareButton = styled.button`
   }
 
   &:hover {
-    background-color: var(--main-hover-color);
     transform: translateY(-1px);
+    opacity: 1;
   }
 
   &:active {
@@ -99,34 +109,36 @@ export const ShareButton = styled.button`
 
 export const Toast = styled.div<{ $show: boolean }>`
   position: fixed;
-  bottom: 80px;
-  right: 20px;
-  background-color: var(--main-hover-color);
-  color: var(--main-color);
-  padding: 12px 20px;
+  top: 2%;
+  left: 4%;
+  border: 1px solid var(--ice-main-color);
+  background-color: var(--main-bg-color);
+  color: var(--ice-main-color);
+  padding: 0.5rem 1rem;
   border-radius: 8px;
-  opacity: ${({ $show }) => ($show ? 1 : 0)};
+  opacity: ${({ $show }) => ($show ? 0.8 : 0)};
   visibility: ${({ $show }) => ($show ? 'visible' : 'hidden')};
   transition: opacity 0.3s, visibility 0.3s;
-  z-index: 1001;
+  z-index: 1000;
 `;
 
 export const ErrorMessage = styled.div`
   position: fixed;
-  top: 20px;
-  left: 50%;
+  top: 2%;
+  left: 4%;
   transform: translateX(-50%);
-  background-color: var(--ice-main-color_1);
-  color: var(--main-color);
-  padding: 12px 24px;
+  border: 1px solid var(--ice-main-color_1);
+  background-color: var(--main-bg-color);
+  color: var(--ice-main-color_1);
+  padding: 0.5rem 1rem;
   border-radius: 8px;
-  z-index: 1002;
+  z-index: 1001;
 `;
 
 export const StatusIndicator = styled.div<{ $saving: boolean }>`
   position: fixed;
-  top: 20px;
-  right: 20px;
+  top: 2%;
+  right: 4%;
   z-index: 999;
   pointer-events: none;
   display: flex;
@@ -161,13 +173,16 @@ export const StatusIndicator = styled.div<{ $saving: boolean }>`
 
 export const LastModifiedTime = styled.div`
   position: fixed;
-  bottom: 20px;
-  left: 20px;
-  font-size: 11px;
+  bottom: 2%;
+  left: 4%;
+  font-size: 0.8rem;
   color: var(--main-color_1);
-  padding: 4px 8px;
+  padding: 0;
   z-index: 999;
-  opacity: 0.7;
+  opacity: 0.4;
   font-weight: 400;
-  pointer-events: none;
+  transition: opacity 0.3s;
+  &:hover {
+    opacity: 1;
+  }
 `;

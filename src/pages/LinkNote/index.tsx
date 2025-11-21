@@ -44,7 +44,7 @@ const CrepeEditor: React.FC = () => {
     const url = window.location.href;
 
     if (url.length > MAX_URL_LENGTH) {
-      showToastMessage('⚠️ 내용이 너무 길어 공유할 수 없습니다');
+      showToastMessage('내용이 너무 길어 공유할 수 없습니다!');
       return;
     }
 
@@ -56,7 +56,7 @@ const CrepeEditor: React.FC = () => {
           url: url,
         })
         .then(() => {
-          showToastMessage('✓ 공유 완료');
+          showToastMessage('공유 완료');
         })
         .catch((error) => {
           if (error.name !== 'AbortError') {
@@ -72,9 +72,9 @@ const CrepeEditor: React.FC = () => {
 
   const copyToClipboard = (url: string) => {
     navigator.clipboard.writeText(url).then(() => {
-      showToastMessage('✓ 링크가 클립보드에 복사되었습니다!');
+      showToastMessage('링크가 클립보드에 복사되었습니다!');
     }).catch(() => {
-      showToastMessage('✗ 링크 복사 실패');
+      showToastMessage('링크 복사 실패');
     });
   };
 
@@ -200,7 +200,7 @@ const CrepeEditor: React.FC = () => {
   const formatLastModified = (isoString: string) => {
     if (!isoString) return '';
     const date = new Date(isoString);
-    return date.toLocaleString('ko-KR', {
+    return "마지막수정: " + date.toLocaleString('ko-KR', {
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
@@ -221,11 +221,11 @@ const CrepeEditor: React.FC = () => {
         <ToggleButton
           $isReadOnly={isReadOnly}
           onClick={() => setIsReadOnly(!isReadOnly)}
-          aria-label={isReadOnly ? '편집 모드로 전환' : '읽기 모드로 전환'}
+          aria-label={isReadOnly ? '편집모드 전환' : '읽기모드 전환'}
         >
           {isReadOnly ? <EditIcon /> : <ReadIcon />}
         </ToggleButton>
-        <ShareButton onClick={handleShare} aria-label="노트 공유">
+        <ShareButton onClick={handleShare} aria-label="공유">
           <ShareIcon />
         </ShareButton>
       </ButtonZone>
