@@ -5,6 +5,7 @@ import React, {
   useImperativeHandle,
   forwardRef,
   useCallback,
+  useLayoutEffect,
 } from 'react';
 import { useTabData, EncodingType } from '@/contexts/TabDataContext';
 import {
@@ -674,6 +675,51 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     }
   };
 
+  const handleScrollbarTouchMove = (e: TouchEvent) => {
+    if (!scrollbarDragging || e.touches.length !== 1) return;
+    const deltaY = e.touches[0].clientY - scrollbarStartY;
+    const totalScrollable = canvasSize.height - scrollbarHeight;
+    if (totalScrollable <= 0) return;
+    const rowDelta = Math.round(
+      (deltaY / totalScrollable) * (rowCount - visibleRows)
+    );
+    let nextRow = scrollbarStartRow + rowDelta;
+    nextRow = Math.max(0, Math.min(nextRow, maxFirstRow));
+    if (nextRow !== firstRowRef.current) {
+      updateScrollPosition(nextRow);
+      if (workerRef.current && file) {
+        requestChunks(
+          nextRow,
+          workerRef.current,
+          file,
+          fileSize,
+          visibleRows + 50
+        );
+      }
+    }
+  };
+
+  // 썸에 직접 non-passive touchmove 이벤트 등록
+  useLayoutEffect(() => {
+    const thumb = scrollbarRef.current;
+    if (!thumb) return;
+    if (scrollbarDragging) {
+      thumb.addEventListener('touchmove', handleScrollbarTouchMove, {
+        passive: false,
+      });
+    }
+    return () => {
+      thumb.removeEventListener('touchmove', handleScrollbarTouchMove);
+    };
+  }, [scrollbarDragging]);
+
+  const handleScrollbarTouchEnd = () => {
+    setScrollbarDragging(false);
+    isDraggingRef.current = false;
+    document.body.style.userSelect = '';
+    setRenderTrigger((prev) => prev + 1);
+  };
+
   const handleTouchStart = (e: React.TouchEvent) => {
     if (e.touches.length === 1) {
       touchStartYRef.current = e.touches[0].clientY;
@@ -682,6 +728,8 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
+    // 썸 드래그 중이면 전체 영역 터치 스크롤 무시
+    if (scrollbarDragging) return;
     if (
       e.touches.length === 1 &&
       touchStartYRef.current !== null &&
@@ -1006,7 +1054,10 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     if (!contextMenu) return;
 
     const handleClickOutside = (event: MouseEvent) => {
-      if (contextMenuRef.current && !contextMenuRef.current.contains(event.target as Node)) {
+      if (
+        contextMenuRef.current &&
+        !contextMenuRef.current.contains(event.target as Node)
+      ) {
         closeContextMenu();
       }
     };
@@ -1052,6 +1103,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
             $top={scrollbarTop}
             onMouseDown={handleScrollbarMouseDown}
             onTouchStart={handleScrollbarTouchStart}
+            onTouchEnd={handleScrollbarTouchEnd}
           />
         </VirtualScrollbar>
       )}

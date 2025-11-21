@@ -65,11 +65,11 @@ export const VirtualScrollbar = styled.div`
 `;
 
 // 스크롤바 썸
-export const ScrollbarThumb = styled.div.attrs<{ 
-  $dragging: string; 
-  $height: number; 
-  $top: number 
-}>(props => ({
+export const ScrollbarThumb = styled.div.attrs<{
+  $dragging: string;
+  $height: number;
+  $top: number;
+}>((props) => ({
   style: {
     height: `${props.$height}px`,
     top: `${props.$top}px`,
@@ -79,12 +79,13 @@ export const ScrollbarThumb = styled.div.attrs<{
   right: 0;
   width: 100%;
   background-color: var(--main-hover-line-color);
-  opacity: ${props => props.$dragging === 'true' ? '0.9' : '0.5'};
+  opacity: ${(props) => (props.$dragging === 'true' ? '0.9' : '0.5')};
   cursor: pointer;
   transition: opacity 0.2s;
   &:hover {
     opacity: 0.9;
   }
+  touch-action: none; // 모바일 터치 스크롤 차단
 `;
 
 // 컨텍스트 메뉴
@@ -119,7 +120,7 @@ export const ContextMenuItem = styled.li`
   text-align: left;
   overflow: hidden;
   white-space: nowrap;
-  
+
   &:hover {
     background: var(--main-hover-color);
     color: var(--ice-main-color);
