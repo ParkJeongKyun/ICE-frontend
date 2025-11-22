@@ -6,7 +6,16 @@ import LZString from 'lz-string';
 import EditIcon from '@/components/common/Icons/EditIcon';
 import ReadIcon from '@/components/common/Icons/ReadIcon';
 import ShareIcon from '@/components/common/Icons/ShareIcon';
-import { MainContainer, ButtonZone, ToggleButton, ShareButton, Toast, StatusIndicator, LastModifiedTime } from './index.styles';
+import {
+  MainContainer,
+  ButtonZone,
+  ToggleButton,
+  ShareButton,
+  Toast,
+  StatusIndicator,
+  LastModifiedTime,
+  GuideBox,
+} from './index.styles';
 import FlopyIcon from '@/components/common/Icons/FlopyIcon';
 
 // 데이터 구조 인터페이스
@@ -67,7 +76,8 @@ const CrepeEditor: React.FC = () => {
   };
 
   const copyToClipboard = (url: string) => {
-    navigator.clipboard.writeText(url)
+    navigator.clipboard
+      .writeText(url)
       .then(() => showToast('링크가 클립보드에 복사되었습니다!'))
       .catch(() => showToast('링크 복사 실패'));
   };
@@ -80,13 +90,14 @@ const CrepeEditor: React.FC = () => {
     if (!compressedData) return { content: '', lastModified: '' };
 
     try {
-      const decompressed = LZString.decompressFromEncodedURIComponent(compressedData);
+      const decompressed =
+        LZString.decompressFromEncodedURIComponent(compressedData);
       if (!decompressed) return { content: '', lastModified: '' };
 
       const data: NoteData = JSON.parse(decompressed);
-      return { 
-        content: data.c || '', 
-        lastModified: data.lm || '' 
+      return {
+        content: data.c || '',
+        lastModified: data.lm || '',
       };
     } catch {
       showToast('유효하지 않은 노트 데이터입니다');
@@ -95,13 +106,15 @@ const CrepeEditor: React.FC = () => {
   };
 
   // URL에서 초기 내용 가져오기
-  const { content: initialContent, lastModified: initialLastModified } = getNoteDataFromUrl();
+  const { content: initialContent, lastModified: initialLastModified } =
+    getNoteDataFromUrl();
 
   useEffect(() => {
     if (initialLastModified) setLastModified(initialLastModified);
     return () => {
       if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
-      if (hideStatusTimeoutRef.current) clearTimeout(hideStatusTimeoutRef.current);
+      if (hideStatusTimeoutRef.current)
+        clearTimeout(hideStatusTimeoutRef.current);
       if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
     };
   }, [initialLastModified]);
@@ -117,7 +130,7 @@ const CrepeEditor: React.FC = () => {
         [Crepe.Feature.Placeholder]: {
           text: '입력하세요...',
         },
-      }
+      },
     });
 
     // 초기 상태 설정
@@ -129,24 +142,28 @@ const CrepeEditor: React.FC = () => {
       listener.updated(() => {
         if (!isReadOnlyRef.current) {
           if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
-          if (hideStatusTimeoutRef.current) clearTimeout(hideStatusTimeoutRef.current);
+          if (hideStatusTimeoutRef.current)
+            clearTimeout(hideStatusTimeoutRef.current);
           setIsSaving(true);
           saveTimeoutRef.current = setTimeout(() => {
             try {
               // 에디터에서 직접 마크다운 가져오기
               const markdown = editor.getMarkdown();
-              
+
               const newUrl = createNoteUrl(markdown);
-              
+
               if (newUrl.length > MAX_URL_LENGTH) {
                 showToast('내용이 너무 깁니다. URL 최대 길이를 초과했습니다.');
                 setIsSaving(false);
                 return;
               }
-              
+
               window.history.replaceState({}, '', newUrl);
               setLastModified(new Date().toISOString());
-              hideStatusTimeoutRef.current = setTimeout(() => setIsSaving(false), 1000);
+              hideStatusTimeoutRef.current = setTimeout(
+                () => setIsSaving(false),
+                1000
+              );
             } catch {
               showToast('변경사항 저장 실패');
               setIsSaving(false);
@@ -167,17 +184,40 @@ const CrepeEditor: React.FC = () => {
   const formatLastModified = (isoString: string) => {
     if (!isoString) return '';
     const date = new Date(isoString);
-    return "마지막수정: " + date.toLocaleString('ko-KR', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
+    return (
+      '마지막수정: ' +
+      date.toLocaleString('ko-KR', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+      })
+    );
   };
 
   return (
     <MainContainer>
+      {/* 가이드 메시지: 내용이 비어있을 때만 표시 */}
+      {!initialContent && isReadOnly && (
+        <GuideBox>
+          <b>📝 링크노트 시작하기</b>
+          <ul>
+            <li>
+              우측하단에 <b>연필버튼</b>을 눌러 <b>수정모드</b>로 전환하세요.
+            </li>
+            <li>
+              <b>마크다운</b> 문법 작성을 지원합니다.
+            </li>
+            <li>
+              <b>공유버튼</b>으로 노트를 복사하거나 바로 공유할 수 있습니다.
+            </li>
+            <li>
+              작성한 내용은 <b>URL</b>에 <b>자동으로</b> 저장됩니다.
+            </li>
+          </ul>
+        </GuideBox>
+      )}
       {isSaving && !isReadOnly && (
         <StatusIndicator $saving={isSaving}>
           <FlopyIcon />
@@ -187,6 +227,7 @@ const CrepeEditor: React.FC = () => {
         <div className="btn-tooltip-wrap">
           <ToggleButton
             $isReadOnly={isReadOnly}
+            $pulse={!initialContent && isReadOnly}
             onClick={() => setIsReadOnly(!isReadOnly)}
             aria-label={isReadOnly ? '편집모드' : '읽기모드'}
             tabIndex={0}
@@ -199,6 +240,7 @@ const CrepeEditor: React.FC = () => {
         </div>
         <div className="btn-tooltip-wrap">
           <ShareButton
+            $pulse={!initialContent && isReadOnly}
             onClick={handleShare}
             aria-label="공유"
             tabIndex={0}
@@ -208,7 +250,9 @@ const CrepeEditor: React.FC = () => {
           </ShareButton>
         </div>
       </ButtonZone>
-      {lastModified && <LastModifiedTime>{formatLastModified(lastModified)}</LastModifiedTime>}
+      {lastModified && (
+        <LastModifiedTime>{formatLastModified(lastModified)}</LastModifiedTime>
+      )}
       <Toast $show={!!toastMsg}>{toastMsg}</Toast>
       <div style={{ textAlign: 'start' }}>
         <Milkdown />
