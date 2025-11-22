@@ -169,4 +169,5 @@ async function searchInFile(
   }
 }
 
-export {};
+// 타입스크립트에서만 모듈로 인식되도록 타입 전용 import 추가
+import type {} from 'worker_threads';

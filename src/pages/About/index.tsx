@@ -59,7 +59,7 @@ const txt = `
     - SI, UI/UX, 웹, 파이썬 개발
     - 2022년 07월 25일 ~ 2024년 06월 24일
     - ${calculateExperience(new Date('2022-07'), new Date('2024-06'))}
-  - 프리랜서 개발자
+  - Aimos(주) AI 플랫폼 개발팀 프리랜서 개발자
     - SI, SM, UI/UX, 웹, 파이썬, Java 개발
     - 2024년 07월 15일 ~ 
     - ${calculateExperience(new Date('2024-07'), new Date())}
@@ -80,12 +80,12 @@ const txt = `
     - 고객사 : 현대제철, 현대ITC
     - Java, JavaScript JSP 웹 프론트엔드 개발
     - 2023년 06월 ~ 2023년 12월 (${calculateExperience(new Date('2023-06'), new Date('2023-12'))})
-  - 철 스크랩 AIMOS 운영시스템 구축
+  - 철 스크랩 Aimos 운영시스템 구축
     - 고객사 : 대한제강, LG CNS, KG ITC
     - TypeScript React 웹 프론트엔드 개발
     - 2023년 06월 ~ 2024년 04월 (${calculateExperience(new Date('2023-06'), new Date('2024-04'))})
-  - 철 스크랩 AIMOS 운영시스템 운영 및 개선 작업
-    - 고객사 : 대한제강, LG CNS, KG ITC, 아이모스
+  - 철 스크랩 Aimos 운영시스템 운영 및 개선 작업
+    - 고객사 : 대한제강, LG CNS, Aimos
     - 2024년 07월 ~ (${calculateExperience(new Date('2024-07'), new Date())})
 `;
 

@@ -54,8 +54,12 @@ const txt = `
 - [SVG REPO - 무료 아이콘](https://www.svgrepo.com/)
 - [Pixabay - 무료 사진](https://pixabay.com/)
 - [Framer Motion - 인터렉티브 웹 라이브러리](https://www.framer.com/motion/)
-- [Go Exif - GoLang Exif 분석 라이브러리](https://pkg.go.dev/github.com/dsoprea/go-exi)
+- [Go Exif - GoLang Exif 분석 라이브러리](https://pkg.go.dev/github.com/dsoprea/go-exif)
 - [Yara - 악성코드 탐지 도구](https://github.com/VirusTotal/yara)
+- [KaKao Map - 지도 API](https://apis.map.kakao.com/)
+- [Milkdown - 마크다운 에디터 프레임워크](https://milkdown.dev/)
+- [React Markdown - 마크다운 렌더러](https://github.com/remarkjs/react-markdown)
+- [Google Analytics - 웹 로그 분석 서비스](https://analytics.google.com/analytics/web/)
 `;
 
 const relase_txt = `
@@ -153,8 +157,7 @@ const update_txt = `
   - 헥스 뷰어 검색시 옵션 추가 및 알고리즘 최적화
   - 헥스 및 메타데이터 수정 기능 추가
   - Go 웹 어셈블리 개편, 최적화
-  - 헥스뷰어 무한 스크롤 랜더링 속도 개편(자체 개발 필요)
-  - 최적화
+  - 모바일 UI/UX 개선
 `;
 
 const AboutMD: React.FC = () => {
