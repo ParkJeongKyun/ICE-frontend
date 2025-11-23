@@ -139,7 +139,10 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
   // 메뉴 외부 클릭 감지
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (toolsMenuRef.current && !toolsMenuRef.current.contains(event.target as Node)) {
+      if (
+        toolsMenuRef.current &&
+        !toolsMenuRef.current.contains(event.target as Node)
+      ) {
         setShowToolsMenu(false);
       }
     };
@@ -167,7 +170,9 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
         {showToolsMenu && (
           <ToolsDropdownMenu>
             <ToolsMenuList>
-              <ToolsMenuItem onClick={() => handleToolsMenuItemClick('linknote')}>
+              <ToolsMenuItem
+                onClick={() => handleToolsMenuItemClick('linknote')}
+              >
                 LinkNote
               </ToolsMenuItem>
               {/* 추가 메뉴 아이템 */}
@@ -186,6 +191,7 @@ const Div = styled.div`
   align-items: center;
   gap: 2px;
   height: 100%;
+  user-select: none;
 `;
 
 const FileInput = styled.input`

@@ -9,6 +9,7 @@ export const HomeDiv = styled.div`
   height: 100%;
   overflow: auto;
   flex-grow: 1;
+  user-select: none;
 `;
 
 export const ContientDiv = styled.div`

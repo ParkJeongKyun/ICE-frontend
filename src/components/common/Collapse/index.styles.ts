@@ -12,6 +12,7 @@ export const CollapseHeader = styled.div`
   &:hover {
     background-color: var(--main-hover-color);
   }
+  user-select: none;
 `;
 
 export const CollapsIconDiv = styled.div`

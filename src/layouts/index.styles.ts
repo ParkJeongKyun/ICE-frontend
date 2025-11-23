@@ -103,6 +103,7 @@ export const ProcessInfo = styled.div`
   flex-wrap: nowrap;
   align-items: center;
   justify-content: center;
+  margin-left: 5px;
   font-size: 0.75rem;
   font-weight: 600;
 `;

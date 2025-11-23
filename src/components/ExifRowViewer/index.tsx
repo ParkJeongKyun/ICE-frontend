@@ -95,7 +95,7 @@ const ExifRowViewer: React.FC = () => {
             removePadding
           />
         )}
-      {activeData?.rows && (
+      {activeData?.rows && activeData.rows.length > 0 && (
         <Collapse
           title="Exif Data"
           children={

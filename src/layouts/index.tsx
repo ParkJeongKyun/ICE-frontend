@@ -190,9 +190,15 @@ const MainLayout: React.FC = () => {
           openModal={openModal}
         />
         {isProcessing && (
-          <IceHeaderProgressBar $progress={undefined}>
-            <div />
-          </IceHeaderProgressBar>
+          <>
+            <ProcessInfo>
+              <Spinner />
+              <ProcessMsg>{fileName} 분석중</ProcessMsg>
+            </ProcessInfo>
+            <IceHeaderProgressBar $progress={undefined}>
+              <div />
+            </IceHeaderProgressBar>
+          </>
         )}
       </IceHeader>
 
@@ -263,12 +269,6 @@ const MainLayout: React.FC = () => {
       )}
 
       <IceFooter $isMobile={isMobile}>
-        {isProcessing && (
-          <ProcessInfo>
-            <Spinner />
-            <ProcessMsg>{fileName} 분석중</ProcessMsg>
-          </ProcessInfo>
-        )}
         <SelectInfo>
           {selectionInfo && (
             <>
