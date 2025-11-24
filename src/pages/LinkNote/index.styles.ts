@@ -74,12 +74,6 @@ export const MainContainer = styled.div`
         margin: 0;
         gap: 0.25rem;
       }
-      /* ▼ li > p가 모바일에서 튀어나오는 현상 완화 */
-      li > p {
-        margin: 0 !important;
-        padding: 0 !important;
-        display: inline;
-      }
       th,
       td {
         padding: 0.25em;
