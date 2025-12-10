@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import {
   CloseBtn,
   Tab,
@@ -35,6 +35,7 @@ const TabWindow: React.FC = () => {
     position: 'left' | 'right';
   } | null>(null);
   const hasDropped = useRef(false);
+  const tabRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const handleTabClick = useCallback(
     (key: TabKey) => {
@@ -159,6 +160,7 @@ const TabWindow: React.FC = () => {
   );
 
   const tabContents = useMemo(() => {
+    tabRefs.current = [];
     return tabOrder.map((tabKey, index) => {
       const item = tabData[tabKey];
       if (!item) return null;
@@ -172,6 +174,7 @@ const TabWindow: React.FC = () => {
       return (
         <div
           key={tabKey}
+          ref={(el) => (tabRefs.current[index] = el)}
           draggable
           onDragStart={(e) => handleDragStart(e, index, tabKey)}
           onDragOver={(e) => handleDragOver(e, index)}
@@ -214,6 +217,7 @@ const TabWindow: React.FC = () => {
           <Tab
             $active={tabKey === activeKey}
             onClick={() => handleTabClick(tabKey)}
+            tabIndex={0}
           >
             {item.window.label}
             <CloseBtn
@@ -242,6 +246,16 @@ const TabWindow: React.FC = () => {
     handleTabClick,
     handleTabClose,
   ]);
+
+  // 활성화된 탭에 포커스 적용
+  useLayoutEffect(() => {
+    const idx = tabOrder.indexOf(activeKey);
+    const tabEl = tabRefs.current[idx];
+    if (idx !== -1 && tabEl) {
+      tabEl.focus();
+      tabEl.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    }
+  }, [activeKey, tabOrder]);
 
   return (
     <TabWindowContainer
