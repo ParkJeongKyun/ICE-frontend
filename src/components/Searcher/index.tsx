@@ -102,6 +102,7 @@ const Searcher: React.FC<Props> = ({ hexViewerRef }) => {
   const [inputValue, setInputValue] = useState('');
   const [ignoreCase, setIgnoreCase] = useState(true); // 대소문자 구분 여부
 
+  // ✅ searchType 의존성 추가
   const search = useCallback(
     async (inputValue: string, type: TSearchType) => {
       if (!hexViewerRef.current) return;
@@ -123,10 +124,10 @@ const Searcher: React.FC<Props> = ({ hexViewerRef }) => {
         key: activeKey,
         results,
         inputValue,
-        searchType,
+        searchType: type, // ✅ 파라미터 사용
       });
     },
-    [hexViewerRef, activeKey, ignoreCase]
+    [hexViewerRef, activeKey, ignoreCase] // searchType은 파라미터로 받으므로 제거
   );
 
   const handleInputChange = useCallback(

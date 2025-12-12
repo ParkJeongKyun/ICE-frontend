@@ -33,9 +33,8 @@ import { HexViewerRef } from '@/components/HexViewer';
 import { useProcess } from '@/contexts/ProcessContext';
 import Home from '@/components/Home';
 import { isMobile } from 'react-device-detect';
-import Yara from '@/components/Yara';
+import { encodingOptions } from '@/contexts/TabDataContext/index';
 import {
-  encodingOptions,
   useTabData,
   EncodingType,
 } from '@/contexts/TabDataContext';
@@ -55,7 +54,7 @@ const MainLayout: React.FC = () => {
   const [modalContentKey, setModalContentKey] = useState<string | null>(null);
 
   // 처리중인 파일 정보
-  const { processInfo, isProcessing } = useProcess();
+  const { processInfo, isProcessing, isWasmReady } = useProcess();
   const { fileName } = processInfo;
 
   // ✅ 선택된 셀 정보 - TabDataContext에서 가져오기
@@ -112,20 +111,6 @@ const MainLayout: React.FC = () => {
         return [null, null];
     }
   }, [modalContentKey]);
-
-  // GO 웹 어셈블리 모듈 로드
-  useEffect(() => {
-    const loadWebAssembly = async () => {
-      const go = new Go();
-      const wasmModule = await WebAssembly.instantiateStreaming(
-        fetch('/wasm/ice_app.wasm'),
-        go.importObject
-      );
-      go.run(wasmModule.instance);
-    };
-
-    loadWebAssembly();
-  }, []);
 
   const minSiderWidth = 100;
   const {
@@ -189,6 +174,12 @@ const MainLayout: React.FC = () => {
           hexViewerRef={hexViewerRef}
           openModal={openModal}
         />
+        {!isWasmReady && (
+          <ProcessInfo>
+            <Spinner />
+            <ProcessMsg>WASM 로딩 중...</ProcessMsg>
+          </ProcessInfo>
+        )}
         {isProcessing && (
           <>
             <ProcessInfo>

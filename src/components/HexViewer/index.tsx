@@ -110,7 +110,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     getWorkerCache,
     setWorkerCache,
   } = useTabData();
-  const { setProcessInfo } = useProcess();
+  const { setProcessInfo, fileWorker } = useProcess();
 
   const selectionRange = selectionStates[activeKey] || {
     start: null,
@@ -130,9 +130,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   const scrollbarRef = useRef<HTMLDivElement>(null);
 
   const chunkCacheRef = useRef<Map<number, Uint8Array>>(new Map());
-  const workerRef = useRef<Worker | null>(null);
   const isInitialLoadingRef = useRef(false);
-  // ✅ 청크 요청 중복 방지
   const requestedChunksRef = useRef<Set<number>>(new Set());
 
   const isDraggingRef = useRef(false);
@@ -276,16 +274,16 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     [activeKey, setSelectionStates]
   );
 
-  // ✅ Worker 생성 최적화
-  const createWorkerRef = useRef<((initialPosition: number) => null) | null>(
-    null
-  );
+  // ✅ Worker 생성 최적화 - cleanup 추가
+  const createWorkerRef = useRef<((initialPosition: number) => void) | null>(null);
 
   createWorkerRef.current = useCallback(
     (initialPosition: number) => {
-      if (!file) return null;
+      if (!file || !fileWorker) {
+        console.warn('[HexViewer] Cannot create worker cache: missing file or fileWorker');
+        return;
+      }
 
-      // 이전 요청 기록 초기화
       requestedChunksRef.current.clear();
 
       const loadInitialChunk = async () => {
@@ -305,12 +303,12 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
 
           return cache;
         } catch (error) {
-          console.error('초기 청크 로드 실패:', error);
+          console.error('[HexViewer] 초기 청크 로드 실패:', error);
           return new Map<number, Uint8Array>();
         }
       };
 
-      // ✅ 배경 렌더링 최적화 - 색상 캐시 사용
+      // ✅ 배경 렌더링
       requestAnimationFrame(() => {
         const ctx = canvasRef.current?.getContext('2d', { alpha: false });
         if (!ctx || !colorsRef.current) return;
@@ -346,11 +344,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
       });
 
       loadInitialChunk().then((initialCache) => {
-        const worker = new Worker(
-          new URL('../../workers/fileReader.worker.ts', import.meta.url)
-        );
-
-        worker.onmessage = (e) => {
+        const handleWorkerMessage = (e: MessageEvent) => {
           const { type, offset, data } = e.data;
           if (type === 'CHUNK_DATA') {
             initialCache.set(offset, data);
@@ -362,33 +356,23 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
           }
         };
 
-        const workerCache = { worker, cache: initialCache };
+        fileWorker.addEventListener('message', handleWorkerMessage);
+
+        const workerCache = { 
+          worker: fileWorker, 
+          cache: initialCache,
+          cleanup: () => {
+            fileWorker.removeEventListener('message', handleWorkerMessage);
+          }
+        };
         setWorkerCache(activeKey, workerCache);
         chunkCacheRef.current = initialCache;
-        workerRef.current = worker;
 
-        requestChunks(
-          initialPosition,
-          worker,
-          file,
-          fileSize,
-          visibleRows + 20
-        );
-
+        requestChunks(initialPosition, fileWorker, file, fileSize, visibleRows + 20);
         isInitialLoadingRef.current = false;
       });
-
-      return null;
     },
-    [
-      file,
-      fileSize,
-      visibleRows,
-      activeKey,
-      setWorkerCache,
-      requestChunks,
-      rowCount,
-    ]
+    [file, fileSize, visibleRows, activeKey, setWorkerCache, requestChunks, rowCount, fileWorker]
   );
 
   const getByte = useCallback((index: number): number | null => {
@@ -678,43 +662,37 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     }
   };
 
-  const handleScrollbarTouchMove = (e: TouchEvent) => {
-    if (!scrollbarDragging || e.touches.length !== 1) return;
+  const handleScrollbarTouchMove = useCallback((e: TouchEvent) => {
+    if (!scrollbarDragging || e.touches.length !== 1 || !fileWorker || !file) return;
+    
+    e.preventDefault(); // ✅ 스크롤 방지
+    
     const deltaY = e.touches[0].clientY - scrollbarStartY;
     const totalScrollable = canvasSize.height - scrollbarHeight;
     if (totalScrollable <= 0) return;
-    const rowDelta = Math.round(
-      (deltaY / totalScrollable) * (rowCount - visibleRows)
-    );
+    
+    const rowDelta = Math.round((deltaY / totalScrollable) * (rowCount - visibleRows));
     let nextRow = scrollbarStartRow + rowDelta;
     nextRow = Math.max(0, Math.min(nextRow, maxFirstRow));
+    
     if (nextRow !== firstRowRef.current) {
       updateScrollPosition(nextRow);
-      if (workerRef.current && file) {
-        requestChunks(
-          nextRow,
-          workerRef.current,
-          file,
-          fileSize,
-          visibleRows + 50
-        );
-      }
+      requestChunks(nextRow, fileWorker, file, fileSize, visibleRows + 50);
     }
-  };
+  }, [scrollbarDragging, scrollbarStartY, canvasSize.height, scrollbarHeight, rowCount, visibleRows, scrollbarStartRow, maxFirstRow, updateScrollPosition, fileWorker, file, fileSize, requestChunks]);
 
-  // 썸에 직접 non-passive touchmove 이벤트 등록
   useLayoutEffect(() => {
     const thumb = scrollbarRef.current;
     if (!thumb) return;
+    
     if (scrollbarDragging) {
-      thumb.addEventListener('touchmove', handleScrollbarTouchMove, {
-        passive: false,
-      });
+      thumb.addEventListener('touchmove', handleScrollbarTouchMove, { passive: false });
     }
+    
     return () => {
       thumb.removeEventListener('touchmove', handleScrollbarTouchMove);
     };
-  }, [scrollbarDragging]);
+  }, [scrollbarDragging, handleScrollbarTouchMove]);
 
   const handleScrollbarTouchEnd = () => {
     setScrollbarDragging(false);
@@ -807,9 +785,10 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   const handleCopyText = useCallback(() => handleCopy('text'), [handleCopy]);
 
   // ==================== useImperativeHandle ====================
-  // 검색 요청 고유 ID 관리
+  // ✅ 검색 ID를 useRef로 관리하여 이전 검색 취소
   const hexSearchIdRef = useRef<number>(0);
   const asciiSearchIdRef = useRef<number>(0);
+  const searchCleanupRef = useRef<Map<number, () => void>>(new Map());
 
   useImperativeHandle(
     ref,
@@ -824,119 +803,113 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
         return null;
       },
       findAllByHex: async (hex: string) => {
-        if (!file || !hex.trim()) return null;
-        setProcessInfo({
-          status: 'processing',
-          type: 'Hex' as any,
-          message: '검색중...',
-        });
+        if (!file || !hex.trim() || !fileWorker) return null;
+        
+        setProcessInfo({ status: 'processing', type: 'Hex', message: '검색중...' });
+        
         const hexPattern = hex.replace(/[^0-9a-fA-F]/g, '').toLowerCase();
         if (hexPattern.length % 2 !== 0) {
-          setProcessInfo({
-            status: 'failure',
-            type: 'Hex',
-            message: 'HEX 길이 오류',
-          });
+          setProcessInfo({ status: 'failure', type: 'Hex', message: 'HEX 길이 오류' });
           return null;
         }
+        
         const patternBytes = new Uint8Array(
           hexPattern.match(/.{2}/g)!.map((b) => parseInt(b, 16))
         );
+        
+        // ✅ 이전 검색 취소
         hexSearchIdRef.current += 1;
         const searchId = hexSearchIdRef.current;
-        return new Promise<IndexInfo[] | null>((resolve) => {
-          const worker = workerRef.current;
-          if (!worker) {
-            setProcessInfo({
-              status: 'failure',
-              type: 'Hex',
-              message: '워커 없음',
-            });
-            return resolve(null);
-          }
+        const prevCleanup = searchCleanupRef.current.get(searchId - 1);
+        if (prevCleanup) {
+          prevCleanup();
+          searchCleanupRef.current.delete(searchId - 1);
+        }
+        
+        return new Promise<IndexInfo[] | null>((resolve, reject) => {
+          const timeoutId = setTimeout(() => {
+            cleanup();
+            setProcessInfo({ status: 'failure', type: 'Hex', message: '검색 타임아웃' });
+            reject(new Error('Search timeout'));
+          }, 30000);
+
           const handleMessage = (e: MessageEvent) => {
-            // searchId가 현재 요청과 일치할 때만 결과 반영
-            if (
-              e.data.type === 'SEARCH_RESULT_HEX' &&
-              e.data.searchId === hexSearchIdRef.current
-            ) {
-              worker.removeEventListener('message', handleMessage);
+            if (e.data.type === 'SEARCH_RESULT_HEX' && e.data.searchId === searchId) {
+              cleanup();
+              
               if (e.data.results && e.data.results.length > 0) {
                 setProcessInfo({
                   status: 'success',
                   type: 'Hex',
-                  message: `검색 성공 (${e.data.results.length}개)`,
+                  message: `검색 성공 (${e.data.results.length}개)${e.data.usedWasm ? ' [WASM]' : ' [JS]'}`,
                 });
               } else {
-                setProcessInfo({
-                  status: 'success',
-                  type: 'Hex',
-                  message: '검색 결과 없음',
-                });
+                setProcessInfo({ status: 'success', type: 'Hex', message: '검색 결과 없음' });
               }
               resolve(e.data.results);
             }
           };
-          worker.addEventListener('message', handleMessage);
-          worker.postMessage({
-            type: 'SEARCH_HEX',
-            file,
-            pattern: patternBytes,
-            searchId,
-          });
+
+          const cleanup = () => {
+            clearTimeout(timeoutId);
+            fileWorker.removeEventListener('message', handleMessage);
+            searchCleanupRef.current.delete(searchId);
+          };
+
+          searchCleanupRef.current.set(searchId, cleanup);
+          fileWorker.addEventListener('message', handleMessage);
+          fileWorker.postMessage({ type: 'SEARCH_HEX', file, pattern: patternBytes, searchId });
         });
       },
       findAllByAsciiText: async (text: string, ignoreCase: boolean) => {
-        if (!file || !text.trim()) return null;
-        setProcessInfo({
-          status: 'processing',
-          type: 'Ascii',
-          message: '검색중...',
-        });
+        if (!file || !text.trim() || !fileWorker) return null;
+        
+        setProcessInfo({ status: 'processing', type: 'Ascii', message: '검색중...' });
+        
         const patternBytes = asciiToBytes(text);
+        
+        // ✅ 이전 검색 취소
         asciiSearchIdRef.current += 1;
         const searchId = asciiSearchIdRef.current;
-        return new Promise<IndexInfo[] | null>((resolve) => {
-          const worker = workerRef.current;
-          if (!worker) {
-            setProcessInfo({
-              status: 'failure',
-              type: 'Ascii',
-              message: '워커 없음',
-            });
-            return resolve(null);
-          }
+        const prevCleanup = searchCleanupRef.current.get(searchId - 1);
+        if (prevCleanup) {
+          prevCleanup();
+          searchCleanupRef.current.delete(searchId - 1);
+        }
+        
+        return new Promise<IndexInfo[] | null>((resolve, reject) => {
+          const timeoutId = setTimeout(() => {
+            cleanup();
+            setProcessInfo({ status: 'failure', type: 'Ascii', message: '검색 타임아웃' });
+            reject(new Error('Search timeout'));
+          }, 30000);
+
           const handleMessage = (e: MessageEvent) => {
-            // searchId가 현재 요청과 일치할 때만 결과 반영
-            if (
-              e.data.type === 'SEARCH_RESULT_ASCII' &&
-              e.data.searchId === asciiSearchIdRef.current
-            ) {
-              worker.removeEventListener('message', handleMessage);
+            if (e.data.type === 'SEARCH_RESULT_ASCII' && e.data.searchId === searchId) {
+              cleanup();
+              
               if (e.data.results && e.data.results.length > 0) {
                 setProcessInfo({
                   status: 'success',
                   type: 'Ascii',
-                  message: `검색 성공 (${e.data.results.length}개)`,
+                  message: `검색 성공 (${e.data.results.length}개)${e.data.usedWasm ? ' [WASM]' : ' [JS]'}`,
                 });
               } else {
-                setProcessInfo({
-                  status: 'success',
-                  type: 'Ascii',
-                  message: '검색 결과 없음',
-                });
+                setProcessInfo({ status: 'success', type: 'Ascii', message: '검색 결과 없음' });
               }
               resolve(e.data.results);
             }
           };
-          worker.addEventListener('message', handleMessage);
-          worker.postMessage({
-            type: 'SEARCH_ASCII',
-            file,
-            pattern: patternBytes,
-            ignoreCase,
-            searchId,
-          });
+
+          const cleanup = () => {
+            clearTimeout(timeoutId);
+            fileWorker.removeEventListener('message', handleMessage);
+            searchCleanupRef.current.delete(searchId);
+          };
+
+          searchCleanupRef.current.set(searchId, cleanup);
+          fileWorker.addEventListener('message', handleMessage);
+          fileWorker.postMessage({ type: 'SEARCH_ASCII', file, pattern: patternBytes, ignoreCase, searchId });
         });
       },
       scrollToIndex: (index: number, offset: number) => {
@@ -945,10 +918,18 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
         updateSelection(index, index + offset - 1);
       },
     }),
-    [file, fileSize, updateScrollPosition, updateSelection, setProcessInfo]
+    [file, fileSize, updateScrollPosition, updateSelection, setProcessInfo, fileWorker]
   );
 
-  // ==================== useEffect - 3개로 축소 ====================
+  // ✅ 컴포넌트 언마운트 시 모든 검색 정리
+  useEffect(() => {
+    return () => {
+      searchCleanupRef.current.forEach((cleanup) => cleanup());
+      searchCleanupRef.current.clear();
+    };
+  }, []);
+
+  // ==================== useEffect ====================
 
   // 1. ResizeObserver
   useEffect(() => {
@@ -975,42 +956,37 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   const tabInitialized = useRef(new Set<string>());
 
   useEffect(() => {
-    if (!file || !activeKey) return;
+    if (!file || !activeKey || !fileWorker) return;
 
     if (tabInitialized.current.has(activeKey)) {
+      // ✅ 기존 탭으로 돌아왔을 때
       const existingCache = getWorkerCache(activeKey);
       if (existingCache) {
         const savedPosition = scrollPositions[activeKey] ?? 0;
 
+        // ✅ 캐시 완전 교체
         requestedChunksRef.current.clear();
         existingCache.cache.forEach((_, offset) => {
           requestedChunksRef.current.add(offset);
         });
 
         chunkCacheRef.current = existingCache.cache;
-        workerRef.current = existingCache.worker;
         firstRowRef.current = savedPosition;
 
         if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
         setRenderTrigger((prev) => prev + 1);
 
         if (savedPosition > 0 || visibleRows > 0) {
-          requestChunks(
-            savedPosition,
-            existingCache.worker,
-            file,
-            fileSize,
-            visibleRows + 20
-          );
+          requestChunks(savedPosition, fileWorker, file, fileSize, visibleRows + 20);
         }
       }
       return;
     }
 
+    // ✅ 새 탭 생성
     const existingCache = getWorkerCache(activeKey);
 
     if (!existingCache) {
-      // ✅ Development 환경에서만 로그 출력
       if (process.env.NODE_ENV === 'development') {
         console.log(`[HexViewer] 새 탭 생성: ${activeKey}`);
       }
@@ -1018,6 +994,10 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
       tabInitialized.current.add(activeKey);
       isInitialLoadingRef.current = true;
       hasValidDataRef.current = false;
+      
+      // ✅ 캐시 완전 초기화
+      chunkCacheRef.current = new Map();
+      requestedChunksRef.current.clear();
       firstRowRef.current = 0;
 
       setScrollPositions((prev) => {
@@ -1027,15 +1007,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
 
       createWorkerRef.current?.(0);
     }
-  }, [
-    file,
-    activeKey,
-    getWorkerCache,
-    scrollPositions,
-    requestChunks,
-    visibleRows,
-    fileSize,
-  ]);
+  }, [file, activeKey, getWorkerCache, scrollPositions, requestChunks, visibleRows, fileSize, fileWorker]);
 
   // 3. 렌더링 및 Ref 동기화
   useEffect(() => {
@@ -1054,14 +1026,14 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
 
   // 4. 스크롤바 드래그
   useEffect(() => {
-    if (!scrollbarDragging) return;
+    if (!scrollbarDragging || !fileWorker) return; // ✅ fileWorker 체크
 
     isDraggingRef.current = true;
 
-    if (workerRef.current && file) {
+    if (file) {
       requestChunks(
         firstRowRef.current,
-        workerRef.current,
+        fileWorker, // ✅ fileWorker 사용
         file,
         fileSize,
         visibleRows + 100
@@ -1106,10 +1078,10 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
         }
         lastUpdateTime = currentTime;
 
-        if (workerRef.current && file) {
+        if (file) {
           requestChunks(
             nextRow,
-            workerRef.current,
+            fileWorker, // ✅ fileWorker 사용
             file,
             fileSize,
             visibleRows + 50
@@ -1151,16 +1123,17 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     fileSize,
     requestChunks,
     updateScrollPosition,
+    fileWorker, // ✅ 의존성 추가
   ]);
 
   // 5. 청크 요청 debounce
   useEffect(() => {
-    if (!file || !workerRef.current || isDraggingRef.current) return;
+    if (!file || !fileWorker || isDraggingRef.current) return; // ✅ fileWorker 체크
 
     const timer = setTimeout(() => {
       requestChunks(
         firstRowRef.current,
-        workerRef.current!,
+        fileWorker, // ✅ fileWorker 사용
         file,
         fileSize,
         visibleRows + 30
@@ -1168,7 +1141,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     }, CHUNK_REQUEST_DEBOUNCE);
 
     return () => clearTimeout(timer);
-  }, [renderTrigger, file, visibleRows, fileSize, requestChunks]);
+  }, [renderTrigger, file, visibleRows, fileSize, requestChunks, fileWorker]); // ✅ 의존성 추가
 
   useEffect(() => {
     if (!contextMenu) return;

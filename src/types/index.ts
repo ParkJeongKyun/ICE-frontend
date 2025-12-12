@@ -1,20 +1,5 @@
 // GO 언어를 컴파일한 웹 어셈블리 파일 적용을 위한 타입 선언
 declare global {
-  interface Window {
-    goFunc: (imageData: Uint8Array) => Promise<GoFuncResult>;
-    Module: any;
-  }
-}
-
-// goFunc의 반환 타입 정의
-export interface GoFuncResult {
-  error?: string;
-  exif_data?: string;
-  mime_type?: string;
-  extension?: string;
-}
-
-declare global {
   class Go {
     constructor();
     run(instance: WebAssembly.Instance): Promise<void>;
@@ -28,6 +13,35 @@ declare global {
   }
 }
 
+// goFunc의 반환 타입 정의
+export interface ExifResult {
+  error?: string;
+  exif_data?: string;
+  mime_type?: string;
+  extension?: string;
+}
+
+export interface SearchOptions {
+  ignoreCase?: boolean;
+  maxResults?: number;
+}
+
+export interface SearchResult {
+  indices?: number[];
+  error?: string;
+}
+
+export type ExifFunc = (imageData: Uint8Array) => Promise<ExifResult>;
+export type SearchFunc = (
+  data: Uint8Array,
+  pattern: Uint8Array,
+  options?: SearchOptions
+) => Promise<SearchResult>;
+
+export interface GoFuncMap {
+  exif?: ExifFunc;
+  search?: SearchFunc;
+}
 // EXIF 메타데이터 열 타입
 export interface ExifRow {
   // 넘버링

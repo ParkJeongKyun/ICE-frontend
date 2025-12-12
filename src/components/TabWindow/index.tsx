@@ -20,7 +20,7 @@ const TabWindow: React.FC = () => {
     setActiveKey,
     activeData,
     isEmpty,
-    cleanupTab,
+    deleteTab, // ✅ cleanupTab → deleteTab
     tabOrder,
     reorderTabs,
   } = useTabData();
@@ -53,14 +53,10 @@ const TabWindow: React.FC = () => {
         setActiveKey(tabOrder[nextIndex]);
       }
 
-      requestIdleCallback(() => cleanupTab(key), { timeout: 100 });
-
-      setTabData((prev) => {
-        const { [key]: _, ...rest } = prev;
-        return rest;
-      });
+      // ✅ deleteTab 호출 - TabDataContext에서 모든 정리 처리
+      deleteTab(key);
     },
-    [activeKey, tabOrder, setActiveKey, setTabData, cleanupTab]
+    [activeKey, tabOrder, setActiveKey, deleteTab] // ✅ setTabData 제거, deleteTab 추가
   );
 
   const handleDragStart = useCallback(

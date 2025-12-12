@@ -45,7 +45,8 @@ interface TabDataContextType {
   // ✅ Worker 관리 추가
   getWorkerCache: (key: TabKey) => WorkerCache | undefined;
   setWorkerCache: (key: TabKey, cache: WorkerCache) => void;
-  cleanupTab: (key: TabKey) => void;
+  // ✅ 탭 삭제 및 정리
+  deleteTab: (key: TabKey) => void;
   // ✅ 탭 순서 관리 추가
   tabOrder: TabKey[];
   setTabOrder: Dispatch<SetStateAction<TabKey[]>>;
@@ -99,12 +100,25 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
     });
   }, []);
 
-  const cleanupTab = useCallback((key: TabKey) => {
+  // ✅ cleanupTab을 deleteTab으로 통합
+  const deleteTab = useCallback((key: TabKey) => {
     if (process.env.NODE_ENV === 'development') {
-      console.log(`[TabDataContext] 탭 cleanup: ${key}`);
+      console.log(`[TabDataContext] 탭 삭제: ${key}`);
     }
 
-    // ✅ 배치 업데이트로 리렌더링 최소화
+    // Worker cleanup
+    const cache = workerCacheRef.current.get(key);
+    if (cache?.cleanup) {
+      cache.cleanup();
+    }
+    workerCacheRef.current.delete(key);
+
+    // State cleanup
+    setTabData((prev) => {
+      const { [key]: _, ...rest } = prev;
+      return rest;
+    });
+
     setScrollPositions((prev) => {
       const { [key]: _, ...rest } = prev;
       return rest;
@@ -116,17 +130,6 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
     });
 
     setTabOrder((prev) => prev.filter((k) => k !== key));
-
-    const cache = workerCacheRef.current.get(key);
-    if (cache) {
-      cache.worker.terminate();
-      cache.cache.clear();
-      workerCacheRef.current.delete(key);
-
-      if (process.env.NODE_ENV === 'development') {
-        console.log(`[TabDataContext] Worker 정리 완료: ${key}`);
-      }
-    }
   }, []);
 
   // ✅ tabData 변경 시 tabOrder 동기화
@@ -165,7 +168,7 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
       setSelectionStates,
       getWorkerCache,
       setWorkerCache,
-      cleanupTab,
+      deleteTab, // ✅ cleanupTab 대신 deleteTab
       tabOrder,
       setTabOrder,
       reorderTabs,
@@ -182,7 +185,7 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
       getNewKey,
       getWorkerCache,
       setWorkerCache,
-      cleanupTab,
+      deleteTab, // ✅ cleanupTab 대신 deleteTab
       reorderTabs,
     ]
   );
