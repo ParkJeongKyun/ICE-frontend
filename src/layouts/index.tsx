@@ -34,10 +34,7 @@ import { useProcess } from '@/contexts/ProcessContext';
 import Home from '@/components/Home';
 import { isMobile } from 'react-device-detect';
 import { encodingOptions } from '@/contexts/TabDataContext/index';
-import {
-  useTabData,
-  EncodingType,
-} from '@/contexts/TabDataContext';
+import { useTabData, EncodingType } from '@/contexts/TabDataContext';
 import Logo from '@/components/common/Icons/Logo';
 
 const MainLayout: React.FC = () => {
@@ -205,7 +202,6 @@ const MainLayout: React.FC = () => {
                 </div>
                 <div>
                   <Searcher hexViewerRef={hexViewerRef} />
-                  {/* <Yara /> */}
                 </div>
               </IceMobileBottom>
             )}
@@ -252,7 +248,6 @@ const MainLayout: React.FC = () => {
                 }}
               >
                 <Searcher hexViewerRef={hexViewerRef} />
-                {/* <Yara /> */}
               </IceRightSider>
             </FlexGrow>
           </IceLayout>

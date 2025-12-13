@@ -6,10 +6,9 @@ import React, {
   Dispatch,
   useMemo,
   useEffect,
-  useCallback,
 } from 'react';
 
-export type ProcessType = 'Exif' | 'Yara' | 'Hex' | 'Ascii';
+export type ProcessType = 'Exif' | 'Hex' | 'Ascii';
 export type ProcessStatus = 'idle' | 'processing' | 'success' | 'failure';
 
 interface ProcessInfo {
@@ -20,16 +19,14 @@ interface ProcessInfo {
 }
 
 interface ProcessContextType {
-  fileWorker: Worker | null; // ✅ Worker 직접 노출
-  yaraWorker: Worker | null; // ✅ YARA Worker도 노출
+  fileWorker: Worker | null;
   result: string[];
   processInfo: ProcessInfo;
   setProcessInfo: Dispatch<SetStateAction<ProcessInfo>>;
   isProcessing: boolean;
   isSuccess: boolean;
   isFailure: boolean;
-  testYara: (inputRule: any, binaryData: Uint8Array) => void;
-  isWasmReady: boolean; // ✅ WASM 준비 상태
+  isWasmReady: boolean;
 }
 
 const ProcessContext = createContext<ProcessContextType | undefined>(undefined);
@@ -38,7 +35,6 @@ export const ProcessProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [fileWorker, setFileWorker] = useState<Worker | null>(null);
-  const [yaraWorker, setYaraWorker] = useState<Worker | null>(null);
   const [isWasmReady, setIsWasmReady] = useState(false);
   const [result, setResult] = useState<string[]>([]);
   const [processInfo, setProcessInfo] = useState<ProcessInfo>({
@@ -66,10 +62,10 @@ export const ProcessProvider: React.FC<{ children: React.ReactNode }> = ({
       const newFileWorker = new Worker(
         new URL('../../workers/fileReader.worker.ts', import.meta.url)
       );
-      
+
       newFileWorker.onmessage = (e) => {
         const { type } = e.data;
-        
+
         if (type === 'WASM_READY') {
           console.log('[ProcessContext] ✅ WASM is ready!');
           setIsWasmReady(true);
@@ -83,64 +79,37 @@ export const ProcessProvider: React.FC<{ children: React.ReactNode }> = ({
         console.error('[ProcessContext] ❌ Worker error:', error.message);
         setIsWasmReady(false);
       };
-      
-      setFileWorker(newFileWorker);
 
-      const newYaraWorker = new Worker(
-        new URL('../../workers/yara_worker.js', import.meta.url)
-      );
-      newYaraWorker.onmessage = (e) => {
-        const { status, matchedRuleNames, message } = e.data;
-        if (status === 'success') {
-          setResult(matchedRuleNames);
-          setProcessInfo({ status: 'success', message: '' });
-        } else if (status === 'failure') {
-          setResult([]);
-          setProcessInfo({ status: 'failure', message });
-        }
-      };
-      setYaraWorker(newYaraWorker);
+      setFileWorker(newFileWorker);
 
       return () => {
         newFileWorker.terminate();
-        newYaraWorker.terminate();
       };
     } catch (error) {
       console.error('[ProcessContext] ❌ Failed to create worker:', error);
     }
   }, []);
 
-  const testYara = useCallback(
-    (inputRule: any, binaryData: Uint8Array) => {
-      setProcessInfo({ status: 'processing' });
-      if (yaraWorker) {
-        const clonedData = binaryData.slice(0);
-        yaraWorker.postMessage(
-          {
-            binaryData: clonedData,
-            inputRule,
-          },
-          [clonedData.buffer]
-        );
-      }
-    },
-    [yaraWorker]
-  );
-
   const value = useMemo(
     () => ({
-      fileWorker, // ✅ Worker 직접 제공
-      yaraWorker,
+      fileWorker,
       result,
       processInfo,
       setProcessInfo,
       isProcessing,
       isSuccess,
       isFailure,
-      testYara,
       isWasmReady,
     }),
-    [fileWorker, yaraWorker, result, processInfo, isProcessing, isSuccess, isFailure, testYara, isWasmReady]
+    [
+      fileWorker,
+      result,
+      processInfo,
+      isProcessing,
+      isSuccess,
+      isFailure,
+      isWasmReady,
+    ]
   );
 
   return (
