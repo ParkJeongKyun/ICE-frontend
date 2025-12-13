@@ -1,7 +1,7 @@
 import { BrowserRouter } from 'react-router-dom';
-import { ProcessProvider } from './contexts/ProcessContext';
+import { ProcessProvider } from '@/contexts/ProcessContext';
 import RouterList from '@/routes';
-import { TabDataProvider } from './contexts/TabDataContext';
+import { TabDataProvider } from '@/contexts/TabDataContext';
 
 function App() {
   return (

@@ -18,6 +18,7 @@ export type EncodingType = 'ansi' | 'oem' | 'ascii' | 'mac' | 'ebcdic';
 export interface WorkerCache {
   worker: Worker;
   cache: Map<number, Uint8Array>;
+  cleanup?: () => void;
 }
 
 // ✅ 선택 영역 타입 추가
@@ -70,8 +71,12 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
   const [tabData, setTabData] = useState<TabData>({});
   const [activeKey, setActiveKey] = useState<TabKey>('');
   const [encoding, setEncoding] = useState<EncodingType>('ansi');
-  const [scrollPositions, setScrollPositions] = useState<Record<TabKey, number>>({});
-  const [selectionStates, setSelectionStates] = useState<Record<TabKey, SelectionState>>({});
+  const [scrollPositions, setScrollPositions] = useState<
+    Record<TabKey, number>
+  >({});
+  const [selectionStates, setSelectionStates] = useState<
+    Record<TabKey, SelectionState>
+  >({});
   const [tabOrder, setTabOrder] = useState<TabKey[]>([]);
 
   const workerCacheRef = useRef<Map<TabKey, WorkerCache>>(new Map());
