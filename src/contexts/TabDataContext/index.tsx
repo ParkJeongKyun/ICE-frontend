@@ -3,61 +3,41 @@ import React, {
   createContext,
   useContext,
   useState,
-  SetStateAction,
-  Dispatch,
-  useRef,
   useMemo,
   useCallback,
   useEffect,
 } from 'react';
+import { useWorker } from '@/contexts/WorkerContext';
 
-// 인코딩 타입 정의
 export type EncodingType = 'ansi' | 'oem' | 'ascii' | 'mac' | 'ebcdic';
 
-// ✅ Worker 캐시 타입 정의
-export interface WorkerCache {
-  worker: Worker;
-  cache: Map<number, Uint8Array>;
-  cleanup?: () => void;
-}
-
-// ✅ 검색 캐시 타입 추가
-export interface SearchCache {
-  cache: Map<string, any>; // SearchCacheKey -> IndexInfo[]
-}
-
-// ✅ 선택 영역 타입 추가
 export interface SelectionState {
   start: number | null;
   end: number | null;
 }
 
-// 컨텍스트 생성
+// ✅ 간소화된 인터페이스
 interface TabDataContextType {
   tabData: TabData;
-  setTabData: Dispatch<SetStateAction<TabData>>;
+  setTabData: React.Dispatch<React.SetStateAction<TabData>>;
   activeKey: TabKey;
-  setActiveKey: Dispatch<SetStateAction<TabKey>>;
+  setActiveKey: React.Dispatch<React.SetStateAction<TabKey>>;
   getNewKey: () => TabKey;
   activeData: TabData[TabKey];
   isEmpty: boolean;
   encoding: EncodingType;
   setEncoding: (encoding: EncodingType) => void;
   scrollPositions: Record<TabKey, number>;
-  setScrollPositions: Dispatch<SetStateAction<Record<TabKey, number>>>;
-  // ✅ 선택 영역 관리 추가
+  setScrollPositions: React.Dispatch<
+    React.SetStateAction<Record<TabKey, number>>
+  >;
   selectionStates: Record<TabKey, SelectionState>;
-  setSelectionStates: Dispatch<SetStateAction<Record<TabKey, SelectionState>>>;
-  // ✅ Worker 관리 추가
-  getWorkerCache: (key: TabKey) => WorkerCache | undefined;
-  setWorkerCache: (key: TabKey, cache: WorkerCache) => void;
-  // ✅ 검색 캐시 관리 추가
-  getSearchCache: () => Map<string, any>;
-  clearSearchCacheForTab: (key: TabKey) => void;
+  setSelectionStates: React.Dispatch<
+    React.SetStateAction<Record<TabKey, SelectionState>>
+  >;
   deleteTab: (key: TabKey) => void;
-  // ✅ 탭 순서 관리 추가
   tabOrder: TabKey[];
-  setTabOrder: Dispatch<SetStateAction<TabKey[]>>;
+  setTabOrder: React.Dispatch<React.SetStateAction<TabKey[]>>;
   reorderTabs: (fromIndex: number, toIndex: number) => void;
 }
 
@@ -71,13 +51,12 @@ export const encodingOptions = [
   { value: 'ebcdic', label: 'EBCDIC(IBM Mainframe)' },
 ];
 
-// 컨텍스트 프로바이더 컴포넌트
 export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [tabData, setTabData] = useState<TabData>({});
   const [activeKey, setActiveKey] = useState<TabKey>('');
-  const [encoding, setEncoding] = useState<EncodingType>('ansi');
+  const [encodingState, setEncodingState] = useState<EncodingType>('ansi'); // ✅ 이름 변경
   const [scrollPositions, setScrollPositions] = useState<
     Record<TabKey, number>
   >({});
@@ -86,9 +65,13 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
   >({});
   const [tabOrder, setTabOrder] = useState<TabKey[]>([]);
 
-  const workerCacheRef = useRef<Map<TabKey, WorkerCache>>(new Map());
-  // ✅ 검색 캐시 ref 추가
-  const searchCacheRef = useRef<Map<string, any>>(new Map());
+  // ✅ 다른 Context 사용
+  const { deleteWorkerCache } = useWorker();
+
+  // ✅ setEncoding 함수 명시
+  const setEncoding = useCallback((newEncoding: EncodingType) => {
+    setEncodingState(newEncoding);
+  }, []);
 
   const getNewKey = useCallback((): TabKey => {
     return ('tab-' + crypto.randomUUID()) as TabKey;
@@ -96,38 +79,6 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const activeData = useMemo(() => tabData[activeKey], [tabData, activeKey]);
   const isEmpty = useMemo(() => Object.keys(tabData).length === 0, [tabData]);
-
-  const getWorkerCache = useCallback((key: TabKey) => {
-    return workerCacheRef.current.get(key);
-  }, []);
-
-  const setWorkerCache = useCallback((key: TabKey, cache: WorkerCache) => {
-    workerCacheRef.current.set(key, cache);
-  }, []);
-
-  const getSearchCache = useCallback(() => {
-    return searchCacheRef.current;
-  }, []);
-
-  const clearSearchCacheForTab = useCallback((key: TabKey) => {
-    // 해당 탭의 검색 캐시만 제거
-    const cache = searchCacheRef.current;
-    const keysToDelete: string[] = [];
-
-    cache.forEach((_, cacheKey) => {
-      if (cacheKey.startsWith(`${key}:`)) {
-        keysToDelete.push(cacheKey);
-      }
-    });
-
-    keysToDelete.forEach((k) => cache.delete(k));
-
-    if (process.env.NODE_ENV === 'development' && keysToDelete.length > 0) {
-      console.log(
-        `[TabDataContext] 탭 ${key}의 검색 캐시 ${keysToDelete.length}개 삭제`
-      );
-    }
-  }, []);
 
   const reorderTabs = useCallback((fromIndex: number, toIndex: number) => {
     setTabOrder((prev) => {
@@ -138,24 +89,10 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
     });
   }, []);
 
-  // ✅ cleanupTab을 deleteTab으로 통합
   const deleteTab = useCallback(
     (key: TabKey) => {
-      if (process.env.NODE_ENV === 'development') {
-        console.log(`[TabDataContext] 탭 삭제: ${key}`);
-      }
+      deleteWorkerCache(key); // ✅ Worker 캐시만 정리
 
-      // Worker cleanup
-      const cache = workerCacheRef.current.get(key);
-      if (cache?.cleanup) {
-        cache.cleanup();
-      }
-      workerCacheRef.current.delete(key);
-
-      // ✅ 검색 캐시 정리
-      clearSearchCacheForTab(key);
-
-      // State cleanup
       setTabData((prev) => {
         const { [key]: _, ...rest } = prev;
         return rest;
@@ -173,10 +110,9 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
 
       setTabOrder((prev) => prev.filter((k) => k !== key));
     },
-    [clearSearchCacheForTab]
+    [deleteWorkerCache] // ✅ 의존성 간소화
   );
 
-  // ✅ tabData 변경 시 tabOrder 동기화
   useEffect(() => {
     const currentKeys = Object.keys(tabData) as TabKey[];
     setTabOrder((prev) => {
@@ -186,15 +122,6 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
     });
   }, [tabData]);
 
-  // ✅ 컴포넌트 언마운트 시 모든 Worker 정리
-  useEffect(() => {
-    return () => {
-      workerCacheRef.current.forEach(({ worker }) => worker.terminate());
-      workerCacheRef.current.clear();
-    };
-  }, []);
-
-  // ✅ value를 useMemo로 메모이제이션하여 불필요한 리렌더링 방지
   const contextValue = useMemo(
     () => ({
       tabData,
@@ -204,17 +131,13 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
       getNewKey,
       activeData,
       isEmpty,
-      encoding,
-      setEncoding,
+      encoding: encodingState, // ✅ state 사용
+      setEncoding, // ✅ 안전한 setter
       scrollPositions,
       setScrollPositions,
       selectionStates,
       setSelectionStates,
-      getWorkerCache,
-      setWorkerCache,
-      getSearchCache,
-      clearSearchCacheForTab,
-      deleteTab, // ✅ cleanupTab 대신 deleteTab
+      deleteTab,
       tabOrder,
       setTabOrder,
       reorderTabs,
@@ -224,16 +147,13 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
       activeKey,
       activeData,
       isEmpty,
-      encoding,
+      encodingState, // ✅ 의존성 변경
+      setEncoding, // ✅ 의존성 추가
       scrollPositions,
       selectionStates,
       tabOrder,
       getNewKey,
-      getWorkerCache,
-      setWorkerCache,
-      getSearchCache,
-      clearSearchCacheForTab,
-      deleteTab, // ✅ cleanupTab 대신 deleteTab
+      deleteTab,
       reorderTabs,
     ]
   );
@@ -245,7 +165,6 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
   );
 };
 
-// 컨텍스트 사용을 위한 훅
 export const useTabData = () => {
   const context = useContext(TabDataContext);
   if (!context) {

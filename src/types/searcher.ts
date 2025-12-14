@@ -33,8 +33,3 @@ export type SearchAction =
       cacheKey: SearchCacheKey;
       results: IndexInfo[];
     };
-
-export interface SearchCacheStats {
-  hits: number;
-  misses: number;
-}

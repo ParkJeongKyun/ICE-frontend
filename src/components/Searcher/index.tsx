@@ -26,57 +26,27 @@ import Tooltip from '@/components/common/Tooltip';
 import { TabKey } from '@/types';
 import XIcon from '@/components/common/Icons/XIcon';
 import { useTabData } from '@/contexts/TabDataContext';
-import { useProcess } from '@/contexts/ProcessContext';
+// ✅ 타입 import
+import type {
+  SearchType,
+  SearchCacheKey,
+  SearchResult,
+  SearchStateWithCache,
+  SearchAction,
+} from '@/types/searcher';
 
 interface Props {
   hexViewerRef: React.RefObject<HexViewerRef>;
 }
 
-type TSearchType = 'offset' | 'hex' | 'ascii';
-
-interface SearchResult {
-  results: IndexInfo[];
-  currentIndex: number;
-  inputValue: string;
-  searchType: TSearchType;
-  tabKey: TabKey;
-}
-
-// ✅ 캐시 키 타입 추가
-type SearchCacheKey = string;
-
-// ✅ 타입 수정: 인덱스 시그니처 제거하고 명시적으로 정의
-interface SearchStateWithCache {
-  __cache__: Map<SearchCacheKey, IndexInfo[]>;
-  [key: string]: SearchResult | Map<SearchCacheKey, IndexInfo[]>; // ✅ union 타입으로
-}
-
-// ✅ initialState 타입 명시
 const initialState: SearchStateWithCache = {
   __cache__: new Map(),
 };
 
-type Action =
-  | {
-      type: 'SET_RESULTS';
-      key: TabKey;
-      results: IndexInfo[];
-      inputValue: string;
-      searchType: TSearchType;
-      tabKey: TabKey;
-    }
-  | { type: 'SET_CURRENT_INDEX'; key: TabKey; index: number }
-  | { type: 'RESET_RESULTS' }
-  | {
-      type: 'SET_CACHE';
-      cacheKey: SearchCacheKey;
-      results: IndexInfo[];
-    };
-
-// ✅ Reducer 타입 수정
+// ✅ SearchAction 사용
 const reducer = (
   state: SearchStateWithCache,
-  action: Action
+  action: SearchAction
 ): SearchStateWithCache => {
   switch (action.type) {
     case 'SET_RESULTS':
@@ -90,9 +60,9 @@ const reducer = (
           tabKey: action.tabKey,
         },
       };
-    case 'SET_CURRENT_INDEX':
+    case 'SET_CURRENT_INDEX': {
       const currentResult = state[action.key];
-      if (!currentResult || currentResult instanceof Map) return state; // ✅ 타입 가드
+      if (!currentResult || currentResult instanceof Map) return state;
 
       return {
         ...state,
@@ -101,30 +71,34 @@ const reducer = (
           currentIndex: action.index,
         },
       };
+    }
     case 'RESET_RESULTS':
       return {
         __cache__: state.__cache__,
       };
-    case 'SET_CACHE':
+    case 'SET_CACHE': {
       const newCache = new Map(state.__cache__);
       newCache.set(action.cacheKey, action.results);
 
       // ✅ LRU: 최대 20개까지만 유지
       if (newCache.size > 20) {
         const firstKey = newCache.keys().next().value;
-        newCache.delete(firstKey);
+        if (firstKey !== undefined) {
+          newCache.delete(firstKey);
+        }
       }
 
       return {
         ...state,
         __cache__: newCache,
       };
+    }
     default:
       return state;
   }
 };
 
-const filterInput = (inputValue: string, type: TSearchType) => {
+const filterInput = (inputValue: string, type: SearchType) => {
   switch (type) {
     case 'offset':
     case 'hex':
@@ -138,38 +112,33 @@ const filterInput = (inputValue: string, type: TSearchType) => {
 
 const Searcher: React.FC<Props> = ({ hexViewerRef }) => {
   const { activeKey } = useTabData();
-  const { fileWorker } = useProcess();
   const [searchResults, dispatch] = useReducer(reducer, initialState);
-  const [searchType, setSearchType] = useState<TSearchType>('offset');
+  const [searchType, setSearchType] = useState<SearchType>('offset');
   const [inputValue, setInputValue] = useState('');
   const [ignoreCase, setIgnoreCase] = useState(true);
   const searchTabKeyRef = useRef<TabKey>(activeKey);
-  const currentSearchIdRef = useRef<number | null>(null);
 
-  // ✅ 캐시 키 생성 함수
+  // ✅ 캐시 키 생성 함수 - 타입 안전성 강화
   const getCacheKey = useCallback(
-    (tabKey: TabKey, type: TSearchType, value: string): SearchCacheKey => {
+    (tabKey: TabKey, type: SearchType, value: string): SearchCacheKey => {
       const caseKey = type === 'ascii' ? (ignoreCase ? ':ic' : ':cs') : '';
       return `${tabKey}:${type}:${value}${caseKey}`;
     },
     [ignoreCase]
   );
 
-  const [cacheStats, setCacheStats] = useState({ hits: 0, misses: 0 });
-
+  // ✅ 검색 함수 - fileWorker 제거 (HexViewer가 처리)
   const search = useCallback(
-    async (inputValue: string, type: TSearchType) => {
+    async (inputValue: string, type: SearchType) => {
       if (!hexViewerRef.current) return;
 
       searchTabKeyRef.current = activeKey;
 
-      // ✅ 캐시 확인
       const cacheKey = getCacheKey(activeKey, type, inputValue);
       const cachedResults = searchResults.__cache__.get(cacheKey);
 
       if (cachedResults) {
         console.log('✅ 캐시 HIT:', cacheKey);
-        setCacheStats((prev) => ({ ...prev, hits: prev.hits + 1 }));
         dispatch({
           type: 'SET_RESULTS',
           key: activeKey,
@@ -179,12 +148,11 @@ const Searcher: React.FC<Props> = ({ hexViewerRef }) => {
           tabKey: activeKey,
         });
         return;
-      } else {
-        console.log('❌ 캐시 MISS:', cacheKey);
-        setCacheStats((prev) => ({ ...prev, misses: prev.misses + 1 }));
       }
 
-      // ✅ 캐시 없으면 새로 검색
+      console.log('❌ 캐시 MISS:', cacheKey);
+
+      // ✅ 검색 수행 (HexViewer가 Worker 처리)
       let results: IndexInfo[] = [];
       if (type === 'offset') {
         const res = await hexViewerRef.current.findByOffset(inputValue);
@@ -197,11 +165,6 @@ const Searcher: React.FC<Props> = ({ hexViewerRef }) => {
             inputValue,
             ignoreCase
           )) || [];
-      }
-
-      // ✅ 검색 ID 저장 (HEX, ASCII만)
-      if (type === 'hex' || type === 'ascii') {
-        currentSearchIdRef.current = Date.now();
       }
 
       // ✅ 탭 검증 후 저장
@@ -247,14 +210,13 @@ const Searcher: React.FC<Props> = ({ hexViewerRef }) => {
 
   const handleSearchTypeChange = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {
-      setSearchType(e.target.value as TSearchType);
+      setSearchType(e.target.value as SearchType);
     },
     []
   );
 
   const handlePrevButtonClick = useCallback(() => {
     const result = searchResults[activeKey];
-    // ✅ 타입 가드 추가
     if (!result || result instanceof Map || result.results.length <= 1) return;
 
     dispatch({
@@ -269,7 +231,6 @@ const Searcher: React.FC<Props> = ({ hexViewerRef }) => {
 
   const handleNextButtonClick = useCallback(() => {
     const result = searchResults[activeKey];
-    // ✅ 타입 가드 추가
     if (!result || result instanceof Map || result.results.length <= 1) return;
 
     dispatch({
@@ -314,28 +275,25 @@ const Searcher: React.FC<Props> = ({ hexViewerRef }) => {
     setInputValue('');
   }, [searchType]);
 
-  // ✅ 탭 전환 시 검색 취소
+  // ✅ 탭 전환 시 캐시 정리
   useEffect(() => {
     return () => {
-      if (currentSearchIdRef.current && fileWorker) {
-        fileWorker.postMessage({
-          type: 'CANCEL_SEARCH',
-          searchId: currentSearchIdRef.current,
+      const currentTabResults = searchResults[activeKey];
+      if (currentTabResults && !(currentTabResults instanceof Map)) {
+        const cacheKey = getCacheKey(
+          activeKey,
+          currentTabResults.searchType,
+          currentTabResults.inputValue
+        );
+        // 다른 탭 캐시 정리
+        searchResults.__cache__.forEach((_, key) => {
+          if (key !== cacheKey) {
+            searchResults.__cache__.delete(key);
+          }
         });
-        currentSearchIdRef.current = null;
       }
     };
-  }, [activeKey, fileWorker]);
-
-  // ✅ 캐시 통계 표시 (개발 모드)
-  useEffect(() => {
-    if (process.env.NODE_ENV === 'development') {
-      console.log('[Searcher] 검색 캐시:', {
-        size: searchResults.__cache__.size,
-        keys: Array.from(searchResults.__cache__.keys()),
-      });
-    }
-  }, [searchResults.__cache__]);
+  }, [activeKey, getCacheKey, searchResults]);
 
   return (
     <Collapse title="Search" open>
@@ -368,7 +326,7 @@ const Searcher: React.FC<Props> = ({ hexViewerRef }) => {
           </SearchBtn>
         </SearchData>
       </SearchDiv>
-      {searchType == 'ascii' && (
+      {searchType === 'ascii' && (
         <SearchDiv>
           <SearchCheckBox onClick={() => setIgnoreCase((prev) => !prev)}>
             <input
@@ -431,21 +389,6 @@ const Searcher: React.FC<Props> = ({ hexViewerRef }) => {
             </ButtonDiv>
           </ResultDiv>
         )}
-      {process.env.NODE_ENV === 'development' && (
-        <div
-          style={{
-            marginTop: 16,
-            padding: 8,
-            borderRadius: 4,
-            backgroundColor: 'rgba(255, 255, 255, 0.1)',
-            fontSize: 14,
-          }}
-        >
-          <div>캐시 통계:</div>
-          <div>HIT: {cacheStats.hits}</div>
-          <div>MISS: {cacheStats.misses}</div>
-        </div>
-      )}
     </Collapse>
   );
 };
