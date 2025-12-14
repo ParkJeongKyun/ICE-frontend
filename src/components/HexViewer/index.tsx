@@ -690,6 +690,13 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     canvasSizeRef.current = canvasSize;
   }, [selectionRange, encoding, canvasSize]);
 
+  // ✅ encoding 변경 시 렌더링 트리거 추가
+  useEffect(() => {
+    if (!isInitialLoadingRef.current) {
+      setRenderTrigger((prev) => prev + 1);
+    }
+  }, [encoding]); // ✅ encoding 변경 감지
+
   // ✅ 렌더링은 renderTrigger에만 의존
   useEffect(() => {
     if (!isInitialLoadingRef.current) {
