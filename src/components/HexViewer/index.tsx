@@ -28,7 +28,15 @@ import {
   RENDER_INTERVAL,
   UPDATE_INTERVAL,
   CHUNK_REQUEST_DEBOUNCE,
+  LAYOUT,
+  OFFSET_START_X,
+  HEX_START_X,
+  ASCII_START_X,
+  MIN_HEX_WIDTH,
+  COLOR_KEYS,
+  DEFAULT_COLORS,
 } from '@/constants/hexViewer';
+import { getDevicePixelRatio } from '@/utils/hexviewer';
 import { byteToHex, byteToChar } from '@/utils/encoding';
 import { asciiToBytes } from '@/utils/byteSearch';
 
@@ -47,54 +55,14 @@ export interface HexViewerRef {
   scrollToIndex: (rowIndex: number, offset: number) => void;
 }
 
-// ==================== 레이아웃 상수 ====================
-const layout = {
-  containerPadding: 10,
-  gap: 10,
-  bytesPerRow: 16,
-  rowHeight: 22,
-  font: '14px monospace',
-  offsetWidth: 75,
-  hexByteWidth: 26,
-  asciiCharWidth: 12,
-};
-
-const layoutMobile = {
-  containerPadding: 5,
-  gap: 4,
-  bytesPerRow: 16,
-  rowHeight: 15,
-  font: '9px monospace',
-  offsetWidth: 44,
-  hexByteWidth: 14,
-  asciiCharWidth: 7,
-};
-
 const {
-  containerPadding,
-  gap,
   bytesPerRow,
   rowHeight,
   font,
   offsetWidth,
   hexByteWidth,
   asciiCharWidth,
-} = isMobile ? layoutMobile : layout;
-
-const offsetStartX = containerPadding;
-const hexStartX = offsetStartX + offsetWidth + gap;
-const asciiStartX = hexStartX + bytesPerRow * hexByteWidth + gap;
-
-const minHexWidth =
-  containerPadding * 2 +
-  offsetWidth +
-  gap * 2 +
-  bytesPerRow * hexByteWidth +
-  bytesPerRow * asciiCharWidth;
-
-function getDevicePixelRatio() {
-  return window.devicePixelRatio || 1;
-}
+} = LAYOUT;
 
 // ==================== 메인 컴포넌트 ====================
 const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
@@ -129,6 +97,12 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   const offscreenCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const scrollbarRef = useRef<HTMLDivElement>(null);
 
+  // ✅ Worker 메시지 핸들러 ref 선언 추가
+  const workerMessageHandlerRef = useRef<((e: MessageEvent) => void) | null>(
+    null
+  );
+
+  // ✅ 단순 Map으로 복귀
   const chunkCacheRef = useRef<Map<number, Uint8Array>>(new Map());
   const isInitialLoadingRef = useRef(false);
   const requestedChunksRef = useRef<Set<number>>(new Set());
@@ -190,18 +164,28 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     const updateColors = () => {
       const style = getComputedStyle(document.documentElement);
       colorsRef.current = {
-        HEX_EVEN: style.getPropertyValue('--main-color_1').trim() || '#a0c0d8',
-        HEX_ODD: style.getPropertyValue('--main-color').trim() || '#d8e8f0',
-        ASCII: style.getPropertyValue('--main-color').trim() || '#d8e8f0',
+        HEX_EVEN:
+          style.getPropertyValue(COLOR_KEYS.HEX_EVEN).trim() ||
+          DEFAULT_COLORS.HEX_EVEN,
+        HEX_ODD:
+          style.getPropertyValue(COLOR_KEYS.HEX_ODD).trim() ||
+          DEFAULT_COLORS.HEX_ODD,
+        ASCII:
+          style.getPropertyValue(COLOR_KEYS.ASCII).trim() ||
+          DEFAULT_COLORS.ASCII,
         ASCII_DISABLED:
-          style.getPropertyValue('--main-disabled-color').trim() || '#3a4754',
+          style.getPropertyValue(COLOR_KEYS.ASCII_DISABLED).trim() ||
+          DEFAULT_COLORS.ASCII_DISABLED,
         SELECTED_BG:
-          style.getPropertyValue('--main-hover-color').trim() || '#243240',
+          style.getPropertyValue(COLOR_KEYS.SELECTED_BG).trim() ||
+          DEFAULT_COLORS.SELECTED_BG,
         SELECTED_TEXT:
-          style.getPropertyValue('--ice-main-color').trim() || '#60c8ff',
+          style.getPropertyValue(COLOR_KEYS.SELECTED_TEXT).trim() ||
+          DEFAULT_COLORS.SELECTED_TEXT,
         OFFSET:
-          style.getPropertyValue('--ice-main-color_4').trim() || '#d8f0ff',
-        BG: style.getPropertyValue('--main-bg-color').trim() || '#1a1f28',
+          style.getPropertyValue(COLOR_KEYS.OFFSET).trim() ||
+          DEFAULT_COLORS.OFFSET,
+        BG: style.getPropertyValue(COLOR_KEYS.BG).trim() || DEFAULT_COLORS.BG,
       };
     };
 
@@ -237,18 +221,17 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
       for (let i = startChunk; i <= endChunk; i++) {
         const offset = i * CHUNK_SIZE;
         if (
-          !chunkCacheRef.current.has(offset) &&
+          !chunkCacheRef.current.has(offset) && // ✅ .has() 사용
           !requestedChunksRef.current.has(offset)
         ) {
           requestedChunksRef.current.add(offset);
-          // ✅ 우선순위 추가 - 현재 화면에 가까울수록 높은 우선순위
           const priority = Math.abs(offset - startByte);
           worker.postMessage({
             type: 'READ_CHUNK',
             file: currentFile,
             offset,
             length: Math.min(CHUNK_SIZE, currentFileSize - offset),
-            priority, // 우선순위 전달
+            priority,
           });
         }
       }
@@ -274,13 +257,47 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     [activeKey, setSelectionStates]
   );
 
+  // ✅ 간단한 캐시 크기 체크 함수 추가
+  const checkCacheSize = useCallback(() => {
+    const MAX_CACHE_SIZE = 50 * 1024 * 1024; // 50MB
+    const cache = chunkCacheRef.current;
+
+    let totalSize = 0;
+    cache.forEach((chunk) => {
+      totalSize += chunk.byteLength;
+    });
+
+    // 50MB 초과시 오래된 절반 제거
+    if (totalSize > MAX_CACHE_SIZE) {
+      const entries = Array.from(cache.entries());
+      const halfIndex = Math.floor(entries.length / 2);
+
+      // 앞쪽 절반 제거 (오래된 것)
+      for (let i = 0; i < halfIndex; i++) {
+        const [offset] = entries[i];
+        cache.delete(offset);
+        requestedChunksRef.current.delete(offset);
+      }
+
+      if (process.env.NODE_ENV === 'development') {
+        console.log(
+          `[HexViewer] Cache cleaned: ${entries.length} -> ${cache.size}`
+        );
+      }
+    }
+  }, []);
+
   // ✅ Worker 생성 최적화 - cleanup 추가
-  const createWorkerRef = useRef<((initialPosition: number) => void) | null>(null);
+  const createWorkerRef = useRef<((initialPosition: number) => void) | null>(
+    null
+  );
 
   createWorkerRef.current = useCallback(
     (initialPosition: number) => {
       if (!file || !fileWorker) {
-        console.warn('[HexViewer] Cannot create worker cache: missing file or fileWorker');
+        console.warn(
+          '[HexViewer] Cannot create worker cache: missing file or fileWorker'
+        );
         return;
       }
 
@@ -294,6 +311,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
           const arrayBuffer = await blob.arrayBuffer();
           const data = new Uint8Array(arrayBuffer);
 
+          // ✅ 단순 Map 사용
           const cache = new Map<number, Uint8Array>();
           cache.set(chunkOffset, data);
           chunkCacheRef.current = cache;
@@ -322,22 +340,23 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
 
         ctx.save();
         ctx.scale(dpr, 1);
-        ctx.font = font;
+        ctx.font = LAYOUT.font; // ✅ 상수 사용
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillStyle = colors.OFFSET;
 
-        const renderRows = Math.ceil(currentCanvasSize.height / rowHeight) + 1;
+        const renderRows =
+          Math.ceil(currentCanvasSize.height / LAYOUT.rowHeight) + 1;
         for (let drawRow = 0; drawRow < renderRows; drawRow++) {
           const row = initialPosition + drawRow;
           if (row >= rowCount) break;
 
-          const y = drawRow * rowHeight;
-          const offset = row * bytesPerRow;
+          const y = drawRow * LAYOUT.rowHeight;
+          const offset = row * LAYOUT.bytesPerRow;
           ctx.fillText(
             offset.toString(16).padStart(8, '0').toUpperCase(),
-            offsetStartX + offsetWidth / 2,
-            y + rowHeight / 2
+            OFFSET_START_X + LAYOUT.offsetWidth / 2,
+            y + LAYOUT.rowHeight / 2
           );
         }
         ctx.restore();
@@ -350,29 +369,61 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
             initialCache.set(offset, data);
             chunkCacheRef.current = initialCache;
 
+            // ✅ 캐시 크기 체크
+            checkCacheSize();
+
             if (!isDraggingRef.current) {
               setRenderTrigger((prev) => prev + 1);
             }
           }
         };
 
-        fileWorker.addEventListener('message', handleWorkerMessage);
+        // ✅ 이전 핸들러 제거
+        if (workerMessageHandlerRef.current) {
+          fileWorker.removeEventListener(
+            'message',
+            workerMessageHandlerRef.current
+          );
+        }
 
-        const workerCache = { 
-          worker: fileWorker, 
+        fileWorker.addEventListener('message', handleWorkerMessage);
+        workerMessageHandlerRef.current = handleWorkerMessage;
+
+        const workerCache = {
+          worker: fileWorker,
           cache: initialCache,
           cleanup: () => {
             fileWorker.removeEventListener('message', handleWorkerMessage);
-          }
+            // ✅ ref도 정리
+            if (workerMessageHandlerRef.current === handleWorkerMessage) {
+              workerMessageHandlerRef.current = null;
+            }
+          },
         };
         setWorkerCache(activeKey, workerCache);
         chunkCacheRef.current = initialCache;
 
-        requestChunks(initialPosition, fileWorker, file, fileSize, visibleRows + 20);
+        requestChunks(
+          initialPosition,
+          fileWorker,
+          file,
+          fileSize,
+          visibleRows + 20
+        );
         isInitialLoadingRef.current = false;
       });
     },
-    [file, fileSize, visibleRows, activeKey, setWorkerCache, requestChunks, rowCount, fileWorker]
+    [
+      file,
+      fileSize,
+      visibleRows,
+      activeKey,
+      setWorkerCache,
+      requestChunks,
+      rowCount,
+      fileWorker,
+      checkCacheSize,
+    ]
   );
 
   const getByte = useCallback((index: number): number | null => {
@@ -381,7 +432,6 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     if (!chunk) return null;
 
     const localIndex = index - chunkOffset;
-    // ✅ 범위 체크 추가
     if (localIndex < 0 || localIndex >= chunk.length) return null;
 
     const byteValue = chunk[localIndex];
@@ -390,10 +440,6 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
 
   // ✅ 렌더링 최적화 - 색상 캐시 사용
   const directRender = useCallback(() => {
-    // ✅ 성능 측정 (개발 환경에서만)
-    const perfStart =
-      process.env.NODE_ENV === 'development' ? performance.now() : 0;
-
     const ctx = canvasRef.current?.getContext('2d', { alpha: false });
     if (!ctx || !colorsRef.current) return;
 
@@ -455,14 +501,14 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
 
       if (isOffsetSel) {
         offCtx.fillStyle = colors.SELECTED_BG;
-        offCtx.fillRect(offsetStartX, y + 2, offsetWidth, rowHeight - 4);
+        offCtx.fillRect(OFFSET_START_X, y + 2, offsetWidth, rowHeight - 4);
         offCtx.fillStyle = colors.SELECTED_TEXT;
       } else {
         offCtx.fillStyle = colors.OFFSET;
       }
       offCtx.fillText(
         offset.toString(16).padStart(8, '0').toUpperCase(),
-        offsetStartX + offsetWidth / 2,
+        OFFSET_START_X + offsetWidth / 2,
         y + rowHeight / 2
       );
 
@@ -472,9 +518,8 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
 
         const byte = getByte(idx);
 
-        // ✅ null과 undefined 모두 체크
         if (byte === null || byte === undefined) {
-          const xHex = hexStartX + i * hexByteWidth + hexByteWidth / 2;
+          const xHex = HEX_START_X + i * hexByteWidth + hexByteWidth / 2;
           offCtx.fillStyle = 'rgba(128, 128, 128, 0.15)';
           offCtx.fillRect(
             xHex - hexByteWidth / 2 + 1,
@@ -483,7 +528,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
             rowHeight - 4
           );
 
-          const xAsc = asciiStartX + i * asciiCharWidth + asciiCharWidth / 2;
+          const xAsc = ASCII_START_X + i * asciiCharWidth + asciiCharWidth / 2;
           offCtx.fillRect(
             xAsc - asciiCharWidth / 2 + 1,
             y + 2,
@@ -501,8 +546,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
           idx >= Math.min(selStart, selEnd) &&
           idx <= Math.max(selStart, selEnd);
 
-        // ✅ Hex 영역 렌더링
-        const xHex = hexStartX + i * hexByteWidth + hexByteWidth / 2;
+        const xHex = HEX_START_X + i * hexByteWidth + hexByteWidth / 2;
         const yHex = y + rowHeight / 2;
         if (isSel) {
           offCtx.fillStyle = colors.SELECTED_BG;
@@ -518,8 +562,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
         }
         offCtx.fillText(byteToHex(byte), xHex, yHex);
 
-        // ✅ ASCII 영역 렌더링
-        const xAsc = asciiStartX + i * asciiCharWidth + asciiCharWidth / 2;
+        const xAsc = ASCII_START_X + i * asciiCharWidth + asciiCharWidth / 2;
         const yAsc = y + rowHeight / 2;
         const char = byteToChar(byte, currentEncoding);
         if (isSel) {
@@ -540,32 +583,27 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     }
     offCtx.restore();
 
-    const hasEnoughData = validByteCount > renderRows * bytesPerRow * 0.3;
-    const shouldRender =
-      hasEnoughData ||
-      !isDraggingRef.current ||
-      !hasValidDataRef.current ||
-      isInitialLoadingRef.current;
+    // ✅ 렌더링 조건 완화 - 데이터가 조금이라도 있으면 렌더링
+    const hasEnoughData = validByteCount > 0; // ✅ 30% -> 0으로 변경
+    const shouldRender = hasEnoughData || isInitialLoadingRef.current;
 
     if (shouldRender) {
       ctx.setTransform(1, 0, 0, 1, 0, 0);
-      ctx.clearRect(0, 0, currentCanvasSize.width, currentCanvasSize.height);
       ctx.drawImage(offscreenCanvas, 0, 0);
 
       if (validByteCount > 0) {
         hasValidDataRef.current = true;
       }
-
-      // ✅ 성능 로그 (개발 환경에서만)
-      if (process.env.NODE_ENV === 'development') {
-        const perfEnd = performance.now();
-        const renderTime = perfEnd - perfStart;
-        if (renderTime > 16.67) {
-          // 60fps 기준
-          console.warn(`[HexViewer] 느린 렌더링: ${renderTime.toFixed(2)}ms`);
-        }
-      }
     }
+
+    // ✅ 프로덕션에서는 성능 로그 제거
+    // if (process.env.NODE_ENV === 'development') {
+    //   const perfEnd = performance.now();
+    //   const renderTime = perfEnd - perfStart;
+    //   if (renderTime > 16.67) {
+    //     console.warn(`[HexViewer] 느린 렌더링: ${renderTime.toFixed(2)}ms`);
+    //   }
+    // }
   }, [fileSize, rowCount, getByte]);
 
   const directRenderRef = useRef(directRender);
@@ -577,15 +615,18 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     const row = firstRowRef.current + Math.floor(y / rowHeight);
     if (row < 0 || row >= rowCount) return null;
 
-    if (x >= hexStartX && x < hexStartX + bytesPerRow * hexByteWidth) {
-      const col = Math.floor((x - hexStartX) / hexByteWidth);
+    if (x >= HEX_START_X && x < HEX_START_X + bytesPerRow * hexByteWidth) {
+      const col = Math.floor((x - HEX_START_X) / hexByteWidth);
       if (col < 0 || col >= bytesPerRow) return null;
       const idx = row * bytesPerRow + col;
       return idx >= fileSize ? null : idx;
     }
 
-    if (x >= asciiStartX && x < asciiStartX + bytesPerRow * asciiCharWidth) {
-      const col = Math.floor((x - asciiStartX) / asciiCharWidth);
+    if (
+      x >= ASCII_START_X &&
+      x < ASCII_START_X + bytesPerRow * asciiCharWidth
+    ) {
+      const col = Math.floor((x - ASCII_START_X) / asciiCharWidth);
       if (col < 0 || col >= bytesPerRow) return null;
       const idx = row * bytesPerRow + col;
       return idx >= fileSize ? null : idx;
@@ -662,33 +703,55 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     }
   };
 
-  const handleScrollbarTouchMove = useCallback((e: TouchEvent) => {
-    if (!scrollbarDragging || e.touches.length !== 1 || !fileWorker || !file) return;
-    
-    e.preventDefault(); // ✅ 스크롤 방지
-    
-    const deltaY = e.touches[0].clientY - scrollbarStartY;
-    const totalScrollable = canvasSize.height - scrollbarHeight;
-    if (totalScrollable <= 0) return;
-    
-    const rowDelta = Math.round((deltaY / totalScrollable) * (rowCount - visibleRows));
-    let nextRow = scrollbarStartRow + rowDelta;
-    nextRow = Math.max(0, Math.min(nextRow, maxFirstRow));
-    
-    if (nextRow !== firstRowRef.current) {
-      updateScrollPosition(nextRow);
-      requestChunks(nextRow, fileWorker, file, fileSize, visibleRows + 50);
-    }
-  }, [scrollbarDragging, scrollbarStartY, canvasSize.height, scrollbarHeight, rowCount, visibleRows, scrollbarStartRow, maxFirstRow, updateScrollPosition, fileWorker, file, fileSize, requestChunks]);
+  const handleScrollbarTouchMove = useCallback(
+    (e: TouchEvent) => {
+      if (!scrollbarDragging || e.touches.length !== 1 || !fileWorker || !file)
+        return;
+
+      e.preventDefault(); // ✅ 스크롤 방지
+
+      const deltaY = e.touches[0].clientY - scrollbarStartY;
+      const totalScrollable = canvasSize.height - scrollbarHeight;
+      if (totalScrollable <= 0) return;
+
+      const rowDelta = Math.round(
+        (deltaY / totalScrollable) * (rowCount - visibleRows)
+      );
+      let nextRow = scrollbarStartRow + rowDelta;
+      nextRow = Math.max(0, Math.min(nextRow, maxFirstRow));
+
+      if (nextRow !== firstRowRef.current) {
+        updateScrollPosition(nextRow);
+        requestChunks(nextRow, fileWorker, file, fileSize, visibleRows + 50);
+      }
+    },
+    [
+      scrollbarDragging,
+      scrollbarStartY,
+      canvasSize.height,
+      scrollbarHeight,
+      rowCount,
+      visibleRows,
+      scrollbarStartRow,
+      maxFirstRow,
+      updateScrollPosition,
+      fileWorker,
+      file,
+      fileSize,
+      requestChunks,
+    ]
+  );
 
   useLayoutEffect(() => {
     const thumb = scrollbarRef.current;
     if (!thumb) return;
-    
+
     if (scrollbarDragging) {
-      thumb.addEventListener('touchmove', handleScrollbarTouchMove, { passive: false });
+      thumb.addEventListener('touchmove', handleScrollbarTouchMove, {
+        passive: false,
+      });
     }
-    
+
     return () => {
       thumb.removeEventListener('touchmove', handleScrollbarTouchMove);
     };
@@ -804,39 +867,73 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
       },
       findAllByHex: async (hex: string) => {
         if (!file || !hex.trim() || !fileWorker) return null;
-        
-        setProcessInfo({ status: 'processing', type: 'Hex', message: '검색중...' });
-        
+
+        // ✅ 검색 시작 시점의 탭 기록
+        const searchStartTabKey = activeKey;
+
+        setProcessInfo({
+          status: 'processing',
+          type: 'Hex',
+          message: '검색중...',
+        });
+
         const hexPattern = hex.replace(/[^0-9a-fA-F]/g, '').toLowerCase();
         if (hexPattern.length % 2 !== 0) {
-          setProcessInfo({ status: 'failure', type: 'Hex', message: 'HEX 길이 오류' });
+          setProcessInfo({
+            status: 'failure',
+            type: 'Hex',
+            message: 'HEX 길이 오류',
+          });
           return null;
         }
-        
+
         const patternBytes = new Uint8Array(
           hexPattern.match(/.{2}/g)!.map((b) => parseInt(b, 16))
         );
-        
-        // ✅ 이전 검색 취소
+
+        // ✅ 이전 검색 명시적으로 취소
+        const prevSearchId = hexSearchIdRef.current;
+        if (prevSearchId > 0) {
+          fileWorker.postMessage({
+            type: 'CANCEL_SEARCH',
+            searchId: prevSearchId,
+          });
+          const prevCleanup = searchCleanupRef.current.get(prevSearchId);
+          if (prevCleanup) {
+            prevCleanup();
+            searchCleanupRef.current.delete(prevSearchId);
+          }
+        }
+
+        // 새 검색 ID 생성
         hexSearchIdRef.current += 1;
         const searchId = hexSearchIdRef.current;
-        const prevCleanup = searchCleanupRef.current.get(searchId - 1);
-        if (prevCleanup) {
-          prevCleanup();
-          searchCleanupRef.current.delete(searchId - 1);
-        }
-        
+
         return new Promise<IndexInfo[] | null>((resolve, reject) => {
           const timeoutId = setTimeout(() => {
             cleanup();
-            setProcessInfo({ status: 'failure', type: 'Hex', message: '검색 타임아웃' });
+            setProcessInfo({
+              status: 'failure',
+              type: 'Hex',
+              message: '검색 타임아웃',
+            });
             reject(new Error('Search timeout'));
           }, 30000);
 
           const handleMessage = (e: MessageEvent) => {
-            if (e.data.type === 'SEARCH_RESULT_HEX' && e.data.searchId === searchId) {
+            if (
+              e.data.type === 'SEARCH_RESULT_HEX' &&
+              e.data.searchId === searchId
+            ) {
               cleanup();
-              
+
+              // ✅ 탭이 바뀌었으면 결과 무시
+              if (searchStartTabKey !== activeKey) {
+                console.log('[HexViewer] 탭 변경으로 검색 결과 무시');
+                resolve(null);
+                return;
+              }
+
               if (e.data.results && e.data.results.length > 0) {
                 setProcessInfo({
                   status: 'success',
@@ -844,7 +941,11 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
                   message: `검색 성공 (${e.data.results.length}개)${e.data.usedWasm ? ' [WASM]' : ' [JS]'}`,
                 });
               } else {
-                setProcessInfo({ status: 'success', type: 'Hex', message: '검색 결과 없음' });
+                setProcessInfo({
+                  status: 'success',
+                  type: 'Hex',
+                  message: '검색 결과 없음',
+                });
               }
               resolve(e.data.results);
             }
@@ -858,36 +959,71 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
 
           searchCleanupRef.current.set(searchId, cleanup);
           fileWorker.addEventListener('message', handleMessage);
-          fileWorker.postMessage({ type: 'SEARCH_HEX', file, pattern: patternBytes, searchId });
+          fileWorker.postMessage({
+            type: 'SEARCH_HEX',
+            file,
+            pattern: patternBytes,
+            searchId,
+          });
         });
       },
       findAllByAsciiText: async (text: string, ignoreCase: boolean) => {
         if (!file || !text.trim() || !fileWorker) return null;
-        
-        setProcessInfo({ status: 'processing', type: 'Ascii', message: '검색중...' });
-        
+
+        // ✅ 동일하게 적용
+        const searchStartTabKey = activeKey;
+
+        setProcessInfo({
+          status: 'processing',
+          type: 'Ascii',
+          message: '검색중...',
+        });
+
         const patternBytes = asciiToBytes(text);
-        
-        // ✅ 이전 검색 취소
+
+        // ✅ 이전 검색 명시적으로 취소
+        const prevSearchId = asciiSearchIdRef.current;
+        if (prevSearchId > 0) {
+          fileWorker.postMessage({
+            type: 'CANCEL_SEARCH',
+            searchId: prevSearchId,
+          });
+          const prevCleanup = searchCleanupRef.current.get(prevSearchId);
+          if (prevCleanup) {
+            prevCleanup();
+            searchCleanupRef.current.delete(prevSearchId);
+          }
+        }
+
+        // 새 검색 ID 생성
         asciiSearchIdRef.current += 1;
         const searchId = asciiSearchIdRef.current;
-        const prevCleanup = searchCleanupRef.current.get(searchId - 1);
-        if (prevCleanup) {
-          prevCleanup();
-          searchCleanupRef.current.delete(searchId - 1);
-        }
-        
+
         return new Promise<IndexInfo[] | null>((resolve, reject) => {
           const timeoutId = setTimeout(() => {
             cleanup();
-            setProcessInfo({ status: 'failure', type: 'Ascii', message: '검색 타임아웃' });
+            setProcessInfo({
+              status: 'failure',
+              type: 'Ascii',
+              message: '검색 타임아웃',
+            });
             reject(new Error('Search timeout'));
           }, 30000);
 
           const handleMessage = (e: MessageEvent) => {
-            if (e.data.type === 'SEARCH_RESULT_ASCII' && e.data.searchId === searchId) {
+            if (
+              e.data.type === 'SEARCH_RESULT_ASCII' &&
+              e.data.searchId === searchId
+            ) {
               cleanup();
-              
+
+              // ✅ 탭이 바뀌었으면 결과 무시
+              if (searchStartTabKey !== activeKey) {
+                console.log('[HexViewer] 탭 변경으로 검색 결과 무시');
+                resolve(null);
+                return;
+              }
+
               if (e.data.results && e.data.results.length > 0) {
                 setProcessInfo({
                   status: 'success',
@@ -895,7 +1031,11 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
                   message: `검색 성공 (${e.data.results.length}개)${e.data.usedWasm ? ' [WASM]' : ' [JS]'}`,
                 });
               } else {
-                setProcessInfo({ status: 'success', type: 'Ascii', message: '검색 결과 없음' });
+                setProcessInfo({
+                  status: 'success',
+                  type: 'Ascii',
+                  message: '검색 결과 없음',
+                });
               }
               resolve(e.data.results);
             }
@@ -909,7 +1049,13 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
 
           searchCleanupRef.current.set(searchId, cleanup);
           fileWorker.addEventListener('message', handleMessage);
-          fileWorker.postMessage({ type: 'SEARCH_ASCII', file, pattern: patternBytes, ignoreCase, searchId });
+          fileWorker.postMessage({
+            type: 'SEARCH_ASCII',
+            file,
+            pattern: patternBytes,
+            ignoreCase,
+            searchId,
+          });
         });
       },
       scrollToIndex: (index: number, offset: number) => {
@@ -918,16 +1064,40 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
         updateSelection(index, index + offset - 1);
       },
     }),
-    [file, fileSize, updateScrollPosition, updateSelection, setProcessInfo, fileWorker]
+    [
+      file,
+      fileSize,
+      updateScrollPosition,
+      updateSelection,
+      setProcessInfo,
+      fileWorker,
+      activeKey, // ✅ 의존성 추가
+    ]
   );
 
-  // ✅ 컴포넌트 언마운트 시 모든 검색 정리
+  // ✅ 컴포넌트 언마운트 시 모든 검색 및 Worker 리스너 정리
   useEffect(() => {
     return () => {
+      // 모든 검색 cleanup 실행
       searchCleanupRef.current.forEach((cleanup) => cleanup());
       searchCleanupRef.current.clear();
+
+      // Worker 메시지 핸들러 제거
+      if (workerMessageHandlerRef.current && fileWorker) {
+        fileWorker.removeEventListener(
+          'message',
+          workerMessageHandlerRef.current
+        );
+        workerMessageHandlerRef.current = null;
+      }
+
+      // 진행 중인 애니메이션 프레임 취소
+      if (rafRef.current !== null) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+      }
     };
-  }, []);
+  }, [fileWorker]);
 
   // ==================== useEffect ====================
 
@@ -938,8 +1108,8 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     const observer = new window.ResizeObserver((entries) => {
       for (const entry of entries) {
         const width = isMobile
-          ? minHexWidth * dpr
-          : Math.max(entry.contentRect.width, minHexWidth) * dpr;
+          ? MIN_HEX_WIDTH * dpr
+          : Math.max(entry.contentRect.width, MIN_HEX_WIDTH) * dpr;
         const height = Math.floor(entry.contentRect.height);
         setCanvasSize((prev) =>
           prev.width !== width || prev.height !== height
@@ -959,13 +1129,12 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     if (!file || !activeKey || !fileWorker) return;
 
     if (tabInitialized.current.has(activeKey)) {
-      // ✅ 기존 탭으로 돌아왔을 때
       const existingCache = getWorkerCache(activeKey);
       if (existingCache) {
         const savedPosition = scrollPositions[activeKey] ?? 0;
 
-        // ✅ 캐시 완전 교체
         requestedChunksRef.current.clear();
+        // ✅ 단순 Map 순회
         existingCache.cache.forEach((_, offset) => {
           requestedChunksRef.current.add(offset);
         });
@@ -977,13 +1146,18 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
         setRenderTrigger((prev) => prev + 1);
 
         if (savedPosition > 0 || visibleRows > 0) {
-          requestChunks(savedPosition, fileWorker, file, fileSize, visibleRows + 20);
+          requestChunks(
+            savedPosition,
+            fileWorker,
+            file,
+            fileSize,
+            visibleRows + 20
+          );
         }
       }
       return;
     }
 
-    // ✅ 새 탭 생성
     const existingCache = getWorkerCache(activeKey);
 
     if (!existingCache) {
@@ -994,8 +1168,8 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
       tabInitialized.current.add(activeKey);
       isInitialLoadingRef.current = true;
       hasValidDataRef.current = false;
-      
-      // ✅ 캐시 완전 초기화
+
+      // ✅ 단순 Map으로 초기화
       chunkCacheRef.current = new Map();
       requestedChunksRef.current.clear();
       firstRowRef.current = 0;
@@ -1007,7 +1181,16 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
 
       createWorkerRef.current?.(0);
     }
-  }, [file, activeKey, getWorkerCache, scrollPositions, requestChunks, visibleRows, fileSize, fileWorker]);
+  }, [
+    file,
+    activeKey,
+    getWorkerCache,
+    scrollPositions,
+    requestChunks,
+    visibleRows,
+    fileSize,
+    fileWorker,
+  ]);
 
   // 3. 렌더링 및 Ref 동기화
   useEffect(() => {
@@ -1016,11 +1199,19 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     canvasSizeRef.current = canvasSize;
 
     if (!isInitialLoadingRef.current) {
+      // ✅ 즉시 렌더링 (RAF 제거로 깜빡임 감소)
       if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
-      rafRef.current = requestAnimationFrame(() => {
+
+      // ✅ 드래그 중이 아닐 때만 즉시 렌더링
+      if (!isDraggingRef.current) {
         directRenderRef.current();
-        rafRef.current = null;
-      });
+      } else {
+        // 드래그 중에는 RAF 사용
+        rafRef.current = requestAnimationFrame(() => {
+          directRenderRef.current();
+          rafRef.current = null;
+        });
+      }
     }
   }, [renderTrigger, selectionRange, encoding, canvasSize]);
 
@@ -1171,7 +1362,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
       onTouchEnd={handleTouchEnd}
     >
       <CanvasContainer ref={containerRef} tabIndex={0}>
-        <CanvasArea style={{ minWidth: `${minHexWidth}px` }}>
+        <CanvasArea style={{ minWidth: `${MIN_HEX_WIDTH}px` }}>
           <StyledCanvas
             ref={canvasRef}
             width={canvasSize.width}

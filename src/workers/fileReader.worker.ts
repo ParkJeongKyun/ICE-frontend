@@ -35,15 +35,20 @@ const queue: Array<{
 let processingCount = 0;
 let currentSearchId: number | null = null;
 let cancelSearch = false;
+let cancelledSearchIds = new Set<number>();
 
 // WASM 관련 변수
 let wasmReady = false;
-let wasmSearchFunc: ((
-  data: Uint8Array,
-  pattern: Uint8Array,
-  options?: { ignoreCase?: boolean; maxResults?: number }
-) => { indices?: number[] }) | null = null;
+let wasmInitializing = false;
+let wasmSearchFunc:
+  | ((
+      data: Uint8Array,
+      pattern: Uint8Array,
+      options?: { ignoreCase?: boolean; maxResults?: number }
+    ) => { indices?: number[] })
+  | null = null;
 let wasmExifFunc: ((data: Uint8Array) => any) | null = null;
+let goInstance: any = null;
 
 // Worker 내부에서 WASM 초기화
 async function initWasm() {
@@ -52,7 +57,30 @@ async function initWasm() {
     return;
   }
 
+  if (wasmInitializing) {
+    console.log('[Worker] WASM initialization already in progress');
+    return;
+  }
+
+  wasmInitializing = true;
+
   try {
+    if (goInstance) {
+      console.log('[Worker] Cleaning up previous WASM instance');
+      if (goInstance.exit) {
+        try {
+          goInstance.exit(0);
+        } catch (e) {
+          console.warn('[Worker] Error during Go instance cleanup:', e);
+        }
+      }
+      goInstance = null;
+    }
+
+    wasmSearchFunc = null;
+    wasmExifFunc = null;
+    wasmReady = false;
+
     self.importScripts('/js/wasm_exec.js');
 
     if (typeof (self as any).Go !== 'function') {
@@ -60,6 +88,8 @@ async function initWasm() {
     }
 
     const go = new (self as any).Go();
+    goInstance = go;
+
     const result = await WebAssembly.instantiateStreaming(
       fetch('/wasm/ice_app.wasm'),
       go.importObject
@@ -74,7 +104,7 @@ async function initWasm() {
     await Promise.race([
       wasmReadyPromise,
       new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('WASM 초기화 타임아웃')), 5000)
+        setTimeout(() => reject(new Error('WASM 초기화 타임아웃')), 10000)
       ),
     ]);
 
@@ -86,12 +116,15 @@ async function initWasm() {
     }
 
     wasmReady = true;
+    wasmInitializing = false;
     console.log('[Worker] ✅ WASM loaded successfully');
     self.postMessage({ type: 'WASM_READY' });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     console.error('[Worker] ❌ WASM load failed:', errorMessage);
     wasmReady = false;
+    wasmInitializing = false;
+    goInstance = null;
     self.postMessage({ type: 'WASM_ERROR', error: errorMessage });
   }
 }
@@ -144,17 +177,34 @@ self.addEventListener('message', (e) => {
   switch (type) {
     case 'CANCEL_SEARCH':
       cancelSearch = true;
+      if (searchId !== undefined) {
+        cancelledSearchIds.add(searchId);
+        console.log(`[Worker] Search ${searchId} cancelled`);
+      }
       break;
 
     case 'RELOAD_WASM':
-      wasmReady = false;
-      initWasm();
+      if (!wasmInitializing) {
+        wasmReady = false;
+        initWasm();
+      } else {
+        console.warn(
+          '[Worker] WASM is already initializing, ignoring RELOAD_WASM'
+        );
+      }
       break;
 
     case 'SEARCH_HEX':
     case 'SEARCH_ASCII':
       cancelSearch = false;
       currentSearchId = searchId;
+      if (searchId !== undefined) {
+        cancelledSearchIds.forEach((id) => {
+          if (id < searchId - 10) {
+            cancelledSearchIds.delete(id);
+          }
+        });
+      }
       searchInFile(
         file,
         pattern,
@@ -177,31 +227,21 @@ self.addEventListener('message', (e) => {
 
 // EXIF 처리 함수
 async function processExif(imageData: Uint8Array) {
-  // WASM 준비 대기 (최대 3초)
   const startTime = Date.now();
   while (!wasmReady && Date.now() - startTime < 3000) {
     await new Promise((resolve) => setTimeout(resolve, 100));
   }
 
   if (!wasmReady || !wasmExifFunc) {
-    self.postMessage({
-      type: 'EXIF_ERROR',
-      error: 'WASM not ready',
-    });
+    self.postMessage({ type: 'EXIF_ERROR', error: 'WASM not ready' });
     return;
   }
 
   try {
     const result = wasmExifFunc(imageData);
-    self.postMessage({
-      type: 'EXIF_RESULT',
-      result,
-    });
+    self.postMessage({ type: 'EXIF_RESULT', result });
   } catch (error) {
-    self.postMessage({
-      type: 'EXIF_ERROR',
-      error: (error as Error).message,
-    });
+    self.postMessage({ type: 'EXIF_ERROR', error: (error as Error).message });
   }
 }
 
@@ -217,7 +257,6 @@ function findPatternIndicesBMH(
   const n = array.length;
   if (m === 0 || n === 0 || m > n) return results;
 
-  // Build bad character shift table
   const shift = new Array(256).fill(m);
   for (let i = 0; i < m - 1; i++) {
     let b = pattern[i];
@@ -260,80 +299,121 @@ async function searchInFile(
   ignoreCase: boolean = false,
   searchId?: number
 ) {
-  const CHUNK_SIZE = 4 * 1024 * 1024; // 4MB
+  const CHUNK_SIZE = 16 * 1024 * 1024; // ✅ 이것만 변경
   const OVERLAP = pattern.length - 1;
   const fileSize = file.size;
   const results: { index: number; offset: number }[] = [];
   const foundIndices = new Set<number>();
-  
+
   let offset = 0;
   let totalFound = 0;
   const maxResults = 1000;
 
-  // WASM 준비 대기 (최대 2초)
+  // WASM 준비 대기
   const startTime = Date.now();
   while (!wasmReady && Date.now() - startTime < 2000) {
     await new Promise((resolve) => setTimeout(resolve, 100));
   }
 
-  const useWasm = wasmReady && wasmSearchFunc !== null;
+  let useWasm = wasmReady && wasmSearchFunc !== null;
   console.log(`[Worker] Search using ${useWasm ? 'WASM' : 'JS'}`);
 
+  // ✅ Prefetch: 다음 청크 미리 읽기
+  let nextChunkPromise: Promise<Uint8Array> | null = null;
+
+  const loadChunk = async (chunkOffset: number): Promise<Uint8Array> => {
+    const effectiveOffset = Math.max(0, chunkOffset - OVERLAP);
+    const length = Math.min(CHUNK_SIZE + OVERLAP, fileSize - effectiveOffset);
+    const blob = file.slice(effectiveOffset, effectiveOffset + length);
+    const arrayBuffer = await blob.arrayBuffer();
+    return new Uint8Array(arrayBuffer);
+  };
+
+  // 첫 번째 청크 로드
+  let currentChunk = await loadChunk(offset);
+
   while (offset < fileSize && totalFound < maxResults) {
-    if (cancelSearch) {
-      console.log('[Worker] Search cancelled');
+    if (
+      cancelSearch &&
+      searchId !== undefined &&
+      cancelledSearchIds.has(searchId)
+    ) {
+      console.log(`[Worker] Search ${searchId} aborted`);
       return;
     }
 
-    // 청크 읽기 (오버랩 포함)
+    // ✅ 다음 청크 미리 읽기 시작 (비동기)
+    const nextOffset = offset + CHUNK_SIZE;
+    if (nextOffset < fileSize && !nextChunkPromise) {
+      nextChunkPromise = loadChunk(nextOffset);
+    }
+
+    // 현재 청크 검색
+    let chunkResults: number[] = [];
+
+    if (useWasm && wasmSearchFunc) {
+      try {
+        const result = wasmSearchFunc(currentChunk, pattern, {
+          ignoreCase: type === 'ASCII' ? ignoreCase : false,
+          maxResults: maxResults - totalFound,
+        });
+        chunkResults = result.indices || [];
+      } catch (error) {
+        console.error(
+          '[Worker] WASM search error, switching to JS permanently:',
+          error
+        );
+        useWasm = false;
+        wasmReady = false;
+        wasmSearchFunc = null;
+        chunkResults = findPatternIndicesBMH(
+          currentChunk,
+          pattern,
+          type === 'ASCII' ? ignoreCase : false,
+          maxResults - totalFound
+        );
+      }
+    } else {
+      chunkResults = findPatternIndicesBMH(
+        currentChunk,
+        pattern,
+        type === 'ASCII' ? ignoreCase : false,
+        maxResults - totalFound
+      );
+    }
+
+    // 결과 처리
     const effectiveOffset = Math.max(0, offset - OVERLAP);
-    const length = Math.min(CHUNK_SIZE + OVERLAP, fileSize - effectiveOffset);
-    
-    try {
-      const blob = file.slice(effectiveOffset, effectiveOffset + length);
-      const arrayBuffer = await blob.arrayBuffer();
-      const chunk = new Uint8Array(arrayBuffer);
-
-      let chunkResults: number[] = [];
-
-      // WASM 또는 JS로 검색
-      if (useWasm) {
-        try {
-          const result = wasmSearchFunc!(chunk, pattern, {
-            ignoreCase: type === 'ASCII' ? ignoreCase : false,
-            maxResults: maxResults - totalFound,
-          });
-          chunkResults = result.indices || [];
-        } catch (error) {
-          console.error('[Worker] WASM search error, fallback to JS:', error);
-          chunkResults = findPatternIndicesBMH(chunk, pattern, type === 'ASCII' ? ignoreCase : false, maxResults - totalFound);
-        }
-      } else {
-        chunkResults = findPatternIndicesBMH(chunk, pattern, type === 'ASCII' ? ignoreCase : false, maxResults - totalFound);
+    for (const idx of chunkResults) {
+      const absoluteIndex = effectiveOffset + idx;
+      if (!foundIndices.has(absoluteIndex)) {
+        foundIndices.add(absoluteIndex);
+        results.push({ index: absoluteIndex, offset: pattern.length });
+        totalFound++;
+        if (totalFound >= maxResults) break;
       }
+    }
 
-      // 결과를 절대 오프셋으로 변환 및 중복 제거
-      for (const idx of chunkResults) {
-        const absoluteIndex = effectiveOffset + idx;
-        
-        if (!foundIndices.has(absoluteIndex)) {
-          foundIndices.add(absoluteIndex);
-          results.push({ index: absoluteIndex, offset: pattern.length });
-          totalFound++;
-          
-          if (totalFound >= maxResults) break;
-        }
+    if (totalFound >= maxResults) break;
+
+    // ✅ 다음 청크로 이동
+    offset += CHUNK_SIZE;
+
+    // Prefetch된 청크 사용
+    if (nextChunkPromise) {
+      try {
+        currentChunk = await nextChunkPromise;
+      } catch (error) {
+        console.error('[Worker] Prefetch chunk error:', error);
+        break;
       }
-
-      if (totalFound >= maxResults) break;
-      offset += CHUNK_SIZE;
-    } catch (error) {
-      console.error('[Worker] Search chunk error:', error);
-      break;
+      nextChunkPromise = null;
+    } else {
+      break; // ✅ 더 이상 청크가 없으면 종료
     }
   }
 
-  if (!cancelSearch || searchId === currentSearchId) {
+  if (searchId === undefined || !cancelledSearchIds.has(searchId)) {
     self.postMessage({
       type: type === 'HEX' ? 'SEARCH_RESULT_HEX' : 'SEARCH_RESULT_ASCII',
       results,

@@ -21,6 +21,11 @@ export interface WorkerCache {
   cleanup?: () => void;
 }
 
+// ✅ 검색 캐시 타입 추가
+export interface SearchCache {
+  cache: Map<string, any>; // SearchCacheKey -> IndexInfo[]
+}
+
 // ✅ 선택 영역 타입 추가
 export interface SelectionState {
   start: number | null;
@@ -46,7 +51,9 @@ interface TabDataContextType {
   // ✅ Worker 관리 추가
   getWorkerCache: (key: TabKey) => WorkerCache | undefined;
   setWorkerCache: (key: TabKey, cache: WorkerCache) => void;
-  // ✅ 탭 삭제 및 정리
+  // ✅ 검색 캐시 관리 추가
+  getSearchCache: () => Map<string, any>;
+  clearSearchCacheForTab: (key: TabKey) => void;
   deleteTab: (key: TabKey) => void;
   // ✅ 탭 순서 관리 추가
   tabOrder: TabKey[];
@@ -80,6 +87,8 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
   const [tabOrder, setTabOrder] = useState<TabKey[]>([]);
 
   const workerCacheRef = useRef<Map<TabKey, WorkerCache>>(new Map());
+  // ✅ 검색 캐시 ref 추가
+  const searchCacheRef = useRef<Map<string, any>>(new Map());
 
   const getNewKey = useCallback((): TabKey => {
     return ('tab-' + crypto.randomUUID()) as TabKey;
@@ -96,6 +105,30 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
     workerCacheRef.current.set(key, cache);
   }, []);
 
+  const getSearchCache = useCallback(() => {
+    return searchCacheRef.current;
+  }, []);
+
+  const clearSearchCacheForTab = useCallback((key: TabKey) => {
+    // 해당 탭의 검색 캐시만 제거
+    const cache = searchCacheRef.current;
+    const keysToDelete: string[] = [];
+
+    cache.forEach((_, cacheKey) => {
+      if (cacheKey.startsWith(`${key}:`)) {
+        keysToDelete.push(cacheKey);
+      }
+    });
+
+    keysToDelete.forEach((k) => cache.delete(k));
+
+    if (process.env.NODE_ENV === 'development' && keysToDelete.length > 0) {
+      console.log(
+        `[TabDataContext] 탭 ${key}의 검색 캐시 ${keysToDelete.length}개 삭제`
+      );
+    }
+  }, []);
+
   const reorderTabs = useCallback((fromIndex: number, toIndex: number) => {
     setTabOrder((prev) => {
       const newOrder = [...prev];
@@ -106,36 +139,42 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   // ✅ cleanupTab을 deleteTab으로 통합
-  const deleteTab = useCallback((key: TabKey) => {
-    if (process.env.NODE_ENV === 'development') {
-      console.log(`[TabDataContext] 탭 삭제: ${key}`);
-    }
+  const deleteTab = useCallback(
+    (key: TabKey) => {
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`[TabDataContext] 탭 삭제: ${key}`);
+      }
 
-    // Worker cleanup
-    const cache = workerCacheRef.current.get(key);
-    if (cache?.cleanup) {
-      cache.cleanup();
-    }
-    workerCacheRef.current.delete(key);
+      // Worker cleanup
+      const cache = workerCacheRef.current.get(key);
+      if (cache?.cleanup) {
+        cache.cleanup();
+      }
+      workerCacheRef.current.delete(key);
 
-    // State cleanup
-    setTabData((prev) => {
-      const { [key]: _, ...rest } = prev;
-      return rest;
-    });
+      // ✅ 검색 캐시 정리
+      clearSearchCacheForTab(key);
 
-    setScrollPositions((prev) => {
-      const { [key]: _, ...rest } = prev;
-      return rest;
-    });
+      // State cleanup
+      setTabData((prev) => {
+        const { [key]: _, ...rest } = prev;
+        return rest;
+      });
 
-    setSelectionStates((prev) => {
-      const { [key]: _, ...rest } = prev;
-      return rest;
-    });
+      setScrollPositions((prev) => {
+        const { [key]: _, ...rest } = prev;
+        return rest;
+      });
 
-    setTabOrder((prev) => prev.filter((k) => k !== key));
-  }, []);
+      setSelectionStates((prev) => {
+        const { [key]: _, ...rest } = prev;
+        return rest;
+      });
+
+      setTabOrder((prev) => prev.filter((k) => k !== key));
+    },
+    [clearSearchCacheForTab]
+  );
 
   // ✅ tabData 변경 시 tabOrder 동기화
   useEffect(() => {
@@ -173,6 +212,8 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
       setSelectionStates,
       getWorkerCache,
       setWorkerCache,
+      getSearchCache,
+      clearSearchCacheForTab,
       deleteTab, // ✅ cleanupTab 대신 deleteTab
       tabOrder,
       setTabOrder,
@@ -190,6 +231,8 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
       getNewKey,
       getWorkerCache,
       setWorkerCache,
+      getSearchCache,
+      clearSearchCacheForTab,
       deleteTab, // ✅ cleanupTab 대신 deleteTab
       reorderTabs,
     ]

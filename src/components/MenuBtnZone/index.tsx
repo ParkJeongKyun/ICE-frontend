@@ -24,7 +24,8 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
   ref
 ) => {
   const { setTabData, setActiveKey, getNewKey } = useTabData();
-  const { fileWorker, setProcessInfo, isProcessing, isWasmReady } = useProcess();
+  const { fileWorker, setProcessInfo, isProcessing, isWasmReady } =
+    useProcess();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const toolsMenuRef = useRef<HTMLDivElement>(null);
   const [showToolsMenu, setShowToolsMenu] = useState(false);
@@ -62,9 +63,11 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
     const file = e.target.files?.[0];
     if (!file) return;
 
-    console.log('[MenuBtnZone] File selected:', file.name);
-    console.log('[MenuBtnZone] WASM Ready:', isWasmReady);
-    console.log('[MenuBtnZone] FileWorker:', fileWorker ? 'Available' : 'Not Available');
+    // ✅ 개발 모드에서만 로그
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[MenuBtnZone] File selected:', file.name);
+      console.log('[MenuBtnZone] WASM Ready:', isWasmReady);
+    }
 
     if (!fileWorker) {
       alert('워커가 초기화되지 않았습니다. 페이지를 새로고침해주세요.');
@@ -72,7 +75,9 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
     }
 
     if (!isWasmReady) {
-      alert('WASM이 로딩 중입니다. 잠시 후 다시 시도해주세요.\n(약 1-2초 소요)');
+      alert(
+        'WASM이 로딩 중입니다. 잠시 후 다시 시도해주세요.\n(약 1-2초 소요)'
+      );
       return;
     }
 
@@ -86,39 +91,28 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
     });
 
     try {
-      console.log('[MenuBtnZone] Reading file...');
       const arrayBuffer = await readFileForExif(file);
       const exifBuffer = new Uint8Array(arrayBuffer);
-
-      // ✅ 새 탭 키 생성
       const newActiveKey = getNewKey();
-      console.log('[MenuBtnZone] New tab key:', newActiveKey);
-      
+
       const newTabWindow = {
         label: file.name,
         contents: <HexViewer ref={hexViewerRef} />,
       };
 
-      console.log('[MenuBtnZone] Requesting EXIF processing...');
-      
       const result = await new Promise<any>((resolve, reject) => {
         const timeoutId = setTimeout(() => {
-          console.error('[MenuBtnZone] EXIF processing timeout');
           reject(new Error('EXIF 처리 타임아웃'));
         }, 30000);
 
         const handler = (e: MessageEvent) => {
-          console.log('[MenuBtnZone] Received message:', e.data.type);
-          
           if (e.data.type === 'EXIF_RESULT') {
             clearTimeout(timeoutId);
             fileWorker.removeEventListener('message', handler);
-            console.log('[MenuBtnZone] ✅ EXIF processing success');
             resolve(e.data.result);
           } else if (e.data.type === 'EXIF_ERROR') {
             clearTimeout(timeoutId);
             fileWorker.removeEventListener('message', handler);
-            console.error('[MenuBtnZone] ❌ EXIF processing error:', e.data.error);
             reject(new Error(e.data.error));
           }
         };
@@ -128,21 +122,16 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
       });
 
       if (result.error) {
-        console.error('[MenuBtnZone] EXIF result error:', result.error);
         status = 'failure';
         message = result.error;
       }
 
-      console.log('[MenuBtnZone] Parsing EXIF data...');
       const { rows, thumbnail, location } = await parseExifData(
         result.exif_data || '[]',
         file,
         result.mime_type
       );
 
-      console.log('[MenuBtnZone] Setting tab data for key:', newActiveKey);
-      
-      // ✅ 탭 데이터 먼저 설정
       setTabData((prevDatas) => ({
         ...prevDatas,
         [newActiveKey]: {
@@ -157,14 +146,11 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
           location,
           thumbnail,
           rows,
-          file, // ✅ File 객체 전달
+          file,
         },
       }));
 
-      // ✅ 그 다음 activeKey 변경 (HexViewer가 새 파일을 로드하도록)
       setActiveKey(newActiveKey);
-
-      console.log('[MenuBtnZone] ✅ File processing complete');
     } catch (error) {
       console.error('[MenuBtnZone] File processing failed:', error);
       status = 'failure';
