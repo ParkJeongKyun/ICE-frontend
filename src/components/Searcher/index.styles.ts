@@ -24,6 +24,7 @@ export const SearchDiv = styled.div`
   gap: 5px;
   justify-content: space-between;
   margin-bottom: 10px;
+  user-select: none;
 `;
 
 export const SearchLabel = styled.div`
