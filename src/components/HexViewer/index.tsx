@@ -28,8 +28,6 @@ import {
   COPY_CHUNK_SIZE,
   CHUNK_REQUEST_DEBOUNCE,
   LAYOUT,
-  HEX_START_X,
-  ASCII_START_X,
   MIN_HEX_WIDTH,
   COLOR_KEYS,
   DEFAULT_COLORS,
@@ -40,9 +38,9 @@ import { useHexViewerScroll } from './hooks/useHexViewerScroll';
 import { useHexViewerSelection } from './hooks/useHexViewerSelection';
 import { useHexViewerRender } from './hooks/useHexViewerRender';
 import { useHexViewerWorker } from './hooks/useHexViewerWorker';
-import { useHexViewerEvents } from './hooks/useHexViewerEvents';
 import { useHexViewerSearch } from './hooks/useHexViewerSearch';
 import { EncodingType } from '@/contexts/TabDataContext';
+import { useHexViewerInteraction } from './hooks/useHexViewerInteraction';
 
 export interface IndexInfo {
   index: number;
@@ -167,6 +165,10 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   const {
     updateScrollPosition,
     scrollbarDragging,
+    handleWheel,
+    handleTouchStart,
+    handleTouchMove,
+    handleTouchEnd,
     handleScrollbarMouseDown,
     handleScrollbarTouchStart,
     scrollbarDragEffect,
@@ -185,11 +187,11 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     firstRowRef,
   });
 
+
   const scrollbarTop = Math.min(
     canvasSize.height - scrollbarHeight,
     (firstRowRef.current / maxFirstRow) * (canvasSize.height - scrollbarHeight) || 0
   );
-
 
   const handleScrollPositionUpdate = useCallback(
     (position: number) => {
@@ -203,26 +205,16 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     isDragging,
     contextMenu,
     setContextMenu,
-    handleWheel,
     handleMouseDown,
     handleMouseMove,
     handleMouseUp,
     handleContextMenu,
     closeContextMenu,
-    handleTouchStart,
-    handleTouchMove,
-    handleTouchEnd,
-  } = useHexViewerEvents({
-    firstRowRef,
-    rowCount,
-    fileSize,
-    maxFirstRow,
-    handleScrollPositionUpdate,
-    updateSelection,
+  } = useHexViewerInteraction({
     getByteIndexFromMouse,
+    updateSelection,
     selectionStates,
     activeKey,
-    scrollbarDragging,
   });
 
   const { findByOffset, findAllByHex, findAllByAsciiText, cleanup: cleanupSearch } =

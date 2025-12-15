@@ -1,7 +1,7 @@
 import { useCallback, useRef, useState } from 'react';
 import { useTabData } from '@/contexts/TabDataContext';
 import { TabKey } from '@/types';
-import { RENDER_INTERVAL, UPDATE_INTERVAL } from '@/constants/hexViewer';
+import { RENDER_INTERVAL, UPDATE_INTERVAL, LAYOUT } from '@/constants/hexViewer';
 
 interface UseHexViewerScrollProps {
   activeKey: TabKey;
@@ -21,7 +21,7 @@ interface UseHexViewerScrollProps {
     currentVisibleRows: number
   ) => void;
   directRenderRef: React.MutableRefObject<() => void>;
-  firstRowRef: React.MutableRefObject<number>; // ✅ 외부에서 받음
+  firstRowRef: React.MutableRefObject<number>;
 }
 
 export const useHexViewerScroll = ({
@@ -36,22 +36,79 @@ export const useHexViewerScroll = ({
   fileWorker,
   requestChunks,
   directRenderRef,
-  firstRowRef, // ✅ 파라미터로 받음
+  firstRowRef,
 }: UseHexViewerScrollProps) => {
   const { setScrollPositions } = useTabData();
+  
+  // ===== States =====
   const [scrollbarDragging, setScrollbarDragging] = useState(false);
   const [scrollbarStartY, setScrollbarStartY] = useState(0);
   const [scrollbarStartRow, setScrollbarStartRow] = useState(0);
   const isDraggingRef = useRef(false);
+  
+  // 터치 스크롤용
+  const touchStartYRef = useRef<number | null>(null);
+  const touchStartRowRef = useRef<number | null>(null);
 
+  // ===== Common Scroll Update =====
   const updateScrollPosition = useCallback(
     (position: number) => {
       firstRowRef.current = position;
       setScrollPositions((prev) => ({ ...prev, [activeKey]: position }));
     },
-    [activeKey, setScrollPositions]
+    [activeKey, setScrollPositions, firstRowRef]
   );
 
+  // ===== 1. Wheel Scroll =====
+  const handleWheel = useCallback(
+    (e: React.WheelEvent<HTMLDivElement>) => {
+      const nextRow =
+        e.deltaY > 0
+          ? Math.min(firstRowRef.current + 1, maxFirstRow)
+          : Math.max(firstRowRef.current - 1, 0);
+      if (nextRow !== firstRowRef.current) {
+        updateScrollPosition(nextRow);
+      }
+    },
+    [firstRowRef, maxFirstRow, updateScrollPosition]
+  );
+
+  // ===== 2. Touch Scroll =====
+  const handleTouchStart = useCallback(
+    (e: React.TouchEvent) => {
+      if (e.touches.length === 1) {
+        touchStartYRef.current = e.touches[0].clientY;
+        touchStartRowRef.current = firstRowRef.current;
+      }
+    },
+    [firstRowRef]
+  );
+
+  const handleTouchMove = useCallback(
+    (e: React.TouchEvent) => {
+      if (scrollbarDragging) return; // 스크롤바 드래그 중이면 무시
+      if (
+        e.touches.length === 1 &&
+        touchStartYRef.current !== null &&
+        touchStartRowRef.current !== null
+      ) {
+        const deltaY = e.touches[0].clientY - touchStartYRef.current;
+        const rowDelta = -Math.round(deltaY / LAYOUT.rowHeight);
+        const nextRow = Math.max(0, Math.min(touchStartRowRef.current + rowDelta, maxFirstRow));
+        if (nextRow !== firstRowRef.current) {
+          updateScrollPosition(nextRow);
+        }
+      }
+    },
+    [scrollbarDragging, maxFirstRow, updateScrollPosition, firstRowRef]
+  );
+
+  const handleTouchEnd = useCallback(() => {
+    touchStartYRef.current = null;
+    touchStartRowRef.current = null;
+  }, []);
+
+  // ===== 3. Scrollbar Drag =====
   const handleScrollbarStart = useCallback(
     (clientY: number) => {
       setScrollbarDragging(true);
@@ -86,12 +143,10 @@ export const useHexViewerScroll = ({
     [handleScrollbarStart]
   );
 
-  // ✅ 스크롤바 드래그 로직
   const scrollbarDragEffect = useCallback(() => {
     if (!scrollbarDragging || !fileWorker || !file) return;
 
     isDraggingRef.current = true;
-
     requestChunks(firstRowRef.current, fileWorker, file, fileSize, visibleRows + 100);
 
     let lastRenderTime = 0;
@@ -129,7 +184,6 @@ export const useHexViewerScroll = ({
           updateScrollPosition(nextRow);
         }
         lastUpdateTime = currentTime;
-
         requestChunks(nextRow, fileWorker, file, fileSize, visibleRows + 50);
       });
     };
@@ -155,7 +209,6 @@ export const useHexViewerScroll = ({
           updateScrollPosition(nextRow);
         }
         lastUpdateTime = currentTime;
-
         requestChunks(nextRow, fileWorker, file, fileSize, visibleRows + 50);
       });
     };
@@ -195,11 +248,23 @@ export const useHexViewerScroll = ({
     fileWorker,
     handleScrollbarEnd,
     directRenderRef,
+    firstRowRef,
   ]);
 
   return {
+    // 스크롤 상태
     updateScrollPosition,
     scrollbarDragging,
+    
+    // 휠 스크롤
+    handleWheel,
+    
+    // 터치 스크롤
+    handleTouchStart,
+    handleTouchMove,
+    handleTouchEnd,
+    
+    // 스크롤바
     handleScrollbarMouseDown,
     handleScrollbarTouchStart,
     scrollbarDragEffect,
