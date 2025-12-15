@@ -1,7 +1,8 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useRef } from 'react';
+import { LAYOUT } from '@/constants/hexViewer';
 
 interface UseHexViewerEventsProps {
-  firstRowRef: React.MutableRefObject<number>; // ✅ 수정
+  firstRowRef: React.MutableRefObject<number>;
   rowCount: number;
   fileSize: number;
   maxFirstRow: number;
@@ -10,6 +11,7 @@ interface UseHexViewerEventsProps {
   getByteIndexFromMouse: (x: number, y: number) => number | null;
   selectionStates: any;
   activeKey: string;
+  scrollbarDragging: boolean;
 }
 
 export const useHexViewerEvents = ({
@@ -22,12 +24,15 @@ export const useHexViewerEvents = ({
   getByteIndexFromMouse,
   selectionStates,
   activeKey,
+  scrollbarDragging,
 }: UseHexViewerEventsProps) => {
   const [isDragging, setIsDragging] = useState(false);
   const [contextMenu, setContextMenu] = useState<{
     x: number;
     y: number;
   } | null>(null);
+  const touchStartYRef = useRef<number | null>(null);
+  const touchStartRowRef = useRef<number | null>(null);
 
   const handleWheel = useCallback(
     (e: React.WheelEvent<HTMLDivElement>) => {
@@ -44,10 +49,7 @@ export const useHexViewerEvents = ({
     (e: React.MouseEvent) => {
       if (e.button !== 0) return;
       const rect = (e.target as HTMLCanvasElement).getBoundingClientRect();
-      const idx = getByteIndexFromMouse(
-        e.clientX - rect.left,
-        e.clientY - rect.top
-      );
+      const idx = getByteIndexFromMouse(e.clientX - rect.left, e.clientY - rect.top);
       if (idx !== null) {
         setIsDragging(true);
         updateSelection(idx, idx);
@@ -60,22 +62,13 @@ export const useHexViewerEvents = ({
     (e: React.MouseEvent) => {
       if (!isDragging) return;
       const rect = (e.target as HTMLCanvasElement).getBoundingClientRect();
-      const idx = getByteIndexFromMouse(
-        e.clientX - rect.left,
-        e.clientY - rect.top
-      );
+      const idx = getByteIndexFromMouse(e.clientX - rect.left, e.clientY - rect.top);
       if (idx !== null) {
         const current = selectionStates[activeKey];
         if (current?.start !== null) updateSelection(current.start, idx);
       }
     },
-    [
-      isDragging,
-      getByteIndexFromMouse,
-      selectionStates,
-      activeKey,
-      updateSelection,
-    ]
+    [isDragging, getByteIndexFromMouse, selectionStates, activeKey, updateSelection]
   );
 
   const handleMouseUp = useCallback(() => setIsDragging(false), []);
@@ -86,6 +79,38 @@ export const useHexViewerEvents = ({
   }, []);
 
   const closeContextMenu = useCallback(() => setContextMenu(null), []);
+
+  const handleTouchStart = useCallback(
+    (e: React.TouchEvent) => {
+      if (e.touches.length === 1) {
+        touchStartYRef.current = e.touches[0].clientY;
+        touchStartRowRef.current = firstRowRef.current;
+      }
+    },
+    [firstRowRef]
+  );
+
+  const handleTouchMove = useCallback(
+    (e: React.TouchEvent) => {
+      if (scrollbarDragging) return;
+      if (
+        e.touches.length === 1 &&
+        touchStartYRef.current !== null &&
+        touchStartRowRef.current !== null
+      ) {
+        const deltaY = e.touches[0].clientY - touchStartYRef.current;
+        const rowDelta = -Math.round(deltaY / LAYOUT.rowHeight);
+        const nextRow = Math.max(0, Math.min(touchStartRowRef.current + rowDelta, maxFirstRow));
+        if (nextRow !== firstRowRef.current) handleScrollPositionUpdate(nextRow);
+      }
+    },
+    [scrollbarDragging, maxFirstRow, handleScrollPositionUpdate, firstRowRef]
+  );
+
+  const handleTouchEnd = useCallback(() => {
+    touchStartYRef.current = null;
+    touchStartRowRef.current = null;
+  }, []);
 
   return {
     isDragging,
@@ -98,5 +123,8 @@ export const useHexViewerEvents = ({
     handleMouseUp,
     handleContextMenu,
     closeContextMenu,
+    handleTouchStart,
+    handleTouchMove,
+    handleTouchEnd,
   };
 };
