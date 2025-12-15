@@ -35,8 +35,12 @@ export const CanvasArea = styled.div`
 // 헤더 캔버스
 export const HeaderCanvas = styled.canvas`
   display: block;
-  flex-shrink: 0;
-  z-index: 10;
+  cursor: text;
+  pointer-events: auto;
+  will-change: transform;
+  /* GPU 가속 최적화 */
+  transform: translateZ(0);
+  backface-visibility: hidden;
 `;
 
 // 스타일 캔버스
@@ -49,9 +53,6 @@ export const StyledCanvas = styled.canvas`
   /* GPU 가속 최적화 */
   transform: translateZ(0);
   backface-visibility: hidden;
-  /*  추가: 캔버스 자체도 overflow 제한 */
-  max-width: 100%;
-  max-height: 100%;
 `;
 
 // 가상 스크롤바

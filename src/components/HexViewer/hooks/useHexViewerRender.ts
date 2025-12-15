@@ -61,11 +61,10 @@ export const useHexViewerRender = ({
 
     const colors = colorsRef.current;
     const dpr = getDevicePixelRatio();
-    const currentCanvasSize = canvasSizeRef.current;
 
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.fillStyle = colors.BG;
-    ctx.fillRect(0, 0, currentCanvasSize.width, LAYOUT.headerHeight);
+    ctx.fillRect(0, 0, headerCanvas.width, LAYOUT.headerHeight);
 
     ctx.save();
     ctx.scale(dpr, 1);
@@ -92,7 +91,8 @@ export const useHexViewerRender = ({
     }
 
     // ASCII 헤더
-    const asciiHeaderX = ASCII_START_X + (LAYOUT.bytesPerRow * LAYOUT.asciiCharWidth) / 2;
+    const asciiHeaderX =
+      ASCII_START_X + (LAYOUT.bytesPerRow * LAYOUT.asciiCharWidth) / 2;
     ctx.fillText('Decoded text', asciiHeaderX, LAYOUT.headerHeight / 2);
 
     ctx.restore();
@@ -108,7 +108,7 @@ export const useHexViewerRender = ({
 
     const offscreenCanvas = offscreenCanvasRef.current;
     const currentCanvasSize = canvasSizeRef.current;
-    
+
     const renderHeight = currentCanvasSize.height - LAYOUT.headerHeight;
 
     if (
