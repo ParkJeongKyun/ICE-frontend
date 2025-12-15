@@ -1,6 +1,6 @@
 /* global kakao */
 import { useLayoutEffect } from 'react';
-import { IceMap, IceMapContainer } from './styles';
+import { IceMap, IceMapContainer } from './index.styles';
 import { isValidLocation } from '@/utils/getAddress';
 
 /* Kakao Map */

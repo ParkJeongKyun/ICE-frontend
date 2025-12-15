@@ -35,7 +35,6 @@ import {
   DEFAULT_COLORS,
 } from '@/constants/hexViewer';
 import { getDevicePixelRatio } from '@/utils/hexViewer';
-import { asciiToBytes } from '@/utils/byteSearch';
 import { useHexViewerCache } from './hooks/useHexViewerCache';
 import { useHexViewerScroll } from './hooks/useHexViewerScroll';
 import { useHexViewerSelection } from './hooks/useHexViewerSelection';

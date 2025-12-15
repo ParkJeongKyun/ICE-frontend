@@ -100,11 +100,22 @@ export const useHexViewerSearch = ({
               return;
             }
 
+            // ✅ WASM 에러 처리
+            if (e.data.error) {
+              setProcessInfo({
+                status: 'failure',
+                type: 'Hex',
+                message: 'WASM 검색 오류',
+              });
+              resolve(null);
+              return;
+            }
+
             if (e.data.results && e.data.results.length > 0) {
               setProcessInfo({
                 status: 'success',
                 type: 'Hex',
-                message: `검색 성공 (${e.data.results.length}개)${e.data.usedWasm ? ' [WASM]' : ' [JS]'}`,
+                message: `검색 성공 (${e.data.results.length}개)`,
               });
             } else {
               setProcessInfo({
@@ -190,11 +201,22 @@ export const useHexViewerSearch = ({
               return;
             }
 
+            // ✅ WASM 에러 처리
+            if (e.data.error) {
+              setProcessInfo({
+                status: 'failure',
+                type: 'Ascii',
+                message: 'WASM 검색 오류',
+              });
+              resolve(null);
+              return;
+            }
+
             if (e.data.results && e.data.results.length > 0) {
               setProcessInfo({
                 status: 'success',
                 type: 'Ascii',
-                message: `검색 성공 (${e.data.results.length}개)${e.data.usedWasm ? ' [WASM]' : ' [JS]'}`,
+                message: `검색 성공 (${e.data.results.length}개)`,
               });
             } else {
               setProcessInfo({

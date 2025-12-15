@@ -245,52 +245,6 @@ async function processExif(imageData: Uint8Array) {
   }
 }
 
-// Boyer-Moore-Horspool 검색 로직 (Fallback)
-function findPatternIndicesBMH(
-  array: Uint8Array,
-  pattern: Uint8Array,
-  ignoreCase: boolean = false,
-  maxCount: number = 1000
-): number[] {
-  const results: number[] = [];
-  const m = pattern.length;
-  const n = array.length;
-  if (m === 0 || n === 0 || m > n) return results;
-
-  const shift = new Array(256).fill(m);
-  for (let i = 0; i < m - 1; i++) {
-    let b = pattern[i];
-    if (ignoreCase && b >= 0x41 && b <= 0x5a) b += 0x20;
-    shift[b] = m - 1 - i;
-  }
-
-  let i = 0;
-  while (i <= n - m) {
-    let j = m - 1;
-    while (j >= 0) {
-      let a = array[i + j];
-      let b = pattern[j];
-      if (ignoreCase) {
-        if (a >= 0x41 && a <= 0x5a) a += 0x20;
-        if (b >= 0x41 && b <= 0x5a) b += 0x20;
-      }
-      if (a !== b) break;
-      j--;
-    }
-    if (j < 0) {
-      results.push(i);
-      if (results.length >= maxCount) break;
-      i += m;
-    } else {
-      let skip = shift[array[i + m - 1]];
-      if (ignoreCase && array[i + m - 1] >= 0x41 && array[i + m - 1] <= 0x5a)
-        skip = shift[array[i + m - 1] + 0x20];
-      i += skip > 0 ? skip : 1;
-    }
-  }
-  return results;
-}
-
 // WASM 기반 검색 (청크 단위)
 async function searchInFile(
   file: File,
@@ -299,7 +253,7 @@ async function searchInFile(
   ignoreCase: boolean = false,
   searchId?: number
 ) {
-  const CHUNK_SIZE = 16 * 1024 * 1024; // ✅ 이것만 변경
+  const CHUNK_SIZE = 16 * 1024 * 1024;
   const OVERLAP = pattern.length - 1;
   const fileSize = file.size;
   const results: { index: number; offset: number }[] = [];
@@ -311,14 +265,24 @@ async function searchInFile(
 
   // WASM 준비 대기
   const startTime = Date.now();
-  while (!wasmReady && Date.now() - startTime < 2000) {
+  while (!wasmReady && Date.now() - startTime < 3000) {
     await new Promise((resolve) => setTimeout(resolve, 100));
   }
 
-  let useWasm = wasmReady && wasmSearchFunc !== null;
-  console.log(`[Worker] Search using ${useWasm ? 'WASM' : 'JS'}`);
+  // ✅ WASM이 준비되지 않았으면 검색 중단
+  if (!wasmReady || !wasmSearchFunc) {
+    console.error('[Worker] WASM not ready, search aborted');
+    self.postMessage({
+      type: type === 'HEX' ? 'SEARCH_RESULT_HEX' : 'SEARCH_RESULT_ASCII',
+      results: null,
+      searchId,
+      error: 'WASM not ready',
+    });
+    return;
+  }
 
-  // ✅ Prefetch: 다음 청크 미리 읽기
+  console.log('[Worker] Search using WASM');
+
   let nextChunkPromise: Promise<Uint8Array> | null = null;
 
   const loadChunk = async (chunkOffset: number): Promise<Uint8Array> => {
@@ -329,7 +293,6 @@ async function searchInFile(
     return new Uint8Array(arrayBuffer);
   };
 
-  // 첫 번째 청크 로드
   let currentChunk = await loadChunk(offset);
 
   while (offset < fileSize && totalFound < maxResults) {
@@ -342,47 +305,30 @@ async function searchInFile(
       return;
     }
 
-    // ✅ 다음 청크 미리 읽기 시작 (비동기)
     const nextOffset = offset + CHUNK_SIZE;
     if (nextOffset < fileSize && !nextChunkPromise) {
       nextChunkPromise = loadChunk(nextOffset);
     }
 
-    // 현재 청크 검색
     let chunkResults: number[] = [];
 
-    if (useWasm && wasmSearchFunc) {
-      try {
-        const result = wasmSearchFunc(currentChunk, pattern, {
-          ignoreCase: type === 'ASCII' ? ignoreCase : false,
-          maxResults: maxResults - totalFound,
-        });
-        chunkResults = result.indices || [];
-      } catch (error) {
-        console.error(
-          '[Worker] WASM search error, switching to JS permanently:',
-          error
-        );
-        useWasm = false;
-        wasmReady = false;
-        wasmSearchFunc = null;
-        chunkResults = findPatternIndicesBMH(
-          currentChunk,
-          pattern,
-          type === 'ASCII' ? ignoreCase : false,
-          maxResults - totalFound
-        );
-      }
-    } else {
-      chunkResults = findPatternIndicesBMH(
-        currentChunk,
-        pattern,
-        type === 'ASCII' ? ignoreCase : false,
-        maxResults - totalFound
-      );
+    try {
+      const result = wasmSearchFunc(currentChunk, pattern, {
+        ignoreCase: type === 'ASCII' ? ignoreCase : false,
+        maxResults: maxResults - totalFound,
+      });
+      chunkResults = result.indices || [];
+    } catch (error) {
+      console.error('[Worker] WASM search error:', error);
+      self.postMessage({
+        type: type === 'HEX' ? 'SEARCH_RESULT_HEX' : 'SEARCH_RESULT_ASCII',
+        results: null,
+        searchId,
+        error: 'WASM search failed',
+      });
+      return;
     }
 
-    // 결과 처리
     const effectiveOffset = Math.max(0, offset - OVERLAP);
     for (const idx of chunkResults) {
       const absoluteIndex = effectiveOffset + idx;
@@ -396,10 +342,8 @@ async function searchInFile(
 
     if (totalFound >= maxResults) break;
 
-    // ✅ 다음 청크로 이동
     offset += CHUNK_SIZE;
 
-    // Prefetch된 청크 사용
     if (nextChunkPromise) {
       try {
         currentChunk = await nextChunkPromise;
@@ -409,7 +353,7 @@ async function searchInFile(
       }
       nextChunkPromise = null;
     } else {
-      break; // ✅ 더 이상 청크가 없으면 종료
+      break;
     }
   }
 
@@ -418,7 +362,7 @@ async function searchInFile(
       type: type === 'HEX' ? 'SEARCH_RESULT_HEX' : 'SEARCH_RESULT_ASCII',
       results,
       searchId,
-      usedWasm: useWasm,
+      usedWasm: true,
     });
   }
 }
