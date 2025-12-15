@@ -40,7 +40,6 @@ import { useHexViewerRender } from './hooks/useHexViewerRender';
 import { useHexViewerWorker } from './hooks/useHexViewerWorker';
 import { useHexViewerSearch } from './hooks/useHexViewerSearch';
 import { EncodingType } from '@/contexts/TabDataContext';
-import { useHexViewerInteraction } from './hooks/useHexViewerInteraction';
 
 export interface IndexInfo {
   index: number;
@@ -57,7 +56,7 @@ export interface HexViewerRef {
   scrollToIndex: (rowIndex: number, offset: number) => void;
 }
 
-const { bytesPerRow, rowHeight, hexByteWidth, asciiCharWidth } = LAYOUT;
+const { bytesPerRow, rowHeight } = LAYOUT;
 
 const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   // ===== Contexts =====
@@ -118,11 +117,22 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   
   const firstRowRef = useRef(0);
 
-  const { updateSelection, getByteIndexFromMouse } = useHexViewerSelection({
+  const {
+    isDragging,
+    updateSelection,
+    contextMenu,
+    setContextMenu,
+    closeContextMenu,
+    handleMouseDown,
+    handleMouseMove,
+    handleMouseUp,
+    handleContextMenu,
+  } = useHexViewerSelection({
     activeKey,
     firstRowRef,
     fileSize,
     rowCount,
+    selectionStates,
   });
 
   const { directRender, renderHeader } = useHexViewerRender({
@@ -202,23 +212,8 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   );
 
   const {
-    isDragging,
-    contextMenu,
-    setContextMenu,
-    handleMouseDown,
-    handleMouseMove,
-    handleMouseUp,
-    handleContextMenu,
-    closeContextMenu,
-  } = useHexViewerInteraction({
-    getByteIndexFromMouse,
-    updateSelection,
-    selectionStates,
-    activeKey,
-  });
-
-  const { findByOffset, findAllByHex, findAllByAsciiText, cleanup: cleanupSearch } =
-    useHexViewerSearch({ file, fileSize, fileWorker, activeKey, setProcessInfo });
+    findByOffset, findAllByHex, findAllByAsciiText, cleanup: cleanupSearch
+  } = useHexViewerSearch({ file, fileSize, fileWorker, activeKey, setProcessInfo });
 
   // ===== Effects =====
   useEffect(() => {
