@@ -78,7 +78,7 @@ export const COLOR_KEYS = {
   ASCII_DISABLED: '--main-disabled-color',
   SELECTED_BG: '--main-hover-color',
   SELECTED_TEXT: '--ice-main-color',
-  OFFSET: '--ice-main-color_4',
+  OFFSET: '--ice-main-color_5',
   BG: '--main-bg-color',
 } as const;
 

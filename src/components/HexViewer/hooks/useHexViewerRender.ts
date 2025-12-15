@@ -179,24 +179,8 @@ export const useHexViewerRender = ({
       );
       const selStart = currentSelectionRange.start;
       const selEnd = currentSelectionRange.end;
-      const isOffsetSel =
-        selStart !== null &&
-        selEnd !== null &&
-        offsetStart <= Math.max(selStart, selEnd) &&
-        offsetEnd >= Math.min(selStart, selEnd);
 
-      if (isOffsetSel) {
-        offCtx.fillStyle = colors.SELECTED_BG;
-        offCtx.fillRect(
-          OFFSET_START_X,
-          y + 2,
-          LAYOUT.offsetWidth,
-          LAYOUT.rowHeight - 4
-        );
-        offCtx.fillStyle = colors.SELECTED_TEXT;
-      } else {
-        offCtx.fillStyle = colors.OFFSET;
-      }
+      offCtx.fillStyle = colors.OFFSET;
       offCtx.fillText(
         offset.toString(16).padStart(8, '0').toUpperCase(),
         OFFSET_START_X + LAYOUT.offsetWidth / 2,
@@ -240,6 +224,7 @@ export const useHexViewerRender = ({
           idx >= Math.min(selStart, selEnd) &&
           idx <= Math.max(selStart, selEnd);
 
+        // HEX 영역
         const xHex =
           HEX_START_X + i * LAYOUT.hexByteWidth + LAYOUT.hexByteWidth / 2;
         const yHex = y + LAYOUT.rowHeight / 2;
@@ -257,6 +242,7 @@ export const useHexViewerRender = ({
         }
         offCtx.fillText(byteToHex(byte), xHex, yHex);
 
+        // ASCII 영역
         const xAsc =
           ASCII_START_X + i * LAYOUT.asciiCharWidth + LAYOUT.asciiCharWidth / 2;
         const yAsc = y + LAYOUT.rowHeight / 2;
