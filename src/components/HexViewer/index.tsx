@@ -118,15 +118,19 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   // ===== Custom Hooks =====
   const { chunkCacheRef, requestedChunksRef, getByte, checkCacheSize } = useHexViewerCache();
   
-  const { updateSelection } = useHexViewerSelection({ activeKey });
-
-  // ✅ firstRowRef를 먼저 생성 (임시 값)
   const firstRowRef = useRef(0);
+
+  const { updateSelection, getByteIndexFromMouse } = useHexViewerSelection({
+    activeKey,
+    firstRowRef,
+    fileSize,
+    rowCount,
+  });
 
   const { directRender, renderHeader } = useHexViewerRender({
     canvasRef,
     headerCanvasRef,
-    firstRowRef, // ✅ 실제 ref 전달
+    firstRowRef,
     colorsRef,
     getByte,
     fileSize,
@@ -161,7 +165,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   });
 
   const {
-    updateScrollPosition, // ✅ firstRowRef는 제거
+    updateScrollPosition,
     scrollbarDragging,
     handleScrollbarMouseDown,
     handleScrollbarTouchStart,
@@ -178,7 +182,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     fileWorker,
     requestChunks,
     directRenderRef,
-    firstRowRef, // ✅ 외부에서 생성한 ref 전달
+    firstRowRef,
   });
 
   const scrollbarTop = Math.min(
@@ -186,29 +190,6 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     (firstRowRef.current / maxFirstRow) * (canvasSize.height - scrollbarHeight) || 0
   );
 
-  const getByteIndexFromMouse = useCallback(
-    (x: number, y: number): number | null => {
-      const row = firstRowRef.current + Math.floor(y / rowHeight);
-      if (row < 0 || row >= rowCount) return null;
-
-      if (x >= HEX_START_X && x < HEX_START_X + bytesPerRow * hexByteWidth) {
-        const col = Math.floor((x - HEX_START_X) / hexByteWidth);
-        if (col < 0 || col >= bytesPerRow) return null;
-        const idx = row * bytesPerRow + col;
-        return idx >= fileSize ? null : idx;
-      }
-
-      if (x >= ASCII_START_X && x < ASCII_START_X + bytesPerRow * asciiCharWidth) {
-        const col = Math.floor((x - ASCII_START_X) / asciiCharWidth);
-        if (col < 0 || col >= bytesPerRow) return null;
-        const idx = row * bytesPerRow + col;
-        return idx >= fileSize ? null : idx;
-      }
-
-      return null;
-    },
-    [firstRowRef, rowCount, fileSize]
-  );
 
   const handleScrollPositionUpdate = useCallback(
     (position: number) => {
