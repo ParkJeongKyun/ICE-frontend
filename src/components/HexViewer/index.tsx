@@ -42,6 +42,7 @@ import { useHexViewerSelection } from './hooks/useHexViewerSelection';
 import { useHexViewerRender } from './hooks/useHexViewerRender';
 import { useHexViewerWorker } from './hooks/useHexViewerWorker';
 import { useHexViewerEvents } from './hooks/useHexViewerEvents';
+import { useHexViewerSearch } from './hooks/useHexViewerSearch';
 import { EncodingType } from '@/contexts/TabDataContext';
 
 export interface IndexInfo {
@@ -316,207 +317,21 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   const handleCopyHex = useCallback(() => handleCopy('hex'), [handleCopy]);
   const handleCopyText = useCallback(() => handleCopy('text'), [handleCopy]);
 
-  const hexSearchIdRef = useRef<number>(0);
-  const asciiSearchIdRef = useRef<number>(0);
-  const searchCleanupRef = useRef<Map<number, () => void>>(new Map());
+  const { findByOffset, findAllByHex, findAllByAsciiText, cleanup: cleanupSearch } =
+    useHexViewerSearch({
+      file,
+      fileSize,
+      fileWorker,
+      activeKey,
+      setProcessInfo,
+    });
 
   useImperativeHandle(
     ref,
     () => ({
-      findByOffset: async (offset: string) => {
-        if (offset.trim()) {
-          const byteOffset = parseInt(offset, 16);
-          if (!isNaN(byteOffset) && byteOffset >= 0 && byteOffset < fileSize) {
-            return { index: byteOffset, offset: 1 };
-          }
-        }
-        return null;
-      },
-      findAllByHex: async (hex: string) => {
-        if (!file || !hex.trim() || !fileWorker) return null;
-
-        const searchStartTabKey = activeKey;
-
-        setProcessInfo({
-          status: 'processing',
-          type: 'Hex',
-          message: '검색중...',
-        });
-
-        const hexPattern = hex.replace(/[^0-9a-fA-F]/g, '').toLowerCase();
-        if (hexPattern.length % 2 !== 0) {
-          setProcessInfo({
-            status: 'failure',
-            type: 'Hex',
-            message: 'HEX 길이 오류',
-          });
-          return null;
-        }
-
-        const patternBytes = new Uint8Array(
-          hexPattern.match(/.{2}/g)!.map((b) => parseInt(b, 16))
-        );
-
-        const prevSearchId = hexSearchIdRef.current;
-        if (prevSearchId > 0) {
-          fileWorker.postMessage({
-            type: 'CANCEL_SEARCH',
-            searchId: prevSearchId,
-          });
-          const prevCleanup = searchCleanupRef.current.get(prevSearchId);
-          if (prevCleanup) {
-            prevCleanup();
-            searchCleanupRef.current.delete(prevSearchId);
-          }
-        }
-
-        hexSearchIdRef.current += 1;
-        const searchId = hexSearchIdRef.current;
-
-        return new Promise<IndexInfo[] | null>((resolve, reject) => {
-          const timeoutId = setTimeout(() => {
-            cleanup();
-            setProcessInfo({
-              status: 'failure',
-              type: 'Hex',
-              message: '검색 타임아웃',
-            });
-            reject(new Error('Search timeout'));
-          }, 30000);
-
-          const handleMessage = (e: MessageEvent) => {
-            if (
-              e.data.type === 'SEARCH_RESULT_HEX' &&
-              e.data.searchId === searchId
-            ) {
-              cleanup();
-
-              if (searchStartTabKey !== activeKey) {
-                console.log('[HexViewer] 탭 변경으로 검색 결과 무시');
-                resolve(null);
-                return;
-              }
-
-              if (e.data.results && e.data.results.length > 0) {
-                setProcessInfo({
-                  status: 'success',
-                  type: 'Hex',
-                  message: `검색 성공 (${e.data.results.length}개)${e.data.usedWasm ? ' [WASM]' : ' [JS]'}`,
-                });
-              } else {
-                setProcessInfo({
-                  status: 'success',
-                  type: 'Hex',
-                  message: '검색 결과 없음',
-                });
-              }
-              resolve(e.data.results);
-            }
-          };
-
-          const cleanup = () => {
-            clearTimeout(timeoutId);
-            fileWorker.removeEventListener('message', handleMessage);
-            searchCleanupRef.current.delete(searchId);
-          };
-
-          searchCleanupRef.current.set(searchId, cleanup);
-          fileWorker.addEventListener('message', handleMessage);
-          fileWorker.postMessage({
-            type: 'SEARCH_HEX',
-            file,
-            pattern: patternBytes,
-            searchId,
-          });
-        });
-      },
-      findAllByAsciiText: async (text: string, ignoreCase: boolean) => {
-        if (!file || !text.trim() || !fileWorker) return null;
-
-        const searchStartTabKey = activeKey;
-
-        setProcessInfo({
-          status: 'processing',
-          type: 'Ascii',
-          message: '검색중...',
-        });
-
-        const patternBytes = asciiToBytes(text);
-
-        const prevSearchId = asciiSearchIdRef.current;
-        if (prevSearchId > 0) {
-          fileWorker.postMessage({
-            type: 'CANCEL_SEARCH',
-            searchId: prevSearchId,
-          });
-          const prevCleanup = searchCleanupRef.current.get(prevSearchId);
-          if (prevCleanup) {
-            prevCleanup();
-            searchCleanupRef.current.delete(prevSearchId);
-          }
-        }
-
-        asciiSearchIdRef.current += 1;
-        const searchId = asciiSearchIdRef.current;
-
-        return new Promise<IndexInfo[] | null>((resolve, reject) => {
-          const timeoutId = setTimeout(() => {
-            cleanup();
-            setProcessInfo({
-              status: 'failure',
-              type: 'Ascii',
-              message: '검색 타임아웃',
-            });
-            reject(new Error('Search timeout'));
-          }, 30000);
-
-          const handleMessage = (e: MessageEvent) => {
-            if (
-              e.data.type === 'SEARCH_RESULT_ASCII' &&
-              e.data.searchId === searchId
-            ) {
-              cleanup();
-
-              if (searchStartTabKey !== activeKey) {
-                console.log('[HexViewer] 탭 변경으로 검색 결과 무시');
-                resolve(null);
-                return;
-              }
-
-              if (e.data.results && e.data.results.length > 0) {
-                setProcessInfo({
-                  status: 'success',
-                  type: 'Ascii',
-                  message: `검색 성공 (${e.data.results.length}개)${e.data.usedWasm ? ' [WASM]' : ' [JS]'}`,
-                });
-              } else {
-                setProcessInfo({
-                  status: 'success',
-                  type: 'Ascii',
-                  message: '검색 결과 없음',
-                });
-              }
-              resolve(e.data.results);
-            }
-          };
-
-          const cleanup = () => {
-            clearTimeout(timeoutId);
-            fileWorker.removeEventListener('message', handleMessage);
-            searchCleanupRef.current.delete(searchId);
-          };
-
-          searchCleanupRef.current.set(searchId, cleanup);
-          fileWorker.addEventListener('message', handleMessage);
-          fileWorker.postMessage({
-            type: 'SEARCH_ASCII',
-            file,
-            pattern: patternBytes,
-            ignoreCase,
-            searchId,
-          });
-        });
-      },
+      findByOffset,
+      findAllByHex,
+      findAllByAsciiText,
       scrollToIndex: (index: number, offset: number) => {
         const targetRow = Math.floor(index / bytesPerRow);
         handleScrollPositionUpdate(targetRow);
@@ -524,20 +339,17 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
       },
     }),
     [
-      file,
-      fileSize,
+      findByOffset,
+      findAllByHex,
+      findAllByAsciiText,
       handleScrollPositionUpdate,
       updateSelection,
-      setProcessInfo,
-      fileWorker,
-      activeKey,
     ]
   );
 
   useEffect(() => {
     return () => {
-      searchCleanupRef.current.forEach((cleanup) => cleanup());
-      searchCleanupRef.current.clear();
+      cleanupSearch();
 
       if (workerMessageHandlerRef.current && fileWorker) {
         fileWorker.removeEventListener(
@@ -552,7 +364,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
         rafRef.current = null;
       }
     };
-  }, [fileWorker]);
+  }, [fileWorker, cleanupSearch]);
 
   useEffect(() => {
     if (!containerRef.current) return;
