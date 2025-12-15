@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 import { useTabData } from '@/contexts/TabDataContext';
 import { TabKey } from '@/types';
-import { LAYOUT, HEX_START_X, ASCII_START_X } from '@/constants/hexViewer';
+import { LAYOUT, HEX_START_X, ASCII_START_X, MAX_COPY_SIZE, COPY_CHUNK_SIZE } from '@/constants/hexViewer';
 
 interface UseHexViewerSelectionProps {
   activeKey: TabKey;
@@ -9,6 +9,7 @@ interface UseHexViewerSelectionProps {
   fileSize: number;
   rowCount: number;
   selectionStates: any;
+  file: File | undefined;
 }
 
 export const useHexViewerSelection = ({
@@ -17,6 +18,7 @@ export const useHexViewerSelection = ({
   fileSize,
   rowCount,
   selectionStates,
+  file,
 }: UseHexViewerSelectionProps) => {
   const { setSelectionStates } = useTabData();
   
@@ -41,20 +43,14 @@ export const useHexViewerSelection = ({
       const row = firstRowRef.current + Math.floor(y / LAYOUT.rowHeight);
       if (row < 0 || row >= rowCount) return null;
 
-      if (
-        x >= HEX_START_X &&
-        x < HEX_START_X + LAYOUT.bytesPerRow * LAYOUT.hexByteWidth
-      ) {
+      if (x >= HEX_START_X && x < HEX_START_X + LAYOUT.bytesPerRow * LAYOUT.hexByteWidth) {
         const col = Math.floor((x - HEX_START_X) / LAYOUT.hexByteWidth);
         if (col < 0 || col >= LAYOUT.bytesPerRow) return null;
         const idx = row * LAYOUT.bytesPerRow + col;
         return idx >= fileSize ? null : idx;
       }
 
-      if (
-        x >= ASCII_START_X &&
-        x < ASCII_START_X + LAYOUT.bytesPerRow * LAYOUT.asciiCharWidth
-      ) {
+      if (x >= ASCII_START_X && x < ASCII_START_X + LAYOUT.bytesPerRow * LAYOUT.asciiCharWidth) {
         const col = Math.floor((x - ASCII_START_X) / LAYOUT.asciiCharWidth);
         if (col < 0 || col >= LAYOUT.bytesPerRow) return null;
         const idx = row * LAYOUT.bytesPerRow + col;
@@ -103,6 +99,41 @@ export const useHexViewerSelection = ({
 
   const closeContextMenu = useCallback(() => setContextMenu(null), []);
 
+  const handleCopy = useCallback(
+    async (format: 'hex' | 'text') => {
+      const current = selectionStates[activeKey];
+      if (current?.start !== null && current?.end !== null && file) {
+        const start = Math.min(current.start, current.end);
+        const end = Math.max(current.start, current.end) + 1;
+        const actualEnd = start + Math.min(end - start, MAX_COPY_SIZE);
+
+        try {
+          const arrayBuffer = await file.slice(start, actualEnd).arrayBuffer();
+          const selected = new Uint8Array(arrayBuffer);
+          let result = '';
+
+          for (let i = 0; i < selected.length; i += COPY_CHUNK_SIZE) {
+            const chunk = selected.slice(i, Math.min(i + COPY_CHUNK_SIZE, selected.length));
+            if (format === 'hex') {
+              result += Array.from(chunk).map((b) => b.toString(16).padStart(2, '0')).join(' ') + ' ';
+            } else {
+              result += Array.from(chunk).map((b) => (b >= 0x20 && b <= 0x7e ? String.fromCharCode(b) : '.')).join('');
+            }
+          }
+          await navigator.clipboard.writeText(format === 'hex' ? result.trim() : result);
+        } catch (error) {
+          console.error(`${format.toUpperCase()} 복사 실패:`, error);
+          alert('복사 실패: ' + (error as Error).message);
+        }
+      }
+      setContextMenu(null);
+    },
+    [selectionStates, activeKey, file]
+  );
+
+  const handleCopyHex = useCallback(() => handleCopy('hex'), [handleCopy]);
+  const handleCopyText = useCallback(() => handleCopy('text'), [handleCopy]);
+
   return {
     // Selection state
     isDragging,
@@ -118,5 +149,9 @@ export const useHexViewerSelection = ({
     handleMouseMove,
     handleMouseUp,
     handleContextMenu,
+    
+    // Copy
+    handleCopyHex,
+    handleCopyText,
   };
 };

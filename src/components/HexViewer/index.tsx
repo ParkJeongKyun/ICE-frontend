@@ -24,8 +24,6 @@ import {
 } from './index.styles';
 import { isMobile } from 'react-device-detect';
 import {
-  MAX_COPY_SIZE,
-  COPY_CHUNK_SIZE,
   CHUNK_REQUEST_DEBOUNCE,
   LAYOUT,
   MIN_HEX_WIDTH,
@@ -121,18 +119,20 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     isDragging,
     updateSelection,
     contextMenu,
-    setContextMenu,
     closeContextMenu,
     handleMouseDown,
     handleMouseMove,
     handleMouseUp,
     handleContextMenu,
+    handleCopyHex,
+    handleCopyText,
   } = useHexViewerSelection({
     activeKey,
     firstRowRef,
     fileSize,
     rowCount,
     selectionStates,
+    file,
   });
 
   const { directRender, renderHeader } = useHexViewerRender({
@@ -366,42 +366,6 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
       }
     };
   }, [fileWorker, cleanupSearch]);
-
-  // ===== Callbacks =====
-  const handleCopy = useCallback(
-    async (format: 'hex' | 'text') => {
-      const current = selectionStates[activeKey];
-      if (current?.start !== null && current?.end !== null && file) {
-        const start = Math.min(current.start, current.end);
-        const end = Math.max(current.start, current.end) + 1;
-        const actualEnd = start + Math.min(end - start, MAX_COPY_SIZE);
-
-        try {
-          const arrayBuffer = await file.slice(start, actualEnd).arrayBuffer();
-          const selected = new Uint8Array(arrayBuffer);
-          let result = '';
-
-          for (let i = 0; i < selected.length; i += COPY_CHUNK_SIZE) {
-            const chunk = selected.slice(i, Math.min(i + COPY_CHUNK_SIZE, selected.length));
-            if (format === 'hex') {
-              result += Array.from(chunk).map((b) => b.toString(16).padStart(2, '0')).join(' ') + ' ';
-            } else {
-              result += Array.from(chunk).map((b) => (b >= 0x20 && b <= 0x7e ? String.fromCharCode(b) : '.')).join('');
-            }
-          }
-          await navigator.clipboard.writeText(format === 'hex' ? result.trim() : result);
-        } catch (error) {
-          console.error(`${format.toUpperCase()} 복사 실패:`, error);
-          alert('복사 실패: ' + (error as Error).message);
-        }
-      }
-      setContextMenu(null);
-    },
-    [selectionStates, activeKey, file, setContextMenu]
-  );
-
-  const handleCopyHex = useCallback(() => handleCopy('hex'), [handleCopy]);
-  const handleCopyText = useCallback(() => handleCopy('text'), [handleCopy]);
 
   useImperativeHandle(
     ref,
