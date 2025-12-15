@@ -2,7 +2,6 @@ import { useCallback } from 'react';
 import { useTabData } from '@/contexts/TabDataContext';
 import { TabKey } from '@/types';
 
-// ✅ Props에 setRenderTrigger 추가
 interface UseHexViewerSelectionProps {
   activeKey: TabKey;
   setRenderTrigger: React.Dispatch<React.SetStateAction<number>>;

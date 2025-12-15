@@ -11,7 +11,7 @@ import { EncodingType } from '@/contexts/TabDataContext';
 
 interface UseHexViewerRenderProps {
   canvasRef: RefObject<HTMLCanvasElement>;
-  firstRowRef: React.MutableRefObject<number>; // ✅ 수정
+  firstRowRef: React.MutableRefObject<number>;
   colorsRef: RefObject<{
     HEX_EVEN: string;
     HEX_ODD: string;
@@ -28,11 +28,11 @@ interface UseHexViewerRenderProps {
   selectionRangeRef: React.MutableRefObject<{
     start: number | null;
     end: number | null;
-  }>; // ✅ 수정
-  encodingRef: React.MutableRefObject<EncodingType>; // ✅ string → EncodingType
-  canvasSizeRef: React.MutableRefObject<{ width: number; height: number }>; // ✅ 수정
-  isInitialLoadingRef: React.MutableRefObject<boolean>; // ✅ 수정
-  hasValidDataRef: React.MutableRefObject<boolean>; // ✅ 수정
+  }>;
+  encodingRef: React.MutableRefObject<EncodingType>;
+  canvasSizeRef: React.MutableRefObject<{ width: number; height: number }>;
+  isInitialLoadingRef: React.MutableRefObject<boolean>;
+  hasValidDataRef: React.MutableRefObject<boolean>;
 }
 
 export const useHexViewerRender = ({

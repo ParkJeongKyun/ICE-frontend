@@ -22,7 +22,6 @@ import {
 } from './index.styles';
 import { isMobile } from 'react-device-detect';
 import {
-  CHUNK_SIZE,
   MAX_COPY_SIZE,
   COPY_CHUNK_SIZE,
   RENDER_INTERVAL,
@@ -43,7 +42,7 @@ import { useHexViewerSelection } from './hooks/useHexViewerSelection';
 import { useHexViewerRender } from './hooks/useHexViewerRender';
 import { useHexViewerWorker } from './hooks/useHexViewerWorker';
 import { useHexViewerEvents } from './hooks/useHexViewerEvents';
-import { EncodingType } from '@/contexts/TabDataContext'; // ✅ 추가
+import { EncodingType } from '@/contexts/TabDataContext';
 
 export interface IndexInfo {
   index: number;
@@ -63,8 +62,6 @@ export interface HexViewerRef {
 const {
   bytesPerRow,
   rowHeight,
-  font,
-  offsetWidth,
   hexByteWidth,
   asciiCharWidth,
 } = LAYOUT;
@@ -76,7 +73,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     activeKey,
     scrollPositions,
     selectionStates,
-    setScrollPositions, // ✅ 여기서만 가져오기
+    setScrollPositions,
   } = useTabData();
   const { setProcessInfo, fileWorker } = useProcess();
   const { getWorkerCache, setWorkerCache } = useWorker();
@@ -93,20 +90,17 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   const fileSize = file?.size || 0;
   const rowCount = Math.ceil(fileSize / bytesPerRow);
 
-  // ✅ 1. 먼저 state 선언
   const [canvasSize, setCanvasSize] = useState({ width: 800, height: 400 });
   const [scrollbarDragging, setScrollbarDragging] = useState(false);
   const [scrollbarStartY, setScrollbarStartY] = useState(0);
   const [scrollbarStartRow, setScrollbarStartRow] = useState(0);
   const [renderTrigger, setRenderTrigger] = useState(0);
 
-  // ✅ 2. useHexViewerSelection 호출 (setRenderTrigger 전달)
   const { updateSelection } = useHexViewerSelection({
     activeKey,
     setRenderTrigger,
   });
 
-  // ✅ 2. 그 다음 ref 선언
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const contextMenuRef = useRef<HTMLDivElement>(null);
@@ -118,13 +112,12 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   const isDraggingRef = useRef(false);
   const rafRef = useRef<number | null>(null);
   const selectionRangeRef = useRef(selectionRange);
-  const encodingRef = useRef<EncodingType>(encoding); // ✅ 타입 명시
-  const canvasSizeRef = useRef(canvasSize); // ✅ canvasSize state 사용
+  const encodingRef = useRef<EncodingType>(encoding);
+  const canvasSizeRef = useRef(canvasSize);
   const hasValidDataRef = useRef(false);
   const touchStartYRef = useRef<number | null>(null);
   const touchStartRowRef = useRef<number | null>(null);
 
-  // ✅ 3. 계산된 값들
   const visibleRows = Math.floor(canvasSize.height / rowHeight);
   const maxFirstRow = Math.max(0, rowCount - visibleRows);
   const scrollbarAreaHeight = canvasSize.height;
@@ -149,7 +142,6 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     BG: string;
   } | null>(null);
 
-  // ✅ 1. 먼저 선언: getByteIndexFromMouse
   const getByteIndexFromMouse = useCallback(
     (x: number, y: number): number | null => {
       const row = firstRowRef.current + Math.floor(y / rowHeight);
@@ -185,7 +177,6 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     ]
   );
 
-  // ✅ 2. 그 다음 선언: handleScrollPositionUpdate
   const handleScrollPositionUpdate = useCallback(
     (position: number) => {
       updateScrollPosition(position);
@@ -231,7 +222,6 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     return () => observer.disconnect();
   }, []);
 
-  // ✅ 3. Worker Hook 사용
   const { requestChunks, initializeWorker } = useHexViewerWorker({
     file,
     fileWorker,
@@ -252,10 +242,8 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     checkCacheSize,
   });
 
-  // ✅ 4. Events Hook 사용 (getByteIndexFromMouse를 인자로 전달)
   const {
     isDragging,
-    setIsDragging,
     contextMenu,
     setContextMenu,
     handleWheel,
@@ -271,17 +259,14 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     maxFirstRow,
     handleScrollPositionUpdate,
     updateSelection,
-    getByteIndexFromMouse, // ✅ 이미 선언된 함수 전달
+    getByteIndexFromMouse,
     selectionStates,
     activeKey,
   });
 
-  // ✅ 5. isDraggingRef 동기화
   useEffect(() => {
     isDraggingRef.current = isDragging;
   }, [isDragging]);
-
-  // ❌ 제거: 중복된 getByteIndexFromMouse 선언
 
   const handleCopy = useCallback(
     async (format: 'hex' | 'text') => {
@@ -662,7 +647,6 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     initializeWorker,
   ]);
 
-  // ✅ 렌더링 Hook 사용
   const { directRender } = useHexViewerRender({
     canvasRef,
     firstRowRef,
@@ -677,27 +661,29 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     hasValidDataRef,
   });
 
-  // ✅ directRender를 ref에 저장 (useEffect에서 사용하기 위해)
   const directRenderRef = useRef(directRender);
   useEffect(() => {
     directRenderRef.current = directRender;
   }, [directRender]);
 
-  // ✅ Ref 동기화는 별도 useEffect
   useEffect(() => {
     selectionRangeRef.current = selectionRange;
     encodingRef.current = encoding;
     canvasSizeRef.current = canvasSize;
   }, [selectionRange, encoding, canvasSize]);
 
-  // ✅ encoding 변경 시 렌더링 트리거 추가
   useEffect(() => {
     if (!isInitialLoadingRef.current) {
       setRenderTrigger((prev) => prev + 1);
     }
-  }, [encoding]); // ✅ encoding 변경 감지
+  }, [encoding]);
 
-  // ✅ 렌더링은 renderTrigger에만 의존
+  useEffect(() => {
+    if (!isInitialLoadingRef.current) {
+      setRenderTrigger((prev) => prev + 1);
+    }
+  }, [canvasSize]);
+
   useEffect(() => {
     if (!isInitialLoadingRef.current) {
       if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
@@ -711,9 +697,8 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
         });
       }
     }
-  }, [renderTrigger]); // ✅ 의존성 축소
+  }, [renderTrigger]);
 
-  // ✅ 통합 핸들러: 마우스 + 터치 모두 처리
   const handleScrollbarStart = useCallback(
     (clientY: number) => {
       setScrollbarDragging(true);
@@ -749,7 +734,6 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     setRenderTrigger((prev) => prev + 1);
   }, []);
 
-  // ✅ 터치 핸들러 추가 (누락되었던 부분)
   const handleTouchStart = useCallback(
     (e: React.TouchEvent) => {
       if (e.touches.length === 1) {
@@ -786,7 +770,6 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     touchStartRowRef.current = null;
   }, []);
 
-  // ✅ 터치 이벤트는 useEffect로 통합 관리
   useEffect(() => {
     if (!scrollbarDragging || !fileWorker) return;
 
@@ -846,7 +829,6 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
       });
     };
 
-    // ✅ 터치 이벤트도 통합
     const handleTouchMove = (e: TouchEvent) => {
       if (e.touches.length !== 1) return;
       e.preventDefault();

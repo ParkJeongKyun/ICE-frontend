@@ -56,7 +56,7 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [tabData, setTabData] = useState<TabData>({});
   const [activeKey, setActiveKey] = useState<TabKey>('');
-  const [encodingState, setEncodingState] = useState<EncodingType>('ansi'); // ✅ 이름 변경
+  const [encodingState, setEncodingState] = useState<EncodingType>('ansi');
   const [scrollPositions, setScrollPositions] = useState<
     Record<TabKey, number>
   >({});
@@ -91,7 +91,7 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const deleteTab = useCallback(
     (key: TabKey) => {
-      deleteWorkerCache(key); // ✅ Worker 캐시만 정리
+      deleteWorkerCache(key);
 
       setTabData((prev) => {
         const { [key]: _, ...rest } = prev;
@@ -110,7 +110,7 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
 
       setTabOrder((prev) => prev.filter((k) => k !== key));
     },
-    [deleteWorkerCache] // ✅ 의존성 간소화
+    [deleteWorkerCache]
   );
 
   useEffect(() => {
@@ -131,8 +131,8 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
       getNewKey,
       activeData,
       isEmpty,
-      encoding: encodingState, // ✅ state 사용
-      setEncoding, // ✅ 안전한 setter
+      encoding: encodingState,
+      setEncoding,
       scrollPositions,
       setScrollPositions,
       selectionStates,
@@ -147,8 +147,8 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
       activeKey,
       activeData,
       isEmpty,
-      encodingState, // ✅ 의존성 변경
-      setEncoding, // ✅ 의존성 추가
+      encodingState,
+      setEncoding,
       scrollPositions,
       selectionStates,
       tabOrder,

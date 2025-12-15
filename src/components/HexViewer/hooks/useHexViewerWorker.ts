@@ -8,17 +8,17 @@ interface UseHexViewerWorkerProps {
   fileSize: number;
   rowCount: number;
   setWorkerCache: (key: string, data: any) => void;
-  chunkCacheRef: React.MutableRefObject<Map<number, Uint8Array>>; // ✅ 수정
-  requestedChunksRef: React.MutableRefObject<Set<number>>; // ✅ 수정
+  chunkCacheRef: React.MutableRefObject<Map<number, Uint8Array>>;
+  requestedChunksRef: React.MutableRefObject<Set<number>>;
   setRenderTrigger: React.Dispatch<React.SetStateAction<number>>;
   canvasRef: React.RefObject<HTMLCanvasElement>;
   colorsRef: React.RefObject<any>;
-  isDraggingRef: React.MutableRefObject<boolean>; // ✅ 수정
+  isDraggingRef: React.MutableRefObject<boolean>;
   workerMessageHandlerRef: React.MutableRefObject<
     ((e: MessageEvent) => void) | null
-  >; // ✅ 수정
-  isInitialLoadingRef: React.MutableRefObject<boolean>; // ✅ 수정
-  canvasSizeRef: React.MutableRefObject<{ width: number; height: number }>; // ✅ 수정
+  >;
+  isInitialLoadingRef: React.MutableRefObject<boolean>;
+  canvasSizeRef: React.MutableRefObject<{ width: number; height: number }>;
   visibleRows: number;
   checkCacheSize: () => void;
 }
