@@ -5,6 +5,7 @@ import React, {
   useImperativeHandle,
   forwardRef,
   useCallback,
+  useReducer,
 } from 'react';
 import { useTabData } from '@/contexts/TabDataContext';
 import { useProcess } from '@/contexts/ProcessContext';
@@ -95,11 +96,10 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   const [scrollbarDragging, setScrollbarDragging] = useState(false);
   const [scrollbarStartY, setScrollbarStartY] = useState(0);
   const [scrollbarStartRow, setScrollbarStartRow] = useState(0);
-  const [renderTrigger, setRenderTrigger] = useState(0);
+  const [renderCount, forceRender] = useReducer((x) => x + 1, 0);
 
   const { updateSelection } = useHexViewerSelection({
     activeKey,
-    setRenderTrigger,
   });
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -183,7 +183,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   const handleScrollPositionUpdate = useCallback(
     (position: number) => {
       updateScrollPosition(position);
-      setRenderTrigger((prev) => prev + 1);
+      forceRender();
     },
     [updateScrollPosition]
   );
@@ -234,7 +234,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     setWorkerCache,
     chunkCacheRef,
     requestedChunksRef,
-    setRenderTrigger,
+    onChunkLoaded: forceRender,
     canvasRef,
     colorsRef,
     isDraggingRef,
@@ -407,7 +407,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
         firstRowRef.current = savedPosition;
 
         if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
-        setRenderTrigger((prev) => prev + 1);
+        forceRender();
 
         if (savedPosition > 0 || visibleRows > 0) {
           requestChunks(
@@ -441,8 +441,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
       (async () => {
         try {
           await initializeWorker(0);
-          // ✅ 한 번 더 렌더링 트리거 (보험)
-          setRenderTrigger((prev) => prev + 1);
+          forceRender();
         } catch (error) {
           console.error('[HexViewer] initializeWorker 실패:', error);
         }
@@ -493,13 +492,13 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
 
   useEffect(() => {
     if (!isInitialLoadingRef.current) {
-      setRenderTrigger((prev) => prev + 1);
+      forceRender();
     }
   }, [encoding]);
 
   useEffect(() => {
     if (!isInitialLoadingRef.current) {
-      setRenderTrigger((prev) => prev + 1);
+      forceRender();
     }
   }, [canvasSize]);
 
@@ -516,7 +515,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
         });
       }
     }
-  }, [renderTrigger]);
+  }, [selectionRange, encoding, canvasSize, renderCount]); // ✅ renderCount 추가
 
   const handleScrollbarStart = useCallback(
     (clientY: number) => {
@@ -550,7 +549,6 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     setScrollbarDragging(false);
     isDraggingRef.current = false;
     document.body.style.userSelect = '';
-    setRenderTrigger((prev) => prev + 1);
   }, []);
 
   const handleTouchStart = useCallback(
@@ -728,7 +726,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     }, CHUNK_REQUEST_DEBOUNCE);
 
     return () => clearTimeout(timer);
-  }, [renderTrigger, file, visibleRows, fileSize, requestChunks, fileWorker]);
+  }, [renderCount, file, visibleRows, fileSize, requestChunks, fileWorker]);
 
   useEffect(() => {
     if (!contextMenu) return;

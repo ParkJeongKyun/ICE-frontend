@@ -10,7 +10,7 @@ interface UseHexViewerWorkerProps {
   setWorkerCache: (key: string, data: any) => void;
   chunkCacheRef: React.MutableRefObject<Map<number, Uint8Array>>;
   requestedChunksRef: React.MutableRefObject<Set<number>>;
-  setRenderTrigger: React.Dispatch<React.SetStateAction<number>>;
+  onChunkLoaded: () => void;
   canvasRef: React.RefObject<HTMLCanvasElement>;
   colorsRef: React.RefObject<any>;
   isDraggingRef: React.MutableRefObject<boolean>;
@@ -32,7 +32,7 @@ export const useHexViewerWorker = ({
   setWorkerCache,
   chunkCacheRef,
   requestedChunksRef,
-  setRenderTrigger,
+  onChunkLoaded,
   canvasRef,
   colorsRef,
   isDraggingRef,
@@ -91,7 +91,7 @@ export const useHexViewerWorker = ({
             cache.set(offset, data);
             if (chunkCacheRef.current) chunkCacheRef.current = cache;
             checkCacheSize();
-            if (!isDraggingRef.current) setRenderTrigger((prev) => prev + 1);
+            if (!isDraggingRef.current) onChunkLoaded();
           }
         };
 
@@ -117,7 +117,7 @@ export const useHexViewerWorker = ({
         });
 
         isInitialLoadingRef.current = false;
-        setRenderTrigger((prev) => prev + 1);
+        onChunkLoaded();
         return;
       }
 
@@ -143,7 +143,7 @@ export const useHexViewerWorker = ({
             cache.set(offset, data);
             if (chunkCacheRef.current) chunkCacheRef.current = cache;
             checkCacheSize();
-            if (!isDraggingRef.current) setRenderTrigger((prev) => prev + 1);
+            if (!isDraggingRef.current) onChunkLoaded();
           }
         };
 
@@ -177,9 +177,7 @@ export const useHexViewerWorker = ({
         );
 
         isInitialLoadingRef.current = false;
-
-        // ✅ 렌더링 트리거 (Promise 완료 후)
-        setRenderTrigger((prev) => prev + 1);
+        onChunkLoaded();
       } catch (error) {
         console.error('[useHexViewerWorker] 초기화 실패:', error);
         throw error;
@@ -196,7 +194,7 @@ export const useHexViewerWorker = ({
       requestChunks,
       chunkCacheRef,
       requestedChunksRef,
-      setRenderTrigger,
+      onChunkLoaded,
       canvasRef,
       colorsRef,
       isDraggingRef,
