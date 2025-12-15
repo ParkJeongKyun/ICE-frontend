@@ -81,6 +81,45 @@ export const useHexViewerWorker = ({
   const initializeWorker = useCallback(
     async (initialPosition: number): Promise<void> => {
       if (!file || !fileWorker) return;
+      if (fileSize === 0) {
+        const cache = new Map<number, Uint8Array>();
+        if (chunkCacheRef.current) chunkCacheRef.current = cache;
+
+        const handleWorkerMessage = (e: MessageEvent) => {
+          const { type, offset, data } = e.data;
+          if (type === 'CHUNK_DATA') {
+            cache.set(offset, data);
+            if (chunkCacheRef.current) chunkCacheRef.current = cache;
+            checkCacheSize();
+            if (!isDraggingRef.current) setRenderTrigger((prev) => prev + 1);
+          }
+        };
+
+        if (workerMessageHandlerRef.current) {
+          fileWorker.removeEventListener(
+            'message',
+            workerMessageHandlerRef.current
+          );
+        }
+
+        fileWorker.addEventListener('message', handleWorkerMessage);
+        workerMessageHandlerRef.current = handleWorkerMessage;
+
+        setWorkerCache(activeKey, {
+          worker: fileWorker,
+          cache,
+          cleanup: () => {
+            fileWorker.removeEventListener('message', handleWorkerMessage);
+            if (workerMessageHandlerRef.current === handleWorkerMessage) {
+              workerMessageHandlerRef.current = null;
+            }
+          },
+        });
+
+        isInitialLoadingRef.current = false;
+        setRenderTrigger((prev) => prev + 1);
+        return;
+      }
 
       requestedChunksRef.current?.clear();
 

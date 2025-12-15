@@ -11,6 +11,7 @@ import { EncodingType } from '@/contexts/TabDataContext';
 
 interface UseHexViewerRenderProps {
   canvasRef: RefObject<HTMLCanvasElement>;
+  headerCanvasRef: RefObject<HTMLCanvasElement>;
   firstRowRef: React.MutableRefObject<number>;
   colorsRef: RefObject<{
     HEX_EVEN: string;
@@ -37,6 +38,7 @@ interface UseHexViewerRenderProps {
 
 export const useHexViewerRender = ({
   canvasRef,
+  headerCanvasRef,
   firstRowRef,
   colorsRef,
   getByte,
@@ -50,6 +52,52 @@ export const useHexViewerRender = ({
 }: UseHexViewerRenderProps) => {
   const offscreenCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
+  const renderHeader = useCallback(() => {
+    const headerCanvas = headerCanvasRef.current;
+    if (!headerCanvas || !colorsRef.current) return;
+
+    const ctx = headerCanvas.getContext('2d', { alpha: false });
+    if (!ctx) return;
+
+    const colors = colorsRef.current;
+    const dpr = getDevicePixelRatio();
+    const currentCanvasSize = canvasSizeRef.current;
+
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.fillStyle = colors.BG;
+    ctx.fillRect(0, 0, currentCanvasSize.width, LAYOUT.headerHeight);
+
+    ctx.save();
+    ctx.scale(dpr, 1);
+    ctx.font = LAYOUT.font;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = colors.OFFSET;
+
+    // Offset 헤더
+    ctx.fillText(
+      'Offset(h)',
+      OFFSET_START_X + LAYOUT.offsetWidth / 2,
+      LAYOUT.headerHeight / 2
+    );
+
+    // HEX 헤더 (00 01 02 ... 0F)
+    for (let i = 0; i < LAYOUT.bytesPerRow; i++) {
+      const x = HEX_START_X + i * LAYOUT.hexByteWidth + LAYOUT.hexByteWidth / 2;
+      ctx.fillText(
+        i.toString(16).padStart(2, '0').toUpperCase(),
+        x,
+        LAYOUT.headerHeight / 2
+      );
+    }
+
+    // ASCII 헤더
+    const asciiHeaderX = ASCII_START_X + (LAYOUT.bytesPerRow * LAYOUT.asciiCharWidth) / 2;
+    ctx.fillText('Decoded text', asciiHeaderX, LAYOUT.headerHeight / 2);
+
+    ctx.restore();
+  }, [headerCanvasRef, colorsRef, canvasSizeRef]);
+
   const directRender = useCallback(() => {
     const ctx = canvasRef.current?.getContext('2d', { alpha: false });
     if (!ctx || !colorsRef.current) return;
@@ -60,13 +108,15 @@ export const useHexViewerRender = ({
 
     const offscreenCanvas = offscreenCanvasRef.current;
     const currentCanvasSize = canvasSizeRef.current;
+    
+    const renderHeight = currentCanvasSize.height - LAYOUT.headerHeight;
 
     if (
       offscreenCanvas.width !== currentCanvasSize.width ||
-      offscreenCanvas.height !== currentCanvasSize.height
+      offscreenCanvas.height !== renderHeight
     ) {
       offscreenCanvas.width = currentCanvasSize.width;
-      offscreenCanvas.height = currentCanvasSize.height;
+      offscreenCanvas.height = renderHeight;
     }
 
     const offCtx = offscreenCanvas.getContext('2d', { alpha: false });
@@ -77,15 +127,38 @@ export const useHexViewerRender = ({
 
     offCtx.setTransform(1, 0, 0, 1, 0, 0);
     offCtx.fillStyle = colors.BG;
-    offCtx.fillRect(0, 0, currentCanvasSize.width, currentCanvasSize.height);
+    offCtx.fillRect(0, 0, currentCanvasSize.width, renderHeight);
+
+    // ✅ 파일 사이즈가 0인 경우 첫 번째 오프셋만 표시
+    if (fileSize === 0) {
+      offCtx.save();
+      offCtx.scale(dpr, 1);
+      offCtx.font = LAYOUT.font;
+      offCtx.textAlign = 'center';
+      offCtx.textBaseline = 'middle';
+
+      // 첫 번째 오프셋 표시
+      offCtx.fillStyle = colors.OFFSET;
+      offCtx.fillText(
+        '00000000',
+        OFFSET_START_X + LAYOUT.offsetWidth / 2,
+        LAYOUT.rowHeight / 2
+      );
+
+      offCtx.restore();
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.drawImage(offscreenCanvas, 0, 0);
+      hasValidDataRef.current = true;
+      return;
+    }
+
     offCtx.save();
     offCtx.scale(dpr, 1);
     offCtx.font = LAYOUT.font;
     offCtx.textAlign = 'center';
     offCtx.textBaseline = 'middle';
 
-    const renderRows =
-      Math.ceil(currentCanvasSize.height / LAYOUT.rowHeight) + 1;
+    const renderRows = Math.ceil(renderHeight / LAYOUT.rowHeight) + 1;
     const currentFirstRow = firstRowRef.current;
     const currentSelectionRange = selectionRangeRef.current;
     const currentEncoding = encodingRef.current;
@@ -225,5 +298,5 @@ export const useHexViewerRender = ({
     hasValidDataRef,
   ]);
 
-  return { directRender };
+  return { directRender, renderHeader };
 };

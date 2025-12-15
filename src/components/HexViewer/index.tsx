@@ -14,6 +14,7 @@ import {
   CanvasContainer,
   CanvasArea,
   StyledCanvas,
+  HeaderCanvas,
   VirtualScrollbar,
   ScrollbarThumb,
   ContextMenu,
@@ -102,6 +103,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   });
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const headerCanvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const contextMenuRef = useRef<HTMLDivElement>(null);
   const scrollbarRef = useRef<HTMLDivElement>(null);
@@ -118,7 +120,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   const touchStartYRef = useRef<number | null>(null);
   const touchStartRowRef = useRef<number | null>(null);
 
-  const visibleRows = Math.floor(canvasSize.height / rowHeight);
+  const visibleRows = Math.floor((canvasSize.height - LAYOUT.headerHeight) / rowHeight);
   const maxFirstRow = Math.max(0, rowCount - visibleRows);
   const scrollbarAreaHeight = canvasSize.height;
   const scrollbarHeight = Math.max(
@@ -130,6 +132,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     maxScrollbarTop,
     (firstRowRef.current / maxFirstRow) * maxScrollbarTop || 0
   );
+  const shouldShowScrollbar = rowCount > visibleRows && fileSize > 0;
 
   const colorsRef = useRef<{
     HEX_EVEN: string;
@@ -458,8 +461,9 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     initializeWorker,
   ]);
 
-  const { directRender } = useHexViewerRender({
+  const { directRender, renderHeader } = useHexViewerRender({
     canvasRef,
+    headerCanvasRef,
     firstRowRef,
     colorsRef,
     getByte,
@@ -476,6 +480,10 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   useEffect(() => {
     directRenderRef.current = directRender;
   }, [directRender]);
+
+  useEffect(() => {
+    renderHeader();
+  }, [renderHeader, canvasSize]);
 
   useEffect(() => {
     selectionRangeRef.current = selectionRange;
@@ -750,13 +758,22 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     >
       <CanvasContainer ref={containerRef} tabIndex={0}>
         <CanvasArea style={{ minWidth: `${MIN_HEX_WIDTH}px` }}>
+          <HeaderCanvas
+            ref={headerCanvasRef}
+            width={canvasSize.width}
+            height={LAYOUT.headerHeight}
+            style={{
+              width: `${canvasSize.width / getDevicePixelRatio()}px`,
+              height: `${LAYOUT.headerHeight}px`,
+            }}
+          />
           <StyledCanvas
             ref={canvasRef}
             width={canvasSize.width}
-            height={canvasSize.height}
+            height={canvasSize.height - LAYOUT.headerHeight}
             style={{
               width: `${canvasSize.width / getDevicePixelRatio()}px`,
-              height: `${canvasSize.height}px`,
+              height: `${canvasSize.height - LAYOUT.headerHeight}px`,
             }}
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
@@ -765,7 +782,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
           />
         </CanvasArea>
       </CanvasContainer>
-      {rowCount > visibleRows && (
+      {shouldShowScrollbar && (
         <VirtualScrollbar>
           <ScrollbarThumb
             ref={scrollbarRef}

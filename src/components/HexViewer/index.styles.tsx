@@ -28,15 +28,22 @@ export const CanvasArea = styled.div`
   height: 100%;
   position: relative;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+`;
+
+// 헤더 캔버스
+export const HeaderCanvas = styled.canvas`
+  display: block;
+  flex-shrink: 0;
+  z-index: 10;
+  background-color: var(--hex-bg, #1e1e1e);
+  border-bottom: 1px solid var(--hex-offset, #858585);
 `;
 
 // 스타일 캔버스
 export const StyledCanvas = styled.canvas`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  flex: 1;
   display: block;
   cursor: text;
   pointer-events: auto;
