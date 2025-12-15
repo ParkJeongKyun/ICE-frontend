@@ -54,9 +54,6 @@ export const ProcessProvider: React.FC<{ children: React.ReactNode }> = ({
     [processInfo.status]
   );
 
-  // 메인 스레드에서는 WASM 로드하지 않음
-  console.log('[Main] All WASM operations are handled by Worker');
-
   useEffect(() => {
     try {
       const newFileWorker = new Worker(
