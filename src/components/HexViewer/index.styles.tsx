@@ -37,8 +37,6 @@ export const HeaderCanvas = styled.canvas`
   display: block;
   flex-shrink: 0;
   z-index: 10;
-  background-color: var(--hex-bg, #1e1e1e);
-  border-bottom: 1px solid var(--hex-offset, #858585);
 `;
 
 // 스타일 캔버스
