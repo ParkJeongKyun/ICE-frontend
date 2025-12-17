@@ -1,3 +1,17 @@
+declare global {
+  class Go {
+    constructor();
+    run(instance: WebAssembly.Instance): Promise<void>;
+    importObject: any;
+    argv: string[];
+    env: any;
+    exited: boolean;
+    exit(code: number): void;
+    _pendingEvent: any;
+    _resume(): void;
+  }
+}
+
 export type WorkerMessageType =
   | 'CANCEL_SEARCH'
   | 'RELOAD_WASM'
@@ -31,14 +45,26 @@ export interface SearchOptions {
   maxResults?: number;
 }
 
+export interface SearchResult {
+  indices?: number[];
+  error?: string;
+}
+
 export interface WasmSearchFunction {
   (
     data: Uint8Array,
     pattern: Uint8Array,
     options?: SearchOptions
-  ): { indices?: number[] };
+  ): SearchResult;
+}
+
+export interface ExifResult {
+  error?: string;
+  exif_data?: string;
+  mime_type?: string;
+  extension?: string;
 }
 
 export interface WasmExifFunction {
-  (data: Uint8Array): any;
+  (data: Uint8Array): ExifResult;
 }
