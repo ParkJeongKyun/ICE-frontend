@@ -37,7 +37,6 @@ self.addEventListener('unhandledrejection', (event) => {
 const MAX_CONCURRENT = 8;
 const queue: ChunkTask[] = [];
 let processingCount = 0;
-let currentSearchId: number | null = null;
 let cancelSearch = false;
 let cancelledSearchIds = new Set<number>();
 
@@ -195,7 +194,6 @@ self.addEventListener('message', (e: MessageEvent<WorkerMessage>) => {
     case 'SEARCH_HEX':
     case 'SEARCH_ASCII':
       cancelSearch = false;
-      currentSearchId = searchId;
       if (searchId !== undefined) {
         cancelledSearchIds.forEach((id) => {
           if (id < searchId - 10) {
@@ -237,7 +235,14 @@ async function processExif(imageData: Uint8Array) {
 
   try {
     const result = wasmExifFunc(imageData);
-    self.postMessage({ type: 'EXIF_RESULT', result });
+    
+    // 심각한 에러만 EXIF_ERROR로 처리
+    if (result.error) {
+      self.postMessage({ type: 'EXIF_ERROR', error: result.error });
+    } else {
+      // EXIF 데이터가 없어도 정상 응답
+      self.postMessage({ type: 'EXIF_RESULT', result });
+    }
   } catch (error) {
     self.postMessage({ type: 'EXIF_ERROR', error: (error as Error).message });
   }
@@ -316,6 +321,19 @@ async function searchInFile(
         maxResults: maxResults - totalFound,
       };
       const result = wasmSearchFunc(currentChunk, pattern, searchOptions);
+      
+      // Handle both error and indices
+      if (result.error) {
+        console.error('[Worker] WASM search error:', result.error);
+        self.postMessage({
+          type: type === 'HEX' ? 'SEARCH_RESULT_HEX' : 'SEARCH_RESULT_ASCII',
+          results: null,
+          searchId,
+          error: result.error,
+        });
+        return;
+      }
+      
       chunkResults = result.indices || [];
     } catch (error) {
       console.error('[Worker] WASM search error:', error);
