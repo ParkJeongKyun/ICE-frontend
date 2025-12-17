@@ -1,5 +1,14 @@
 /// <reference lib="webworker" />
 
+import type {
+  WorkerMessage,
+  WorkerMessageType,
+  ChunkTask,
+  SearchOptions,
+  WasmSearchFunction,
+  WasmExifFunction,
+} from '../types/fileReader.worker';
+
 declare const self: DedicatedWorkerGlobalScope;
 
 // ✅ 개발 환경에서만 로그
@@ -26,12 +35,7 @@ self.addEventListener('unhandledrejection', (event) => {
 
 // ✅ 동시 처리 제한 증가 및 우선순위 큐 추가
 const MAX_CONCURRENT = 8;
-const queue: Array<{
-  file: File;
-  offset: number;
-  length: number;
-  priority: number;
-}> = [];
+const queue: ChunkTask[] = [];
 let processingCount = 0;
 let currentSearchId: number | null = null;
 let cancelSearch = false;
@@ -40,14 +44,8 @@ let cancelledSearchIds = new Set<number>();
 // WASM 관련 변수
 let wasmReady = false;
 let wasmInitializing = false;
-let wasmSearchFunc:
-  | ((
-      data: Uint8Array,
-      pattern: Uint8Array,
-      options?: { ignoreCase?: boolean; maxResults?: number }
-    ) => { indices?: number[] })
-  | null = null;
-let wasmExifFunc: ((data: Uint8Array) => any) | null = null;
+let wasmSearchFunc: WasmSearchFunction | null = null;
+let wasmExifFunc: WasmExifFunction | null = null;
 let goInstance: any = null;
 
 // Worker 내부에서 WASM 초기화
@@ -161,7 +159,7 @@ async function processQueue() {
   }
 }
 
-self.addEventListener('message', (e) => {
+self.addEventListener('message', (e: MessageEvent<WorkerMessage>) => {
   const {
     type,
     file,
@@ -313,10 +311,11 @@ async function searchInFile(
     let chunkResults: number[] = [];
 
     try {
-      const result = wasmSearchFunc(currentChunk, pattern, {
+      const searchOptions: SearchOptions = {
         ignoreCase: type === 'ASCII' ? ignoreCase : false,
         maxResults: maxResults - totalFound,
-      });
+      };
+      const result = wasmSearchFunc(currentChunk, pattern, searchOptions);
       chunkResults = result.indices || [];
     } catch (error) {
       console.error('[Worker] WASM search error:', error);

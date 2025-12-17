@@ -7,6 +7,7 @@ import React, {
   useMemo,
   useEffect,
 } from 'react';
+import type { WorkerMessage } from '@/types/fileReader.worker';
 
 export type ProcessType = 'Exif' | 'Hex' | 'Ascii';
 export type ProcessStatus = 'idle' | 'processing' | 'success' | 'failure';
@@ -60,7 +61,7 @@ export const ProcessProvider: React.FC<{ children: React.ReactNode }> = ({
         new URL('../../workers/fileReader.worker.ts', import.meta.url)
       );
 
-      newFileWorker.onmessage = (e) => {
+      newFileWorker.onmessage = (e: MessageEvent<WorkerMessage>) => {
         const { type } = e.data;
 
         if (type === 'WASM_READY') {
