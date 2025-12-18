@@ -8,7 +8,6 @@ import React, {
 import { TabKey } from '@/types';
 
 interface WorkerCacheData {
-  worker: Worker;
   cache: Map<number, Uint8Array>;
   cleanup: () => void;
 }

@@ -15,12 +15,11 @@ const TabWindow: React.FC = () => {
   const tabsContainerRef = useRef<HTMLDivElement>(null);
   const {
     tabData,
-    setTabData,
     activeKey,
     setActiveKey,
     activeData,
     isEmpty,
-    deleteTab, // ✅ cleanupTab → deleteTab
+    deleteTab,
     tabOrder,
     reorderTabs,
   } = useTabData();
@@ -53,10 +52,9 @@ const TabWindow: React.FC = () => {
         setActiveKey(tabOrder[nextIndex]);
       }
 
-      // ✅ deleteTab 호출 - TabDataContext에서 모든 정리 처리
       deleteTab(key);
     },
-    [activeKey, tabOrder, setActiveKey, deleteTab] // ✅ setTabData 제거, deleteTab 추가
+    [activeKey, tabOrder, setActiveKey, deleteTab]
   );
 
   const handleDragStart = useCallback(

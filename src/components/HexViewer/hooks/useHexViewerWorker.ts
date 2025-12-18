@@ -106,7 +106,6 @@ export const useHexViewerWorker = ({
         workerMessageHandlerRef.current = handleWorkerMessage;
 
         setWorkerCache(activeKey, {
-          worker: fileWorker,
           cache,
           cleanup: () => {
             fileWorker.removeEventListener('message', handleWorkerMessage);
@@ -158,7 +157,6 @@ export const useHexViewerWorker = ({
         workerMessageHandlerRef.current = handleWorkerMessage;
 
         setWorkerCache(activeKey, {
-          worker: fileWorker,
           cache,
           cleanup: () => {
             fileWorker.removeEventListener('message', handleWorkerMessage);
