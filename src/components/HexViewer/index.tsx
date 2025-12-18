@@ -37,7 +37,6 @@ import { useHexViewerSelection } from './hooks/useHexViewerSelection';
 import { useHexViewerRender } from './hooks/useHexViewerRender';
 import { useHexViewerWorker } from './hooks/useHexViewerWorker';
 import { useHexViewerSearch } from './hooks/useHexViewerSearch';
-import { EncodingType } from '@/contexts/TabDataContext';
 
 export interface IndexInfo {
   index: number;
@@ -85,8 +84,6 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   const isInitialLoadingRef = useRef(false);
   const isDraggingRef = useRef(false);
   const rafRef = useRef<number | null>(null);
-  const selectionRangeRef = useRef(selectionRange);
-  const encodingRef = useRef<EncodingType>(encoding);
   const canvasSizeRef = useRef(canvasSize);
   const hasValidDataRef = useRef(false);
   const tabInitialized = useRef(new Set<string>());
@@ -138,8 +135,6 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     getByte,
     fileSize,
     rowCount,
-    selectionRangeRef,
-    encodingRef,
     canvasSizeRef,
     isInitialLoadingRef,
     hasValidDataRef,
@@ -304,10 +299,8 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   }, [renderHeader, canvasSize]);
 
   useEffect(() => {
-    selectionRangeRef.current = selectionRange;
-    encodingRef.current = encoding;
     canvasSizeRef.current = canvasSize;
-  }, [selectionRange, encoding, canvasSize]);
+  }, [canvasSize]);
 
   useEffect(() => {
     if (!isInitialLoadingRef.current) forceRender();

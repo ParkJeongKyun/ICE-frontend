@@ -1,4 +1,5 @@
 import { useRef, useCallback, RefObject } from 'react';
+import { useTabData } from '@/contexts/TabDataContext';
 import { getDevicePixelRatio } from '@/utils/hexViewer';
 import { byteToHex, byteToChar } from '@/utils/encoding';
 import {
@@ -7,7 +8,6 @@ import {
   HEX_START_X,
   ASCII_START_X,
 } from '@/constants/hexViewer';
-import { EncodingType } from '@/contexts/TabDataContext';
 
 interface UseHexViewerRenderProps {
   canvasRef: RefObject<HTMLCanvasElement>;
@@ -26,11 +26,6 @@ interface UseHexViewerRenderProps {
   getByte: (index: number) => number | null;
   fileSize: number;
   rowCount: number;
-  selectionRangeRef: React.MutableRefObject<{
-    start: number | null;
-    end: number | null;
-  }>;
-  encodingRef: React.MutableRefObject<EncodingType>;
   canvasSizeRef: React.MutableRefObject<{ width: number; height: number }>;
   isInitialLoadingRef: React.MutableRefObject<boolean>;
   hasValidDataRef: React.MutableRefObject<boolean>;
@@ -44,12 +39,11 @@ export const useHexViewerRender = ({
   getByte,
   fileSize,
   rowCount,
-  selectionRangeRef,
-  encodingRef,
   canvasSizeRef,
   isInitialLoadingRef,
   hasValidDataRef,
 }: UseHexViewerRenderProps) => {
+  const { activeKey, encoding, selectionStates } = useTabData();
   const offscreenCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const renderHeader = useCallback(() => {
@@ -160,8 +154,11 @@ export const useHexViewerRender = ({
 
     const renderRows = Math.ceil(renderHeight / LAYOUT.rowHeight) + 1;
     const currentFirstRow = firstRowRef.current;
-    const currentSelectionRange = selectionRangeRef.current;
-    const currentEncoding = encodingRef.current;
+    const currentSelectionRange = selectionStates[activeKey] || {
+      start: null,
+      end: null,
+    };
+    const currentEncoding = encoding;
 
     let validByteCount = 0;
 
@@ -277,8 +274,9 @@ export const useHexViewerRender = ({
     getByte,
     fileSize,
     rowCount,
-    selectionRangeRef,
-    encodingRef,
+    activeKey,
+    encoding,
+    selectionStates,
     canvasSizeRef,
     isInitialLoadingRef,
     hasValidDataRef,
