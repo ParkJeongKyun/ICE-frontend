@@ -5,9 +5,7 @@ import React, {
   SetStateAction,
   Dispatch,
   useMemo,
-  useEffect,
 } from 'react';
-import type { WorkerMessage } from '@/types/fileReader.worker';
 
 export type ProcessType = 'Exif' | 'Hex' | 'Ascii';
 export type ProcessStatus = 'idle' | 'processing' | 'success' | 'failure';
@@ -20,14 +18,11 @@ interface ProcessInfo {
 }
 
 interface ProcessContextType {
-  fileWorker: Worker | null;
-  result: string[];
   processInfo: ProcessInfo;
   setProcessInfo: Dispatch<SetStateAction<ProcessInfo>>;
   isProcessing: boolean;
   isSuccess: boolean;
   isFailure: boolean;
-  isWasmReady: boolean;
 }
 
 const ProcessContext = createContext<ProcessContextType | undefined>(undefined);
@@ -35,9 +30,6 @@ const ProcessContext = createContext<ProcessContextType | undefined>(undefined);
 export const ProcessProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [fileWorker, setFileWorker] = useState<Worker | null>(null);
-  const [isWasmReady, setIsWasmReady] = useState(false);
-  const [result, setResult] = useState<string[]>([]);
   const [processInfo, setProcessInfo] = useState<ProcessInfo>({
     status: 'idle',
   });
@@ -55,59 +47,15 @@ export const ProcessProvider: React.FC<{ children: React.ReactNode }> = ({
     [processInfo.status]
   );
 
-  useEffect(() => {
-    try {
-      const newFileWorker = new Worker(
-        new URL('../../workers/fileReader.worker.ts', import.meta.url)
-      );
-
-      newFileWorker.onmessage = (e: MessageEvent<WorkerMessage>) => {
-        const { type } = e.data;
-
-        if (type === 'WASM_READY') {
-          console.log('[ProcessContext] ✅ WASM is ready!');
-          setIsWasmReady(true);
-        } else if (type === 'WASM_ERROR') {
-          console.error('[ProcessContext] ❌ WASM load failed:', e.data.error);
-          setIsWasmReady(false);
-        }
-      };
-
-      newFileWorker.onerror = (error) => {
-        console.error('[ProcessContext] ❌ Worker error:', error.message);
-        setIsWasmReady(false);
-      };
-
-      setFileWorker(newFileWorker);
-
-      return () => {
-        newFileWorker.terminate();
-      };
-    } catch (error) {
-      console.error('[ProcessContext] ❌ Failed to create worker:', error);
-    }
-  }, []);
-
   const value = useMemo(
     () => ({
-      fileWorker,
-      result,
       processInfo,
       setProcessInfo,
       isProcessing,
       isSuccess,
       isFailure,
-      isWasmReady,
     }),
-    [
-      fileWorker,
-      result,
-      processInfo,
-      isProcessing,
-      isSuccess,
-      isFailure,
-      isWasmReady,
-    ]
+    [processInfo, isProcessing, isSuccess, isFailure]
   );
 
   return (

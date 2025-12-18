@@ -7,6 +7,7 @@ import { ProcessStatus, useProcess } from '@/contexts/ProcessContext';
 import { useTabData } from '@/contexts/TabDataContext';
 import { readFileForExif } from '@/utils/fileReader';
 import { parseExifData } from '@/utils/exifParser';
+import { useWorker } from '@/contexts/WorkerContext';
 
 interface Props {
   hexViewerRef: Ref<HexViewerRef>;
@@ -24,8 +25,8 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
   ref
 ) => {
   const { setTabData, setActiveKey, getNewKey } = useTabData();
-  const { fileWorker, setProcessInfo, isProcessing, isWasmReady } =
-    useProcess();
+  const { fileWorker, isWasmReady } = useWorker();
+  const { setProcessInfo, isProcessing } = useProcess();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const toolsMenuRef = useRef<HTMLDivElement>(null);
   const [showToolsMenu, setShowToolsMenu] = useState(false);

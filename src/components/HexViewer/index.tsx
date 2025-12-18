@@ -66,8 +66,8 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     selectionStates,
     setScrollPositions,
   } = useTabData();
-  const { setProcessInfo, fileWorker } = useProcess();
-  const { getWorkerCache, setWorkerCache } = useWorker();
+  const { setProcessInfo } = useProcess();
+  const { getWorkerCache, setWorkerCache, fileWorker } = useWorker();
 
   // ===== Basic States =====
   const file = activeData?.file;

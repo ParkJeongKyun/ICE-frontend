@@ -36,6 +36,7 @@ import { isMobile } from 'react-device-detect';
 import { encodingOptions } from '@/contexts/TabDataContext/index';
 import { useTabData, EncodingType } from '@/contexts/TabDataContext';
 import Logo from '@/components/common/Icons/Logo';
+import { useWorker } from '@/contexts/WorkerContext';
 
 const MainLayout: React.FC = () => {
   // ✅ TabDataContext에서 선택 영역 가져오기
@@ -51,7 +52,8 @@ const MainLayout: React.FC = () => {
   const [modalContentKey, setModalContentKey] = useState<string | null>(null);
 
   // 처리중인 파일 정보
-  const { processInfo, isProcessing, isWasmReady } = useProcess();
+  const { isWasmReady } = useWorker();
+  const { processInfo, isProcessing } = useProcess();
   const { fileName } = processInfo;
 
   // ✅ 선택된 셀 정보 - TabDataContext에서 가져오기
