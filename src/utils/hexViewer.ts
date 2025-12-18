@@ -70,3 +70,20 @@ export function getCSSColor(varName: string, fallback: string): string {
     .trim();
   return value || fallback;
 }
+
+/**
+ * 스크롤바 위치를 계산합니다.
+ */
+export const calculateScrollbarTop = (
+  currentRow: number,
+  maxFirstRow: number,
+  canvasHeight: number,
+  scrollbarHeight: number
+): number => {
+  if (maxFirstRow <= 0) return 0;
+
+  const ratio = currentRow / maxFirstRow;
+  const scrollbarTop = ratio * (canvasHeight - scrollbarHeight);
+
+  return Math.min(canvasHeight - scrollbarHeight, Math.max(0, scrollbarTop));
+};

@@ -15,12 +15,6 @@ export const MAX_COPY_SIZE = 256 * 1024;
 // 청크 복사 크기 (100KB)
 export const COPY_CHUNK_SIZE = 100000;
 
-// Worker 동시 처리 제한
-export const MAX_CONCURRENT_WORKERS = 5;
-
-// 렌더링 간격 (ms)
-export const RENDER_INTERVAL = 150;
-
 // 업데이트 간격 (ms)
 export const UPDATE_INTERVAL = 50;
 

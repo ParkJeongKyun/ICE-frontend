@@ -6,9 +6,9 @@ import React, {
   forwardRef,
   useCallback,
   useReducer,
+  useMemo,
 } from 'react';
 import { useTabData } from '@/contexts/TabDataContext';
-import { useProcess } from '@/contexts/ProcessContext';
 import { useWorker } from '@/contexts/WorkerContext';
 import {
   HexViewerContainer,
@@ -30,7 +30,7 @@ import {
   COLOR_KEYS,
   DEFAULT_COLORS,
 } from '@/constants/hexViewer';
-import { getDevicePixelRatio } from '@/utils/hexViewer';
+import { getDevicePixelRatio, calculateScrollbarTop } from '@/utils/hexViewer';
 import { useHexViewerCache } from './hooks/useHexViewerCache';
 import { useHexViewerScroll } from './hooks/useHexViewerScroll';
 import { useHexViewerSelection } from './hooks/useHexViewerSelection';
@@ -57,17 +57,15 @@ export interface HexViewerRef {
 const { bytesPerRow, rowHeight } = LAYOUT;
 
 const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
-  // ===== Contexts =====
   const {
     activeData,
     encoding,
     activeKey,
     scrollPositions,
-    selectionStates,
     setScrollPositions,
+    selectionStates,
   } = useTabData();
-  const { setProcessInfo } = useProcess();
-  const { getWorkerCache, setWorkerCache, fileWorker } = useWorker();
+  const { fileWorker, getWorkerCache } = useWorker();
 
   // ===== Basic States =====
   const file = activeData?.file;
@@ -84,7 +82,6 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const contextMenuRef = useRef<HTMLDivElement>(null);
   const scrollbarRef = useRef<HTMLDivElement>(null);
-  const workerMessageHandlerRef = useRef<((e: MessageEvent) => void) | null>(null);
   const isInitialLoadingRef = useRef(false);
   const isDraggingRef = useRef(false);
   const rafRef = useRef<number | null>(null);
@@ -112,7 +109,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
 
   // ===== Custom Hooks =====
   const { chunkCacheRef, requestedChunksRef, getByte, checkCacheSize } = useHexViewerCache();
-  
+
   const firstRowRef = useRef(0);
 
   const {
@@ -127,11 +124,9 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     handleCopyHex,
     handleCopyText,
   } = useHexViewerSelection({
-    activeKey,
     firstRowRef,
     fileSize,
     rowCount,
-    selectionStates,
     file,
   });
 
@@ -154,18 +149,14 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
 
   const { requestChunks, initializeWorker } = useHexViewerWorker({
     file,
-    fileWorker,
-    activeKey,
     fileSize,
     rowCount,
-    setWorkerCache,
     chunkCacheRef,
     requestedChunksRef,
     onChunkLoaded: forceRender,
     canvasRef,
     colorsRef,
     isDraggingRef,
-    workerMessageHandlerRef,
     isInitialLoadingRef,
     canvasSizeRef,
     visibleRows,
@@ -183,7 +174,6 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     handleScrollbarTouchStart,
     scrollbarDragEffect,
   } = useHexViewerScroll({
-    activeKey,
     rowCount,
     visibleRows,
     maxFirstRow,
@@ -191,29 +181,31 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     scrollbarHeight,
     file,
     fileSize,
-    fileWorker,
     requestChunks,
-    directRenderRef,
     firstRowRef,
   });
 
-
-  const scrollbarTop = Math.min(
-    canvasSize.height - scrollbarHeight,
-    (firstRowRef.current / maxFirstRow) * (canvasSize.height - scrollbarHeight) || 0
+  const scrollbarTop = useMemo(
+    () =>
+      calculateScrollbarTop(
+        firstRowRef.current,
+        maxFirstRow,
+        canvasSize.height,
+        scrollbarHeight
+      ),
+    [maxFirstRow, canvasSize.height, scrollbarHeight, renderCount]
   );
 
   const handleScrollPositionUpdate = useCallback(
     (position: number) => {
       updateScrollPosition(position);
-      forceRender();
     },
     [updateScrollPosition]
   );
 
   const {
     findByOffset, findAllByHex, findAllByAsciiText, cleanup: cleanupSearch
-  } = useHexViewerSearch({ file, fileSize, fileWorker, activeKey, setProcessInfo });
+  } = useHexViewerSearch({ file, fileSize });
 
   // ===== Effects =====
   useEffect(() => {
@@ -276,6 +268,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
         existingCache.cache.forEach((_, offset) => requestedChunksRef.current.add(offset));
         chunkCacheRef.current = existingCache.cache;
         firstRowRef.current = savedPosition;
+
         if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
         forceRender();
         if (savedPosition > 0 || visibleRows > 0) {
@@ -293,7 +286,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
       chunkCacheRef.current = new Map();
       requestedChunksRef.current.clear();
       firstRowRef.current = 0;
-      setScrollPositions((prev) => (prev[activeKey] === 0 ? prev : { ...prev, [activeKey]: 0 }));
+      setScrollPositions((prev) => ({ ...prev, [activeKey]: 0 }));
 
       (async () => {
         try {
@@ -356,16 +349,12 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   useEffect(() => {
     return () => {
       cleanupSearch();
-      if (workerMessageHandlerRef.current && fileWorker) {
-        fileWorker.removeEventListener('message', workerMessageHandlerRef.current);
-        workerMessageHandlerRef.current = null;
-      }
       if (rafRef.current !== null) {
         cancelAnimationFrame(rafRef.current);
         rafRef.current = null;
       }
     };
-  }, [fileWorker, cleanupSearch]);
+  }, [cleanupSearch]);
 
   useImperativeHandle(
     ref,
@@ -417,7 +406,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
             ref={scrollbarRef}
             $dragging={scrollbarDragging.toString()}
             $height={scrollbarHeight}
-            $top={scrollbarTop}
+            $translateY={scrollbarTop}
             onMouseDown={handleScrollbarMouseDown}
             onTouchStart={handleScrollbarTouchStart}
           />

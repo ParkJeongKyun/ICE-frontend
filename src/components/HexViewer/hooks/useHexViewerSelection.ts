@@ -1,26 +1,21 @@
 import { useCallback, useState } from 'react';
 import { useTabData } from '@/contexts/TabDataContext';
-import { TabKey } from '@/types';
 import { LAYOUT, HEX_START_X, ASCII_START_X, MAX_COPY_SIZE, COPY_CHUNK_SIZE } from '@/constants/hexViewer';
 
 interface UseHexViewerSelectionProps {
-  activeKey: TabKey;
   firstRowRef: React.MutableRefObject<number>;
   fileSize: number;
   rowCount: number;
-  selectionStates: any;
   file: File | undefined;
 }
 
 export const useHexViewerSelection = ({
-  activeKey,
   firstRowRef,
   fileSize,
   rowCount,
-  selectionStates,
   file,
 }: UseHexViewerSelectionProps) => {
-  const { setSelectionStates } = useTabData();
+  const { activeKey, selectionStates, setSelectionStates } = useTabData();
   
   // ===== Selection State =====
   const [isDragging, setIsDragging] = useState(false);

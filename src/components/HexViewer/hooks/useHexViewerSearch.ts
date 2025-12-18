@@ -1,22 +1,23 @@
-import { useRef, useCallback, useImperativeHandle } from 'react';
+import { useRef, useCallback } from 'react';
+import { useTabData } from '@/contexts/TabDataContext';
+import { useProcess } from '@/contexts/ProcessContext';
+import { useWorker } from '@/contexts/WorkerContext';
 import { asciiToBytes } from '@/utils/byteSearch';
 import { IndexInfo } from '../index';
 
 interface UseHexViewerSearchProps {
   file: File | undefined;
   fileSize: number;
-  fileWorker: Worker | null;
-  activeKey: string;
-  setProcessInfo: (info: any) => void;
 }
 
 export const useHexViewerSearch = ({
   file,
   fileSize,
-  fileWorker,
-  activeKey,
-  setProcessInfo,
 }: UseHexViewerSearchProps) => {
+  const { activeKey } = useTabData();
+  const { setProcessInfo } = useProcess();
+  const { fileWorker } = useWorker();
+
   const hexSearchIdRef = useRef<number>(0);
   const asciiSearchIdRef = useRef<number>(0);
   const searchCleanupRef = useRef<Map<number, () => void>>(new Map());

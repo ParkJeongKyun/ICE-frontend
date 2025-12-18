@@ -1,22 +1,18 @@
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
+import { useTabData } from '@/contexts/TabDataContext';
+import { useWorker } from '@/contexts/WorkerContext';
 import { CHUNK_SIZE, LAYOUT } from '@/constants/hexViewer';
 
 interface UseHexViewerWorkerProps {
   file: File | undefined;
-  fileWorker: Worker | null;
-  activeKey: string;
   fileSize: number;
   rowCount: number;
-  setWorkerCache: (key: string, data: any) => void;
   chunkCacheRef: React.MutableRefObject<Map<number, Uint8Array>>;
   requestedChunksRef: React.MutableRefObject<Set<number>>;
   onChunkLoaded: () => void;
   canvasRef: React.RefObject<HTMLCanvasElement>;
   colorsRef: React.RefObject<any>;
   isDraggingRef: React.MutableRefObject<boolean>;
-  workerMessageHandlerRef: React.MutableRefObject<
-    ((e: MessageEvent) => void) | null
-  >;
   isInitialLoadingRef: React.MutableRefObject<boolean>;
   canvasSizeRef: React.MutableRefObject<{ width: number; height: number }>;
   visibleRows: number;
@@ -25,23 +21,25 @@ interface UseHexViewerWorkerProps {
 
 export const useHexViewerWorker = ({
   file,
-  fileWorker,
-  activeKey,
   fileSize,
   rowCount,
-  setWorkerCache,
   chunkCacheRef,
   requestedChunksRef,
   onChunkLoaded,
   canvasRef,
   colorsRef,
   isDraggingRef,
-  workerMessageHandlerRef,
   isInitialLoadingRef,
   canvasSizeRef,
   visibleRows,
   checkCacheSize,
 }: UseHexViewerWorkerProps) => {
+  const { activeKey } = useTabData();
+  const { fileWorker, setWorkerCache } = useWorker();
+  const workerMessageHandlerRef = useRef<((e: MessageEvent) => void) | null>(
+    null
+  );
+
   const requestChunks = useCallback(
     (
       startRow: number,
@@ -122,7 +120,6 @@ export const useHexViewerWorker = ({
 
       requestedChunksRef.current?.clear();
 
-      // ✅ 초기 청크 로드
       const startByte = initialPosition * LAYOUT.bytesPerRow;
       const chunkOffset = Math.floor(startByte / CHUNK_SIZE) * CHUNK_SIZE;
 
@@ -135,7 +132,6 @@ export const useHexViewerWorker = ({
         if (chunkCacheRef.current) chunkCacheRef.current = cache;
         requestedChunksRef.current?.add(chunkOffset);
 
-        // ✅ Worker 메시지 핸들러
         const handleWorkerMessage = (e: MessageEvent) => {
           const { type, offset, data } = e.data;
           if (type === 'CHUNK_DATA') {
@@ -196,7 +192,6 @@ export const useHexViewerWorker = ({
       canvasRef,
       colorsRef,
       isDraggingRef,
-      workerMessageHandlerRef,
       isInitialLoadingRef,
       canvasSizeRef,
       checkCacheSize,

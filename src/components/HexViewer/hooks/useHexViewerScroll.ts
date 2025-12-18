@@ -1,10 +1,9 @@
 import { useCallback, useRef, useState } from 'react';
 import { useTabData } from '@/contexts/TabDataContext';
-import { TabKey } from '@/types';
-import { RENDER_INTERVAL, UPDATE_INTERVAL, LAYOUT } from '@/constants/hexViewer';
+import { useWorker } from '@/contexts/WorkerContext';
+import { UPDATE_INTERVAL, LAYOUT } from '@/constants/hexViewer';
 
 interface UseHexViewerScrollProps {
-  activeKey: TabKey;
   rowCount: number;
   visibleRows: number;
   maxFirstRow: number;
@@ -12,7 +11,6 @@ interface UseHexViewerScrollProps {
   scrollbarHeight: number;
   file: File | undefined;
   fileSize: number;
-  fileWorker: Worker | null;
   requestChunks: (
     startRow: number,
     worker: Worker,
@@ -20,12 +18,10 @@ interface UseHexViewerScrollProps {
     currentFileSize: number,
     currentVisibleRows: number
   ) => void;
-  directRenderRef: React.MutableRefObject<() => void>;
   firstRowRef: React.MutableRefObject<number>;
 }
 
 export const useHexViewerScroll = ({
-  activeKey,
   rowCount,
   visibleRows,
   maxFirstRow,
@@ -33,13 +29,12 @@ export const useHexViewerScroll = ({
   scrollbarHeight,
   file,
   fileSize,
-  fileWorker,
   requestChunks,
-  directRenderRef,
   firstRowRef,
 }: UseHexViewerScrollProps) => {
-  const { setScrollPositions } = useTabData();
-  
+  const { activeKey, setScrollPositions } = useTabData();
+  const { fileWorker } = useWorker();
+
   // ===== States =====
   const [scrollbarDragging, setScrollbarDragging] = useState(false);
   const [scrollbarStartY, setScrollbarStartY] = useState(0);
@@ -53,10 +48,11 @@ export const useHexViewerScroll = ({
   // ===== Common Scroll Update =====
   const updateScrollPosition = useCallback(
     (position: number) => {
-      firstRowRef.current = position;
-      setScrollPositions((prev) => ({ ...prev, [activeKey]: position }));
+      const clampedPosition = Math.max(0, Math.min(position, maxFirstRow));
+      firstRowRef.current = clampedPosition;
+      setScrollPositions((prev) => ({ ...prev, [activeKey]: clampedPosition }));
     },
-    [activeKey, setScrollPositions, firstRowRef]
+    [activeKey, maxFirstRow, setScrollPositions, firstRowRef]
   );
 
   // ===== 1. Wheel Scroll =====
@@ -149,20 +145,6 @@ export const useHexViewerScroll = ({
     isDraggingRef.current = true;
     requestChunks(firstRowRef.current, fileWorker, file, fileSize, visibleRows + 100);
 
-    let lastRenderTime = 0;
-    let periodicRafId: number | null = null;
-
-    const periodicRender = (timestamp: number) => {
-      if (!isDraggingRef.current) return;
-      if (timestamp - lastRenderTime >= RENDER_INTERVAL) {
-        directRenderRef.current();
-        lastRenderTime = timestamp;
-      }
-      periodicRafId = requestAnimationFrame(periodicRender);
-    };
-
-    periodicRafId = requestAnimationFrame(periodicRender);
-
     let animationFrameId: number | null = null;
     let lastUpdateTime = 0;
 
@@ -215,7 +197,6 @@ export const useHexViewerScroll = ({
 
     const handleEnd = () => {
       if (animationFrameId !== null) cancelAnimationFrame(animationFrameId);
-      if (periodicRafId !== null) cancelAnimationFrame(periodicRafId);
       handleScrollbarEnd();
     };
 
@@ -226,7 +207,6 @@ export const useHexViewerScroll = ({
 
     return () => {
       if (animationFrameId !== null) cancelAnimationFrame(animationFrameId);
-      if (periodicRafId !== null) cancelAnimationFrame(periodicRafId);
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleEnd);
       window.removeEventListener('touchmove', handleTouchMove);
@@ -247,7 +227,6 @@ export const useHexViewerScroll = ({
     updateScrollPosition,
     fileWorker,
     handleScrollbarEnd,
-    directRenderRef,
     firstRowRef,
   ]);
 

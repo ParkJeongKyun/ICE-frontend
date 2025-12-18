@@ -74,24 +74,26 @@ export const VirtualScrollbar = styled.div`
 export const ScrollbarThumb = styled.div.attrs<{
   $dragging: string;
   $height: number;
-  $top: number;
+  $translateY: number;
 }>((props) => ({
   style: {
     height: `${props.$height}px`,
-    top: `${props.$top}px`,
+    transform: `translate3d(0, ${props.$translateY}px, 0)`,
   },
-}))<{ $dragging: string; $height: number; $top: number }>`
+}))<{ $dragging: string; $height: number; $translateY: number }>`
   position: absolute;
+  top: 0;
   right: 0;
   width: 100%;
   background-color: var(--main-hover-line-color);
   opacity: ${(props) => (props.$dragging === 'true' ? '0.9' : '0.5')};
   cursor: pointer;
   transition: opacity 0.2s;
+  will-change: transform;
   &:hover {
     opacity: 0.9;
   }
-  touch-action: none; // 모바일 터치 스크롤 차단
+  touch-action: none;
 `;
 
 // 컨텍스트 메뉴
