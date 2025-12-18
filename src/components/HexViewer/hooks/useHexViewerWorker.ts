@@ -4,9 +4,6 @@ import { useWorker } from '@/contexts/WorkerContext';
 import { CHUNK_SIZE, LAYOUT } from '@/constants/hexViewer';
 
 interface UseHexViewerWorkerProps {
-  file: File | undefined;
-  fileSize: number;
-  rowCount: number;
   chunkCacheRef: React.MutableRefObject<Map<number, Uint8Array>>;
   requestedChunksRef: React.MutableRefObject<Set<number>>;
   onChunkLoaded: () => void;
@@ -20,9 +17,6 @@ interface UseHexViewerWorkerProps {
 }
 
 export const useHexViewerWorker = ({
-  file,
-  fileSize,
-  rowCount,
   chunkCacheRef,
   requestedChunksRef,
   onChunkLoaded,
@@ -34,8 +28,13 @@ export const useHexViewerWorker = ({
   visibleRows,
   checkCacheSize,
 }: UseHexViewerWorkerProps) => {
-  const { activeKey } = useTabData();
+  const { activeKey, activeData } = useTabData();
   const { fileWorker, setWorkerCache } = useWorker();
+  
+  const file = activeData?.file;
+  const fileSize = file?.size || 0;
+  const rowCount = Math.ceil(fileSize / LAYOUT.bytesPerRow);
+  
   const workerMessageHandlerRef = useRef<((e: MessageEvent) => void) | null>(
     null
   );

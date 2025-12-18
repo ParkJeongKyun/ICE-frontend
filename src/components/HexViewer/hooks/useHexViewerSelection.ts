@@ -4,18 +4,16 @@ import { LAYOUT, HEX_START_X, ASCII_START_X, MAX_COPY_SIZE, COPY_CHUNK_SIZE } fr
 
 interface UseHexViewerSelectionProps {
   firstRowRef: React.MutableRefObject<number>;
-  fileSize: number;
-  rowCount: number;
-  file: File | undefined;
 }
 
 export const useHexViewerSelection = ({
   firstRowRef,
-  fileSize,
-  rowCount,
-  file,
 }: UseHexViewerSelectionProps) => {
-  const { activeKey, selectionStates, setSelectionStates } = useTabData();
+  const { activeKey, selectionStates, setSelectionStates, activeData } = useTabData();
+  
+  const file = activeData?.file;
+  const fileSize = file?.size || 0;
+  const rowCount = Math.ceil(fileSize / LAYOUT.bytesPerRow);
   
   // ===== Selection State =====
   const [isDragging, setIsDragging] = useState(false);

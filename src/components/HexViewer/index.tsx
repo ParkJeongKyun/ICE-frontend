@@ -70,7 +70,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   const file = activeData?.file;
   const fileSize = file?.size || 0;
   const rowCount = Math.ceil(fileSize / bytesPerRow);
-  const selectionRange = selectionStates[activeKey] || { start: null, end: null };
+  const selectionRange = selectionStates[activeKey];
 
   const [canvasSize, setCanvasSize] = useState({ width: 800, height: 400 });
   const [renderCount, forceRender] = useReducer((x) => x + 1, 0);
@@ -122,9 +122,6 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     handleCopyText,
   } = useHexViewerSelection({
     firstRowRef,
-    fileSize,
-    rowCount,
-    file,
   });
 
   const { directRender, renderHeader } = useHexViewerRender({
@@ -133,8 +130,6 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     firstRowRef,
     colorsRef,
     getByte,
-    fileSize,
-    rowCount,
     canvasSizeRef,
     isInitialLoadingRef,
     hasValidDataRef,
@@ -143,9 +138,6 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   const directRenderRef = useRef(directRender);
 
   const { requestChunks, initializeWorker } = useHexViewerWorker({
-    file,
-    fileSize,
-    rowCount,
     chunkCacheRef,
     requestedChunksRef,
     onChunkLoaded: forceRender,
@@ -174,8 +166,6 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     maxFirstRow,
     canvasHeight: canvasSize.height,
     scrollbarHeight,
-    file,
-    fileSize,
     requestChunks,
     firstRowRef,
   });
@@ -200,7 +190,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
 
   const {
     findByOffset, findAllByHex, findAllByAsciiText, cleanup: cleanupSearch
-  } = useHexViewerSearch({ file, fileSize });
+  } = useHexViewerSearch();
 
   // ===== Effects =====
   useEffect(() => {
@@ -301,10 +291,6 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   useEffect(() => {
     canvasSizeRef.current = canvasSize;
   }, [canvasSize]);
-
-  useEffect(() => {
-    if (!isInitialLoadingRef.current) forceRender();
-  }, [encoding, canvasSize]);
 
   useEffect(() => {
     if (!isInitialLoadingRef.current) {

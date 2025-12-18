@@ -5,18 +5,13 @@ import { useWorker } from '@/contexts/WorkerContext';
 import { asciiToBytes } from '@/utils/byteSearch';
 import { IndexInfo } from '../index';
 
-interface UseHexViewerSearchProps {
-  file: File | undefined;
-  fileSize: number;
-}
-
-export const useHexViewerSearch = ({
-  file,
-  fileSize,
-}: UseHexViewerSearchProps) => {
-  const { activeKey } = useTabData();
+export const useHexViewerSearch = () => {
+  const { activeKey, activeData } = useTabData();
   const { setProcessInfo } = useProcess();
   const { fileWorker } = useWorker();
+
+  const file = activeData?.file;
+  const fileSize = file?.size || 0;
 
   const hexSearchIdRef = useRef<number>(0);
   const asciiSearchIdRef = useRef<number>(0);

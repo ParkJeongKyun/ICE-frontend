@@ -9,8 +9,6 @@ interface UseHexViewerScrollProps {
   maxFirstRow: number;
   canvasHeight: number;
   scrollbarHeight: number;
-  file: File | undefined;
-  fileSize: number;
   requestChunks: (
     startRow: number,
     worker: Worker,
@@ -27,13 +25,14 @@ export const useHexViewerScroll = ({
   maxFirstRow,
   canvasHeight,
   scrollbarHeight,
-  file,
-  fileSize,
   requestChunks,
   firstRowRef,
 }: UseHexViewerScrollProps) => {
-  const { activeKey, setScrollPositions } = useTabData();
+  const { activeKey, setScrollPositions, activeData } = useTabData();
   const { fileWorker } = useWorker();
+
+  const file = activeData?.file;
+  const fileSize = file?.size || 0;
 
   // ===== States =====
   const [scrollbarDragging, setScrollbarDragging] = useState(false);

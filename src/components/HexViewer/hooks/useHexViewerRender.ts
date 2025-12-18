@@ -2,12 +2,7 @@ import { useRef, useCallback, RefObject } from 'react';
 import { useTabData } from '@/contexts/TabDataContext';
 import { getDevicePixelRatio } from '@/utils/hexViewer';
 import { byteToHex, byteToChar } from '@/utils/encoding';
-import {
-  LAYOUT,
-  OFFSET_START_X,
-  HEX_START_X,
-  ASCII_START_X,
-} from '@/constants/hexViewer';
+import { LAYOUT, OFFSET_START_X, HEX_START_X, ASCII_START_X } from '@/constants/hexViewer';
 
 interface UseHexViewerRenderProps {
   canvasRef: RefObject<HTMLCanvasElement>;
@@ -24,8 +19,6 @@ interface UseHexViewerRenderProps {
     BG: string;
   } | null>;
   getByte: (index: number) => number | null;
-  fileSize: number;
-  rowCount: number;
   canvasSizeRef: React.MutableRefObject<{ width: number; height: number }>;
   isInitialLoadingRef: React.MutableRefObject<boolean>;
   hasValidDataRef: React.MutableRefObject<boolean>;
@@ -37,13 +30,16 @@ export const useHexViewerRender = ({
   firstRowRef,
   colorsRef,
   getByte,
-  fileSize,
-  rowCount,
   canvasSizeRef,
   isInitialLoadingRef,
   hasValidDataRef,
 }: UseHexViewerRenderProps) => {
-  const { activeKey, encoding, selectionStates } = useTabData();
+  const { activeKey, encoding, selectionStates, activeData } = useTabData();
+  
+  const file = activeData?.file;
+  const fileSize = file?.size || 0;
+  const rowCount = Math.ceil(fileSize / LAYOUT.bytesPerRow);
+  
   const offscreenCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const renderHeader = useCallback(() => {
