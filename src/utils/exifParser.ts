@@ -1,5 +1,32 @@
+import dayjs from 'dayjs';
 import { ExifRow } from '@/types';
 import { getAddress, isValidLocation } from './getAddress';
+
+/**
+ * EXIF 데이터 추출을 위한 파일 읽기
+ * 파일이 512KB 이하면 전체, 초과하면 앞/뒤 256KB씩 읽어서 병합
+ */
+export const readFileForExif = async (file: File): Promise<ArrayBuffer> => {
+  const EXIF_READ_SIZE = 256 * 1024; // 256KB
+
+  if (file.size <= EXIF_READ_SIZE * 2) {
+    // 파일이 512KB 이하: 전체 읽기
+    return file.arrayBuffer();
+  }
+
+  // 파일이 512KB 초과: 앞 256KB + 뒤 256KB
+  const [headBuffer, tailBuffer] = await Promise.all([
+    file.slice(0, EXIF_READ_SIZE).arrayBuffer(),
+    file.slice(file.size - EXIF_READ_SIZE).arrayBuffer(),
+  ]);
+
+  // 병합
+  const total = new Uint8Array(EXIF_READ_SIZE * 2);
+  total.set(new Uint8Array(headBuffer), 0);
+  total.set(new Uint8Array(tailBuffer), EXIF_READ_SIZE);
+
+  return total.buffer;
+};
 
 interface ExifMeta {
   tag: string;
@@ -47,9 +74,7 @@ export const parseExifData = async (
           // Location 태그 처리
           if (item.tag === 'Location') {
             try {
-              [lat, lng] = item.origindata
-                .split(',')
-                .map((v) => v.trim());
+              [lat, lng] = item.origindata.split(',').map((v) => v.trim());
 
               if (isValidLocation(lat, lng)) {
                 address = await getAddress(lat, lng);
@@ -88,4 +113,50 @@ export const parseExifData = async (
     thumbnail,
     location: { lat, lng, address },
   };
+};
+
+// Byte 포매터
+export const getBytes = (bytes: number, decimals = 2): string => {
+  if (bytes === 0) return '0 B';
+
+  const k = 1024;
+  const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  const formattedSize = parseFloat((bytes / Math.pow(k, i)).toFixed(decimals));
+
+  return `${formattedSize} ${sizes[i]} (${bytes.toLocaleString()} Byte)`;
+};
+
+// 날짜 포맷 지정
+export const DATE_FORMAT = 'YYYY년 MM월 DD일 HH시 mm분 ss초';
+
+// 날짜 포매터
+export const getDate = (dateStr: string | number): string => {
+  const formattedDate = dayjs(dateStr);
+  if (formattedDate.isValid()) {
+    return formattedDate.format(DATE_FORMAT);
+  } else {
+    return '';
+  }
+};
+
+export const calculateExperience = (startDate: Date, endDate: Date): string => {
+  const diffYear = endDate.getFullYear() - startDate.getFullYear();
+  const diffMonth = endDate.getMonth() - startDate.getMonth();
+  const diffDay = endDate.getDate() - startDate.getDate();
+
+  let years = diffYear;
+  let months = diffMonth;
+
+  if (diffDay < 0) {
+    months--;
+  }
+
+  if (months < 0) {
+    years--;
+    months += 12;
+  }
+
+  return `${years ? years + '년 ' : ''}${months}개월`;
 };

@@ -1,7 +1,4 @@
 /* global kakao */
-
-import { isValidNumber } from './isValidNumber';
-
 /* Kakao Map */
 declare var kakao: any;
 
@@ -30,4 +27,18 @@ export const getAddress = (
 // 위치값 유효성 검사
 export function isValidLocation(lat: unknown, lng: unknown) {
   return isValidNumber(lat) && isValidNumber(lng);
+}
+
+// 숫자 유효성 검사
+export function isValidNumber(value: unknown): boolean {
+  if (typeof value === 'number') {
+    return isFinite(value);
+  }
+
+  if (typeof value === 'string' && value.trim() !== '') {
+    const numberValue = Number(value);
+    return !isNaN(numberValue) && isFinite(numberValue);
+  }
+
+  return false;
 }

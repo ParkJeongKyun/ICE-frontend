@@ -5,8 +5,7 @@ import MenuBtn from '@/components/common/MenuBtn';
 import HexViewer, { HexViewerRef } from '@/components/HexViewer';
 import { ProcessStatus, useProcess } from '@/contexts/ProcessContext';
 import { useTabData } from '@/contexts/TabDataContext';
-import { readFileForExif } from '@/utils/fileReader';
-import { parseExifData } from '@/utils/exifParser';
+import { parseExifData, readFileForExif } from '@/utils/exifParser';
 import { useWorker } from '@/contexts/WorkerContext';
 
 interface Props {
@@ -54,7 +53,6 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
       case 'linknote':
         window.open('/linknote', '_blank');
         break;
-      // 추가 기능은 여기에
       default:
         break;
     }
@@ -64,7 +62,6 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // ✅ 개발 모드에서만 로그
     if (process.env.NODE_ENV === 'development') {
       console.log('[MenuBtnZone] File selected:', file.name);
       console.log('[MenuBtnZone] WASM Ready:', isWasmReady);

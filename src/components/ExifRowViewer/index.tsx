@@ -1,5 +1,5 @@
 import Collapse from '@/components/common/Collapse';
-import React, { useMemo } from 'react';
+import React from 'react';
 import {
   CellBodyDiv,
   CellHeaderDiv,
@@ -8,12 +8,11 @@ import {
   Thumbnail,
   ViewerDiv,
 } from './index.styles';
-import { getDate } from '@/utils/getDate';
-import { getBytes } from '@/utils/getBytes';
 import { isValidLocation } from '@/utils/getAddress';
 import KakaoMap from '@/components/KakaoMap';
 import Tooltip from '@/components/common/Tooltip';
 import { useTabData } from '@/contexts/TabDataContext';
+import { getBytes, getDate } from '@/utils/exifParser';
 
 const ExifRowViewer: React.FC = () => {
   const { activeData } = useTabData();
