@@ -3,7 +3,7 @@ import { useTabData } from '@/contexts/TabDataContext';
 import { useWorker } from '@/contexts/WorkerContext';
 import { UPDATE_INTERVAL, LAYOUT } from '@/constants/hexViewer';
 
-interface UseHexViewerScrollProps {
+interface UseHexViewerYScrollProps {
   rowCount: number;
   visibleRows: number;
   maxFirstRow: number;
@@ -19,7 +19,7 @@ interface UseHexViewerScrollProps {
   firstRowRef: React.MutableRefObject<number>;
 }
 
-export const useHexViewerScroll = ({
+export const useHexViewerYScroll = ({
   rowCount,
   visibleRows,
   maxFirstRow,
@@ -27,7 +27,7 @@ export const useHexViewerScroll = ({
   scrollbarHeight,
   requestChunks,
   firstRowRef,
-}: UseHexViewerScrollProps) => {
+}: UseHexViewerYScrollProps) => {
   const { activeKey, setScrollPositions, activeData } = useTabData();
   const { fileWorker } = useWorker();
 

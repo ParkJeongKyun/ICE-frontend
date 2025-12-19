@@ -18,6 +18,8 @@ import {
   HeaderCanvas,
   VirtualScrollbar,
   ScrollbarThumb,
+  HorizontalScrollbar,
+  HorizontalScrollbarThumb,
   ContextMenu,
   ContextMenuList,
   ContextMenuItem,
@@ -32,11 +34,12 @@ import {
 } from '@/constants/hexViewer';
 import { getDevicePixelRatio, calculateScrollbarTop } from '@/utils/hexViewer';
 import { useHexViewerCache } from './hooks/useHexViewerCache';
-import { useHexViewerScroll } from './hooks/useHexViewerScroll';
 import { useHexViewerSelection } from './hooks/useHexViewerSelection';
 import { useHexViewerRender } from './hooks/useHexViewerRender';
 import { useHexViewerWorker } from './hooks/useHexViewerWorker';
 import { useHexViewerSearch } from './hooks/useHexViewerSearch';
+import { useHexViewerXScroll } from './hooks/useHexViewerXScroll';
+import { useHexViewerYScroll } from './hooks/useHexViewerYScroll';
 
 export interface IndexInfo {
   index: number;
@@ -102,7 +105,8 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   const visibleRows = Math.floor((canvasSize.height - LAYOUT.headerHeight) / rowHeight);
   const maxFirstRow = Math.max(0, rowCount - visibleRows);
   const scrollbarHeight = Math.max(30, (visibleRows / rowCount) * canvasSize.height);
-  const shouldShowScrollbar = rowCount > visibleRows && fileSize > 0;
+  const shouldShowYScrollbar = rowCount > visibleRows && fileSize > 0;
+  const shouldShowXScrollbar = MIN_HEX_WIDTH > (containerRef.current?.clientWidth || 0);
 
   // ===== Custom Hooks =====
   const { chunkCacheRef, requestedChunksRef, getByte, checkCacheSize } = useHexViewerCache();
@@ -160,7 +164,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     handleScrollbarMouseDown,
     handleScrollbarTouchStart,
     scrollbarDragEffect,
-  } = useHexViewerScroll({
+  } = useHexViewerYScroll({
     rowCount,
     visibleRows,
     maxFirstRow,
@@ -168,6 +172,17 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     scrollbarHeight,
     requestChunks,
     firstRowRef,
+  });
+
+  const {
+    scrollbarDragging: horizontalScrollbarDragging,
+    scrollbarWidth: horizontalScrollbarWidth,
+    scrollbarLeft: horizontalScrollbarLeft,
+    handleScrollbarMouseDown: handleHorizontalScrollbarMouseDown,
+    handleScrollbarTouchStart: handleHorizontalScrollbarTouchStart,
+    scrollbarDragEffect: horizontalScrollbarDragEffect,
+  } = useHexViewerXScroll({
+    containerRef,
   });
 
   const scrollbarTop = useMemo(
@@ -227,6 +242,10 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   useEffect(() => {
     return scrollbarDragEffect();
   }, [scrollbarDragEffect]);
+
+  useEffect(() => {
+    return horizontalScrollbarDragEffect();
+  }, [horizontalScrollbarDragEffect]);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -352,9 +371,18 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
 
   // ===== Render =====
   return (
-    <HexViewerContainer onWheel={handleWheel} onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd}>
+    <HexViewerContainer 
+      onWheel={handleWheel} 
+      onTouchStart={handleTouchStart} 
+      onTouchMove={handleTouchMove} 
+      onTouchEnd={handleTouchEnd}
+    >
       <CanvasContainer ref={containerRef} tabIndex={0}>
-        <CanvasArea style={{ minWidth: `${MIN_HEX_WIDTH}px` }}>
+        <CanvasArea
+          style={{
+            minWidth: `${MIN_HEX_WIDTH}px`,
+          }}
+        >
           <HeaderCanvas
             ref={headerCanvasRef}
             width={canvasSize.width}
@@ -379,7 +407,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
           />
         </CanvasArea>
       </CanvasContainer>
-      {shouldShowScrollbar && (
+      {shouldShowYScrollbar && (
         <VirtualScrollbar>
           <ScrollbarThumb
             ref={scrollbarRef}
@@ -390,6 +418,17 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
             onTouchStart={handleScrollbarTouchStart}
           />
         </VirtualScrollbar>
+      )}
+      {shouldShowXScrollbar && (
+        <HorizontalScrollbar>
+          <HorizontalScrollbarThumb
+            $dragging={horizontalScrollbarDragging.toString()}
+            $width={horizontalScrollbarWidth}
+            $translateX={horizontalScrollbarLeft}
+            onMouseDown={handleHorizontalScrollbarMouseDown}
+            onTouchStart={handleHorizontalScrollbarTouchStart}
+          />
+        </HorizontalScrollbar>
       )}
       {contextMenu && (
         <ContextMenu

@@ -20,6 +20,12 @@ export const CanvasContainer = styled.div`
   flex-direction: row;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: none;
+
+  /* 네이티브 스크롤바 숨김 */
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  scrollbar-width: none;
 `;
 
 // 캔버스 영역
@@ -53,6 +59,47 @@ export const StyledCanvas = styled.canvas`
   /* GPU 가속 최적화 */
   transform: translateZ(0);
   backface-visibility: hidden;
+`;
+
+// 가상 수평 스크롤바
+export const HorizontalScrollbar = styled.div`
+  height: ${isMobile ? '15px' : '10px'};
+  width: 100%;
+  background-color: transparent;
+  display: flex;
+  align-items: flex-start;
+  user-select: none;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  z-index: 100;
+  pointer-events: all;
+`;
+
+// 수평 스크롤바 썸
+export const HorizontalScrollbarThumb = styled.div.attrs<{
+  $dragging: string;
+  $width: number;
+  $translateX: number;
+}>((props) => ({
+  style: {
+    width: `${props.$width}px`,
+    transform: `translate3d(${props.$translateX}px, 0, 0)`,
+  },
+}))<{ $dragging: string; $width: number; $translateX: number }>`
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 100%;
+  background-color: var(--main-hover-line-color);
+  opacity: ${(props) => (props.$dragging === 'true' ? '0.9' : '0.5')};
+  cursor: pointer;
+  transition: opacity 0.2s;
+  will-change: transform;
+  &:hover {
+    opacity: 0.9;
+  }
+  touch-action: none;
 `;
 
 // 가상 스크롤바
