@@ -104,9 +104,6 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   // ===== Calculated Values =====
   const visibleRows = Math.floor((canvasSize.height - LAYOUT.headerHeight) / rowHeight);
   const maxFirstRow = Math.max(0, rowCount - visibleRows);
-  const scrollbarHeight = Math.max(30, (visibleRows / rowCount) * canvasSize.height);
-  const shouldShowYScrollbar = rowCount > visibleRows && fileSize > 0;
-  const shouldShowXScrollbar = MIN_HEX_WIDTH > (containerRef.current?.clientWidth || 0);
 
   // ===== Custom Hooks =====
   const { chunkCacheRef, requestedChunksRef, getByte, checkCacheSize } = useHexViewerCache();
@@ -155,8 +152,11 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   });
 
   const {
-    updateScrollPosition,
+    shouldShowScrollbar: shouldShowYScrollbar,
+    scrollbarHeight,
+    scrollbarTop,
     scrollbarDragging,
+    updateScrollPosition,
     handleWheel,
     handleTouchStart,
     handleTouchMove,
@@ -169,32 +169,22 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     visibleRows,
     maxFirstRow,
     canvasHeight: canvasSize.height,
-    scrollbarHeight,
     requestChunks,
     firstRowRef,
+    renderCount,
   });
 
   const {
-    scrollbarDragging: horizontalScrollbarDragging,
+    shouldShowScrollbar: shouldShowXScrollbar,
     scrollbarWidth: horizontalScrollbarWidth,
     scrollbarLeft: horizontalScrollbarLeft,
+    scrollbarDragging: horizontalScrollbarDragging,
     handleScrollbarMouseDown: handleHorizontalScrollbarMouseDown,
     handleScrollbarTouchStart: handleHorizontalScrollbarTouchStart,
     scrollbarDragEffect: horizontalScrollbarDragEffect,
   } = useHexViewerXScroll({
     containerRef,
   });
-
-  const scrollbarTop = useMemo(
-    () =>
-      calculateScrollbarTop(
-        firstRowRef.current,
-        maxFirstRow,
-        canvasSize.height,
-        scrollbarHeight
-      ),
-    [maxFirstRow, canvasSize.height, scrollbarHeight, renderCount]
-  );
 
   const handleScrollPositionUpdate = useCallback(
     (position: number) => {

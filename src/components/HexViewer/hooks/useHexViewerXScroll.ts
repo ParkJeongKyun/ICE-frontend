@@ -13,7 +13,6 @@ export const useHexViewerXScroll = ({
   const [scrollbarState, setScrollbarState] = useState({
     width: 0,
     left: 0,
-    show: false,
   });
   const dragStartXRef = useRef(0);
   const dragStartScrollRef = useRef(0);
@@ -26,24 +25,20 @@ export const useHexViewerXScroll = ({
 
     const containerWidth = container.clientWidth;
     const scrollLeft = container.scrollLeft;
-    const show = MIN_HEX_WIDTH > containerWidth;
 
-    if (!show) {
-      setScrollbarState({ width: 0, left: 0, show: false });
+    if (MIN_HEX_WIDTH <= containerWidth) {
+      setScrollbarState({ width: 0, left: 0 });
       return;
     }
 
-    const maxScrollLeft = Math.max(0, MIN_HEX_WIDTH - containerWidth);
+    const maxScrollLeft = MIN_HEX_WIDTH - containerWidth;
     const scrollbarWidth = Math.max(30, (containerWidth / MIN_HEX_WIDTH) * containerWidth);
     const maxScrollbarLeft = containerWidth - scrollbarWidth;
-    const scrollbarLeft = maxScrollLeft > 0
-      ? Math.min((scrollLeft / maxScrollLeft) * maxScrollbarLeft, maxScrollbarLeft)
-      : 0;
+    const scrollbarLeft = Math.min((scrollLeft / maxScrollLeft) * maxScrollbarLeft, maxScrollbarLeft);
 
     setScrollbarState({
       width: scrollbarWidth,
       left: scrollbarLeft,
-      show: true,
     });
   }, [containerRef]);
 
@@ -80,14 +75,13 @@ export const useHexViewerXScroll = ({
     const observer = new ResizeObserver(() => {
       updateScrollbarState();
       
-      // 스크롤바가 필요없어지면 스크롤 리셋
       if (MIN_HEX_WIDTH <= container.clientWidth && container.scrollLeft !== 0) {
         container.scrollLeft = 0;
       }
     });
 
     observer.observe(container);
-    updateScrollbarState(); // 초기 상태 설정
+    updateScrollbarState();
 
     return () => observer.disconnect();
   }, [containerRef, updateScrollbarState]);
@@ -148,7 +142,7 @@ export const useHexViewerXScroll = ({
         if (!container) return;
 
         const containerWidth = container.clientWidth;
-        const maxScrollLeft = Math.max(0, MIN_HEX_WIDTH - containerWidth);
+        const maxScrollLeft = MIN_HEX_WIDTH - containerWidth;
         const scrollbarWidth = scrollbarState.width;
         const totalScrollable = containerWidth - scrollbarWidth;
 
@@ -196,10 +190,10 @@ export const useHexViewerXScroll = ({
   }, [scrollbarDragging, scrollbarState.width, containerRef, handleScrollbarEnd]);
 
   return {
-    scrollbarDragging,
+    shouldShowScrollbar: scrollbarState.width > 0,
     scrollbarWidth: scrollbarState.width,
     scrollbarLeft: scrollbarState.left,
-    shouldShowScrollbar: scrollbarState.show,
+    scrollbarDragging,
     handleScrollbarMouseDown,
     handleScrollbarTouchStart,
     scrollbarDragEffect,

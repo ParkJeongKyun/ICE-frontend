@@ -1,14 +1,14 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useRef, useState, useMemo } from 'react';
 import { useTabData } from '@/contexts/TabDataContext';
 import { useWorker } from '@/contexts/WorkerContext';
 import { UPDATE_INTERVAL, LAYOUT } from '@/constants/hexViewer';
+import { calculateScrollbarTop } from '@/utils/hexViewer';
 
 interface UseHexViewerYScrollProps {
   rowCount: number;
   visibleRows: number;
   maxFirstRow: number;
   canvasHeight: number;
-  scrollbarHeight: number;
   requestChunks: (
     startRow: number,
     worker: Worker,
@@ -17,6 +17,7 @@ interface UseHexViewerYScrollProps {
     currentVisibleRows: number
   ) => void;
   firstRowRef: React.MutableRefObject<number>;
+  renderCount: number;
 }
 
 export const useHexViewerYScroll = ({
@@ -24,9 +25,9 @@ export const useHexViewerYScroll = ({
   visibleRows,
   maxFirstRow,
   canvasHeight,
-  scrollbarHeight,
   requestChunks,
   firstRowRef,
+  renderCount,
 }: UseHexViewerYScrollProps) => {
   const { activeKey, setScrollPositions, activeData } = useTabData();
   const { fileWorker } = useWorker();
@@ -40,9 +41,16 @@ export const useHexViewerYScroll = ({
   const [scrollbarStartRow, setScrollbarStartRow] = useState(0);
   const isDraggingRef = useRef(false);
   
-  // 터치 스크롤용
   const touchStartYRef = useRef<number | null>(null);
   const touchStartRowRef = useRef<number | null>(null);
+
+  // ===== Calculated Values =====
+  const shouldShowScrollbar = rowCount > visibleRows && fileSize > 0;
+  const scrollbarHeight = Math.max(30, (visibleRows / rowCount) * canvasHeight);
+  const scrollbarTop = useMemo(
+    () => calculateScrollbarTop(firstRowRef.current, maxFirstRow, canvasHeight, scrollbarHeight),
+    [maxFirstRow, canvasHeight, scrollbarHeight, renderCount, firstRowRef]
+  );
 
   // ===== Common Scroll Update =====
   const updateScrollPosition = useCallback(
@@ -230,19 +238,15 @@ export const useHexViewerYScroll = ({
   ]);
 
   return {
-    // 스크롤 상태
-    updateScrollPosition,
+    shouldShowScrollbar,
+    scrollbarHeight,
+    scrollbarTop,
     scrollbarDragging,
-    
-    // 휠 스크롤
+    updateScrollPosition,
     handleWheel,
-    
-    // 터치 스크롤
     handleTouchStart,
     handleTouchMove,
     handleTouchEnd,
-    
-    // 스크롤바
     handleScrollbarMouseDown,
     handleScrollbarTouchStart,
     scrollbarDragEffect,
