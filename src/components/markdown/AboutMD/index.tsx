@@ -53,7 +53,7 @@ const txt = `
 사이트 개발에 도움을 준 사이트 및 라이브러리입니다. 감사합니다!  
 - [SVG REPO - 무료 아이콘](https://www.svgrepo.com/)
 - [Pixabay - 무료 사진](https://pixabay.com/)
-- [Framer Motion - 인터렉티브 웹 라이브러리](https://www.framer.com/motion/)
+- [React Bits - 인터렉티브 웹 UI](https://github.com/DavidHDev/react-bits)
 - [Go Exif - GoLang Exif 분석 라이브러리](https://pkg.go.dev/github.com/dsoprea/go-exif)
 - [Yara - 악성코드 탐지 도구](https://github.com/VirusTotal/yara)
 - [KaKao Map - 지도 API](https://apis.map.kakao.com/)
