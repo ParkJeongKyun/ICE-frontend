@@ -1,6 +1,4 @@
 import React, { useCallback, useState } from 'react';
-import { useTransform, useScroll } from 'framer-motion';
-import { useRef } from 'react';
 import {
   AnimatedHeading,
   AppContainer,
@@ -40,6 +38,7 @@ const txt = `
     - ${calculateExperience(new Date('2020-11'), new Date('2022-07'))}
 ## 보유 자격
   - 디지털포렌식전문가 2급
+  - 정보보안기사
   - 정보보안산업기사
   - 정보처리산업기사
   - 리눅스마스터 2급

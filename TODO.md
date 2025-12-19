@@ -1,5 +1,7 @@
 # 코드 리뷰 및 개선 제안 사항
 
+https://reactbits.dev/get-started/index
+
 ## 🔴 심각한 문제 (Critical Issues)
 
 ### 1. **메모리 누수 및 Worker 관리 문제**

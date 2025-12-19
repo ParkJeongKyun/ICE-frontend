@@ -2,7 +2,6 @@
 
 import type {
   WorkerMessage,
-  WorkerMessageType,
   ChunkTask,
   SearchOptions,
   WasmSearchFunction,

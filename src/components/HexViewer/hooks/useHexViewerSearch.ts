@@ -2,7 +2,7 @@ import { useRef, useCallback } from 'react';
 import { useTabData } from '@/contexts/TabDataContext';
 import { useProcess } from '@/contexts/ProcessContext';
 import { useWorker } from '@/contexts/WorkerContext';
-import { asciiToBytes } from '@/utils/byteSearch';
+import { asciiToBytes } from '@/utils/hexViewer';
 import { IndexInfo } from '../index';
 
 export const useHexViewerSearch = () => {
