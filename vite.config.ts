@@ -3,7 +3,7 @@ import * as path from 'path';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 import svgrPlugin from 'vite-plugin-svgr';
-import fixReactVirtualized from 'esbuild-plugin-react-virtualized';
+// import fixReactVirtualized from 'esbuild-plugin-react-virtualized';
 
 export default defineConfig({
   plugins: [react(), svgrPlugin()],
@@ -15,9 +15,11 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  assetsInclude: ['**/*.glb'], // GLB 파일을 에셋으로 인식하도록 추가
   optimizeDeps: {
     esbuildOptions: {
-      plugins: [fixReactVirtualized],
+      // @ts-ignore - esbuild 버전 충돌 무시
+      // plugins: [fixReactVirtualized],
     },
   },
   define: {

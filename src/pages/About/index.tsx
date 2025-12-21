@@ -34,6 +34,7 @@ import {
 } from './index.styles';
 import DownArrowIcon from '@/components/common/Icons/DownArrowIcon';
 import { calculateExperience } from '@/utils/exifParser';
+import Lanyard from '@/components/common/Lanyard/Lanyard';
 
 const useIntersectionObserver = (options = {}) => {
   const [isVisible, setIsVisible] = useState(false);
@@ -58,22 +59,29 @@ const useIntersectionObserver = (options = {}) => {
   return [ref, isVisible] as const;
 };
 
-const AnimatedSection: React.FC<{ children: React.ReactNode; bgColor?: string }> = ({ children, bgColor }) => {
+const AnimatedSection: React.FC<{
+  children: React.ReactNode;
+  bgColor?: string;
+}> = ({ children, bgColor }) => {
   const [ref, isVisible] = useIntersectionObserver({ threshold: 0.2 });
   return (
-    <Section ref={ref} $bgColor={bgColor} className={isVisible ? 'visible' : ''}>
+    <Section
+      ref={ref}
+      $bgColor={bgColor}
+      className={isVisible ? 'visible' : ''}
+    >
       {children}
     </Section>
   );
 };
 
-const AnimatedItem: React.FC<{ 
-  children: React.ReactNode; 
+const AnimatedItem: React.FC<{
+  children: React.ReactNode;
   delay?: number;
   threshold?: number;
 }> = ({ children, delay = 0, threshold = 0.5 }) => {
   const [ref, isVisible] = useIntersectionObserver({ threshold });
-  
+
   return React.cloneElement(children as React.ReactElement, {
     ref,
     $delay: delay,
@@ -83,17 +91,31 @@ const AnimatedItem: React.FC<{
 
 const About: React.FC = () => {
   const currentAge = new Date().getFullYear() - 2001;
-  
+
   const personalInfo = [
-    { icon: '🎂', label: '출생', value: `2001년 2월 23일 (만 ${currentAge}세)` },
+    {
+      icon: '🎂',
+      label: '출생',
+      value: `2001년 2월 23일 (만 ${currentAge}세)`,
+    },
     { icon: '📍', label: '출생지', value: '대구광역시 중구 대봉동' },
     { icon: '🏠', label: '거주지', value: '서울특별시 강서구 화곡동' },
     { icon: '📧', label: '이메일', value: 'dbzoseh84@gmail.com' },
   ];
 
   const education = [
-    { school: '고려사이버대학교', major: '정보관리보안학과', status: '4학년 재학', year: '2024 ~' },
-    { school: '영진직업전문학교', major: '고교위탁 학생', status: '졸업', year: '2019' },
+    {
+      school: '고려사이버대학교',
+      major: '정보관리보안학과',
+      status: '4학년 재학',
+      year: '2024 ~',
+    },
+    {
+      school: '영진직업전문학교',
+      major: '고교위탁 학생',
+      status: '졸업',
+      year: '2019',
+    },
     { school: '협성고등학교', major: '', status: '졸업', year: '2019' },
   ];
 
@@ -105,9 +127,24 @@ const About: React.FC = () => {
   };
 
   const features = [
-    { title: 'Digital Forensics', image: '/images/digital_forensics.jpg', description: '디지털 증거 분석 및 포렌식 조사', icon: '🔍' },
-    { title: 'Security', image: '/images/security.jpg', description: '정보보안 및 사이버 보안', icon: '🛡️' },
-    { title: 'Developer', image: '/images/developer.jpg', description: '풀스택 웹 개발 및 AI 플랫폼', icon: '💻' },
+    {
+      title: 'Digital Forensics',
+      image: '/images/digital_forensics.jpg',
+      description: '디지털 증거 분석 및 포렌식 조사',
+      icon: '🔍',
+    },
+    {
+      title: 'Security',
+      image: '/images/security.jpg',
+      description: '정보보안 및 사이버 보안',
+      icon: '🛡️',
+    },
+    {
+      title: 'Developer',
+      image: '/images/developer.jpg',
+      description: '풀스택 웹 개발 및 AI 플랫폼',
+      icon: '💻',
+    },
   ];
 
   const certificates = [
@@ -122,7 +159,15 @@ const About: React.FC = () => {
   const skills = {
     languages: ['Python', 'TypeScript', 'JavaScript', 'Go', 'Java', 'HTML/CSS'],
     frameworks: ['React', 'Next.js', 'FastAPI', 'JSP'],
-    tools: ['Docker', 'Kubernetes', 'Nifi', 'Jupyter', 'Kafka', 'Redis', 'Superset'],
+    tools: [
+      'Docker',
+      'Kubernetes',
+      'Nifi',
+      'Jupyter',
+      'Kafka',
+      'Redis',
+      'Superset',
+    ],
     expertise: ['Digital Forensics', 'Network Security', 'System Security'],
   };
 
@@ -203,6 +248,9 @@ const About: React.FC = () => {
   return (
     <MainContainer>
       <AppContainer>
+        {/* Temporarily comment out until card.glb is available */}
+        <Lanyard position={[0, 0, 20]} gravity={[0, -40, 0]} />
+
         {/* Hero Section */}
         <HeroSection>
           <div className="hero-content">
@@ -216,16 +264,32 @@ const About: React.FC = () => {
                 </BadgeImage>
               </div>
               <GradientText>박정균</GradientText>
-              <h3 style={{ margin: '0.5rem 0', fontWeight: '400', fontSize: '1.2rem' }}>
+              <h3
+                style={{
+                  margin: '0.5rem 0',
+                  fontWeight: '400',
+                  fontSize: '1.2rem',
+                }}
+              >
                 Park Jeong-kyun • 朴正均
               </h3>
-              <p style={{ fontSize: '1rem', opacity: 0.9, margin: '1rem 0', fontWeight: '500' }}>
+              <p
+                style={{
+                  fontSize: '1rem',
+                  opacity: 0.9,
+                  margin: '1rem 0',
+                  fontWeight: '500',
+                }}
+              >
                 Digital Forensics • Security • Developer
               </p>
-              <p style={{ fontSize: '0.95rem', opacity: 0.7, margin: '1rem 0' }}>
-                디지털 포렌식 전문가이자 정보보안 전문가, 그리고 풀스택 개발자입니다.
+              <p
+                style={{ fontSize: '0.95rem', opacity: 0.7, margin: '1rem 0' }}
+              >
+                디지털 포렌식 전문가이자 정보보안 전문가, 그리고 풀스택
+                개발자입니다.
               </p>
-              
+
               <StatsGrid>
                 {stats.map((stat, index) => (
                   <StatCard key={index} $delay={index * 0.1}>
@@ -236,7 +300,7 @@ const About: React.FC = () => {
               </StatsGrid>
             </GlassCard>
           </div>
-          
+
           <ScrollIndicator>
             <div className="text">Scroll to explore</div>
             <DownArrowIcon width={35} height={35} />
@@ -245,12 +309,14 @@ const About: React.FC = () => {
 
         {/* Features Section */}
         <AnimatedSection bgColor={'var(--main-bg-color)'}>
-          <div style={{ width: '100%', maxWidth: '1200px', padding: '4rem 2rem' }}>
+          <div
+            style={{ width: '100%', maxWidth: '1200px', padding: '4rem 2rem' }}
+          >
             <SectionTitle>
               <h2>전문 분야</h2>
               <p>다양한 영역에서의 전문성을 보유하고 있습니다</p>
             </SectionTitle>
-            
+
             <FeaturesGrid>
               {features.map((feature, index) => (
                 <AnimatedItem key={index} delay={index * 0.2} threshold={0.3}>
@@ -274,12 +340,14 @@ const About: React.FC = () => {
 
         {/* Personal Info Section */}
         <AnimatedSection bgColor={'var(--main-hover-color)'}>
-          <div style={{ width: '100%', maxWidth: '1200px', padding: '4rem 2rem' }}>
+          <div
+            style={{ width: '100%', maxWidth: '1200px', padding: '4rem 2rem' }}
+          >
             <SectionTitle>
               <h2>인적 사항</h2>
               <p>기본 정보와 학력</p>
             </SectionTitle>
-            
+
             <InfoGrid>
               {personalInfo.map((info, index) => (
                 <AnimatedItem key={index} delay={index * 0.15}>
@@ -295,7 +363,16 @@ const About: React.FC = () => {
             </InfoGrid>
 
             <div style={{ marginTop: '3rem' }}>
-              <h3 style={{ fontSize: '1.5rem', marginBottom: '1.5rem', textAlign: 'center', fontWeight: '600' }}>학력</h3>
+              <h3
+                style={{
+                  fontSize: '1.5rem',
+                  marginBottom: '1.5rem',
+                  textAlign: 'center',
+                  fontWeight: '600',
+                }}
+              >
+                학력
+              </h3>
               <InfoGrid>
                 {education.map((edu, index) => (
                   <AnimatedItem key={index} delay={index * 0.15}>
@@ -303,7 +380,9 @@ const About: React.FC = () => {
                       <div className="icon">🎓</div>
                       <div className="content">
                         <div className="value">{edu.school}</div>
-                        <div className="label">{edu.major} {edu.status}</div>
+                        <div className="label">
+                          {edu.major} {edu.status}
+                        </div>
                         <div className="period">{edu.year}</div>
                       </div>
                     </InfoCard>
@@ -313,9 +392,26 @@ const About: React.FC = () => {
             </div>
 
             <div style={{ marginTop: '3rem' }}>
-              <h3 style={{ fontSize: '1.5rem', marginBottom: '1.5rem', textAlign: 'center', fontWeight: '600' }}>병역</h3>
-              <FloatingCard $delay={0.3} style={{ maxWidth: '600px', margin: '0 auto' }}>
-                <div className="icon" style={{ fontSize: '2rem', marginBottom: '1rem' }}>⚓</div>
+              <h3
+                style={{
+                  fontSize: '1.5rem',
+                  marginBottom: '1.5rem',
+                  textAlign: 'center',
+                  fontWeight: '600',
+                }}
+              >
+                병역
+              </h3>
+              <FloatingCard
+                $delay={0.3}
+                style={{ maxWidth: '600px', margin: '0 auto' }}
+              >
+                <div
+                  className="icon"
+                  style={{ fontSize: '2rem', marginBottom: '1rem' }}
+                >
+                  ⚓
+                </div>
                 <h3>{military.service}</h3>
                 <div className="position">{military.position}</div>
                 <div className="period">{military.period}</div>
@@ -327,12 +423,14 @@ const About: React.FC = () => {
 
         {/* Certificates Section */}
         <AnimatedSection bgColor={'var(--main-bg-color)'}>
-          <div style={{ width: '100%', maxWidth: '1200px', padding: '4rem 2rem' }}>
+          <div
+            style={{ width: '100%', maxWidth: '1200px', padding: '4rem 2rem' }}
+          >
             <SectionTitle>
               <h2>보유 자격증</h2>
               <p>전문성을 인정받은 자격증들</p>
             </SectionTitle>
-            
+
             <CertificateGrid>
               {certificates.map((cert, index) => (
                 <AnimatedItem key={index} delay={index * 0.1}>
@@ -348,15 +446,24 @@ const About: React.FC = () => {
 
         {/* Skills Section */}
         <AnimatedSection bgColor={'var(--main-hover-color)'}>
-          <div style={{ width: '100%', maxWidth: '1200px', padding: '4rem 2rem' }}>
+          <div
+            style={{ width: '100%', maxWidth: '1200px', padding: '4rem 2rem' }}
+          >
             <SectionTitle>
               <h2>기술 스택</h2>
               <p>다양한 기술과 도구를 활용합니다</p>
             </SectionTitle>
-            
+
             {Object.entries(skills).map(([category, items], catIndex) => (
               <div key={category} style={{ marginBottom: '2.5rem' }}>
-                <h3 style={{ fontSize: '1.3rem', marginBottom: '1.2rem', opacity: 0.9, fontWeight: '600' }}>
+                <h3
+                  style={{
+                    fontSize: '1.3rem',
+                    marginBottom: '1.2rem',
+                    opacity: 0.9,
+                    fontWeight: '600',
+                  }}
+                >
                   {category === 'languages' && '언어'}
                   {category === 'frameworks' && '프레임워크'}
                   {category === 'tools' && '도구 & 플랫폼'}
@@ -364,7 +471,10 @@ const About: React.FC = () => {
                 </h3>
                 <SkillGrid>
                   {items.map((skill, index) => (
-                    <AnimatedItem key={index} delay={(catIndex * 0.5 + index * 0.05)}>
+                    <AnimatedItem
+                      key={index}
+                      delay={catIndex * 0.5 + index * 0.05}
+                    >
                       <SkillTag>{skill}</SkillTag>
                     </AnimatedItem>
                   ))}
@@ -376,12 +486,14 @@ const About: React.FC = () => {
 
         {/* Career Timeline Section */}
         <AnimatedSection bgColor={'var(--main-bg-color)'}>
-          <div style={{ width: '100%', maxWidth: '900px', padding: '4rem 2rem' }}>
+          <div
+            style={{ width: '100%', maxWidth: '900px', padding: '4rem 2rem' }}
+          >
             <SectionTitle>
               <h2>업무 경력</h2>
               <p>전문적인 경험과 성장의 여정</p>
             </SectionTitle>
-            
+
             <TimelineContainer>
               {careers.map((career, index) => (
                 <AnimatedItem key={index} delay={index * 0.25}>
@@ -406,12 +518,14 @@ const About: React.FC = () => {
 
         {/* Projects Section */}
         <AnimatedSection bgColor={'var(--main-hover-color)'}>
-          <div style={{ width: '100%', maxWidth: '1200px', padding: '4rem 2rem' }}>
+          <div
+            style={{ width: '100%', maxWidth: '1200px', padding: '4rem 2rem' }}
+          >
             <SectionTitle>
               <h2>프로젝트 경력</h2>
               <p>참여한 주요 프로젝트들</p>
             </SectionTitle>
-            
+
             <ProjectsGrid>
               {projects.map((project, index) => (
                 <AnimatedItem key={index} delay={index * 0.15} threshold={0.3}>
@@ -419,10 +533,14 @@ const About: React.FC = () => {
                     <h3>{project.name}</h3>
                     <div className="client">고객사: {project.client}</div>
                     <div className="role">{project.role}</div>
-                    <div className="period">{project.period} ({project.duration})</div>
+                    <div className="period">
+                      {project.period} ({project.duration})
+                    </div>
                     <div className="tags">
                       {project.tags.map((tag, tagIndex) => (
-                        <span key={tagIndex} className="tag">{tag}</span>
+                        <span key={tagIndex} className="tag">
+                          {tag}
+                        </span>
                       ))}
                     </div>
                   </ProjectCard>
