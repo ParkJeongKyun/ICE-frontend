@@ -34,7 +34,7 @@ import {
 } from './index.styles';
 import DownArrowIcon from '@/components/common/Icons/DownArrowIcon';
 import { calculateExperience } from '@/utils/exifParser';
-import Lanyard from '@/components/common/Lanyard/Lanyard';
+import Lanyard from '@/components/common/Lanyard';
 
 const useIntersectionObserver = (options = {}) => {
   const [isVisible, setIsVisible] = useState(false);

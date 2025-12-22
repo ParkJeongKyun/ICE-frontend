@@ -23,8 +23,7 @@ import * as THREE from 'three';
 // replace with your own imports, see the usage snippet for details
 import cardGLB from '@/assets/lanyard/card.glb';
 import lanyard from '@/assets/lanyard/lanyard.png';
-
-import './Lanyard.css';
+import { LanyardWrapper } from './index.styles';
 
 extend({ MeshLineGeometry, MeshLineMaterial });
 
@@ -52,7 +51,7 @@ export default function Lanyard({
   }, []);
 
   return (
-    <div className="lanyard-wrapper">
+    <LanyardWrapper>
       <Canvas
         camera={{ position, fov }}
         dpr={[1, isMobile ? 1.5 : 2]}
@@ -96,7 +95,7 @@ export default function Lanyard({
           />
         </Environment>
       </Canvas>
-    </div>
+    </LanyardWrapper>
   );
 }
 

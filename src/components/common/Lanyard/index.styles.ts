@@ -1,4 +1,6 @@
-.lanyard-wrapper {
+import styled from 'styled-components';
+
+export const LanyardWrapper = styled.div`
   position: relative;
   z-index: 0;
   width: 100%;
@@ -8,4 +10,4 @@
   align-items: center;
   transform: scale(1);
   transform-origin: center;
-}
+`;
