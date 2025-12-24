@@ -1,13 +1,15 @@
 import styled from 'styled-components';
 
 export const LanyardWrapper = styled.div`
-  position: relative;
-  z-index: 0;
+  position: absolute;
+  inset: 0;
+  z-index: 2;
   width: 100%;
-  height: 100vh;
+  height: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
-  transform: scale(1);
+  pointer-events: none;
+  transform: none;
   transform-origin: center;
 `;
