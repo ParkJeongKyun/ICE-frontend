@@ -128,7 +128,7 @@ function Band({ maxSpeed = 50, minSpeed = 0, isMobile = false }: BandProps) {
   };
 
   const { nodes, materials } = useGLTF(cardGLB) as any;
-  const texture = useTexture(lanyard);
+  const texture = useTexture(lanyard) as THREE.Texture;;
   const [curve] = useState(
     () =>
       new THREE.CatmullRomCurve3([
