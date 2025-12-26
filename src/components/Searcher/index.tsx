@@ -26,7 +26,6 @@ import Tooltip from '@/components/common/Tooltip';
 import { TabKey } from '@/types';
 import XIcon from '@/components/common/Icons/XIcon';
 import { useTabData } from '@/contexts/TabDataContext';
-// ✅ 타입 import
 import type {
   SearchType,
   SearchCacheKey,
@@ -36,7 +35,7 @@ import type {
 } from '@/types/searcher';
 
 interface Props {
-  hexViewerRef: React.RefObject<HexViewerRef>;
+  hexViewerRef: React.RefObject<HexViewerRef | null>;
 }
 
 const initialState: SearchStateWithCache = {

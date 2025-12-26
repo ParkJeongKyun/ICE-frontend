@@ -1,9 +1,9 @@
-import { useCallback, useState } from 'react';
+import { RefObject, useCallback, useState } from 'react';
 import { useTabData } from '@/contexts/TabDataContext';
 import { LAYOUT, HEX_START_X, ASCII_START_X, MAX_COPY_SIZE, COPY_CHUNK_SIZE } from '@/constants/hexViewer';
 
 interface UseHexViewerSelectionProps {
-  firstRowRef: React.MutableRefObject<number>;
+  firstRowRef: RefObject<number>;
 }
 
 export const useHexViewerSelection = ({

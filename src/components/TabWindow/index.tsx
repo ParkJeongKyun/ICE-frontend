@@ -168,7 +168,7 @@ const TabWindow: React.FC = () => {
       return (
         <div
           key={tabKey}
-          ref={(el) => (tabRefs.current[index] = el)}
+          ref={(el) => { tabRefs.current[index] = el; }}
           draggable
           onDragStart={(e) => handleDragStart(e, index, tabKey)}
           onDragOver={(e) => handleDragOver(e, index)}

@@ -2,7 +2,7 @@ import { useCallback, useRef, useState, RefObject, useEffect } from 'react';
 import { UPDATE_INTERVAL, MIN_HEX_WIDTH } from '@/constants/hexViewer';
 
 interface UseHexViewerXScrollProps {
-  containerRef: RefObject<HTMLDivElement>;
+  containerRef: RefObject<HTMLDivElement | null>;
 }
 
 export const useHexViewerXScroll = ({

@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState, useMemo } from 'react';
+import { useCallback, useRef, useState, useMemo, RefObject } from 'react';
 import { useTabData } from '@/contexts/TabDataContext';
 import { useWorker } from '@/contexts/WorkerContext';
 import { UPDATE_INTERVAL, LAYOUT } from '@/constants/hexViewer';
@@ -16,7 +16,7 @@ interface UseHexViewerYScrollProps {
     currentFileSize: number,
     currentVisibleRows: number
   ) => void;
-  firstRowRef: React.MutableRefObject<number>;
+  firstRowRef: RefObject<number>;
   renderCount: number;
 }
 

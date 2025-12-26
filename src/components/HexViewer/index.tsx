@@ -32,7 +32,7 @@ import {
   COLOR_KEYS,
   DEFAULT_COLORS,
 } from '@/constants/hexViewer';
-import { getDevicePixelRatio, calculateScrollbarTop } from '@/utils/hexViewer';
+import { getDevicePixelRatio } from '@/utils/hexViewer';
 import { useHexViewerCache } from './hooks/useHexViewerCache';
 import { useHexViewerSelection } from './hooks/useHexViewerSelection';
 import { useHexViewerRender } from './hooks/useHexViewerRender';

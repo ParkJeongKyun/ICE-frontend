@@ -13,9 +13,10 @@ import {
 } from './index.styles';
 import { isMobile } from 'react-device-detect';
 import Logo from '../common/Icons/Logo';
+import { RefObject } from 'react';
 
 interface Props {
-  menuBtnZoneRef: React.RefObject<MenuBtnZoneRef>;
+  menuBtnZoneRef: RefObject<MenuBtnZoneRef | null>;
 }
 
 const Home: React.FC<Props> = ({ menuBtnZoneRef }) => {

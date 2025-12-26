@@ -1,17 +1,17 @@
-import { useCallback, useRef } from 'react';
+import { RefObject, useCallback, useRef } from 'react';
 import { useTabData } from '@/contexts/TabDataContext';
 import { useWorker } from '@/contexts/WorkerContext';
 import { CHUNK_SIZE, LAYOUT } from '@/constants/hexViewer';
 
 interface UseHexViewerWorkerProps {
-  chunkCacheRef: React.MutableRefObject<Map<number, Uint8Array>>;
-  requestedChunksRef: React.MutableRefObject<Set<number>>;
+  chunkCacheRef: RefObject<Map<number, Uint8Array>>;
+  requestedChunksRef: RefObject<Set<number>>;
   onChunkLoaded: () => void;
-  canvasRef: React.RefObject<HTMLCanvasElement>;
-  colorsRef: React.RefObject<any>;
-  isDraggingRef: React.MutableRefObject<boolean>;
-  isInitialLoadingRef: React.MutableRefObject<boolean>;
-  canvasSizeRef: React.MutableRefObject<{ width: number; height: number }>;
+  canvasRef: RefObject<HTMLCanvasElement | null>;
+  colorsRef: RefObject<any>;
+  isDraggingRef: RefObject<boolean>;
+  isInitialLoadingRef: RefObject<boolean>;
+  canvasSizeRef: RefObject<{ width: number; height: number }>;
   visibleRows: number;
   checkCacheSize: () => void;
 }
