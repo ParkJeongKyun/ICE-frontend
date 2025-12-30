@@ -16,8 +16,8 @@ const CURRENT_AGE = new Date().getFullYear() - 2001;
 
 const PERSONAL_INFO = [
   { label: '출생', value: `2001년 2월 23일 (만 ${CURRENT_AGE}세)` },
-  { label: '출생지', value: '대구광역시 중구 대봉동' },
-  { label: '거주지', value: '서울특별시 강서구 화곡동' },
+  { label: '출생지', value: '대구광역시 중구' },
+  { label: '거주지', value: '서울특별시 강서구' },
   { label: '이메일', value: 'dbzoseh84@gmail.com' },
 ];
 
@@ -148,7 +148,6 @@ const About: React.FC = () => (
       >
         <Lanyard position={[0, 0, 13]} gravity={[0, -40, 0]} />
         <ScrollIndicator>
-          <span>아래로 스크롤</span>
           <svg className="arrow" viewBox="0 0 24 24" fill="none">
             <path
               d="M12 5v14M12 19l-7-7M12 19l7-7"
@@ -174,8 +173,7 @@ const About: React.FC = () => (
         <List>
           {EDUCATION.map((edu, idx) => (
             <ListItem key={idx}>
-              <strong>{edu.school}</strong>
-              <br />({edu.major && `${edu.major}, `}
+              <strong>{edu.school}</strong>({edu.major && `${edu.major}, `}
               {edu.status}, {edu.year})
             </ListItem>
           ))}
@@ -183,8 +181,8 @@ const About: React.FC = () => (
         <SubTitle>병역</SubTitle>
         <List>
           <ListItem>
-            <strong>{MILITARY.service}</strong>
-            <br />({MILITARY.position}, {MILITARY.period})
+            <strong>{MILITARY.service}</strong>({MILITARY.position},{' '}
+            {MILITARY.period})
           </ListItem>
         </List>
       </SectionCard>
@@ -210,8 +208,8 @@ const About: React.FC = () => (
         <List>
           {CAREERS.map((career, idx) => (
             <ListItem key={idx}>
-              <strong>{career.company}</strong>
-              <br />({career.position}, {career.period})
+              <strong>{career.company}</strong>({career.position},{' '}
+              {career.period})
             </ListItem>
           ))}
         </List>
