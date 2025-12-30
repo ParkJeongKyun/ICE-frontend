@@ -9,7 +9,7 @@ import {
   SubTitle,
   ScrollIndicator,
 } from './index.styles';
-import Lanyard from '@/components/common/Lanyard';
+import Lanyard from '@/pages/About/Lanyard';
 
 // 데이터 상수화
 const CURRENT_AGE = new Date().getFullYear() - 2001;
