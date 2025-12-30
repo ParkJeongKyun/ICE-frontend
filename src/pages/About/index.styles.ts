@@ -2,9 +2,9 @@ import styled, { keyframes } from 'styled-components';
 
 // Hero 섹션 전체 화면
 export const HeroSection = styled.section`
-  width: 100vw;
-  height: 100vh;
-  min-height: 480px;
+  height: 100dvh;
+  max-width: 100vw;
+  min-height: 100dvh;
   position: relative;
   overflow: hidden;
   display: flex;
@@ -36,6 +36,9 @@ export const MainContainer = styled.div`
   min-height: 100vh;
   background: #181a20;
   color: #e6e8ef;
+  overflow-x: hidden;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 `;
 
 // 앱 컨테이너
@@ -48,6 +51,9 @@ export const AppContainer = styled.div`
   align-items: stretch;
   padding: 0;
   background: none;
+  overflow-x: hidden;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 `;
 
 // 각 섹션 블록(구분선, 패딩)
@@ -57,6 +63,10 @@ export const SectionBlock = styled.section`
   margin: 0 auto;
   padding: 2.5rem 1.2rem 1.5rem 1.2rem;
   border-bottom: 1px solid rgba(120, 130, 180, 0.08);
+  box-sizing: border-box;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  text-align: left;
 
   &:last-child {
     border-bottom: none;
