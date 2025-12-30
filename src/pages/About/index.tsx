@@ -2,24 +2,18 @@ import React from 'react';
 import {
   AppContainer,
   MainContainer,
-  SectionCard,
   SectionTitle,
   List,
   ListItem,
-  SubTitle,
   ScrollIndicator,
+  HeroSection,
+  AnimatedBg,
+  SimpleListCard,
+  SectionBlock,
 } from './index.styles';
 import Lanyard from '@/pages/About/Lanyard';
 
-// 데이터 상수화
 const CURRENT_AGE = new Date().getFullYear() - 2001;
-
-const PERSONAL_INFO = [
-  { label: '출생', value: `2001년 2월 23일 (만 ${CURRENT_AGE}세)` },
-  { label: '출생지', value: '대구광역시 중구' },
-  { label: '거주지', value: '서울특별시 강서구' },
-  { label: '이메일', value: 'dbzoseh84@gmail.com' },
-];
 
 const EDUCATION = [
   {
@@ -118,114 +112,283 @@ const PROJECTS = [
   },
 ];
 
-// SectionCard 렌더링 함수
-function renderListSection(title: string, items: string[] | React.ReactNode[]) {
+// 태그 스타일 리스트
+function TagList({ items }: { items: string[] }) {
   return (
-    <SectionCard>
-      <SectionTitle>{title}</SectionTitle>
-      <List>
-        {items.map((item, idx) => (
-          <ListItem key={idx}>{item}</ListItem>
-        ))}
-      </List>
-    </SectionCard>
+    <div
+      style={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: '0.4em',
+        marginTop: '0.2em',
+      }}
+    >
+      {items.map((item) => (
+        <span
+          key={item}
+          style={{
+            background: '#23243a',
+            color: '#a5b4fc',
+            borderRadius: '0.5em',
+            padding: '0.18em 0.7em',
+            fontSize: '0.98em',
+            fontWeight: 500,
+            letterSpacing: '-0.01em',
+            marginBottom: '0.2em',
+          }}
+        >
+          {item}
+        </span>
+      ))}
+    </div>
   );
 }
 
 const About: React.FC = () => (
   <MainContainer>
+    <HeroSection>
+      <AnimatedBg />
+      <Lanyard position={[0, 0, 13]} gravity={[0, -40, 0]} />
+      <ScrollIndicator>
+        <svg className="arrow" viewBox="0 0 24 24" fill="none">
+          <path
+            d="M12 5v14M12 19l-7-7M12 19l7-7"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </ScrollIndicator>
+    </HeroSection>
     <AppContainer>
-      <div
-        style={{
-          minHeight: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          position: 'relative',
-          background:
-            'linear-gradient(135deg, var(--main-bg-color) 0%, var(--main-hover-color) 100%)',
-        }}
-      >
-        <Lanyard position={[0, 0, 13]} gravity={[0, -40, 0]} />
-        <ScrollIndicator>
-          <svg className="arrow" viewBox="0 0 24 24" fill="none">
-            <path
-              d="M12 5v14M12 19l-7-7M12 19l7-7"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </ScrollIndicator>
-      </div>
-
-      <SectionCard>
-        <SectionTitle>인적사항</SectionTitle>
-        <List>
-          {PERSONAL_INFO.map((info, idx) => (
-            <ListItem key={idx}>
-              <strong>{info.label}:</strong> {info.value}
+      <SectionBlock>
+        <SimpleListCard>
+          <SectionTitle>인적사항</SectionTitle>
+          <List>
+            <ListItem>
+              <strong>생년월일</strong> 2001년 2월 23일{' '}
+              <span
+                style={{
+                  color: '#a5b4fc',
+                  marginLeft: 8,
+                }}
+              >
+                (만 {CURRENT_AGE}세)
+              </span>
             </ListItem>
-          ))}
-        </List>
-        <SubTitle>학력</SubTitle>
-        <List>
-          {EDUCATION.map((edu, idx) => (
-            <ListItem key={idx}>
-              <strong>{edu.school}</strong>({edu.major && `${edu.major}, `}
-              {edu.status}, {edu.year})
+            <ListItem>
+              <strong>이메일</strong>{' '}
+              <a
+                href="mailto:dbzoseh84@gmail.com"
+                style={{
+                  color: '#a5b4fc',
+                  textDecoration: 'underline',
+                }}
+              >
+                dbzoseh84@gmail.com
+              </a>
             </ListItem>
-          ))}
-        </List>
-        <SubTitle>병역</SubTitle>
-        <List>
-          <ListItem>
-            <strong>{MILITARY.service}</strong>({MILITARY.position},{' '}
-            {MILITARY.period})
-          </ListItem>
-        </List>
-      </SectionCard>
-
-      {renderListSection('보유 자격증', CERTIFICATES)}
-
-      <SectionCard>
-        <SectionTitle>기술 스택</SectionTitle>
-        {Object.entries(SKILLS).map(([category, items]) => (
-          <div key={category} style={{ marginBottom: '0.7rem' }}>
-            <SubTitle>{category}</SubTitle>
-            <List>
-              {items.map((skill, idx) => (
-                <ListItem key={idx}>{skill}</ListItem>
-              ))}
-            </List>
-          </div>
-        ))}
-      </SectionCard>
-
-      <SectionCard>
-        <SectionTitle>업무 경력</SectionTitle>
-        <List>
-          {CAREERS.map((career, idx) => (
-            <ListItem key={idx}>
-              <strong>{career.company}</strong>({career.position},{' '}
-              {career.period})
+            <ListItem>
+              <strong>거주지</strong> 서울특별시 강서구
             </ListItem>
-          ))}
-        </List>
-      </SectionCard>
-
-      <SectionCard>
-        <SectionTitle>프로젝트 경력</SectionTitle>
-        <List>
-          {PROJECTS.map((project, idx) => (
-            <ListItem key={idx}>
-              <strong>{project.name}</strong> ({project.client}, {project.role},{' '}
-              {project.period})
+            <ListItem>
+              <strong>출생지</strong> 대구광역시 중구
             </ListItem>
-          ))}
-        </List>
-      </SectionCard>
+          </List>
+        </SimpleListCard>
+      </SectionBlock>
+      <SectionBlock>
+        <SimpleListCard>
+          <SectionTitle>학력</SectionTitle>
+          <List>
+            {EDUCATION.map((edu) => (
+              <ListItem
+                key={edu.school + edu.year}
+                style={{
+                  flexDirection: 'column',
+                  alignItems: 'flex-start',
+                }}
+              >
+                <span>
+                  <strong>{edu.school}</strong>
+                  {edu.major && (
+                    <span
+                      style={{
+                        color: '#a5b4fc',
+                        fontWeight: 400,
+                      }}
+                    >
+                      {' '}
+                      ({edu.major})
+                    </span>
+                  )}
+                </span>
+                <span
+                  style={{
+                    fontSize: '0.97em',
+                    color: '#b3b8d4',
+                    marginTop: 2,
+                  }}
+                >
+                  {edu.status} <span style={{ margin: '0 0.5em' }}>|</span>{' '}
+                  {edu.year}
+                </span>
+              </ListItem>
+            ))}
+          </List>
+        </SimpleListCard>
+      </SectionBlock>
+      <SectionBlock>
+        <SimpleListCard>
+          <SectionTitle>병역</SectionTitle>
+          <List>
+            <ListItem
+              style={{
+                flexDirection: 'column',
+                alignItems: 'flex-start',
+              }}
+            >
+              <span>
+                <strong>{MILITARY.service}</strong>
+                <span
+                  style={{
+                    color: '#a5b4fc',
+                    fontWeight: 400,
+                  }}
+                >
+                  {' '}
+                  ({MILITARY.position})
+                </span>
+              </span>
+              <span
+                style={{
+                  fontSize: '0.97em',
+                  color: '#b3b8d4',
+                  marginTop: 2,
+                }}
+              >
+                {MILITARY.period}
+              </span>
+            </ListItem>
+          </List>
+        </SimpleListCard>
+      </SectionBlock>
+      <SectionBlock>
+        <SimpleListCard>
+          <SectionTitle>자격증</SectionTitle>
+          <TagList items={CERTIFICATES} />
+        </SimpleListCard>
+      </SectionBlock>
+      <SectionBlock>
+        <SimpleListCard>
+          <SectionTitle>언어</SectionTitle>
+          <TagList items={SKILLS.언어} />
+        </SimpleListCard>
+      </SectionBlock>
+      <SectionBlock>
+        <SimpleListCard>
+          <SectionTitle>프레임워크</SectionTitle>
+          <TagList items={SKILLS.프레임워크} />
+        </SimpleListCard>
+      </SectionBlock>
+      <SectionBlock>
+        <SimpleListCard>
+          <SectionTitle>도구</SectionTitle>
+          <TagList items={SKILLS.도구} />
+        </SimpleListCard>
+      </SectionBlock>
+      <SectionBlock>
+        <SimpleListCard>
+          <SectionTitle>전문분야</SectionTitle>
+          <TagList items={SKILLS.전문분야} />
+        </SimpleListCard>
+      </SectionBlock>
+      <SectionBlock>
+        <SimpleListCard>
+          <SectionTitle>경력</SectionTitle>
+          <List>
+            {CAREERS.map((career) => (
+              <ListItem
+                key={career.company + career.period}
+                style={{
+                  flexDirection: 'column',
+                  alignItems: 'flex-start',
+                }}
+              >
+                <span>
+                  <strong>{career.company}</strong>
+                  <span
+                    style={{
+                      color: '#a5b4fc',
+                      fontWeight: 400,
+                    }}
+                  >
+                    {' '}
+                    ({career.position})
+                  </span>
+                </span>
+                <span
+                  style={{
+                    fontSize: '0.97em',
+                    color: '#b3b8d4',
+                    marginTop: 2,
+                  }}
+                >
+                  {career.period}
+                </span>
+              </ListItem>
+            ))}
+          </List>
+        </SimpleListCard>
+      </SectionBlock>
+      <SectionBlock>
+        <SimpleListCard>
+          <SectionTitle>프로젝트</SectionTitle>
+          <List>
+            {PROJECTS.map((project) => (
+              <ListItem
+                key={project.name + project.period}
+                style={{
+                  flexDirection: 'column',
+                  alignItems: 'flex-start',
+                }}
+              >
+                <span>
+                  <strong>{project.name}</strong>
+                  <span
+                    style={{
+                      color: '#a5b4fc',
+                      fontWeight: 400,
+                    }}
+                  >
+                    {' '}
+                    ({project.client})
+                  </span>
+                </span>
+                <span
+                  style={{
+                    fontSize: '0.97em',
+                    color: '#b3b8d4',
+                    marginTop: 2,
+                  }}
+                >
+                  {project.role}
+                </span>
+                <span
+                  style={{
+                    fontSize: '0.95em',
+                    color: '#8e95b6',
+                    marginTop: 1,
+                  }}
+                >
+                  {project.period}
+                </span>
+              </ListItem>
+            ))}
+          </List>
+        </SimpleListCard>
+      </SectionBlock>
     </AppContainer>
   </MainContainer>
 );
