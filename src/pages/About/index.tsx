@@ -33,7 +33,7 @@ const EDUCATION = [
 
 const MILITARY = {
   service: '대한민국 해군 3함대사령부',
-  position: 'CERT 정보보호병 (병장 전역)',
+  position: 'CERT 정보보호병 병장',
   period: '2020.11.23 ~ 2022.07.22',
 };
 
@@ -48,34 +48,29 @@ const CERTIFICATES = [
 
 const SKILLS = {
   언어: ['Python', 'TypeScript', 'JavaScript', 'Go', 'Java', 'HTML/CSS'],
-  프레임워크: ['React', 'Next.js', 'FastAPI', 'JSP'],
-  도구: [
-    'Docker',
-    'Kubernetes',
-    'Nifi',
-    'Jupyter',
-    'Kafka',
-    'Redis',
-    'Superset',
-  ],
-  전문분야: ['Digital Forensics', 'Network Security', 'System Security'],
+  전문분야: ['디지털포렌식', '정보보안', '침해사고대응', '풀스택개발'],
 };
 
 const CAREERS = [
   {
-    period: '2024.07 - Present',
-    company: 'Aimos(주)',
-    position: 'AI 플랫폼 개발팀 프리랜서 개발자',
+    period: '2025.01 - 현재',
+    company: 'Aimos(주) AI 플랫폼 개발팀',
+    position: '프리랜서 개발자',
+  },
+  {
+    period: '2024.07 - 2024.12',
+    company: 'KG ITC',
+    position: '프리랜서 개발자',
   },
   {
     period: '2022.07 - 2024.06',
-    company: 'NuriggumSoft(주)',
-    position: 'DX 개발팀',
+    company: 'NuriggumSoft(주) DX 개발팀',
+    position: '개발자',
   },
   {
     period: '2021.01 - 2022.07',
-    company: '대한민국 해군 3함대사령부',
-    position: 'CERT 사이버보안관제',
+    company: '대한민국 해군 3함대사령부 사이버방호과',
+    position: 'CERT/보안관제',
   },
 ];
 
@@ -83,19 +78,19 @@ const PROJECTS = [
   {
     name: '철 스크랩 Aimos 운영시스템',
     client: '대한제강, LG CNS, Aimos',
-    role: 'TypeScript React 웹 프론트엔드 개발 및 운영',
+    role: '시스템 개발 및 운영',
     period: '2023.06 - 현재',
   },
   {
     name: '현대제철 야드비상조업',
     client: '현대제철, 현대ITC',
-    role: 'Java, JavaScript JSP 웹 개발',
+    role: 'JSP 웹 개발',
     period: '2023.06 - 2023.12',
   },
   {
     name: '현대 ITC 안전 보건 시스템',
     client: '현대ITC',
-    role: 'TypeScript React 웹 프론트엔드 개발',
+    role: 'React 웹 프론트엔드 개발',
     period: '2023.03 - 2023.06',
   },
   {
@@ -107,7 +102,7 @@ const PROJECTS = [
   {
     name: 'AI Link On, Plant AI',
     client: 'LG 화학, LG CNS',
-    role: 'Python Fast API 백엔드 개발',
+    role: 'Fast API 백엔드 개발',
     period: '2022.07 - 2022.12',
   },
 ];
@@ -200,6 +195,12 @@ const About: React.FC = () => (
       </SectionBlock>
       <SectionBlock>
         <SimpleListCard>
+          <SectionTitle>자격증</SectionTitle>
+          <TagList items={CERTIFICATES} />
+        </SimpleListCard>
+      </SectionBlock>
+      <SectionBlock>
+        <SimpleListCard>
           <SectionTitle>학력</SectionTitle>
           <List>
             {EDUCATION.map((edu) => (
@@ -276,32 +277,14 @@ const About: React.FC = () => (
       </SectionBlock>
       <SectionBlock>
         <SimpleListCard>
-          <SectionTitle>자격증</SectionTitle>
-          <TagList items={CERTIFICATES} />
+          <SectionTitle>전문분야</SectionTitle>
+          <TagList items={SKILLS.전문분야} />
         </SimpleListCard>
       </SectionBlock>
       <SectionBlock>
         <SimpleListCard>
           <SectionTitle>언어</SectionTitle>
           <TagList items={SKILLS.언어} />
-        </SimpleListCard>
-      </SectionBlock>
-      <SectionBlock>
-        <SimpleListCard>
-          <SectionTitle>프레임워크</SectionTitle>
-          <TagList items={SKILLS.프레임워크} />
-        </SimpleListCard>
-      </SectionBlock>
-      <SectionBlock>
-        <SimpleListCard>
-          <SectionTitle>도구</SectionTitle>
-          <TagList items={SKILLS.도구} />
-        </SimpleListCard>
-      </SectionBlock>
-      <SectionBlock>
-        <SimpleListCard>
-          <SectionTitle>전문분야</SectionTitle>
-          <TagList items={SKILLS.전문분야} />
         </SimpleListCard>
       </SectionBlock>
       <SectionBlock>
