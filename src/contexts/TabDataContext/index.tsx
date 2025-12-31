@@ -14,6 +14,7 @@ export type EncodingType = 'ansi' | 'oem' | 'ascii' | 'mac' | 'ebcdic';
 export interface SelectionState {
   start: number | null;
   end: number | null;
+  selectedBytes?: Uint8Array;
 }
 
 // ✅ 간소화된 인터페이스

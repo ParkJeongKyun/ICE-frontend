@@ -25,9 +25,41 @@ export const useHexViewerSelection = ({
   // ===== Selection Update =====
   const updateSelection = useCallback(
     (start: number | null, end: number | null) => {
-      setSelectionStates((prev) => ({ ...prev, [activeKey]: { start, end } }));
+      // 비동기 처리: selectedBytes는 별도 비동기 fetch로 업데이트
+      setSelectionStates((prev) => ({
+        ...prev,
+        [activeKey]: { start, end, selectedBytes: prev[activeKey]?.selectedBytes },
+      }));
+
+      // 비동기적으로 selectedBytes만 따로 fetch
+      (async () => {
+        let selectedBytes: Uint8Array | undefined = undefined;
+        if (
+          start !== null &&
+          end !== null &&
+          file &&
+          fileSize > 0
+        ) {
+          const s = Math.max(0, Math.min(start, end));
+          const e = Math.min(fileSize, Math.max(start, end) + 1);
+          const length = Math.min(8, e - s);
+          if (length > 0) {
+            const buf = await file.slice(s, s + length).arrayBuffer();
+            selectedBytes = new Uint8Array(buf);
+          }
+        }
+        setSelectionStates((prev) => {
+          // start/end가 바뀌었으면 무시
+          const cur = prev[activeKey];
+          if (!cur || cur.start !== start || cur.end !== end) return prev;
+          return {
+            ...prev,
+            [activeKey]: { start, end, selectedBytes },
+          };
+        });
+      })();
     },
-    [activeKey, setSelectionStates]
+    [activeKey, setSelectionStates, file, fileSize]
   );
 
   // ===== Byte Index Calculation =====
@@ -57,26 +89,26 @@ export const useHexViewerSelection = ({
 
   // ===== Mouse Events =====
   const handleMouseDown = useCallback(
-    (e: React.MouseEvent) => {
+    async (e: React.MouseEvent) => {
       if (e.button !== 0) return;
       const rect = (e.target as HTMLCanvasElement).getBoundingClientRect();
       const idx = getByteIndexFromMouse(e.clientX - rect.left, e.clientY - rect.top);
       if (idx !== null) {
         setIsDragging(true);
-        updateSelection(idx, idx);
+        await updateSelection(idx, idx);
       }
     },
     [getByteIndexFromMouse, updateSelection]
   );
 
   const handleMouseMove = useCallback(
-    (e: React.MouseEvent) => {
+    async (e: React.MouseEvent) => {
       if (!isDragging) return;
       const rect = (e.target as HTMLCanvasElement).getBoundingClientRect();
       const idx = getByteIndexFromMouse(e.clientX - rect.left, e.clientY - rect.top);
       if (idx !== null) {
         const current = selectionStates[activeKey];
-        if (current?.start !== null) updateSelection(current.start, idx);
+        if (current?.start !== null) await updateSelection(current.start, idx);
       }
     },
     [isDragging, getByteIndexFromMouse, selectionStates, activeKey, updateSelection]

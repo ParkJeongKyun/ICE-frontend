@@ -37,6 +37,7 @@ import { encodingOptions } from '@/contexts/TabDataContext/index';
 import { useTabData, EncodingType } from '@/contexts/TabDataContext';
 import Logo from '@/components/common/Icons/Logo';
 import { useWorker } from '@/contexts/WorkerContext';
+import DataInspector from '@/components/DataInspector';
 
 const MainLayout: React.FC = () => {
   // ✅ TabDataContext에서 선택 영역 가져오기
@@ -205,6 +206,9 @@ const MainLayout: React.FC = () => {
                 <div>
                   <Searcher hexViewerRef={hexViewerRef} />
                 </div>
+                <div>
+                  <DataInspector />
+                </div>
               </IceMobileBottom>
             )}
           </IceMobileLayout>
@@ -250,6 +254,7 @@ const MainLayout: React.FC = () => {
                 }}
               >
                 <Searcher hexViewerRef={hexViewerRef} />
+                <DataInspector />
               </IceRightSider>
             </FlexGrow>
           </IceLayout>
