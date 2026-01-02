@@ -9,6 +9,7 @@ import {
   EndianRadio,
   SectionDiv,
   SectionTitleDiv,
+  NotSelectedDiv,
 } from './index.styles';
 import { useTabData } from '@/contexts/TabDataContext';
 import {
@@ -164,8 +165,29 @@ const DataInspector: React.FC = () => {
       title="Data Inspector"
       children={
         <>
+          {/* 엔디안 선택 라디오 */}
+          <EndianRadioGroup>
+            <EndianLabel>
+              <EndianRadio
+                name="endian"
+                value="le"
+                checked={endian === 'le'}
+                onChange={() => setEndian('le')}
+              />
+              Little Endian
+            </EndianLabel>
+            <EndianLabel>
+              <EndianRadio
+                name="endian"
+                value="be"
+                checked={endian === 'be'}
+                onChange={() => setEndian('be')}
+              />
+              Big Endian
+            </EndianLabel>
+          </EndianRadioGroup>
           {bytes.length === 0 ? (
-            <div style={{ color: '#888', padding: 8 }}>선택된 데이터 없음</div>
+            <NotSelectedDiv>선택된 데이터 없음</NotSelectedDiv>
           ) : (
             <>
               <SectionDiv>
@@ -208,11 +230,11 @@ const DataInspector: React.FC = () => {
               <SectionDiv>
                 <SectionTitleDiv>Floating Point</SectionTitleDiv>
                 <ContentDiv>
-                  <CellHeaderDiv>Float32</CellHeaderDiv>
+                  <CellHeaderDiv>Float32(Single)</CellHeaderDiv>
                   <CellBodyDiv>{info?.float32}</CellBodyDiv>
                 </ContentDiv>
                 <ContentDiv>
-                  <CellHeaderDiv>Float64</CellHeaderDiv>
+                  <CellHeaderDiv>Float64(Double)</CellHeaderDiv>
                   <CellBodyDiv>{info?.float64}</CellBodyDiv>
                 </ContentDiv>
               </SectionDiv>
@@ -220,7 +242,7 @@ const DataInspector: React.FC = () => {
               <SectionDiv>
                 <SectionTitleDiv>Time/Date</SectionTitleDiv>
                 <ContentDiv>
-                  <CellHeaderDiv>OLE Automation Date</CellHeaderDiv>
+                  <CellHeaderDiv>OLETIME</CellHeaderDiv>
                   <CellBodyDiv>{info?.oletime}</CellBodyDiv>
                 </ContentDiv>
                 <ContentDiv>
@@ -258,27 +280,6 @@ const DataInspector: React.FC = () => {
               </SectionDiv>
             </>
           )}
-          {/* 엔디안 선택 라디오 */}
-          <EndianRadioGroup>
-            <EndianLabel>
-              <EndianRadio
-                name="endian"
-                value="le"
-                checked={endian === 'le'}
-                onChange={() => setEndian('le')}
-              />
-              Little Endian
-            </EndianLabel>
-            <EndianLabel>
-              <EndianRadio
-                name="endian"
-                value="be"
-                checked={endian === 'be'}
-                onChange={() => setEndian('be')}
-              />
-              Big Endian
-            </EndianLabel>
-          </EndianRadioGroup>
         </>
       }
       open

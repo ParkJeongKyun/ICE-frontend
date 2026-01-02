@@ -1,5 +1,12 @@
 import styled from 'styled-components';
 
+export const NotSelectedDiv = styled.div`
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: var(--ice-main-color);
+  margin: 4px 0 2px 0;
+`;
+
 export const ContentDiv = styled.div`
   display: flex;
   gap: 5px;
@@ -32,7 +39,8 @@ export const EndianRadioGroup = styled.div`
   align-items: center;
   justify-content: center;
   gap: 16px;
-  padding: 8px;
+  padding: 0px;
+  user-select: none;
 `;
 
 export const EndianLabel = styled.label`
@@ -50,13 +58,14 @@ export const EndianRadio = styled.input.attrs({ type: 'radio' })`
 `;
 
 export const SectionDiv = styled.div`
-  margin-bottom: 12px;
+  margin-bottom: 4px;
 `;
 
 export const SectionTitleDiv = styled.div`
   text-align: left;
   font-weight: 600;
   font-size: 0.75rem;
-  margin: 8px 0 4px 0;
+  margin: 4px 0 2px 0;
   color: var(--ice-main-color);
+  user-select: none;
 `;
