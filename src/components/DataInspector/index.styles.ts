@@ -30,6 +30,7 @@ export const CellBodyDiv = styled.div`
 export const EndianRadioGroup = styled.div`
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 16px;
   padding: 8px;
 `;
@@ -46,4 +47,15 @@ export const EndianLabel = styled.label`
 export const EndianRadio = styled.input.attrs({ type: 'radio' })`
   accent-color: var(--ice-main-color);
   margin-right: 4px;
+`;
+
+export const SectionDiv = styled.div`
+  margin-bottom: 12px;
+`;
+
+export const SectionTitleDiv = styled.div`
+  font-weight: 600;
+  font-size: 0.8rem;
+  margin: 8px 0 4px 0;
+  color: var(--ice-main-color);
 `;

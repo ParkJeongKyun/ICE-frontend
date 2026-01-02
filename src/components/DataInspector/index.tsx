@@ -7,6 +7,8 @@ import {
   EndianRadioGroup,
   EndianLabel,
   EndianRadio,
+  SectionDiv,
+  SectionTitleDiv,
 } from './index.styles';
 import { useTabData } from '@/contexts/TabDataContext';
 import {
@@ -80,6 +82,75 @@ const DataInspector: React.FC = () => {
       title="Data Inspector"
       children={
         <>
+          {bytes.length === 0 ? (
+            <div style={{ color: '#888', padding: 8 }}>선택된 데이터 없음</div>
+          ) : (
+            <>
+              <SectionDiv>
+                <SectionTitleDiv>Raw</SectionTitleDiv>
+                <ContentDiv>
+                  <CellHeaderDiv>Hex</CellHeaderDiv>
+                  <CellBodyDiv>{info?.hex}</CellBodyDiv>
+                </ContentDiv>
+                <ContentDiv>
+                  <CellHeaderDiv>Decimal</CellHeaderDiv>
+                  <CellBodyDiv>{info?.dec}</CellBodyDiv>
+                </ContentDiv>
+                <ContentDiv>
+                  <CellHeaderDiv>Binary</CellHeaderDiv>
+                  <CellBodyDiv>{info?.bin}</CellBodyDiv>
+                </ContentDiv>
+                <ContentDiv>
+                  <CellHeaderDiv>Base64</CellHeaderDiv>
+                  <CellBodyDiv>{info?.base64}</CellBodyDiv>
+                </ContentDiv>
+              </SectionDiv>
+              <SectionDiv>
+                <SectionTitleDiv>Text</SectionTitleDiv>
+                <ContentDiv>
+                  <CellHeaderDiv>ASCII</CellHeaderDiv>
+                  <CellBodyDiv>{info?.ascii}</CellBodyDiv>
+                </ContentDiv>
+                <ContentDiv>
+                  <CellHeaderDiv>UTF-8</CellHeaderDiv>
+                  <CellBodyDiv>{info?.utf8}</CellBodyDiv>
+                </ContentDiv>
+                <ContentDiv>
+                  <CellHeaderDiv>UTF-16</CellHeaderDiv>
+                  <CellBodyDiv>{info?.utf16}</CellBodyDiv>
+                </ContentDiv>
+              </SectionDiv>
+              <SectionDiv>
+                <SectionTitleDiv>Unsigned Integer</SectionTitleDiv>
+                {info?.unsigned.map((item) => (
+                  <ContentDiv key={item.label}>
+                    <CellHeaderDiv>{item.label}</CellHeaderDiv>
+                    <CellBodyDiv>{item.value}</CellBodyDiv>
+                  </ContentDiv>
+                ))}
+              </SectionDiv>
+              <SectionDiv>
+                <SectionTitleDiv>Signed Integer</SectionTitleDiv>
+                {info?.signed.map((item) => (
+                  <ContentDiv key={item.label}>
+                    <CellHeaderDiv>{item.label}</CellHeaderDiv>
+                    <CellBodyDiv>{item.value}</CellBodyDiv>
+                  </ContentDiv>
+                ))}
+              </SectionDiv>
+              <SectionDiv>
+                <SectionTitleDiv>Floating Point</SectionTitleDiv>
+                <ContentDiv>
+                  <CellHeaderDiv>Float32</CellHeaderDiv>
+                  <CellBodyDiv>{info?.float32}</CellBodyDiv>
+                </ContentDiv>
+                <ContentDiv>
+                  <CellHeaderDiv>Float64</CellHeaderDiv>
+                  <CellBodyDiv>{info?.float64}</CellBodyDiv>
+                </ContentDiv>
+              </SectionDiv>
+            </>
+          )}
           {/* 엔디안 선택 라디오 */}
           <EndianRadioGroup>
             <EndianLabel>
@@ -101,60 +172,6 @@ const DataInspector: React.FC = () => {
               Big Endian
             </EndianLabel>
           </EndianRadioGroup>
-          {bytes.length === 0 ? (
-            <div style={{ color: '#888', padding: 8 }}>선택된 데이터 없음</div>
-          ) : (
-            <>
-              <ContentDiv>
-                <CellHeaderDiv>Hex</CellHeaderDiv>
-                <CellBodyDiv>{info?.hex}</CellBodyDiv>
-              </ContentDiv>
-              <ContentDiv>
-                <CellHeaderDiv>Decimal</CellHeaderDiv>
-                <CellBodyDiv>{info?.dec}</CellBodyDiv>
-              </ContentDiv>
-              <ContentDiv>
-                <CellHeaderDiv>Binary</CellHeaderDiv>
-                <CellBodyDiv>{info?.bin}</CellBodyDiv>
-              </ContentDiv>
-              <ContentDiv>
-                <CellHeaderDiv>ASCII</CellHeaderDiv>
-                <CellBodyDiv>{info?.ascii}</CellBodyDiv>
-              </ContentDiv>
-              <ContentDiv>
-                <CellHeaderDiv>UTF-8</CellHeaderDiv>
-                <CellBodyDiv>{info?.utf8}</CellBodyDiv>
-              </ContentDiv>
-              <ContentDiv>
-                <CellHeaderDiv>UTF-16</CellHeaderDiv>
-                <CellBodyDiv>{info?.utf16}</CellBodyDiv>
-              </ContentDiv>
-              <ContentDiv>
-                <CellHeaderDiv>Base64</CellHeaderDiv>
-                <CellBodyDiv>{info?.base64}</CellBodyDiv>
-              </ContentDiv>
-              {info?.unsigned.map((item) => (
-                <ContentDiv key={item.label}>
-                  <CellHeaderDiv>{item.label}</CellHeaderDiv>
-                  <CellBodyDiv>{item.value}</CellBodyDiv>
-                </ContentDiv>
-              ))}
-              {info?.signed.map((item) => (
-                <ContentDiv key={item.label}>
-                  <CellHeaderDiv>{item.label}</CellHeaderDiv>
-                  <CellBodyDiv>{item.value}</CellBodyDiv>
-                </ContentDiv>
-              ))}
-              <ContentDiv>
-                <CellHeaderDiv>Float32</CellHeaderDiv>
-                <CellBodyDiv>{info?.float32}</CellBodyDiv>
-              </ContentDiv>
-              <ContentDiv>
-                <CellHeaderDiv>Float64</CellHeaderDiv>
-                <CellBodyDiv>{info?.float64}</CellBodyDiv>
-              </ContentDiv>
-            </>
-          )}
         </>
       }
       open
