@@ -24,6 +24,10 @@ export const Title = styled.div`
   font-weight: 600;
   font-size: 0.8rem;
   margin-left: 10px;
+  overflow: hidden;
+  white-space: nowrap;
+  word-break: break-all;
+  text-overflow: ellipsis;
 `;
 
 export const CollapseContent = styled.div<{

@@ -1,25 +1,9 @@
 import styled from 'styled-components';
-export const ViewerDiv = styled.div`
-  height: 100%;
-  width: 100%;
-`;
 
 export const ContentDiv = styled.div`
   display: flex;
   gap: 5px;
   margin-bottom: 5px;
-`;
-
-export const ThumbDiv = styled.div`
-  width: 100%;
-  text-align: center;
-  align-items: center;
-`;
-
-export const Thumbnail = styled.img`
-  max-width: 100%;
-  max-height: 150px;
-  border: 1px solid var(--main-line-color);
 `;
 
 export const CellHeaderDiv = styled.div`
@@ -41,4 +25,25 @@ export const CellBodyDiv = styled.div`
     background-color: var(--main-hover-color);
   }
   word-wrap: break-word;
+`;
+
+export const EndianRadioGroup = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 8px;
+`;
+
+export const EndianLabel = styled.label`
+  display: flex;
+  align-items: center;
+  font-size: 0.75rem;
+  color: var(--ice-main-color);
+  cursor: pointer;
+  gap: 4px;
+`;
+
+export const EndianRadio = styled.input.attrs({ type: 'radio' })`
+  accent-color: var(--ice-main-color);
+  margin-right: 4px;
 `;

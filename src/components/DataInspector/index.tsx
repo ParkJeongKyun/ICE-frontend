@@ -4,9 +4,9 @@ import {
   CellBodyDiv,
   CellHeaderDiv,
   ContentDiv,
-  ThumbDiv,
-  Thumbnail,
-  ViewerDiv,
+  EndianRadioGroup,
+  EndianLabel,
+  EndianRadio,
 } from './index.styles';
 import { useTabData } from '@/contexts/TabDataContext';
 
@@ -184,28 +184,26 @@ const DataInspector: React.FC = () => {
       children={
         <>
           {/* 엔디안 선택 라디오 */}
-          <div style={{ padding: 8 }}>
-            <label>
-              <input
-                type="radio"
+          <EndianRadioGroup>
+            <EndianLabel>
+              <EndianRadio
                 name="endian"
                 value="le"
                 checked={endian === 'le'}
                 onChange={() => setEndian('le')}
               />
               Little Endian
-            </label>
-            <label style={{ marginLeft: 16 }}>
-              <input
-                type="radio"
+            </EndianLabel>
+            <EndianLabel>
+              <EndianRadio
                 name="endian"
                 value="be"
                 checked={endian === 'be'}
                 onChange={() => setEndian('be')}
               />
               Big Endian
-            </label>
-          </div>
+            </EndianLabel>
+          </EndianRadioGroup>
           {bytes.length === 0 ? (
             <div style={{ color: '#888', padding: 8 }}>선택된 데이터 없음</div>
           ) : (
