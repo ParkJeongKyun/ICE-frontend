@@ -24,18 +24,26 @@ export function bytesToFloat32(bytes: Uint8Array, littleEndian: boolean) {
   if (bytes.length < 4) return null;
   const buf = new ArrayBuffer(4);
   const view = new Uint8Array(buf);
-  if (littleEndian) view.set(bytes.slice(0, 4));
-  else view.set(bytes.slice(0, 4).reverse());
-  return new DataView(buf).getFloat32(0, littleEndian);
+  if (littleEndian) {
+    view.set(bytes.slice(0, 4));
+    return new DataView(buf).getFloat32(0, true);
+  } else {
+    view.set(bytes.slice(0, 4));
+    return new DataView(buf).getFloat32(0, false);
+  }
 }
 
 export function bytesToFloat64(bytes: Uint8Array, littleEndian: boolean) {
   if (bytes.length < 8) return null;
   const buf = new ArrayBuffer(8);
   const view = new Uint8Array(buf);
-  if (littleEndian) view.set(bytes.slice(0, 8));
-  else view.set(bytes.slice(0, 8).reverse());
-  return new DataView(buf).getFloat64(0, littleEndian);
+  if (littleEndian) {
+    view.set(bytes.slice(0, 8));
+    return new DataView(buf).getFloat64(0, true);
+  } else {
+    view.set(bytes.slice(0, 8));
+    return new DataView(buf).getFloat64(0, false);
+  }
 }
 
 export function bytesToUtf16(bytes: Uint8Array, littleEndian: boolean) {
@@ -44,10 +52,6 @@ export function bytesToUtf16(bytes: Uint8Array, littleEndian: boolean) {
   } catch {
     return '';
   }
-}
-
-export function bytesToUintArray(bytes: Uint8Array) {
-  return Array.from(bytes).map((b) => b.toString());
 }
 
 export function bytesToBin(bytes: Uint8Array) {

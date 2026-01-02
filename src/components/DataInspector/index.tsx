@@ -17,7 +17,6 @@ import {
   bytesToFloat32,
   bytesToFloat64,
   bytesToUtf16,
-  bytesToUintArray,
   bytesToBin,
   bytesToBase64,
 } from '@/utils/dataInspector';
@@ -66,7 +65,7 @@ const DataInspector: React.FC = () => {
     const utf8 = new TextDecoder('utf-8').decode(getSlice(typeByteLimits.utf8));
     const utf16 = bytesToUtf16(getSlice(typeByteLimits.utf16), endian === 'le');
 
-    // Integer/Float 섹션
+    // Integer
     const makeIntInfo = (
       labels: string[],
       sizes: number[],
@@ -90,13 +89,20 @@ const DataInspector: React.FC = () => {
       bytesToSigned
     );
 
+    // Floating Point
     const float32 =
       bytes.length >= typeByteLimits.Float32
-        ? bytesToFloat32(getSlice(typeByteLimits.Float32), endian === 'le')?.toString() ?? '-'
+        ? (() => {
+            const v = bytesToFloat32(getSlice(typeByteLimits.Float32), endian === 'le');
+            return v !== null && v !== undefined ? v.toExponential() : '-';
+          })()
         : '-';
     const float64 =
       bytes.length >= typeByteLimits.Float64
-        ? bytesToFloat64(getSlice(typeByteLimits.Float64), endian === 'le')?.toString() ?? '-'
+        ? (() => {
+            const v = bytesToFloat64(getSlice(typeByteLimits.Float64), endian === 'le');
+            return v !== null && v !== undefined ? v.toExponential() : '-';
+          })()
         : '-';
 
     return {
