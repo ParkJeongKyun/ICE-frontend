@@ -39,8 +39,8 @@ export const useHexViewerSelection = ({
           fileSize > 0
         ) {
           const s = Math.max(0, Math.min(start, end));
-          // 8바이트는 무조건 s부터 저장
-          const length = Math.min(8, fileSize - s);
+          // 16바이트는 무조건 s부터 저장
+          const length = Math.min(16, fileSize - s);
           if (length > 0) {
             const buf = await file.slice(s, s + length).arrayBuffer();
             selectedBytes = new Uint8Array(buf);

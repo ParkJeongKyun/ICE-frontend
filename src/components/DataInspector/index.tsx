@@ -19,8 +19,21 @@ import {
   bytesToUtf16,
   bytesToBin,
   bytesToBase64,
+  decodeULEB128,
+  decodeSLEB128,
+  bytesToUnsignedInt24,
+  bytesToSignedInt24,
+  bytesToOLETIME,
+  bytesToFILETIME,
+  bytesToDOSDate,
+  bytesToDOSTime,
+  bytesToDOSDateTime,
+  bytesToTimeT32,
+  bytesToTimeT64,
+  bytesToGUID,
+  MIN_BYTE_LENGTHS,
 } from '@/utils/dataInspector';
-import { byteToChar, byteToHex } from '@/utils/encoding';
+import { byteToChar } from '@/utils/encoding';
 
 const DataInspector: React.FC = () => {
   const { activeKey, selectionStates } = useTabData();
@@ -35,79 +48,99 @@ const DataInspector: React.FC = () => {
   const info = useMemo(() => {
     if (!bytes || bytes.length === 0) return null;
 
-    // 각 타입별로 하나의 값을 표기하기 위한 '최소 바이트' 기준
-    const typeByteLimits = {
-      bin: 1,        // 1바이트(8비트)만 표시
-      base64: 3,     // base64는 3바이트가 4문자로 인코딩됨
-      ascii: 1,      // 1바이트 = 1문자
-      utf8: 1,       // 최소 1바이트(1문자), 실제로는 가변이지만 최소 단위
-      utf16: 2,      // 최소 2바이트(1문자)
-      UInt8: 1,
-      UInt16: 2,
-      UInt32: 4,
-      UInt64: 8,
-      Int8: 1,
-      Int16: 2,
-      Int32: 4,
-      Int64: 8,
-      Float32: 4,
-      Float64: 8,
-    };
-
     const getSlice = (size: number) => bytes.slice(0, size);
 
     // Raw 섹션
-    const bin = bytesToBin(getSlice(typeByteLimits.bin));
-    const base64 = bytesToBase64(getSlice(typeByteLimits.base64));
+    const bin = bytesToBin(getSlice(MIN_BYTE_LENGTHS.UInt8));
+    const base64 = bytesToBase64(getSlice(3)); // base64는 3바이트 고정
 
     // Text 섹션
-    const ascii = Array.from(getSlice(typeByteLimits.ascii)).map((b) => byteToChar(b, 'ascii')).join('');
-    const utf8 = new TextDecoder('utf-8').decode(getSlice(typeByteLimits.utf8));
-    const utf16 = bytesToUtf16(getSlice(typeByteLimits.utf16), endian === 'le');
+    const ascii = Array.from(getSlice(MIN_BYTE_LENGTHS.UInt8)).map((b) => byteToChar(b, 'ascii')).join('');
+    const utf8 = new TextDecoder('utf-8').decode(getSlice(MIN_BYTE_LENGTHS.UInt8)); // UInt8 사용
+    const utf16 = bytesToUtf16(getSlice(MIN_BYTE_LENGTHS.UInt16), endian === 'le'); // UInt16 사용
 
-    // Integer
-    const makeIntInfo = (
-      labels: string[],
-      sizes: number[],
-      fn: (b: Uint8Array, s: number, le: boolean) => bigint
-    ) =>
-      labels.map((label, i) => ({
-        label,
-        value: bytes.length >= sizes[i]
-          ? fn(getSlice(sizes[i]), sizes[i], endian === 'le').toString()
-          : '-',
-      }));
-
-    const unsigned = makeIntInfo(
-      ['UInt8', 'UInt16', 'UInt32', 'UInt64'],
-      [typeByteLimits.UInt8, typeByteLimits.UInt16, typeByteLimits.UInt32, typeByteLimits.UInt64],
-      bytesToUnsigned
-    );
-    const signed = makeIntInfo(
-      ['Int8', 'Int16', 'Int32', 'Int64'],
-      [typeByteLimits.Int8, typeByteLimits.Int16, typeByteLimits.Int32, typeByteLimits.Int64],
-      bytesToSigned
-    );
+    // Integer (Unsigned + Signed + Int24 + LEB128)
+    const intLabels = [
+      'UInt8', 'Int8',
+      'UInt16', 'Int16',
+      'UInt24', 'Int24',
+      'UInt32', 'Int32',
+      'UInt64', 'Int64',
+      'ULEB128', 'SLEB128',
+    ];
+    const intValues = [
+      bytes.length >= MIN_BYTE_LENGTHS.UInt8
+        ? bytesToUnsigned(getSlice(MIN_BYTE_LENGTHS.UInt8), MIN_BYTE_LENGTHS.UInt8, endian === 'le').toString()
+        : '-',
+      bytes.length >= MIN_BYTE_LENGTHS.Int8
+        ? bytesToSigned(getSlice(MIN_BYTE_LENGTHS.Int8), MIN_BYTE_LENGTHS.Int8, endian === 'le').toString()
+        : '-',
+      bytes.length >= MIN_BYTE_LENGTHS.UInt16
+        ? bytesToUnsigned(getSlice(MIN_BYTE_LENGTHS.UInt16), MIN_BYTE_LENGTHS.UInt16, endian === 'le').toString()
+        : '-',
+      bytes.length >= MIN_BYTE_LENGTHS.Int16
+        ? bytesToSigned(getSlice(MIN_BYTE_LENGTHS.Int16), MIN_BYTE_LENGTHS.Int16, endian === 'le').toString()
+        : '-',
+      bytes.length >= MIN_BYTE_LENGTHS.UInt24
+        ? bytesToUnsignedInt24(getSlice(MIN_BYTE_LENGTHS.UInt24), endian === 'le').toString()
+        : '-',
+      bytes.length >= MIN_BYTE_LENGTHS.Int24
+        ? bytesToSignedInt24(getSlice(MIN_BYTE_LENGTHS.Int24), endian === 'le').toString()
+        : '-',
+      bytes.length >= MIN_BYTE_LENGTHS.UInt32
+        ? bytesToUnsigned(getSlice(MIN_BYTE_LENGTHS.UInt32), MIN_BYTE_LENGTHS.UInt32, endian === 'le').toString()
+        : '-',
+      bytes.length >= MIN_BYTE_LENGTHS.Int32
+        ? bytesToSigned(getSlice(MIN_BYTE_LENGTHS.Int32), MIN_BYTE_LENGTHS.Int32, endian === 'le').toString()
+        : '-',
+      bytes.length >= MIN_BYTE_LENGTHS.UInt64
+        ? bytesToUnsigned(getSlice(MIN_BYTE_LENGTHS.UInt64), MIN_BYTE_LENGTHS.UInt64, endian === 'le').toString()
+        : '-',
+      bytes.length >= MIN_BYTE_LENGTHS.Int64
+        ? bytesToSigned(getSlice(MIN_BYTE_LENGTHS.Int64), MIN_BYTE_LENGTHS.Int64, endian === 'le').toString()
+        : '-',
+      bytes.length > 0
+        ? decodeULEB128(bytes)
+        : '-',
+      bytes.length > 0
+        ? decodeSLEB128(bytes)
+        : '-',
+    ];
+    const integers = intLabels.map((label, i) => ({
+      label,
+      value: intValues[i],
+    }));
 
     // Floating Point
     const float32 =
-      bytes.length >= typeByteLimits.Float32
+      bytes.length >= MIN_BYTE_LENGTHS.Float32
         ? (() => {
-            const v = bytesToFloat32(getSlice(typeByteLimits.Float32), endian === 'le');
+            const v = bytesToFloat32(getSlice(MIN_BYTE_LENGTHS.Float32), endian === 'le');
             return v !== null && v !== undefined ? v.toExponential() : '-';
           })()
         : '-';
     const float64 =
-      bytes.length >= typeByteLimits.Float64
+      bytes.length >= MIN_BYTE_LENGTHS.Float64
         ? (() => {
-            const v = bytesToFloat64(getSlice(typeByteLimits.Float64), endian === 'le');
+            const v = bytesToFloat64(getSlice(MIN_BYTE_LENGTHS.Float64), endian === 'le');
             return v !== null && v !== undefined ? v.toExponential() : '-';
           })()
         : '-';
 
+    // Time/Date
+    const oletime = bytes.length >= MIN_BYTE_LENGTHS.OLETIME ? bytesToOLETIME(getSlice(MIN_BYTE_LENGTHS.OLETIME), endian === 'le') : '-';
+    const filetime = bytes.length >= MIN_BYTE_LENGTHS.FILETIME ? bytesToFILETIME(getSlice(MIN_BYTE_LENGTHS.FILETIME), endian === 'le') : '-';
+    const dosdate = bytes.length >= MIN_BYTE_LENGTHS.DOSDATE ? bytesToDOSDate(getSlice(MIN_BYTE_LENGTHS.DOSDATE), endian === 'le') : '-';
+    const dostime = bytes.length >= MIN_BYTE_LENGTHS.DOSTIME ? bytesToDOSTime(getSlice(MIN_BYTE_LENGTHS.DOSTIME), endian === 'le') : '-';
+    const dosdatetime = bytes.length >= MIN_BYTE_LENGTHS.DOSDATETIME ? bytesToDOSDateTime(getSlice(MIN_BYTE_LENGTHS.DOSDATETIME), endian === 'le') : '-';
+    const timet32 = bytes.length >= MIN_BYTE_LENGTHS.TIMET32 ? bytesToTimeT32(getSlice(MIN_BYTE_LENGTHS.TIMET32), endian === 'le') : '-';
+    const timet64 = bytes.length >= MIN_BYTE_LENGTHS.TIMET64 ? bytesToTimeT64(getSlice(MIN_BYTE_LENGTHS.TIMET64), endian === 'le') : '-';
+
+    // GUID
+    const guid = bytes.length >= MIN_BYTE_LENGTHS.GUID ? bytesToGUID(getSlice(MIN_BYTE_LENGTHS.GUID), endian === 'le') : '-';
+
     return {
-      unsigned,
-      signed,
+      integers,
       float32,
       float64,
       ascii,
@@ -115,6 +148,14 @@ const DataInspector: React.FC = () => {
       utf16,
       bin,
       base64,
+      oletime,
+      filetime,
+      dosdate,
+      dostime,
+      dosdatetime,
+      timet32,
+      timet64,
+      guid,
     };
   }, [bytes, endian]);
 
@@ -153,24 +194,17 @@ const DataInspector: React.FC = () => {
                   <CellBodyDiv>{info?.utf16}</CellBodyDiv>
                 </ContentDiv>
               </SectionDiv>
+              {/* Integer 섹션 */}
               <SectionDiv>
-                <SectionTitleDiv>Unsigned Integer</SectionTitleDiv>
-                {info?.unsigned.map((item) => (
+                <SectionTitleDiv>Integer</SectionTitleDiv>
+                {info?.integers.map((item) => (
                   <ContentDiv key={item.label}>
                     <CellHeaderDiv>{item.label}</CellHeaderDiv>
                     <CellBodyDiv>{item.value}</CellBodyDiv>
                   </ContentDiv>
                 ))}
               </SectionDiv>
-              <SectionDiv>
-                <SectionTitleDiv>Signed Integer</SectionTitleDiv>
-                {info?.signed.map((item) => (
-                  <ContentDiv key={item.label}>
-                    <CellHeaderDiv>{item.label}</CellHeaderDiv>
-                    <CellBodyDiv>{item.value}</CellBodyDiv>
-                  </ContentDiv>
-                ))}
-              </SectionDiv>
+              {/* Floating Point 섹션 추가 */}
               <SectionDiv>
                 <SectionTitleDiv>Floating Point</SectionTitleDiv>
                 <ContentDiv>
@@ -180,6 +214,46 @@ const DataInspector: React.FC = () => {
                 <ContentDiv>
                   <CellHeaderDiv>Float64</CellHeaderDiv>
                   <CellBodyDiv>{info?.float64}</CellBodyDiv>
+                </ContentDiv>
+              </SectionDiv>
+              {/* Time/Date 섹션 추가 */}
+              <SectionDiv>
+                <SectionTitleDiv>Time/Date</SectionTitleDiv>
+                <ContentDiv>
+                  <CellHeaderDiv>OLE Automation Date</CellHeaderDiv>
+                  <CellBodyDiv>{info?.oletime}</CellBodyDiv>
+                </ContentDiv>
+                <ContentDiv>
+                  <CellHeaderDiv>FILETIME</CellHeaderDiv>
+                  <CellBodyDiv>{info?.filetime}</CellBodyDiv>
+                </ContentDiv>
+                <ContentDiv>
+                  <CellHeaderDiv>DOS Date</CellHeaderDiv>
+                  <CellBodyDiv>{info?.dosdate}</CellBodyDiv>
+                </ContentDiv>
+                <ContentDiv>
+                  <CellHeaderDiv>DOS Time</CellHeaderDiv>
+                  <CellBodyDiv>{info?.dostime}</CellBodyDiv>
+                </ContentDiv>
+                <ContentDiv>
+                  <CellHeaderDiv>DOS DateTime</CellHeaderDiv>
+                  <CellBodyDiv>{info?.dosdatetime}</CellBodyDiv>
+                </ContentDiv>
+                <ContentDiv>
+                  <CellHeaderDiv>time_t (32bit)</CellHeaderDiv>
+                  <CellBodyDiv>{info?.timet32}</CellBodyDiv>
+                </ContentDiv>
+                <ContentDiv>
+                  <CellHeaderDiv>time_t (64bit)</CellHeaderDiv>
+                  <CellBodyDiv>{info?.timet64}</CellBodyDiv>
+                </ContentDiv>
+              </SectionDiv>
+              {/* GUID 섹션 추가 */}
+              <SectionDiv>
+                <SectionTitleDiv>GUID</SectionTitleDiv>
+                <ContentDiv>
+                  <CellHeaderDiv>GUID</CellHeaderDiv>
+                  <CellBodyDiv>{info?.guid}</CellBodyDiv>
                 </ContentDiv>
               </SectionDiv>
             </>
