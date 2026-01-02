@@ -215,8 +215,16 @@ export function bytesToDOSDateTime(
   littleEndian: boolean
 ): string {
   if (bytes.length < MIN_BYTE_LENGTHS.DOSDATETIME) return '-';
-  const date = bytesToDOSDate(bytes.slice(0, 2), littleEndian);
-  const time = bytesToDOSTime(bytes.slice(2, 4), littleEndian);
+  let dateBytes: Uint8Array, timeBytes: Uint8Array;
+  if (littleEndian) {
+    dateBytes = bytes.slice(2, 4);
+    timeBytes = bytes.slice(0, 2);
+  } else {
+    timeBytes = bytes.slice(0, 2);
+    dateBytes = bytes.slice(2, 4);
+  }
+  const date = bytesToDOSDate(dateBytes, littleEndian);
+  const time = bytesToDOSTime(timeBytes, littleEndian);
   if (date === '-' || time === '-') return '-';
   return `${date} ${time}`;
 }

@@ -258,7 +258,7 @@ const DataInspector: React.FC = () => {
                   <CellBodyDiv>{info?.dostime}</CellBodyDiv>
                 </ContentDiv>
                 <ContentDiv>
-                  <CellHeaderDiv>DOS DateTime</CellHeaderDiv>
+                  <CellHeaderDiv>DOS Date&Time</CellHeaderDiv>
                   <CellBodyDiv>{info?.dosdatetime}</CellBodyDiv>
                 </ContentDiv>
                 <ContentDiv>
