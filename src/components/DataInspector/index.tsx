@@ -36,31 +36,68 @@ const DataInspector: React.FC = () => {
   const info = useMemo(() => {
     if (!bytes || bytes.length === 0) return null;
 
-    const makeIntInfo = (labels: string[], sizes: number[], fn: (b: Uint8Array, s: number, le: boolean) => bigint) =>
+    // 각 타입별로 하나의 값을 표기하기 위한 '최소 바이트' 기준
+    const typeByteLimits = {
+      bin: 1,        // 1바이트(8비트)만 표시
+      base64: 3,     // base64는 3바이트가 4문자로 인코딩됨
+      ascii: 1,      // 1바이트 = 1문자
+      utf8: 1,       // 최소 1바이트(1문자), 실제로는 가변이지만 최소 단위
+      utf16: 2,      // 최소 2바이트(1문자)
+      UInt8: 1,
+      UInt16: 2,
+      UInt32: 4,
+      UInt64: 8,
+      Int8: 1,
+      Int16: 2,
+      Int32: 4,
+      Int64: 8,
+      Float32: 4,
+      Float64: 8,
+    };
+
+    const getSlice = (size: number) => bytes.slice(0, size);
+
+    // Raw 섹션
+    const bin = bytesToBin(getSlice(typeByteLimits.bin));
+    const base64 = bytesToBase64(getSlice(typeByteLimits.base64));
+
+    // Text 섹션
+    const ascii = Array.from(getSlice(typeByteLimits.ascii)).map((b) => byteToChar(b, 'ascii')).join('');
+    const utf8 = new TextDecoder('utf-8').decode(getSlice(typeByteLimits.utf8));
+    const utf16 = bytesToUtf16(getSlice(typeByteLimits.utf16), endian === 'le');
+
+    // Integer/Float 섹션
+    const makeIntInfo = (
+      labels: string[],
+      sizes: number[],
+      fn: (b: Uint8Array, s: number, le: boolean) => bigint
+    ) =>
       labels.map((label, i) => ({
         label,
-        value: bytes.length >= sizes[i] ? fn(bytes, sizes[i], endian === 'le').toString() : '-',
+        value: bytes.length >= sizes[i]
+          ? fn(getSlice(sizes[i]), sizes[i], endian === 'le').toString()
+          : '-',
       }));
 
-    const unsigned = makeIntInfo(['UInt8', 'UInt16', 'UInt32', 'UInt64'], [1, 2, 4, 8], bytesToUnsigned);
-    const signed = makeIntInfo(['Int8', 'Int16', 'Int32', 'Int64'], [1, 2, 4, 8], bytesToSigned);
+    const unsigned = makeIntInfo(
+      ['UInt8', 'UInt16', 'UInt32', 'UInt64'],
+      [typeByteLimits.UInt8, typeByteLimits.UInt16, typeByteLimits.UInt32, typeByteLimits.UInt64],
+      bytesToUnsigned
+    );
+    const signed = makeIntInfo(
+      ['Int8', 'Int16', 'Int32', 'Int64'],
+      [typeByteLimits.Int8, typeByteLimits.Int16, typeByteLimits.Int32, typeByteLimits.Int64],
+      bytesToSigned
+    );
 
     const float32 =
-      bytes.length >= 4
-        ? bytesToFloat32(bytes, endian === 'le')?.toString() ?? '-'
+      bytes.length >= typeByteLimits.Float32
+        ? bytesToFloat32(getSlice(typeByteLimits.Float32), endian === 'le')?.toString() ?? '-'
         : '-';
     const float64 =
-      bytes.length >= 8
-        ? bytesToFloat64(bytes, endian === 'le')?.toString() ?? '-'
+      bytes.length >= typeByteLimits.Float64
+        ? bytesToFloat64(getSlice(typeByteLimits.Float64), endian === 'le')?.toString() ?? '-'
         : '-';
-
-    const ascii = Array.from(bytes).map((b) => byteToChar(b, 'ascii')).join('');
-    const utf8 = new TextDecoder('utf-8').decode(bytes);
-    const utf16 = bytesToUtf16(bytes, endian === 'le');
-    const hex = Array.from(bytes).map(byteToHex).join(' ');
-    const dec = bytesToUintArray(bytes).join(' ');
-    const bin = bytesToBin(bytes);
-    const base64 = bytesToBase64(bytes);
 
     return {
       unsigned,
@@ -70,8 +107,6 @@ const DataInspector: React.FC = () => {
       ascii,
       utf8,
       utf16,
-      hex,
-      dec,
       bin,
       base64,
     };
@@ -88,14 +123,6 @@ const DataInspector: React.FC = () => {
             <>
               <SectionDiv>
                 <SectionTitleDiv>Raw</SectionTitleDiv>
-                <ContentDiv>
-                  <CellHeaderDiv>Hex</CellHeaderDiv>
-                  <CellBodyDiv>{info?.hex}</CellBodyDiv>
-                </ContentDiv>
-                <ContentDiv>
-                  <CellHeaderDiv>Decimal</CellHeaderDiv>
-                  <CellBodyDiv>{info?.dec}</CellBodyDiv>
-                </ContentDiv>
                 <ContentDiv>
                   <CellHeaderDiv>Binary</CellHeaderDiv>
                   <CellBodyDiv>{info?.bin}</CellBodyDiv>

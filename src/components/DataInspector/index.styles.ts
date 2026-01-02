@@ -54,8 +54,9 @@ export const SectionDiv = styled.div`
 `;
 
 export const SectionTitleDiv = styled.div`
+  text-align: left;
   font-weight: 600;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   margin: 8px 0 4px 0;
   color: var(--ice-main-color);
 `;

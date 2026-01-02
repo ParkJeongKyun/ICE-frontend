@@ -25,13 +25,11 @@ export const useHexViewerSelection = ({
   // ===== Selection Update =====
   const updateSelection = useCallback(
     (start: number | null, end: number | null) => {
-      // 비동기 처리: selectedBytes는 별도 비동기 fetch로 업데이트
       setSelectionStates((prev) => ({
         ...prev,
         [activeKey]: { start, end, selectedBytes: prev[activeKey]?.selectedBytes },
       }));
 
-      // 비동기적으로 selectedBytes만 따로 fetch
       (async () => {
         let selectedBytes: Uint8Array | undefined = undefined;
         if (
@@ -41,15 +39,14 @@ export const useHexViewerSelection = ({
           fileSize > 0
         ) {
           const s = Math.max(0, Math.min(start, end));
-          const e = Math.min(fileSize, Math.max(start, end) + 1);
-          const length = Math.min(8, e - s);
+          // 8바이트는 무조건 s부터 저장
+          const length = Math.min(8, fileSize - s);
           if (length > 0) {
             const buf = await file.slice(s, s + length).arrayBuffer();
             selectedBytes = new Uint8Array(buf);
           }
         }
         setSelectionStates((prev) => {
-          // start/end가 바뀌었으면 무시
           const cur = prev[activeKey];
           if (!cur || cur.start !== start || cur.end !== end) return prev;
           return {
