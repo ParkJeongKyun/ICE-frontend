@@ -54,8 +54,7 @@ const DataInspector: React.FC = () => {
 
     const ascii = Array.from(bytes).map((b) => byteToChar(b, 'ascii')).join('');
     const utf8 = new TextDecoder('utf-8').decode(bytes);
-    const utf16le = bytesToUtf16(bytes, true);
-    const utf16be = bytesToUtf16(bytes, false);
+    const utf16 = bytesToUtf16(bytes, endian === 'le');
     const hex = Array.from(bytes).map(byteToHex).join(' ');
     const dec = bytesToUintArray(bytes).join(' ');
     const bin = bytesToBin(bytes);
@@ -68,8 +67,7 @@ const DataInspector: React.FC = () => {
       float64,
       ascii,
       utf8,
-      utf16le,
-      utf16be,
+      utf16,
       hex,
       dec,
       bin,
@@ -128,12 +126,8 @@ const DataInspector: React.FC = () => {
                 <CellBodyDiv>{info?.utf8}</CellBodyDiv>
               </ContentDiv>
               <ContentDiv>
-                <CellHeaderDiv>UTF-16LE</CellHeaderDiv>
-                <CellBodyDiv>{info?.utf16le}</CellBodyDiv>
-              </ContentDiv>
-              <ContentDiv>
-                <CellHeaderDiv>UTF-16BE</CellHeaderDiv>
-                <CellBodyDiv>{info?.utf16be}</CellBodyDiv>
+                <CellHeaderDiv>UTF-16</CellHeaderDiv>
+                <CellBodyDiv>{info?.utf16}</CellBodyDiv>
               </ContentDiv>
               <ContentDiv>
                 <CellHeaderDiv>Base64</CellHeaderDiv>
