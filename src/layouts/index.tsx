@@ -48,7 +48,7 @@ const MIN_SIDER_WIDTH = 100;
 const MainLayout: React.FC = () => {
   const { isEmpty, encoding, setEncoding, activeKey, selectionStates } = useTabData();
   const { isWasmReady } = useWorker();
-  const { processInfo, isProcessing } = useProcess();
+  const { isProcessing } = useProcess();
 
   const hexViewerRef = useRef<HexViewerRef>(null);
   const menuBtnZoneRef = useRef<MenuBtnZoneRef>(null);
@@ -126,9 +126,7 @@ const MainLayout: React.FC = () => {
         {(!isWasmReady || isProcessing) && (
           <ProcessInfo>
             <ProcessMsg>
-              {!isWasmReady
-                ? 'WASM 로딩 중'
-                : `${processInfo.fileName} 분석중`}
+              {!isWasmReady && 'WASM 로딩 중'}
             </ProcessMsg>
             <Spinner size={16} />
           </ProcessInfo>

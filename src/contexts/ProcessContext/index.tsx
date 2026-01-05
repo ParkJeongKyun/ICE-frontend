@@ -2,27 +2,14 @@ import React, {
   createContext,
   useContext,
   useState,
-  SetStateAction,
-  Dispatch,
+  useCallback,
   useMemo,
 } from 'react';
 
-export type ProcessType = 'Exif' | 'Hex' | 'Ascii';
-export type ProcessStatus = 'idle' | 'processing' | 'success' | 'failure';
-
-interface ProcessInfo {
-  fileName?: string;
-  type?: ProcessType;
-  status: ProcessStatus;
-  message?: string;
-}
-
 interface ProcessContextType {
-  processInfo: ProcessInfo;
-  setProcessInfo: Dispatch<SetStateAction<ProcessInfo>>;
   isProcessing: boolean;
-  isSuccess: boolean;
-  isFailure: boolean;
+  startProcessing: () => void;
+  stopProcessing: () => void;
 }
 
 const ProcessContext = createContext<ProcessContextType | undefined>(undefined);
@@ -30,23 +17,23 @@ const ProcessContext = createContext<ProcessContextType | undefined>(undefined);
 export const ProcessProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [processInfo, setProcessInfo] = useState<ProcessInfo>({
-    status: 'idle',
-  });
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  const isProcessing = processInfo.status === 'processing';
-  const isSuccess = processInfo.status === 'success';
-  const isFailure = processInfo.status === 'failure';
+  const startProcessing = useCallback(() => {
+    setIsProcessing(true);
+  }, []);
+
+  const stopProcessing = useCallback(() => {
+    setIsProcessing(false);
+  }, []);
 
   const value = useMemo(
     () => ({
-      processInfo,
-      setProcessInfo,
       isProcessing,
-      isSuccess,
-      isFailure,
+      startProcessing,
+      stopProcessing,
     }),
-    [processInfo, isProcessing, isSuccess, isFailure]
+    [isProcessing, startProcessing, stopProcessing]
   );
 
   return (

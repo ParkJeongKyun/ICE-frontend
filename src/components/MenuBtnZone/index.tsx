@@ -3,7 +3,7 @@ import { ChangeEvent, Ref, useImperativeHandle, useRef, useState } from 'react';
 import styled from 'styled-components';
 import MenuBtn from '@/components/common/MenuBtn';
 import HexViewer, { HexViewerRef } from '@/components/HexViewer';
-import { ProcessStatus, useProcess } from '@/contexts/ProcessContext';
+import { useProcess } from '@/contexts/ProcessContext';
 import { useTabData } from '@/contexts/TabDataContext';
 import { parseExifData, readFileForExif } from '@/utils/exifParser';
 import { useWorker } from '@/contexts/WorkerContext';
@@ -29,7 +29,7 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
   const { showError } = useMessage();
   const { setTabData, setActiveKey, getNewKey } = useTabData();
   const { fileWorker, isWasmReady } = useWorker();
-  const { setProcessInfo, isProcessing } = useProcess();
+  const { startProcessing, stopProcessing, isProcessing } = useProcess();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const toolsMenuRef = useRef<HTMLDivElement>(null);
   const [showToolsMenu, setShowToolsMenu] = useState(false);
@@ -60,14 +60,12 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
         return;
       }
 
-      let status: ProcessStatus = 'success';
-      let message = '';
+      if (isProcessing) {
+        showError('FILE_PROCESSING_FAILED', '이미 파일 처리 중입니다.');
+        return;
+      }
 
-      setProcessInfo({
-        fileName: file.name,
-        status: 'processing',
-        message: '',
-      });
+      startProcessing();
 
       try {
         const arrayBuffer = await readFileForExif(file);
@@ -129,22 +127,21 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
         setActiveKey(newActiveKey);
       } catch (error) {
         console.error('[MenuBtnZone] File processing failed:', error);
-        status = 'failure';
-        message = error instanceof Error ? error.message : '알 수 없는 오류';
+        const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류';
 
         if (error instanceof Error && error.message === 'EXIF_PROCESSING_TIMEOUT') {
           showError('EXIF_PROCESSING_TIMEOUT');
         } else {
-          showError('FILE_PROCESSING_FAILED', message);
+          showError('FILE_PROCESSING_FAILED', errorMessage);
         }
       } finally {
-        setProcessInfo({ status, message });
+        stopProcessing();
         if (fileInputRef.current) {
           fileInputRef.current.value = '';
         }
       }
     },
-    [fileWorker, isWasmReady, showError, setProcessInfo, getNewKey, setTabData, setActiveKey, hexViewerRef]
+    [fileWorker, isWasmReady, isProcessing, showError, startProcessing, stopProcessing, getNewKey, setTabData, setActiveKey, hexViewerRef]
   );
 
   useImperativeHandle(
@@ -176,7 +173,7 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
         onClick={handleOpenClick}
         text="Open"
         disabled={isProcessing}
-        disabledTxt="파일 분석이 완료되면 시도해주세요"
+        disabledTxt="파일 처리 중입니다"
       />
       <FileInput type="file" ref={fileInputRef} onChange={handleFileChange} />
       <ToolsMenuContainer ref={toolsMenuRef}>

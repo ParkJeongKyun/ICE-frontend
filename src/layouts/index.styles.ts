@@ -29,6 +29,7 @@ export const IceHeader = styled.div<{
   border-bottom: 1.5px solid var(--main-line-color);
   overflow: visible;
   position: relative;
+  user-select: none;
 
   /* 모바일 버전용 */
   ${(props) =>
@@ -86,6 +87,7 @@ export const IceFooter = styled.div<{ $isMobile?: boolean }>`
   border-top: 1px solid var(--main-line-color);
   font-size: 0.7rem;
   overflow: hidden;
+  user-select: none;
 
   ${(props) =>
     props.$isMobile &&

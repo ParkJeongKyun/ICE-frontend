@@ -2,6 +2,7 @@
 import { useLayoutEffect } from 'react';
 import { IceMap, IceMapContainer } from './index.styles';
 import { isValidLocation } from '@/utils/getAddress';
+import { useMessage } from '@/contexts/MessageContext';
 
 /* Kakao Map */
 declare var kakao: any;
@@ -11,48 +12,46 @@ interface Props {
   longitude: string;
 }
 
-// 카카오맵
 const KakaoMap: React.FC<Props> = ({ latitude, longitude }) => {
+  const { showError } = useMessage();
+
   useLayoutEffect(() => {
     if (isValidLocation(latitude, longitude)) {
-      // GPS 정보가 정상인 경우
       try {
-        // 맵 생성
         mapscript(latitude, longitude);
-      } catch (e) {
-        console.log(e);
+      } catch (error) {
+        console.error('[KakaoMap] Map initialization failed:', error);
+        showError('KAKAO_MAP_LOAD_ERROR');
       }
+    } else {
+      showError('KAKAO_MAP_INVALID_LOCATION');
     }
-  }, [latitude, longitude]);
+  }, [latitude, longitude, showError]);
 
-  // 맵 생성 스크립트
   const mapscript = (lat: any, lng: any) => {
-    let container = document.getElementById('IceLocaionMap');
-    let options = {
+    const container = document.getElementById('IceLocaionMap');
+    if (!container) {
+      throw new Error('Map container not found');
+    }
+
+    const options = {
       center: new kakao.maps.LatLng(lat, lng),
       level: 3,
     };
-    //지도
+
     const map = new kakao.maps.Map(container, options);
-
-    //마커가 표시 될 위치
-    let markerPosition = new kakao.maps.LatLng(lat, lng);
-
-    // 마커를 생성
-    let marker = new kakao.maps.Marker({
+    const markerPosition = new kakao.maps.LatLng(lat, lng);
+    const marker = new kakao.maps.Marker({
       position: markerPosition,
     });
 
-    // 마커를 지도 위에 표시
     marker.setMap(map);
   };
 
   return (
-    <>
-      <IceMapContainer>
-        <IceMap id="IceLocaionMap" />
-      </IceMapContainer>
-    </>
+    <IceMapContainer>
+      <IceMap id="IceLocaionMap" />
+    </IceMapContainer>
   );
 };
 

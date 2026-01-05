@@ -10,6 +10,7 @@ import React, {
 } from 'react';
 import { useTabData } from '@/contexts/TabDataContext';
 import { useWorker } from '@/contexts/WorkerContext';
+import { useMessage } from '@/contexts/MessageContext';
 import {
   HexViewerContainer,
   CanvasContainer,
@@ -68,6 +69,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     selectionStates,
   } = useTabData();
   const { fileWorker, getWorkerCache } = useWorker();
+  const { showError } = useMessage();
 
   // ===== Basic States =====
   const file = activeData?.file;
@@ -287,11 +289,12 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
           await initializeWorker(0);
           forceRender();
         } catch (error) {
-          console.error('[HexViewer] initializeWorker 실패:', error);
+          const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류';
+          showError('FILE_PROCESSING_FAILED', `워커 초기화 실패: ${errorMessage}`);
         }
       })();
     }
-  }, [file, activeKey, getWorkerCache, scrollPositions, requestChunks, visibleRows, fileSize, fileWorker, setScrollPositions, initializeWorker]);
+  }, [file, activeKey, getWorkerCache, scrollPositions, requestChunks, visibleRows, fileSize, fileWorker, setScrollPositions, initializeWorker, showError]);
 
   useEffect(() => {
     renderHeader();

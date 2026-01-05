@@ -15,6 +15,18 @@ export const ERROR_MESSAGES = {
     message: '워커가 초기화되지 않았습니다.\n페이지를 새로고침해주세요.',
     duration: 5000,
   },
+  WORKER_CREATION_FAILED: {
+    type: 'error' as MessageType,
+    title: '워커 생성 실패',
+    message: '워커를 생성하는데 실패했습니다.\n페이지를 새로고침해주세요.',
+    duration: 5000,
+  },
+  WORKER_ERROR: {
+    type: 'error' as MessageType,
+    title: '워커 오류',
+    message: '워커에서 오류가 발생했습니다.',
+    duration: 5000,
+  },
   WASM_LOADING: {
     type: 'warning' as MessageType,
     title: 'WASM 로딩 중',
@@ -54,6 +66,38 @@ export const ERROR_MESSAGES = {
     duration: 5000,
   },
 
+  // 검색 관련
+  SEARCH_TIMEOUT: {
+    type: 'error' as MessageType,
+    title: '검색 시간 초과',
+    message: '검색 시간이 초과되었습니다.\n다시 시도해주세요.',
+    duration: 5000,
+  },
+  SEARCH_WASM_ERROR: {
+    type: 'error' as MessageType,
+    title: 'WASM 검색 오류',
+    message: 'WASM 검색 중 오류가 발생했습니다.',
+    duration: 5000,
+  },
+  SEARCH_HEX_LENGTH_ERROR: {
+    type: 'error' as MessageType,
+    title: 'HEX 길이 오류',
+    message: 'HEX 문자열 길이가 올바르지 않습니다.\n짝수 개의 문자를 입력해주세요.',
+    duration: 4000,
+  },
+  SEARCH_NO_RESULTS: {
+    type: 'info' as MessageType,
+    title: '검색 완료',
+    message: '검색 결과가 없습니다.',
+    duration: 3000,
+  },
+  SEARCH_SUCCESS: {
+    type: 'success' as MessageType,
+    title: '검색 완료',
+    message: '검색이 완료되었습니다.',
+    duration: 2000,
+  },
+
   // 성공 메시지
   FILE_LOADED_SUCCESS: {
     type: 'success' as MessageType,
@@ -68,6 +112,20 @@ export const ERROR_MESSAGES = {
     title: '알 수 없는 오류',
     message: '알 수 없는 오류가 발생했습니다.\n다시 시도해주세요.',
     duration: 5000,
+  },
+
+  // 카카오맵 관련
+  KAKAO_MAP_LOAD_ERROR: {
+    type: 'error' as MessageType,
+    title: '지도 로드 실패',
+    message: '카카오맵을 불러오는데 실패했습니다.',
+    duration: 4000,
+  },
+  KAKAO_MAP_INVALID_LOCATION: {
+    type: 'warning' as MessageType,
+    title: '위치 정보 없음',
+    message: '유효한 GPS 정보가 없습니다.',
+    duration: 3000,
   },
 } as const;
 

@@ -2,13 +2,16 @@ import { useRef, useCallback } from 'react';
 import { useTabData } from '@/contexts/TabDataContext';
 import { useProcess } from '@/contexts/ProcessContext';
 import { useWorker } from '@/contexts/WorkerContext';
+import { useMessage } from '@/contexts/MessageContext';
 import { asciiToBytes } from '@/utils/hexViewer';
 import { IndexInfo } from '../index';
+import { ERROR_MESSAGES } from '@/constants/messages';
 
 export const useHexViewerSearch = () => {
   const { activeKey, activeData } = useTabData();
-  const { setProcessInfo } = useProcess();
+  const { startProcessing, stopProcessing } = useProcess();
   const { fileWorker } = useWorker();
+  const { showError, showMessage } = useMessage();
 
   const file = activeData?.file;
   const fileSize = file?.size || 0;
@@ -36,19 +39,9 @@ export const useHexViewerSearch = () => {
 
       const searchStartTabKey = activeKey;
 
-      setProcessInfo({
-        status: 'processing',
-        type: 'Hex',
-        message: '검색중...',
-      });
-
       const hexPattern = hex.replace(/[^0-9a-fA-F]/g, '').toLowerCase();
       if (hexPattern.length % 2 !== 0) {
-        setProcessInfo({
-          status: 'failure',
-          type: 'Hex',
-          message: 'HEX 길이 오류',
-        });
+        showError('SEARCH_HEX_LENGTH_ERROR');
         return null;
       }
 
@@ -72,14 +65,13 @@ export const useHexViewerSearch = () => {
       hexSearchIdRef.current += 1;
       const searchId = hexSearchIdRef.current;
 
+      startProcessing();
+
       return new Promise<IndexInfo[] | null>((resolve, reject) => {
         const timeoutId = setTimeout(() => {
           cleanup();
-          setProcessInfo({
-            status: 'failure',
-            type: 'Hex',
-            message: '검색 타임아웃',
-          });
+          stopProcessing();
+          showError('SEARCH_TIMEOUT');
           reject(new Error('Search timeout'));
         }, 30000);
 
@@ -89,36 +81,26 @@ export const useHexViewerSearch = () => {
             e.data.searchId === searchId
           ) {
             cleanup();
+            stopProcessing();
 
             if (searchStartTabKey !== activeKey) {
-              console.log('[HexViewer] 탭 변경으로 검색 결과 무시');
               resolve(null);
               return;
             }
 
-            // ✅ WASM 에러 처리
             if (e.data.error) {
-              setProcessInfo({
-                status: 'failure',
-                type: 'Hex',
-                message: 'WASM 검색 오류',
-              });
+              showError('SEARCH_WASM_ERROR');
               resolve(null);
               return;
             }
 
             if (e.data.results && e.data.results.length > 0) {
-              setProcessInfo({
-                status: 'success',
-                type: 'Hex',
-                message: `검색 성공 (${e.data.results.length}개)`,
+              showMessage({
+                ...ERROR_MESSAGES.SEARCH_SUCCESS,
+                message: `${e.data.results.length}개의 결과를 찾았습니다.`,
               });
             } else {
-              setProcessInfo({
-                status: 'success',
-                type: 'Hex',
-                message: '검색 결과 없음',
-              });
+              showError('SEARCH_NO_RESULTS');
             }
             resolve(e.data.results);
           }
@@ -140,7 +122,7 @@ export const useHexViewerSearch = () => {
         });
       });
     },
-    [file, fileWorker, activeKey, setProcessInfo]
+    [file, fileWorker, activeKey, startProcessing, stopProcessing, showError, showMessage]
   );
 
   const findAllByAsciiText = useCallback(
@@ -148,13 +130,6 @@ export const useHexViewerSearch = () => {
       if (!file || !text.trim() || !fileWorker) return null;
 
       const searchStartTabKey = activeKey;
-
-      setProcessInfo({
-        status: 'processing',
-        type: 'Ascii',
-        message: '검색중...',
-      });
-
       const patternBytes = asciiToBytes(text);
 
       const prevSearchId = asciiSearchIdRef.current;
@@ -173,14 +148,13 @@ export const useHexViewerSearch = () => {
       asciiSearchIdRef.current += 1;
       const searchId = asciiSearchIdRef.current;
 
+      startProcessing();
+
       return new Promise<IndexInfo[] | null>((resolve, reject) => {
         const timeoutId = setTimeout(() => {
           cleanup();
-          setProcessInfo({
-            status: 'failure',
-            type: 'Ascii',
-            message: '검색 타임아웃',
-          });
+          stopProcessing();
+          showError('SEARCH_TIMEOUT');
           reject(new Error('Search timeout'));
         }, 30000);
 
@@ -190,36 +164,26 @@ export const useHexViewerSearch = () => {
             e.data.searchId === searchId
           ) {
             cleanup();
+            stopProcessing();
 
             if (searchStartTabKey !== activeKey) {
-              console.log('[HexViewer] 탭 변경으로 검색 결과 무시');
               resolve(null);
               return;
             }
 
-            // ✅ WASM 에러 처리
             if (e.data.error) {
-              setProcessInfo({
-                status: 'failure',
-                type: 'Ascii',
-                message: 'WASM 검색 오류',
-              });
+              showError('SEARCH_WASM_ERROR');
               resolve(null);
               return;
             }
 
             if (e.data.results && e.data.results.length > 0) {
-              setProcessInfo({
-                status: 'success',
-                type: 'Ascii',
-                message: `검색 성공 (${e.data.results.length}개)`,
+              showMessage({
+                ...ERROR_MESSAGES.SEARCH_SUCCESS,
+                message: `${e.data.results.length}개의 결과를 찾았습니다.`,
               });
             } else {
-              setProcessInfo({
-                status: 'success',
-                type: 'Ascii',
-                message: '검색 결과 없음',
-              });
+              showError('SEARCH_NO_RESULTS');
             }
             resolve(e.data.results);
           }
@@ -242,7 +206,7 @@ export const useHexViewerSearch = () => {
         });
       });
     },
-    [file, fileWorker, activeKey, setProcessInfo]
+    [file, fileWorker, activeKey, startProcessing, stopProcessing, showError, showMessage]
   );
 
   const cleanup = useCallback(() => {
