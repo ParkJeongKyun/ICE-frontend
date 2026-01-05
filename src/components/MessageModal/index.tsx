@@ -1,12 +1,12 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { useMessage } from '@/contexts/MessageContext';
 import {
-  ToastContainer,
-  ToastBox,
-  ToastIcon,
-  ToastContent,
-  ToastTitle,
-  ToastText,
+  MessageModalContainer,
+  MessageBox,
+  MessageIcon,
+  MessageContent,
+  MessageTitle,
+  MessageText,
   CloseButton,
 } from './index.styles';
 import XIcon from '@/components/common/Icons/XIcon';
@@ -15,7 +15,7 @@ import AlertIcon from '@/components/common/Icons/AlertIcon';
 import CheckIcon from '@/components/common/Icons/CheckIcon';
 import ErrorIcon from '@/components/common/Icons/ErrorIcon';
 
-const iconMap = {
+const ICON_MAP = {
   error: ErrorIcon,
   warning: AlertIcon,
   success: CheckIcon,
@@ -25,29 +25,26 @@ const iconMap = {
 const MessageModal: React.FC = () => {
   const { currentMessage, hideCurrentMessage } = useMessage();
 
-  const IconComponent = useMemo(() => {
-    if (!currentMessage) return null;
-    const Icon = iconMap[currentMessage.type];
-    return <Icon width={24} height={24} />;
-  }, [currentMessage]);
-
   if (!currentMessage) return null;
 
   const { title, message, type } = currentMessage;
+  const Icon = ICON_MAP[type];
 
   return (
-    <ToastContainer $isOpen={true}>
-      <ToastBox $type={type} $isOpen={true}>
-        <ToastIcon $type={type}>{IconComponent}</ToastIcon>
-        <ToastContent>
-          {title && <ToastTitle>{title}</ToastTitle>}
-          <ToastText>{message}</ToastText>
-        </ToastContent>
+    <MessageModalContainer $isOpen={true}>
+      <MessageBox $type={type}>
+        <MessageIcon $type={type}>
+          <Icon width={20} height={20} />
+        </MessageIcon>
+        <MessageContent>
+          {title && <MessageTitle>{title}</MessageTitle>}
+          <MessageText>{message}</MessageText>
+        </MessageContent>
         <CloseButton onClick={hideCurrentMessage}>
-          <XIcon width={18} height={18} />
+          <XIcon width={16} height={16} />
         </CloseButton>
-      </ToastBox>
-    </ToastContainer>
+      </MessageBox>
+    </MessageModalContainer>
   );
 };
 

@@ -19,9 +19,7 @@ import {
   SelectValue,
   Separator,
   ProcessMsg,
-  IceSelect,
   IceFooterRight,
-  EncodingWrapper,
 } from './index.styles';
 import MenuBtnZone, { MenuBtnZoneRef } from '@/components/MenuBtnZone';
 import TabWindow from '@/components/TabWindow';
@@ -42,6 +40,7 @@ import DataInspector from '@/components/DataInspector';
 import MessageModal from '@/components/MessageModal';
 import MessageHistory from '@/components/MessageHistory';
 import Spinner from '@/components/common/Spinner';
+import Select from '@/components/common/Select';
 
 const MIN_SIDER_WIDTH = 100;
 
@@ -77,7 +76,6 @@ const MainLayout: React.FC = () => {
     max: MIN_SIDER_WIDTH * 3,
   });
 
-  // 간단한 계산은 useMemo 불필요 - 매번 계산해도 빠름
   const selectionInfo = (() => {
     const selection = selectionStates[activeKey];
     if (!selection?.start || !selection?.end) return null;
@@ -92,7 +90,6 @@ const MainLayout: React.FC = () => {
     };
   })();
 
-  // 객체 매핑은 useMemo로 - 참조 동일성 유지
   const [modalTitle, modalContent] = useMemo(() => {
     const modalData = {
       about: ['사이트 정보', <AboutMD key="about" />],
@@ -220,19 +217,11 @@ const MainLayout: React.FC = () => {
         </SelectInfo>
         <IceFooterRight>
           {!isEmpty && (
-            <EncodingWrapper>
-              <SelectLabel>인코딩:</SelectLabel>
-              <IceSelect
-                value={encoding}
-                onChange={(e) => setEncoding(e.target.value as EncodingType)}
-              >
-                {encodingOptions.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
-                ))}
-              </IceSelect>
-            </EncodingWrapper>
+            <Select
+              value={encoding}
+              options={encodingOptions}
+              onChange={(value) => setEncoding(value as EncodingType)}
+            />
           )}
           <MessageHistory />
         </IceFooterRight>

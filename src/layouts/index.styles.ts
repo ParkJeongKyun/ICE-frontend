@@ -79,15 +79,16 @@ export const IceHeaderProgressBar = styled.div<{ $progress?: number }>`
 // 푸터
 export const IceFooter = styled.div<{ $isMobile?: boolean }>`
   display: flex;
-  align-items: center;
+  align-items: stretch;
   gap: 8px;
   height: 24px;
   padding: 0px 8px;
   background-color: var(--main-bg-color);
   border-top: 1px solid var(--main-line-color);
   font-size: 0.7rem;
-  overflow: hidden;
+  overflow: visible;
   user-select: none;
+  position: relative;
 
   ${(props) =>
     props.$isMobile &&
@@ -278,41 +279,13 @@ export const IceMobileBottom = styled.div`
   border-top: 1px solid var(--main-line-color);
 `;
 
-// 셀렉트 박스 스타일
-export const IceSelect = styled.select`
-  min-width: 120px;
-  max-width: 200px;
-  outline: none;
-  color: var(--ice-main-color);
-  border: none;
-  background-color: var(--main-bg-color);
-  font-size: 0.7rem;
-  font-weight: 500;
-  height: 18px;
-  border-radius: 3px;
-  padding: 0 4px;
-  cursor: pointer;
-
-  &:focus,
-  &:hover {
-    outline: none;
-    border: none;
-    background-color: var(--main-hover-color);
-  }
-`;
-
 export const IceFooterRight = styled.div`
   display: flex;
-  align-items: center;
+  align-items: stretch;
   gap: 8px;
   font-size: 0.7rem;
   font-weight: 500;
   flex-shrink: 0;
   margin-left: 8px;
-`;
-
-export const EncodingWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 4px;
+  position: relative;
 `;

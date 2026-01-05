@@ -1,109 +1,87 @@
-import styled, { keyframes } from 'styled-components';
+import styled from 'styled-components';
 import { MessageType } from '@/contexts/MessageContext';
 
-const slideIn = keyframes`
-  from {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-`;
-
-const slideOut = keyframes`
-  from {
-    transform: translateX(0);
-    opacity: 1;
-  }
-  to {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-`;
-
-// Toast 스타일
-export const ToastContainer = styled.div<{ $isOpen: boolean }>`
+export const MessageModalContainer = styled.div<{ $isOpen: boolean }>`
   position: fixed;
-  top: 70px;
-  right: 20px;
+  bottom: 30px;
+  right: 30px;
   z-index: 10000;
-  pointer-events: ${({ $isOpen }) => ($isOpen ? 'auto' : 'none')};
+  display: ${({ $isOpen }) => ($isOpen ? 'block' : 'none')};
 
   @media (max-width: 768px) {
-    top: auto;
     bottom: 80px;
     right: 10px;
     left: 10px;
   }
 `;
 
-export const ToastBox = styled.div<{ $type: MessageType; $isOpen: boolean }>`
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  min-width: 320px;
-  max-width: 500px;
-  padding: 16px;
+export const MessageBox = styled.div<{ $type: MessageType }>`
   background-color: var(--main-bg-color);
-  border: 2px solid ${({ $type }) => getTypeColor($type)};
-  border-radius: 8px;
+  border: 1px solid ${({ $type }) => getTypeColor($type)};
+  border-left: 4px solid ${({ $type }) => getTypeColor($type)};
+  border-radius: 4px;
+  padding: 16px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  animation: ${({ $isOpen }) => ($isOpen ? slideIn : slideOut)} 0.3s ease-out;
-  user-select: none;
+  min-width: 300px;
+  max-width: 400px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
 
   @media (max-width: 768px) {
     min-width: auto;
-    max-width: 100%;
+    max-width: none;
     padding: 12px;
-    gap: 10px;
   }
 `;
 
-export const ToastIcon = styled.div<{ $type: MessageType }>`
+export const MessageIcon = styled.div<{ $type: MessageType }>`
   color: ${({ $type }) => getTypeColor($type)};
   flex-shrink: 0;
   display: flex;
   align-items: center;
-  justify-content: center;
+  padding-top: 2px;
 `;
 
-export const ToastContent = styled.div`
+export const MessageContent = styled.div`
   flex: 1;
   display: flex;
   flex-direction: column;
   gap: 4px;
+  min-width: 0;
 `;
 
-export const ToastTitle = styled.div`
-  font-size: 0.9rem;
+export const MessageTitle = styled.div`
+  font-size: 0.85rem;
   font-weight: 600;
   color: var(--ice-main-color);
+  line-height: 1.2;
 `;
 
-export const ToastText = styled.div`
-  font-size: 0.85rem;
-  line-height: 1.5;
+export const MessageText = styled.div`
+  font-size: 0.8rem;
   color: var(--main-color);
-  white-space: pre-wrap;
+  line-height: 1.4;
   word-break: break-word;
+  white-space: pre-wrap;
 `;
 
 export const CloseButton = styled.button`
   background: none;
   border: none;
   cursor: pointer;
-  padding: 0;
+  padding: 4px;
+  color: var(--main-color);
+  transition: all 0.2s;
+  flex-shrink: 0;
+  border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--main-color);
-  transition: color 0.2s;
-  flex-shrink: 0;
 
   &:hover {
     color: var(--ice-main-color);
+    background-color: var(--main-hover-color);
   }
 `;
 
