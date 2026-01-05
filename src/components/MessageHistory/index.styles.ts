@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import { MessageType } from '@/contexts/MessageContext';
+import { getMessageTypeColor } from '@/utils/messageStyles';
 
 export const HistoryButton = styled.button<{ $hasUnread: boolean }>`
   position: relative;
@@ -19,31 +20,16 @@ export const HistoryButton = styled.button<{ $hasUnread: boolean }>`
     color: var(--ice-main-color);
     background-color: var(--main-hover-color);
   }
-
-  ${({ $hasUnread }) =>
-    $hasUnread &&
-    `
-    animation: pulse 2s ease-in-out infinite;
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.7; }
-    }
-  `}
 `;
 
 export const HistoryBadge = styled.span`
   position: absolute;
-  top: 4px;
-  right: 4px;
-  background-color: #dc3545;
-  color: white;
-  font-size: 0.65rem;
-  font-weight: 600;
-  padding: 2px 5px;
-  border-radius: 10px;
-  min-width: 18px;
-  text-align: center;
-  line-height: 1;
+  top: 6px;
+  right: 6px;
+  width: 4px;
+  height: 4px;
+  background-color: var(--ice-main-color);
+  border-radius: 50%;
 `;
 
 export const HistoryOverlay = styled.div<{ $isMobile: boolean }>`
@@ -141,7 +127,7 @@ export const HistoryItem = styled.div<{ $type: MessageType; $read: boolean; $isO
   margin-bottom: 6px;
   background-color: ${({ $read }) =>
     $read ? 'transparent' : 'var(--main-hover-color)'};
-  border-left: 2px solid ${({ $type }) => getTypeColor($type)};
+  border-left: 2px solid ${({ $type }) => getMessageTypeColor($type)};
   border-radius: 3px;
   transition: all 0.2s;
   opacity: ${({ $read }) => ($read ? 0.7 : 1)};
@@ -167,7 +153,7 @@ export const HistoryItemHeader = styled.div`
 `;
 
 export const HistoryItemIcon = styled.div<{ $type: MessageType }>`
-  color: ${({ $type }) => getTypeColor($type)};
+  color: ${({ $type }) => getMessageTypeColor($type)};
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -261,16 +247,3 @@ export const EmptyHistory = styled.div`
   opacity: 0.7;
   font-size: 0.75rem;
 `;
-
-function getTypeColor(type: MessageType): string {
-  switch (type) {
-    case 'error':
-      return '#dc3545';
-    case 'warning':
-      return '#ffc107';
-    case 'success':
-      return '#28a745';
-    default:
-      return 'var(--ice-main-color)';
-  }
-}

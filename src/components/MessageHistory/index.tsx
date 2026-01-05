@@ -94,7 +94,7 @@ const MessageHistory: React.FC = () => {
         <>
             <HistoryButton onClick={handleToggle} $hasUnread={unreadCount > 0}>
                 <BellIcon width={14} height={14} />
-                {unreadCount > 0 && <HistoryBadge>{unreadCount}</HistoryBadge>}
+                {unreadCount > 0 && <HistoryBadge />}
             </HistoryButton>
 
             {isOpen && <HistoryOverlay $isMobile={isMobile} onClick={handleClose} />}

@@ -71,12 +71,11 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   const getNewKey = useCallback((): TabKey => {
-    return ('tab-' + crypto.randomUUID()) as TabKey;
+    return `tab-${crypto.randomUUID()}` as TabKey;
   }, []);
 
-  // useMemo 제거 - 단순 객체 접근은 빠름
-  const activeData = tabData[activeKey];
-  const isEmpty = Object.keys(tabData).length === 0;
+  const activeData = useMemo(() => tabData[activeKey], [tabData, activeKey]);
+  const isEmpty = useMemo(() => Object.keys(tabData).length === 0, [tabData]);
 
   const reorderTabs = useCallback((fromIndex: number, toIndex: number) => {
     setTabOrder((prev) => {
@@ -120,7 +119,6 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
     });
   }, [tabData]);
 
-  // contextValue만 useMemo로 - Context Provider의 value는 메모이제이션 필수
   const contextValue = useMemo(
     () => ({
       tabData,
@@ -147,13 +145,9 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
       activeData,
       isEmpty,
       encodingState,
-      setEncoding,
       scrollPositions,
       selectionStates,
       tabOrder,
-      getNewKey,
-      deleteTab,
-      reorderTabs,
     ]
   );
 

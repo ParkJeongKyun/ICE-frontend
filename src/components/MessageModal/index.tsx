@@ -40,7 +40,7 @@ const MessageModal: React.FC = () => {
               {message.title && <MessageTitle>{message.title}</MessageTitle>}
               <MessageText>{message.message}</MessageText>
             </MessageContent>
-            <CloseButton onClick={() => hideMessage(message.id)}>
+            <CloseButton onClick={() => hideMessage(message.id, true)}>
               <XIcon width={16} height={16} />
             </CloseButton>
           </MessageBox>

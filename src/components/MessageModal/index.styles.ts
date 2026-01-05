@@ -1,5 +1,6 @@
 import styled, { keyframes } from 'styled-components';
 import { MessageType } from '@/contexts/MessageContext';
+import { getMessageTypeColor } from '@/utils/messageStyles';
 
 const fadeIn = keyframes`
   from {
@@ -21,7 +22,8 @@ export const MessageModalContainer = styled.div`
   pointer-events: none;
 
   @media (max-width: 768px) {
-    bottom: 80px;
+    top: 10px;
+    bottom: auto;
     right: 10px;
     left: 10px;
   }
@@ -30,8 +32,8 @@ export const MessageModalContainer = styled.div`
 export const MessageBox = styled.div<{ $type: MessageType }>`
   position: relative;
   background-color: var(--main-bg-color);
-  border: 1px solid ${({ $type }) => getTypeColor($type)};
-  border-left: 4px solid ${({ $type }) => getTypeColor($type)};
+  border: 1px solid ${({ $type }) => getMessageTypeColor($type)};
+  border-left: 4px solid ${({ $type }) => getMessageTypeColor($type)};
   border-radius: 4px;
   padding: 14px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
@@ -51,7 +53,7 @@ export const MessageBox = styled.div<{ $type: MessageType }>`
 `;
 
 export const MessageIcon = styled.div<{ $type: MessageType }>`
-  color: ${({ $type }) => getTypeColor($type)};
+  color: ${({ $type }) => getMessageTypeColor($type)};
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -99,16 +101,3 @@ export const CloseButton = styled.button`
     background-color: var(--main-hover-color);
   }
 `;
-
-function getTypeColor(type: MessageType): string {
-  switch (type) {
-    case 'error':
-      return '#dc3545';
-    case 'warning':
-      return '#ffc107';
-    case 'success':
-      return '#28a745';
-    default:
-      return 'var(--ice-main-color)';
-  }
-}

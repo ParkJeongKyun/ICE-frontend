@@ -32,7 +32,7 @@ const MAX_TOAST_COUNT = 3; // 최대 토스트 표시 개수
 interface MessageContextType {
   showMessage: (options: MessageOptions | string) => void;
   showError: (code: ErrorCode, customMessage?: string) => void;
-  hideMessage: (id: string) => void;
+  hideMessage: (id: string, removeFromHistory?: boolean) => void;
   currentMessages: MessageItem[]; // 배열로 변경
   messageHistory: MessageItem[];
   clearHistory: () => void;
@@ -50,25 +50,24 @@ export const MessageProvider: React.FC<{ children: React.ReactNode }> = ({
   const [messageHistory, setMessageHistory] = useState<MessageItem[]>([]);
   const timeoutsRef = useRef<Map<string, NodeJS.Timeout>>(new Map());
 
-  const hideMessage = useCallback((id: string) => {
+  const hideMessage = useCallback((id: string, removeFromHistory: boolean = false) => {
     const timeout = timeoutsRef.current.get(id);
     if (timeout) {
       clearTimeout(timeout);
       timeoutsRef.current.delete(id);
     }
     setCurrentMessages((prev) => prev.filter((msg) => msg.id !== id));
-    setMessageHistory((prev) =>
-      prev.map((msg) =>
-        msg.id === id ? { ...msg, read: true } : msg
-      )
-    );
+    
+    if (removeFromHistory) {
+      setMessageHistory((prev) => prev.filter((msg) => msg.id !== id));
+    }
   }, []);
 
   const showMessage = useCallback((options: MessageOptions | string) => {
     const opts: MessageOptions =
       typeof options === 'string'
-        ? { message: options, type: 'info', duration: 3000 }
-        : { duration: 3000, type: 'info', ...options };
+        ? { message: options, type: 'info', duration: 6000 }
+        : { duration: 6000, type: 'info', ...options };
 
     const newMessage: MessageItem = {
       id: crypto.randomUUID(),
@@ -79,24 +78,23 @@ export const MessageProvider: React.FC<{ children: React.ReactNode }> = ({
       read: false,
     };
 
-    // 현재 토스트 메시지 추가
     setCurrentMessages((prev) => {
       const updated = [...prev, newMessage];
-      // 최대 개수 초과 시 가장 오래된 것 제거
       if (updated.length > MAX_TOAST_COUNT) {
         const removed = updated.shift();
-        if (removed) hideMessage(removed.id);
+        if (removed) {
+          // setTimeout으로 비동기 처리하여 상태 업데이트 충돌 방지
+          setTimeout(() => hideMessage(removed.id), 0);
+        }
       }
       return updated;
     });
 
-    // 히스토리에 추가
     setMessageHistory((prev) => [newMessage, ...prev.slice(0, 99)]);
 
-    // 자동 닫기 타이머
     if (opts.duration && opts.duration > 0) {
       const timeoutId = setTimeout(() => {
-        hideMessage(newMessage.id);
+        hideMessage(newMessage.id, false);
       }, opts.duration);
       timeoutsRef.current.set(newMessage.id, timeoutId);
     }
@@ -129,6 +127,7 @@ export const MessageProvider: React.FC<{ children: React.ReactNode }> = ({
     [messageHistory]
   );
 
+  // useMemo 최적화 - 필수 값만 포함
   const value = useMemo(
     () => ({
       showMessage,
@@ -144,12 +143,8 @@ export const MessageProvider: React.FC<{ children: React.ReactNode }> = ({
     [
       showMessage,
       showError,
-      hideMessage,
       currentMessages,
       messageHistory,
-      clearHistory,
-      markAsRead,
-      deleteMessage,
       unreadCount,
     ]
   );
