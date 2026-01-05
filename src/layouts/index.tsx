@@ -14,7 +14,6 @@ import {
   IceMobileLayout,
   IceRightSider,
   ProcessInfo,
-  Spinner,
   SelectInfo,
   Separator,
   ProcessMsg,
@@ -39,6 +38,7 @@ import { useWorker } from '@/contexts/WorkerContext';
 import DataInspector from '@/components/DataInspector';
 import MessageModal from '@/components/MessageModal';
 import MessageHistory from '@/components/MessageHistory';
+import Spinner from '@/components/common/Spinner';
 
 const MIN_SIDER_WIDTH = 100;
 
@@ -123,22 +123,20 @@ const MainLayout: React.FC = () => {
             setIsModalOpen(true);
           }}
         />
-        {!isWasmReady && (
+        {(!isWasmReady || isProcessing) && (
           <ProcessInfo>
-            <Spinner />
-            <ProcessMsg>WASM 로딩 중...</ProcessMsg>
+            <ProcessMsg>
+              {!isWasmReady 
+                ? 'WASM 로딩 중' 
+                : `${processInfo.fileName} 분석중`}
+            </ProcessMsg>
+            <Spinner size={16} />
           </ProcessInfo>
         )}
         {isProcessing && (
-          <>
-            <ProcessInfo>
-              <Spinner />
-              <ProcessMsg>{processInfo.fileName} 분석중</ProcessMsg>
-            </ProcessInfo>
-            <IceHeaderProgressBar $progress={undefined}>
-              <div />
-            </IceHeaderProgressBar>
-          </>
+          <IceHeaderProgressBar $progress={undefined}>
+            <div />
+          </IceHeaderProgressBar>
         )}
       </IceHeader>
 

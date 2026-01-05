@@ -20,6 +20,7 @@ export const IceHeader = styled.div<{
 }>`
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 8px;
   padding: 2px 8px;
   height: 26px;
@@ -102,62 +103,22 @@ export const ProcessInfo = styled.div`
   display: flex;
   flex-wrap: nowrap;
   align-items: center;
-  justify-content: center;
-  margin-left: 5px;
-  font-size: 0.75rem;
+  justify-content: flex-end;
+  gap: 1px;
+  margin-left: auto;
+  font-size: 0.65rem;
   font-weight: 600;
-`;
-
-export const Spinner = styled.div`
-  border: 2px solid var(--main-line-color);
-  border-top: 2px solid var(--ice-main-color);
-  border-radius: 50%;
-  width: 10px;
-  height: 10px;
-  animation: spin 1s linear infinite;
-
-  @keyframes spin {
-    0% {
-      transform: rotate(0deg);
-    }
-    100% {
-      transform: rotate(360deg);
-    }
-  }
+  white-space: nowrap;
 `;
 
 export const ProcessMsg = styled.span`
-  margin-left: 5px;
-  margin-right: 5px;
   position: relative;
-
-  &::after {
-    content: '';
-    animation: dots 1.5s steps(1, end) infinite;
-  }
-
-  @keyframes dots {
-    0%,
-    20% {
-      content: '';
-    }
-    40% {
-      content: '.';
-    }
-    60% {
-      content: '..';
-    }
-    80%,
-    100% {
-      content: '...';
-    }
-  }
 `;
 
 export const SelectInfo = styled.div`
   display: flex;
   flex-wrap: nowrap;
-  font-size: 0.75rem;
+  font-size: 0.65rem;
   font-weight: 600;
   > div {
     text-align: start;

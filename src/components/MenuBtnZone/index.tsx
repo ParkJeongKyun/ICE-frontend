@@ -203,6 +203,8 @@ const Div = styled.div`
   gap: 2px;
   height: 100%;
   user-select: none;
+  flex: 1;
+  min-width: 0;
 `;
 
 const FileInput = styled.input`
