@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import {
   ModalContainer,
   ModalContent,
@@ -22,29 +22,37 @@ const Modal: React.FC<ModalProps> = ({
   isOpen,
   onClose,
   children,
-  top,
-  left,
+  top = '50%',
+  left = '50%',
 }) => {
-  if (!isOpen) return null;
+  const handleContainerClick = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      if (e.target === e.currentTarget && onClose) {
+        onClose();
+      }
+    },
+    [onClose]
+  );
 
-  const handleContainerClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (e.target === e.currentTarget && onClose) {
-      onClose();
-    }
-  };
+  const handleContentClick = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      e.stopPropagation();
+    },
+    []
+  );
+
+  if (!isOpen) return null;
 
   return (
     <ModalContainer $isOpen={isOpen} onClick={handleContainerClick}>
-      <ModalContent
-        $top={top || '50%'}
-        $left={left || '50%'}
-        onClick={(e) => e.stopPropagation()}
-      >
+      <ModalContent $top={top} $left={left} onClick={handleContentClick}>
         <ModalHeader>
           <div>{title}</div>
-          <CloseBtn onClick={onClose}>
-            <XIcon height={20} width={20} />
-          </CloseBtn>
+          {onClose && (
+            <CloseBtn onClick={onClose} aria-label="닫기">
+              <XIcon height={20} width={20} />
+            </CloseBtn>
+          )}
         </ModalHeader>
         <ChildDiv>{children}</ChildDiv>
       </ModalContent>
@@ -52,4 +60,4 @@ const Modal: React.FC<ModalProps> = ({
   );
 };
 
-export default Modal;
+export default React.memo(Modal);

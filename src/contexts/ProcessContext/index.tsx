@@ -34,18 +34,9 @@ export const ProcessProvider: React.FC<{ children: React.ReactNode }> = ({
     status: 'idle',
   });
 
-  const isProcessing = useMemo(
-    () => processInfo.status === 'processing',
-    [processInfo.status]
-  );
-  const isSuccess = useMemo(
-    () => processInfo.status === 'success',
-    [processInfo.status]
-  );
-  const isFailure = useMemo(
-    () => processInfo.status === 'failure',
-    [processInfo.status]
-  );
+  const isProcessing = processInfo.status === 'processing';
+  const isSuccess = processInfo.status === 'success';
+  const isFailure = processInfo.status === 'failure';
 
   const value = useMemo(
     () => ({

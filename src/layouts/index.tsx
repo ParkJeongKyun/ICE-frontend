@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import {
   FlexGrow,
   IceContent,
@@ -33,146 +33,95 @@ import { HexViewerRef } from '@/components/HexViewer';
 import { useProcess } from '@/contexts/ProcessContext';
 import Home from '@/components/Home';
 import { isMobile } from 'react-device-detect';
-import { encodingOptions } from '@/contexts/TabDataContext/index';
-import { useTabData, EncodingType } from '@/contexts/TabDataContext';
+import { encodingOptions, useTabData, EncodingType } from '@/contexts/TabDataContext';
 import Logo from '@/components/common/Icons/Logo';
 import { useWorker } from '@/contexts/WorkerContext';
 import DataInspector from '@/components/DataInspector';
+import MessageModal from '@/components/MessageModal';
+import MessageHistory from '@/components/MessageHistory';
+
+const MIN_SIDER_WIDTH = 100;
 
 const MainLayout: React.FC = () => {
-  // ✅ TabDataContext에서 선택 영역 가져오기
-  const { isEmpty, encoding, setEncoding, activeKey, selectionStates } =
-    useTabData();
+  const { isEmpty, encoding, setEncoding, activeKey, selectionStates } = useTabData();
+  const { isWasmReady } = useWorker();
+  const { processInfo, isProcessing } = useProcess();
 
-  // Hex뷰어 Ref
   const hexViewerRef = useRef<HexViewerRef>(null);
   const menuBtnZoneRef = useRef<MenuBtnZoneRef>(null);
 
-  // Modal 데이터
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalContentKey, setModalContentKey] = useState<string | null>(null);
 
-  // 처리중인 파일 정보
-  const { isWasmReady } = useWorker();
-  const { processInfo, isProcessing } = useProcess();
-  const { fileName } = processInfo;
-
-  // ✅ 선택된 셀 정보 - TabDataContext에서 가져오기
-  const selectionRange = selectionStates[activeKey] || {
-    start: null,
-    end: null,
-  };
-  const { start: startIndex, end: endIndex } = selectionRange;
-
-  const selectionInfo = useMemo(() => {
-    if (startIndex === null || endIndex === null) return null;
-
-    const minOffset = Math.min(startIndex, endIndex);
-    const maxOffset = Math.max(startIndex, endIndex);
-    const length = maxOffset - minOffset + 1;
-
-    return { minOffset, maxOffset, length };
-  }, [startIndex, endIndex]);
-
-  // 모달 Open 이벤트
-  const openModal = (key: string) => {
-    setModalContentKey(key);
-    setIsModalOpen(true);
-  };
-
-  // 모달 Close 이벤트
-  const closeModal = () => {
-    setIsModalOpen(false);
-    setModalContentKey(null);
-  };
-
-  // 모달 데이터
-  const [modalTitle, modalContent] = useMemo(() => {
-    switch (modalContentKey) {
-      case 'about':
-        return [
-          <>
-            <b>사이트 정보</b>
-          </>,
-          <>
-            <AboutMD />
-          </>,
-        ];
-      case 'help':
-        return [
-          <>
-            <b>도움말</b>
-          </>,
-          <>
-            <HelpMD />
-          </>,
-        ];
-      default:
-        return [null, null];
-    }
-  }, [modalContentKey]);
-
-  const minSiderWidth = 100;
   const {
     isDragging: isLeftSideDragging,
-    position: leftSidePostion,
+    position: leftSidePosition,
     separatorProps: leftSideSepProps,
   } = useResizable({
     axis: 'x',
-    initial: minSiderWidth * 3.5,
-    max: minSiderWidth * 5,
+    initial: MIN_SIDER_WIDTH * 3.5,
+    max: MIN_SIDER_WIDTH * 5,
   });
+
   const {
     isDragging: isRightSideDragging,
-    position: rightSidePostion,
+    position: rightSidePosition,
     separatorProps: rightSideSepProps,
   } = useResizable({
     axis: 'x',
-    initial: minSiderWidth * 2.5,
+    initial: MIN_SIDER_WIDTH * 2.5,
     reverse: true,
-    max: minSiderWidth * 3,
+    max: MIN_SIDER_WIDTH * 3,
   });
 
-  const isResizing = isLeftSideDragging || isRightSideDragging;
+  // 간단한 계산은 useMemo 불필요 - 매번 계산해도 빠름
+  const selectionInfo = (() => {
+    const selection = selectionStates[activeKey];
+    if (!selection?.start || !selection?.end) return null;
 
-  // 헥스 값 렌더링
-  const showHex = (deciaml: number) => {
-    return (
-      <>
-        <span style={{ color: 'var(--ice-main-color)' }}>{deciaml}</span>
-        {'('}
-        <span style={{ color: 'var(--ice-main-color_3)', fontWeight: '600' }}>
-          {'0x'}
-        </span>
-        <span style={{ color: 'var(--ice-main-color)' }}>
-          {deciaml.toString(16).toUpperCase()}
-        </span>
-        {`)`}
-      </>
-    );
-  };
+    const minOffset = Math.min(selection.start, selection.end);
+    const maxOffset = Math.max(selection.start, selection.end);
+    
+    return {
+      minOffset,
+      maxOffset,
+      length: maxOffset - minOffset + 1,
+    };
+  })();
 
-  // 메인 컨텐츠 뷰
-  const showContent = () => {
-    return isEmpty ? (
-      <>
-        <Home menuBtnZoneRef={menuBtnZoneRef} />
-      </>
-    ) : (
-      <>
-        <TabWindow />
-      </>
-    );
-  };
+  // 객체 매핑은 useMemo로 - 참조 동일성 유지
+  const [modalTitle, modalContent] = useMemo(() => {
+    const modalData = {
+      about: ['사이트 정보', <AboutMD key="about" />],
+      help: ['도움말', <HelpMD key="help" />],
+    };
+    const data = modalContentKey ? modalData[modalContentKey as keyof typeof modalData] : null;
+    return data ? [<b key="title">{data[0]}</b>, data[1]] : [null, null];
+  }, [modalContentKey]);
+
+  const showHex = (decimal: number) => (
+    <>
+      <span style={{ color: 'var(--ice-main-color)' }}>{decimal}</span>
+      {'('}
+      <span style={{ color: 'var(--ice-main-color_3)', fontWeight: '600' }}>0x</span>
+      <span style={{ color: 'var(--ice-main-color)' }}>
+        {decimal.toString(16).toUpperCase()}
+      </span>
+      {')'}
+    </>
+  );
 
   return (
-    <IceMainLayout $isResizing={isResizing}>
+    <IceMainLayout $isResizing={isLeftSideDragging || isRightSideDragging}>
       <IceHeader $isMobile={isMobile}>
         <Logo showText />
         <MenuBtnZone
           ref={menuBtnZoneRef}
           hexViewerRef={hexViewerRef}
-          openModal={openModal}
+          openModal={(key) => {
+            setModalContentKey(key);
+            setIsModalOpen(true);
+          }}
         />
         {!isWasmReady && (
           <ProcessInfo>
@@ -184,7 +133,7 @@ const MainLayout: React.FC = () => {
           <>
             <ProcessInfo>
               <Spinner />
-              <ProcessMsg>{fileName} 분석중</ProcessMsg>
+              <ProcessMsg>{processInfo.fileName} 분석중</ProcessMsg>
             </ProcessInfo>
             <IceHeaderProgressBar $progress={undefined}>
               <div />
@@ -194,92 +143,70 @@ const MainLayout: React.FC = () => {
       </IceHeader>
 
       {isMobile ? (
-        <>
-          {/* 모바일 버전 */}
-          <IceMobileLayout>
-            <IceMobileContent>{showContent()}</IceMobileContent>
-            {!isEmpty && (
-              <IceMobileBottom>
-                <div>
-                  <ExifRowViewer />
-                </div>
-                <div>
-                  <Searcher hexViewerRef={hexViewerRef} />
-                </div>
-                <div>
-                  <DataInspector />
-                </div>
-              </IceMobileBottom>
-            )}
-          </IceMobileLayout>
-        </>
+        <IceMobileLayout>
+          <IceMobileContent>
+            {isEmpty ? <Home menuBtnZoneRef={menuBtnZoneRef} /> : <TabWindow />}
+          </IceMobileContent>
+          {!isEmpty && (
+            <IceMobileBottom>
+              <div><ExifRowViewer /></div>
+              <div><Searcher hexViewerRef={hexViewerRef} /></div>
+              <div><DataInspector /></div>
+            </IceMobileBottom>
+          )}
+        </IceMobileLayout>
       ) : (
-        <>
-          {/* PC 버전 */}
-          <IceLayout>
-            <IceLeftSider
+        <IceLayout>
+          <IceLeftSider
+            style={{
+              width: `${leftSidePosition}px`,
+              display: leftSidePosition < MIN_SIDER_WIDTH || isEmpty ? 'none' : 'block',
+            }}
+          >
+            <ExifRowViewer />
+          </IceLeftSider>
+          <Separator
+            {...leftSideSepProps}
+            $isResizing={isLeftSideDragging}
+            style={{ display: isEmpty ? 'none' : 'block' }}
+          />
+
+          <FlexGrow>
+            <IceContent>
+              {isEmpty ? <Home menuBtnZoneRef={menuBtnZoneRef} /> : <TabWindow />}
+            </IceContent>
+            <Separator
+              {...rightSideSepProps}
+              $reverse={true}
+              $isResizing={isRightSideDragging}
+              style={{ display: isEmpty ? 'none' : 'block' }}
+            />
+            <IceRightSider
               style={{
-                width: `${leftSidePostion}px`,
-                display:
-                  leftSidePostion < minSiderWidth || isEmpty ? 'none' : 'block',
+                width: `${rightSidePosition}px`,
+                display: rightSidePosition < MIN_SIDER_WIDTH || isEmpty ? 'none' : 'block',
               }}
             >
-              <ExifRowViewer />
-            </IceLeftSider>
-            <Separator
-              {...leftSideSepProps}
-              $isResizing={isLeftSideDragging}
-              style={{
-                display: isEmpty ? 'none' : 'block',
-              }}
-            />
-
-            <FlexGrow>
-              <IceContent>{showContent()}</IceContent>
-              <Separator
-                {...rightSideSepProps}
-                $reverse={true}
-                $isResizing={isRightSideDragging}
-                style={{
-                  display: isEmpty ? 'none' : 'block',
-                }}
-              />
-              <IceRightSider
-                style={{
-                  width: `${rightSidePostion}px`,
-                  display:
-                    rightSidePostion < minSiderWidth || isEmpty
-                      ? 'none'
-                      : 'block',
-                }}
-              >
-                <Searcher hexViewerRef={hexViewerRef} />
-                <DataInspector />
-              </IceRightSider>
-            </FlexGrow>
-          </IceLayout>
-        </>
+              <Searcher hexViewerRef={hexViewerRef} />
+              <DataInspector />
+            </IceRightSider>
+          </FlexGrow>
+        </IceLayout>
       )}
 
       <IceFooter $isMobile={isMobile}>
         <SelectInfo>
           {selectionInfo && (
             <>
-              {'선택됨:'}
+              선택됨:
+              <div>오프셋: {showHex(selectionInfo.minOffset)}</div>
               <div>
-                {`오프셋: `}
+                {' 범위: '}
                 {showHex(selectionInfo.minOffset)}
-              </div>
-              <div>
-                {` 범위: `}
-                {showHex(selectionInfo.minOffset)}
-                {`-`}
+                {'-'}
                 {showHex(selectionInfo.maxOffset)}
               </div>
-              <div>
-                {` 길이: `}
-                {showHex(selectionInfo.length)}
-              </div>
+              <div>{' 길이: '}{showHex(selectionInfo.length)}</div>
             </>
           )}
         </SelectInfo>
@@ -299,15 +226,24 @@ const MainLayout: React.FC = () => {
               </IceSelect>
             </div>
           )}
+          <MessageHistory />
           <IceCopyRight>{import.meta.env.VITE_APP_COPYRIGHT}</IceCopyRight>
         </IceFooterRight>
       </IceFooter>
 
-      <Modal title={modalTitle} isOpen={isModalOpen} onClose={closeModal}>
+      <Modal
+        title={modalTitle}
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setModalContentKey(null);
+        }}
+      >
         {modalContent}
       </Modal>
+      <MessageModal />
     </IceMainLayout>
   );
 };
 
-export default MainLayout;
+export default React.memo(MainLayout);
