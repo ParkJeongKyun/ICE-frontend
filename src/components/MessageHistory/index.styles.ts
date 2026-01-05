@@ -28,13 +28,10 @@ export const HistoryButton = styled.button<{ $hasUnread: boolean }>`
   justify-content: center;
   color: var(--main-color);
   transition: all 0.2s;
-  border-radius: 4px;
-
   &:hover {
     color: var(--ice-main-color);
     background-color: var(--main-hover-color);
   }
-
   ${({ $hasUnread }) =>
     $hasUnread &&
     `
@@ -61,7 +58,7 @@ export const HistoryBadge = styled.span`
   line-height: 1;
 `;
 
-export const HistoryOverlay = styled.div`
+export const HistoryOverlay = styled.div<{ $isMobile: boolean }>`
   position: fixed;
   top: 0;
   left: 0;
@@ -70,21 +67,18 @@ export const HistoryOverlay = styled.div`
   background-color: rgba(0, 0, 0, 0.3);
   z-index: 9998;
   animation: ${fadeIn} 0.2s ease-out;
-
-  @media (min-width: 769px) {
-    display: none;
-  }
+  display: ${({ $isMobile }) => ($isMobile ? 'block' : 'none')};
 `;
 
 export const HistoryPanel = styled.div<{ $isOpen: boolean }>`
   position: fixed;
-  bottom: 60px;
-  right: 20px;
+  bottom: 30px;
+  right: 5px;
   width: 400px;
   max-height: 600px;
   background-color: var(--main-bg-color);
   border: 1px solid var(--main-line-color);
-  border-radius: 8px;
+  border-radius: 4px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   z-index: 9999;
   display: ${({ $isOpen }) => ($isOpen ? 'flex' : 'none')};
@@ -106,17 +100,13 @@ export const HistoryHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px;
+  padding: 5px 5px 5px 10px;
   border-bottom: 1px solid var(--main-line-color);
-
-  @media (max-width: 768px) {
-    padding: 12px;
-  }
 `;
 
 export const HistoryTitle = styled.h3`
   margin: 0;
-  font-size: 0.9rem;
+  font-size: 0.75rem;
   font-weight: 600;
   color: var(--ice-main-color);
 `;
@@ -242,7 +232,7 @@ export const HistoryItemDelete = styled.button`
 
 export const EmptyHistory = styled.div`
   text-align: center;
-  padding: 40px 20px;
+  padding: 5px 5px;
   color: var(--main-color);
   opacity: 0.7;
   font-size: 0.85rem;

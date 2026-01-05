@@ -26,6 +26,7 @@ import AlertIcon from '@/components/common/Icons/AlertIcon';
 import CheckIcon from '@/components/common/Icons/CheckIcon';
 import ErrorIcon from '@/components/common/Icons/ErrorIcon';
 import TrashIcon from '@/components/common/Icons/TrashIcon';
+import { isMobile } from 'react-device-detect';
 
 const MessageHistory: React.FC = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -80,11 +81,11 @@ const MessageHistory: React.FC = () => {
                 {unreadCount > 0 && <HistoryBadge>{unreadCount}</HistoryBadge>}
             </HistoryButton>
 
-            {isOpen && <HistoryOverlay onClick={handleClose} />}
+            {isOpen && <HistoryOverlay $isMobile={isMobile} onClick={handleClose} />}
 
             <HistoryPanel $isOpen={isOpen}>
                 <HistoryHeader>
-                    <HistoryTitle>알림</HistoryTitle>
+                    <HistoryTitle>Notifications</HistoryTitle>
                     <HistoryActions>
                         {messageHistory.length > 0 && (
                             <HistoryClearBtn onClick={clearHistory} title="모두 지우기">
