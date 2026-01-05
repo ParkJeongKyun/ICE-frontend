@@ -62,7 +62,7 @@ const MessageHistory: React.FC = () => {
     }, []);
 
     const getIcon = useCallback((type: MessageItem['type']) => {
-        const props = { width: 20, height: 20 };
+        const props = { width: 14, height: 14 };
         const icons = {
             error: ErrorIcon,
             warning: AlertIcon,
@@ -76,7 +76,7 @@ const MessageHistory: React.FC = () => {
     return (
         <>
             <HistoryButton onClick={handleToggle} $hasUnread={unreadCount > 0}>
-                <BellIcon width={20} height={20} />
+                <BellIcon width={16} height={16} />
                 {unreadCount > 0 && <HistoryBadge>{unreadCount}</HistoryBadge>}
             </HistoryButton>
 
@@ -88,11 +88,11 @@ const MessageHistory: React.FC = () => {
                     <HistoryActions>
                         {messageHistory.length > 0 && (
                             <HistoryClearBtn onClick={clearHistory} title="모두 지우기">
-                                <TrashIcon width={16} height={16} />
+                                <TrashIcon width={14} height={14} />
                             </HistoryClearBtn>
                         )}
                         <HistoryClearBtn onClick={handleClose} title="닫기">
-                            <XIcon width={16} height={16} />
+                            <XIcon width={14} height={14} />
                         </HistoryClearBtn>
                     </HistoryActions>
                 </HistoryHeader>

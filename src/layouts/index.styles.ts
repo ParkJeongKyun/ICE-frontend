@@ -79,23 +79,21 @@ export const IceHeaderProgressBar = styled.div<{ $progress?: number }>`
 export const IceFooter = styled.div<{ $isMobile?: boolean }>`
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  flex-wrap: nowrap;
-  overflow: hidden;
-  white-space: nowrap;
-
-  height: 25px;
-  padding: 0px 5px 0px 5px;
+  gap: 8px;
+  height: 24px;
+  padding: 0px 8px;
   background-color: var(--main-bg-color);
   border-top: 1px solid var(--main-line-color);
-  border-bottom: 1px solid var(--main-line-color);
-  font-size: 0.6rem;
+  font-size: 0.7rem;
+  overflow: hidden;
 
-  /* 모바일 버전용 */
   ${(props) =>
     props.$isMobile &&
     `
-      overflow-x:auto
+      height: 22px;
+      padding: 0px 6px;
+      font-size: 0.65rem;
+      gap: 4px;
     `}
 `;
 
@@ -117,25 +115,51 @@ export const ProcessMsg = styled.span`
 
 export const SelectInfo = styled.div`
   display: flex;
-  flex-wrap: nowrap;
-  font-size: 0.65rem;
-  font-weight: 600;
-  > div {
-    text-align: start;
-    min-width: 170px;
-    margin-left: 10px;
-    padding-right: 10px;
-    border-right: 1px solid var(--main-line-color);
+  align-items: center;
+  gap: 12px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow-x: auto;
+  flex: 1;
+  min-width: 0;
+
+  /* 스크롤바 숨기기 */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+  &::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
   }
-  > div:nth-child(2) {
-    min-width: 250px;
+
+  > div {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+`;
+
+export const SelectLabel = styled.span`
+  color: var(--main-color);
+  opacity: 0.8;
+`;
+
+export const SelectValue = styled.span`
+  color: var(--ice-main-color);
+  font-weight: 600;
+
+  span {
+    opacity: 0.6;
+    font-weight: 500;
   }
 `;
 
 export const IceCopyRight = styled.div`
-  margin: 0px 10px;
-  color: var(--main-color_1);
-  font-weight: 600;
+  color: var(--main-color);
+  opacity: 0.6;
+  font-weight: 500;
+  font-size: 0.65rem;
+  white-space: nowrap;
 `;
 
 // 중간 컨텐츠 레이아웃
@@ -254,28 +278,39 @@ export const IceMobileBottom = styled.div`
 
 // 셀렉트 박스 스타일
 export const IceSelect = styled.select`
-  width: 100px;
+  min-width: 120px;
+  max-width: 200px;
   outline: none;
-  color: var(--main-color);
+  color: var(--ice-main-color);
   border: none;
   background-color: var(--main-bg-color);
-  font-size: 0.75rem;
-  min-height: 25px;
-  border-radius: 5px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  height: 18px;
+  border-radius: 3px;
+  padding: 0 4px;
+  cursor: pointer;
+
   &:focus,
   &:hover {
     outline: none;
     border: none;
-    background-color: var(--main-hover-color_1);
+    background-color: var(--main-hover-color);
   }
 `;
 
 export const IceFooterRight = styled.div`
-  margin: 0px 10px;
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 8px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  flex-shrink: 0;
+  margin-left: 8px;
+`;
 
-  font-size: 0.75rem;
-  font-weight: 600;
+export const EncodingWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
 `;

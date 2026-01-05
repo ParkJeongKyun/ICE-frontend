@@ -15,10 +15,13 @@ import {
   IceRightSider,
   ProcessInfo,
   SelectInfo,
+  SelectLabel,
+  SelectValue,
   Separator,
   ProcessMsg,
   IceSelect,
   IceFooterRight,
+  EncodingWrapper,
 } from './index.styles';
 import MenuBtnZone, { MenuBtnZoneRef } from '@/components/MenuBtnZone';
 import TabWindow from '@/components/TabWindow';
@@ -81,7 +84,7 @@ const MainLayout: React.FC = () => {
 
     const minOffset = Math.min(selection.start, selection.end);
     const maxOffset = Math.max(selection.start, selection.end);
-    
+
     return {
       minOffset,
       maxOffset,
@@ -100,15 +103,12 @@ const MainLayout: React.FC = () => {
   }, [modalContentKey]);
 
   const showHex = (decimal: number) => (
-    <>
-      <span style={{ color: 'var(--ice-main-color)' }}>{decimal}</span>
-      {'('}
-      <span style={{ color: 'var(--ice-main-color_3)', fontWeight: '600' }}>0x</span>
-      <span style={{ color: 'var(--ice-main-color)' }}>
-        {decimal.toString(16).toUpperCase()}
-      </span>
-      {')'}
-    </>
+    <SelectValue>
+      {decimal}
+      <SelectValue as="span">
+        (0x{decimal.toString(16).toUpperCase()})
+      </SelectValue>
+    </SelectValue>
   );
 
   return (
@@ -126,8 +126,8 @@ const MainLayout: React.FC = () => {
         {(!isWasmReady || isProcessing) && (
           <ProcessInfo>
             <ProcessMsg>
-              {!isWasmReady 
-                ? 'WASM 로딩 중' 
+              {!isWasmReady
+                ? 'WASM 로딩 중'
                 : `${processInfo.fileName} 분석중`}
             </ProcessMsg>
             <Spinner size={16} />
@@ -194,24 +194,36 @@ const MainLayout: React.FC = () => {
 
       <IceFooter $isMobile={isMobile}>
         <SelectInfo>
-          {selectionInfo && (
-            <>
-              선택됨:
-              <div>오프셋: {showHex(selectionInfo.minOffset)}</div>
+          {selectionInfo ? (
+            isMobile ? (
               <div>
-                {' 범위: '}
+                <SelectLabel>오프셋:</SelectLabel>
                 {showHex(selectionInfo.minOffset)}
-                {'-'}
-                {showHex(selectionInfo.maxOffset)}
               </div>
-              <div>{' 길이: '}{showHex(selectionInfo.length)}</div>
-            </>
+            ) : (
+              <>
+                <div>
+                  <SelectLabel>선택:</SelectLabel>
+                  {showHex(selectionInfo.length)}
+                </div>
+                <div>
+                  <SelectLabel>오프셋:</SelectLabel>
+                  {showHex(selectionInfo.minOffset)}
+                </div>
+                <div>
+                  <SelectLabel>범위:</SelectLabel>
+                  {showHex(selectionInfo.minOffset)}-{showHex(selectionInfo.maxOffset)}
+                </div>
+              </>
+            )
+          ) : (
+            <IceCopyRight>{import.meta.env.VITE_APP_COPYRIGHT}</IceCopyRight>
           )}
         </SelectInfo>
         <IceFooterRight>
           {!isEmpty && (
-            <div>
-              인코딩:
+            <EncodingWrapper>
+              <SelectLabel>인코딩:</SelectLabel>
               <IceSelect
                 value={encoding}
                 onChange={(e) => setEncoding(e.target.value as EncodingType)}
@@ -222,10 +234,9 @@ const MainLayout: React.FC = () => {
                   </option>
                 ))}
               </IceSelect>
-            </div>
+            </EncodingWrapper>
           )}
           <MessageHistory />
-          <IceCopyRight>{import.meta.env.VITE_APP_COPYRIGHT}</IceCopyRight>
         </IceFooterRight>
       </IceFooter>
 
