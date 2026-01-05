@@ -23,27 +23,29 @@ const ICON_MAP = {
 };
 
 const MessageModal: React.FC = () => {
-  const { currentMessage, hideCurrentMessage } = useMessage();
+  const { currentMessages, hideMessage } = useMessage();
 
-  if (!currentMessage) return null;
-
-  const { title, message, type } = currentMessage;
-  const Icon = ICON_MAP[type];
+  if (currentMessages.length === 0) return null;
 
   return (
-    <MessageModalContainer $isOpen={true}>
-      <MessageBox $type={type}>
-        <MessageIcon $type={type}>
-          <Icon width={20} height={20} />
-        </MessageIcon>
-        <MessageContent>
-          {title && <MessageTitle>{title}</MessageTitle>}
-          <MessageText>{message}</MessageText>
-        </MessageContent>
-        <CloseButton onClick={hideCurrentMessage}>
-          <XIcon width={16} height={16} />
-        </CloseButton>
-      </MessageBox>
+    <MessageModalContainer>
+      {currentMessages.map((message) => {
+        const Icon = ICON_MAP[message.type];
+        return (
+          <MessageBox key={message.id} $type={message.type}>
+            <MessageIcon $type={message.type}>
+              <Icon width={20} height={20} />
+            </MessageIcon>
+            <MessageContent>
+              {message.title && <MessageTitle>{message.title}</MessageTitle>}
+              <MessageText>{message.message}</MessageText>
+            </MessageContent>
+            <CloseButton onClick={() => hideMessage(message.id)}>
+              <XIcon width={16} height={16} />
+            </CloseButton>
+          </MessageBox>
+        );
+      })}
     </MessageModalContainer>
   );
 };

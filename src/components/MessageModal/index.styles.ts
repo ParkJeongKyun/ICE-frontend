@@ -1,12 +1,24 @@
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import { MessageType } from '@/contexts/MessageContext';
 
-export const MessageModalContainer = styled.div<{ $isOpen: boolean }>`
+const fadeIn = keyframes`
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+`;
+
+export const MessageModalContainer = styled.div`
   position: fixed;
   bottom: 30px;
   right: 30px;
   z-index: 10000;
-  display: ${({ $isOpen }) => ($isOpen ? 'block' : 'none')};
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  pointer-events: none;
 
   @media (max-width: 768px) {
     bottom: 80px;
@@ -16,17 +28,20 @@ export const MessageModalContainer = styled.div<{ $isOpen: boolean }>`
 `;
 
 export const MessageBox = styled.div<{ $type: MessageType }>`
+  position: relative;
   background-color: var(--main-bg-color);
   border: 1px solid ${({ $type }) => getTypeColor($type)};
   border-left: 4px solid ${({ $type }) => getTypeColor($type)};
   border-radius: 4px;
-  padding: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 14px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
   min-width: 300px;
   max-width: 400px;
   display: flex;
   gap: 12px;
   align-items: flex-start;
+  pointer-events: auto;
+  animation: ${fadeIn} 0.15s ease-out;
 
   @media (max-width: 768px) {
     min-width: auto;

@@ -27,11 +27,13 @@ interface MessageOptions {
   onClose?: () => void;
 }
 
+const MAX_TOAST_COUNT = 3; // 최대 토스트 표시 개수
+
 interface MessageContextType {
   showMessage: (options: MessageOptions | string) => void;
   showError: (code: ErrorCode, customMessage?: string) => void;
-  hideCurrentMessage: () => void;
-  currentMessage: MessageItem | null;
+  hideMessage: (id: string) => void;
+  currentMessages: MessageItem[]; // 배열로 변경
   messageHistory: MessageItem[];
   clearHistory: () => void;
   markAsRead: (id: string) => void;
@@ -44,16 +46,25 @@ const MessageContext = createContext<MessageContextType | undefined>(undefined);
 export const MessageProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [currentMessage, setCurrentMessage] = useState<MessageItem | null>(null);
+  const [currentMessages, setCurrentMessages] = useState<MessageItem[]>([]);
   const [messageHistory, setMessageHistory] = useState<MessageItem[]>([]);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const timeoutsRef = useRef<Map<string, NodeJS.Timeout>>(new Map());
+
+  const hideMessage = useCallback((id: string) => {
+    const timeout = timeoutsRef.current.get(id);
+    if (timeout) {
+      clearTimeout(timeout);
+      timeoutsRef.current.delete(id);
+    }
+    setCurrentMessages((prev) => prev.filter((msg) => msg.id !== id));
+    setMessageHistory((prev) =>
+      prev.map((msg) =>
+        msg.id === id ? { ...msg, read: true } : msg
+      )
+    );
+  }, []);
 
   const showMessage = useCallback((options: MessageOptions | string) => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-      timeoutRef.current = null;
-    }
-
     const opts: MessageOptions =
       typeof options === 'string'
         ? { message: options, type: 'info', duration: 3000 }
@@ -68,16 +79,28 @@ export const MessageProvider: React.FC<{ children: React.ReactNode }> = ({
       read: false,
     };
 
-    setCurrentMessage(newMessage);
-    setMessageHistory((prev) => [newMessage, ...prev.slice(0, 99)]); // 최대 100개 유지
+    // 현재 토스트 메시지 추가
+    setCurrentMessages((prev) => {
+      const updated = [...prev, newMessage];
+      // 최대 개수 초과 시 가장 오래된 것 제거
+      if (updated.length > MAX_TOAST_COUNT) {
+        const removed = updated.shift();
+        if (removed) hideMessage(removed.id);
+      }
+      return updated;
+    });
 
+    // 히스토리에 추가
+    setMessageHistory((prev) => [newMessage, ...prev.slice(0, 99)]);
+
+    // 자동 닫기 타이머
     if (opts.duration && opts.duration > 0) {
-      timeoutRef.current = setTimeout(() => {
-        setCurrentMessage(null);
-        timeoutRef.current = null;
+      const timeoutId = setTimeout(() => {
+        hideMessage(newMessage.id);
       }, opts.duration);
+      timeoutsRef.current.set(newMessage.id, timeoutId);
     }
-  }, []);
+  }, [hideMessage]);
 
   const showError = useCallback(
     (code: ErrorCode, customMessage?: string) => {
@@ -86,21 +109,6 @@ export const MessageProvider: React.FC<{ children: React.ReactNode }> = ({
     },
     [showMessage]
   );
-
-  const hideCurrentMessage = useCallback(() => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-      timeoutRef.current = null;
-    }
-    if (currentMessage) {
-      setMessageHistory((prev) =>
-        prev.map((msg) =>
-          msg.id === currentMessage.id ? { ...msg, read: true } : msg
-        )
-      );
-    }
-    setCurrentMessage(null);
-  }, [currentMessage]);
 
   const clearHistory = useCallback(() => {
     setMessageHistory([]);
@@ -125,8 +133,8 @@ export const MessageProvider: React.FC<{ children: React.ReactNode }> = ({
     () => ({
       showMessage,
       showError,
-      hideCurrentMessage,
-      currentMessage,
+      hideMessage,
+      currentMessages,
       messageHistory,
       clearHistory,
       markAsRead,
@@ -136,8 +144,8 @@ export const MessageProvider: React.FC<{ children: React.ReactNode }> = ({
     [
       showMessage,
       showError,
-      hideCurrentMessage,
-      currentMessage,
+      hideMessage,
+      currentMessages,
       messageHistory,
       clearHistory,
       markAsRead,
