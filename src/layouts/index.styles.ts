@@ -112,10 +112,6 @@ export const ProcessInfo = styled.div`
   white-space: nowrap;
 `;
 
-export const ProcessMsg = styled.span`
-  position: relative;
-`;
-
 export const SelectInfo = styled.div`
   display: flex;
   align-items: center;

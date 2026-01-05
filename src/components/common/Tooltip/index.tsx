@@ -28,9 +28,8 @@ const Tooltip: React.FC<TooltipProps> = ({ text, children }) => {
 };
 
 const TooltipWrapper = styled.div`
-  width: 100%;
   position: relative;
-  display: inline-block;
+  display: inline-flex;
   cursor: pointer;
 `;
 

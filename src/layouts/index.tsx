@@ -33,7 +33,11 @@ import { HexViewerRef } from '@/components/HexViewer';
 import { useProcess } from '@/contexts/ProcessContext';
 import Home from '@/components/Home';
 import { isMobile } from 'react-device-detect';
-import { encodingOptions, useTabData, EncodingType } from '@/contexts/TabDataContext';
+import {
+  encodingOptions,
+  useTabData,
+  EncodingType,
+} from '@/contexts/TabDataContext';
 import Logo from '@/components/common/Icons/Logo';
 import { useWorker } from '@/contexts/WorkerContext';
 import DataInspector from '@/components/DataInspector';
@@ -45,7 +49,8 @@ import Select from '@/components/common/Select';
 const MIN_SIDER_WIDTH = 100;
 
 const MainLayout: React.FC = () => {
-  const { isEmpty, encoding, setEncoding, activeKey, selectionStates } = useTabData();
+  const { isEmpty, encoding, setEncoding, activeKey, selectionStates } =
+    useTabData();
   const { isWasmReady } = useWorker();
   const { isProcessing } = useProcess();
 
@@ -95,7 +100,9 @@ const MainLayout: React.FC = () => {
       about: ['사이트 정보', <AboutMD key="about" />],
       help: ['도움말', <HelpMD key="help" />],
     };
-    const data = modalContentKey ? modalData[modalContentKey as keyof typeof modalData] : null;
+    const data = modalContentKey
+      ? modalData[modalContentKey as keyof typeof modalData]
+      : null;
     return data ? [<b key="title">{data[0]}</b>, data[1]] : [null, null];
   }, [modalContentKey]);
 
@@ -122,9 +129,6 @@ const MainLayout: React.FC = () => {
         />
         {(!isWasmReady || isProcessing) && (
           <ProcessInfo>
-            <ProcessMsg>
-              {!isWasmReady && 'WASM 로딩 중'}
-            </ProcessMsg>
             <Spinner size={16} />
           </ProcessInfo>
         )}
@@ -142,9 +146,15 @@ const MainLayout: React.FC = () => {
           </IceMobileContent>
           {!isEmpty && (
             <IceMobileBottom>
-              <div><ExifRowViewer /></div>
-              <div><Searcher hexViewerRef={hexViewerRef} /></div>
-              <div><DataInspector /></div>
+              <div>
+                <ExifRowViewer />
+              </div>
+              <div>
+                <Searcher hexViewerRef={hexViewerRef} />
+              </div>
+              <div>
+                <DataInspector />
+              </div>
             </IceMobileBottom>
           )}
         </IceMobileLayout>
@@ -153,7 +163,10 @@ const MainLayout: React.FC = () => {
           <IceLeftSider
             style={{
               width: `${leftSidePosition}px`,
-              display: leftSidePosition < MIN_SIDER_WIDTH || isEmpty ? 'none' : 'block',
+              display:
+                leftSidePosition < MIN_SIDER_WIDTH || isEmpty
+                  ? 'none'
+                  : 'block',
             }}
           >
             <ExifRowViewer />
@@ -166,7 +179,11 @@ const MainLayout: React.FC = () => {
 
           <FlexGrow>
             <IceContent>
-              {isEmpty ? <Home menuBtnZoneRef={menuBtnZoneRef} /> : <TabWindow />}
+              {isEmpty ? (
+                <Home menuBtnZoneRef={menuBtnZoneRef} />
+              ) : (
+                <TabWindow />
+              )}
             </IceContent>
             <Separator
               {...rightSideSepProps}
@@ -177,7 +194,10 @@ const MainLayout: React.FC = () => {
             <IceRightSider
               style={{
                 width: `${rightSidePosition}px`,
-                display: rightSidePosition < MIN_SIDER_WIDTH || isEmpty ? 'none' : 'block',
+                display:
+                  rightSidePosition < MIN_SIDER_WIDTH || isEmpty
+                    ? 'none'
+                    : 'block',
               }}
             >
               <Searcher hexViewerRef={hexViewerRef} />
@@ -207,7 +227,8 @@ const MainLayout: React.FC = () => {
                 </div>
                 <div>
                   <SelectLabel>범위:</SelectLabel>
-                  {showHex(selectionInfo.minOffset)}-{showHex(selectionInfo.maxOffset)}
+                  {showHex(selectionInfo.minOffset)}-
+                  {showHex(selectionInfo.maxOffset)}
                 </div>
               </>
             )

@@ -90,7 +90,10 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
           };
 
           fileWorker.addEventListener('message', handler);
-          fileWorker.postMessage({ type: 'PROCESS_EXIF', imageData: exifBuffer });
+          fileWorker.postMessage({
+            type: 'PROCESS_EXIF',
+            imageData: exifBuffer,
+          });
         });
 
         if (result.error) {
@@ -127,9 +130,13 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
         setActiveKey(newActiveKey);
       } catch (error) {
         console.error('[MenuBtnZone] File processing failed:', error);
-        const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류';
+        const errorMessage =
+          error instanceof Error ? error.message : '알 수 없는 오류';
 
-        if (error instanceof Error && error.message === 'EXIF_PROCESSING_TIMEOUT') {
+        if (
+          error instanceof Error &&
+          error.message === 'EXIF_PROCESSING_TIMEOUT'
+        ) {
           showError('EXIF_PROCESSING_TIMEOUT');
         } else {
           showError('FILE_PROCESSING_FAILED', errorMessage);
@@ -141,7 +148,18 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
         }
       }
     },
-    [fileWorker, isWasmReady, isProcessing, showError, startProcessing, stopProcessing, getNewKey, setTabData, setActiveKey, hexViewerRef]
+    [
+      fileWorker,
+      isWasmReady,
+      isProcessing,
+      showError,
+      startProcessing,
+      stopProcessing,
+      getNewKey,
+      setTabData,
+      setActiveKey,
+      hexViewerRef,
+    ]
   );
 
   useImperativeHandle(
@@ -156,14 +174,18 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (toolsMenuRef.current && !toolsMenuRef.current.contains(event.target as Node)) {
+      if (
+        toolsMenuRef.current &&
+        !toolsMenuRef.current.contains(event.target as Node)
+      ) {
         setShowToolsMenu(false);
       }
     };
 
     if (showToolsMenu) {
       document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
+      return () =>
+        document.removeEventListener('mousedown', handleClickOutside);
     }
   }, [showToolsMenu]);
 
@@ -177,11 +199,16 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
       />
       <FileInput type="file" ref={fileInputRef} onChange={handleFileChange} />
       <ToolsMenuContainer ref={toolsMenuRef}>
-        <MenuBtn onClick={() => setShowToolsMenu(!showToolsMenu)} text="Tools" />
+        <MenuBtn
+          onClick={() => setShowToolsMenu(!showToolsMenu)}
+          text="Tools"
+        />
         {showToolsMenu && (
           <ToolsDropdownMenu>
             <ToolsMenuList>
-              <ToolsMenuItem onClick={() => handleToolsMenuItemClick('linknote')}>
+              <ToolsMenuItem
+                onClick={() => handleToolsMenuItemClick('linknote')}
+              >
                 LinkNote
               </ToolsMenuItem>
             </ToolsMenuList>
