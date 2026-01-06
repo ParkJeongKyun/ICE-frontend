@@ -25,6 +25,10 @@ const Tooltip: React.FC<TooltipProps> = ({
     }
   };
 
+  const handleClick = () => {
+    setIsHovered(false);
+  };
+
   const shouldShow = isHovered && !forceHide;
 
   return (
@@ -32,6 +36,7 @@ const Tooltip: React.FC<TooltipProps> = ({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onMouseMove={handleMouseMove}
+      onClick={handleClick}
     >
       {children}
       {shouldShow && type === 'fixed' && (
