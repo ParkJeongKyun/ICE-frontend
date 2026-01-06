@@ -7,11 +7,8 @@ interface UseHexViewerWorkerProps {
   chunkCacheRef: RefObject<Map<number, Uint8Array>>;
   requestedChunksRef: RefObject<Set<number>>;
   onChunkLoaded: () => void;
-  canvasRef: RefObject<HTMLCanvasElement | null>;
-  colorsRef: RefObject<any>;
   isDraggingRef: RefObject<boolean>;
   isInitialLoadingRef: RefObject<boolean>;
-  canvasSizeRef: RefObject<{ width: number; height: number }>;
   visibleRows: number;
   checkCacheSize: () => void;
 }
@@ -20,11 +17,8 @@ export const useHexViewerWorker = ({
   chunkCacheRef,
   requestedChunksRef,
   onChunkLoaded,
-  canvasRef,
-  colorsRef,
   isDraggingRef,
   isInitialLoadingRef,
-  canvasSizeRef,
   visibleRows,
   checkCacheSize,
 }: UseHexViewerWorkerProps) => {
@@ -33,8 +27,6 @@ export const useHexViewerWorker = ({
   
   const file = activeData?.file;
   const fileSize = file?.size || 0;
-  const rowCount = Math.ceil(fileSize / LAYOUT.bytesPerRow);
-  
   const workerMessageHandlerRef = useRef<((e: MessageEvent) => void) | null>(
     null
   );
@@ -181,18 +173,10 @@ export const useHexViewerWorker = ({
       fileWorker,
       activeKey,
       fileSize,
-      rowCount,
       visibleRows,
       setWorkerCache,
       requestChunks,
-      chunkCacheRef,
-      requestedChunksRef,
       onChunkLoaded,
-      canvasRef,
-      colorsRef,
-      isDraggingRef,
-      isInitialLoadingRef,
-      canvasSizeRef,
       checkCacheSize,
     ]
   );

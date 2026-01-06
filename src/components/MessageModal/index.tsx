@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useMessage } from '@/contexts/MessageContext';
 import {
   MessageModalContainer,
@@ -25,6 +25,14 @@ const ICON_MAP = {
 const MessageModal: React.FC = () => {
   const { currentMessages, hideMessage } = useMessage();
 
+  // ✅ 클로저로 안정적인 참조 보장
+  const handleClose = useCallback(
+    (id: string) => {
+      hideMessage(id, false); // ✅ removeFromHistory는 false (토스트만 닫음)
+    },
+    [hideMessage]
+  );
+
   if (currentMessages.length === 0) return null;
 
   return (
@@ -40,7 +48,7 @@ const MessageModal: React.FC = () => {
               {message.title && <MessageTitle>{message.title}</MessageTitle>}
               <MessageText>{message.message}</MessageText>
             </MessageContent>
-            <CloseButton onClick={() => hideMessage(message.id, true)}>
+            <CloseButton onClick={() => handleClose(message.id)}>
               <XIcon width={16} height={16} />
             </CloseButton>
           </MessageBox>

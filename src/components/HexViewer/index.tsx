@@ -144,11 +144,8 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     chunkCacheRef,
     requestedChunksRef,
     onChunkLoaded: forceRender,
-    canvasRef,
-    colorsRef,
     isDraggingRef,
     isInitialLoadingRef,
-    canvasSizeRef,
     visibleRows,
     checkCacheSize,
   });

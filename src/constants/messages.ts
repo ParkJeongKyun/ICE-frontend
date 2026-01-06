@@ -13,7 +13,7 @@ export const ERROR_MESSAGES = {
     type: 'error' as MessageType,
     title: '워커 오류',
     message: '워커가 초기화되지 않았습니다.\n페이지를 새로고침해주세요.',
-    duration: 10000, // 5000 → 10000
+    duration: 10000,
   },
   WORKER_CREATION_FAILED: {
     type: 'error' as MessageType,
@@ -23,21 +23,35 @@ export const ERROR_MESSAGES = {
   },
   WORKER_ERROR: {
     type: 'error' as MessageType,
-    title: '워커 오류',
-    message: '워커에서 오류가 발생했습니다.',
+    title: 'Worker 오류',
+    message: 'Worker에서 오류가 발생했습니다.',
     duration: 10000,
   },
+  WORKER_INIT_FAILED: {
+    type: 'error' as MessageType,
+    title: 'Worker 초기화 실패',
+    message: 'Worker를 초기화하지 못했습니다.',
+    duration: 10000,
+  },
+  
+  // WASM 관련
   WASM_LOADING: {
     type: 'warning' as MessageType,
     title: 'WASM 로딩 중',
     message: 'WASM이 로딩 중입니다.\n잠시 후 다시 시도해주세요.',
-    duration: 6000, // 3000 → 6000
+    duration: 6000,
   },
   WASM_LOAD_FAILED: {
     type: 'error' as MessageType,
-    title: 'WASM 로드 실패',
-    message: 'WASM 모듈을 로드하는데 실패했습니다.\n페이지를 새로고침해주세요.',
+    title: 'WASM 로딩 실패',
+    message: 'WASM 모듈을 불러오지 못했습니다.',
     duration: 10000,
+  },
+  WASM_NOT_READY: {
+    type: 'warning' as MessageType,
+    title: 'WASM 준비 안됨',
+    message: 'WASM이 아직 준비되지 않았습니다.\n잠시 후 다시 시도해주세요.',
+    duration: 6000,
   },
 
   // 파일 처리 관련
@@ -45,6 +59,12 @@ export const ERROR_MESSAGES = {
     type: 'error' as MessageType,
     title: '파일 처리 실패',
     message: '파일을 처리하는 중 오류가 발생했습니다.',
+    duration: 10000,
+  },
+  FILE_READ_ERROR: {
+    type: 'error' as MessageType,
+    title: '파일 읽기 오류',
+    message: '파일을 읽는 중 오류가 발생했습니다.',
     duration: 10000,
   },
   FILE_READ_FAILED: {
@@ -59,6 +79,20 @@ export const ERROR_MESSAGES = {
     message: '파일 크기가 너무 큽니다.\n최대 지원 크기는 100MB입니다.',
     duration: 4000,
   },
+  
+  // EXIF 관련
+  EXIF_ERROR: {
+    type: 'error' as MessageType,
+    title: 'EXIF 처리 오류',
+    message: 'EXIF 데이터를 처리하지 못했습니다.',
+    duration: 10000,
+  },
+  EXIF_PARSE_ERROR: {
+    type: 'error' as MessageType,
+    title: 'EXIF 파싱 오류',
+    message: 'EXIF 데이터를 파싱하는 중 오류가 발생했습니다.',
+    duration: 10000,
+  },
   EXIF_PROCESSING_TIMEOUT: {
     type: 'error' as MessageType,
     title: 'EXIF 처리 시간 초과',
@@ -67,6 +101,12 @@ export const ERROR_MESSAGES = {
   },
 
   // 검색 관련
+  SEARCH_FAILED: {
+    type: 'error' as MessageType,
+    title: '검색 실패',
+    message: '검색 중 오류가 발생했습니다.',
+    duration: 10000,
+  },
   SEARCH_TIMEOUT: {
     type: 'error' as MessageType,
     title: '검색 시간 초과',
@@ -83,19 +123,19 @@ export const ERROR_MESSAGES = {
     type: 'error' as MessageType,
     title: 'HEX 길이 오류',
     message: 'HEX 문자열 길이가 올바르지 않습니다.\n짝수 개의 문자를 입력해주세요.',
-    duration: 8000, // 4000 → 8000
+    duration: 8000,
   },
   SEARCH_NO_RESULTS: {
     type: 'info' as MessageType,
     title: '검색 완료',
     message: '검색 결과가 없습니다.',
-    duration: 6000, // 3000 → 6000
+    duration: 6000,
   },
   SEARCH_SUCCESS: {
     type: 'success' as MessageType,
     title: '검색 완료',
     message: '검색이 완료되었습니다.',
-    duration: 4000, // 2000 → 4000
+    duration: 4000,
   },
 
   // 성공 메시지
@@ -103,7 +143,7 @@ export const ERROR_MESSAGES = {
     type: 'success' as MessageType,
     title: '파일 로드 완료',
     message: '파일이 성공적으로 로드되었습니다.',
-    duration: 4000, // 2000 → 4000
+    duration: 4000,
   },
 
   // 일반 오류
@@ -119,24 +159,37 @@ export const ERROR_MESSAGES = {
     type: 'error' as MessageType,
     title: '지도 로드 실패',
     message: '카카오맵을 불러오는데 실패했습니다.',
-    duration: 8000, // 4000 → 8000
+    duration: 8000,
   },
   KAKAO_MAP_INVALID_LOCATION: {
     type: 'warning' as MessageType,
     title: '위치 정보 없음',
     message: '유효한 GPS 정보가 없습니다.',
-    duration: 6000, // 3000 → 6000
+    duration: 6000,
   },
 } as const;
 
 export type ErrorCode = keyof typeof ERROR_MESSAGES;
 
+/**
+ * ✅ 타입 가드 함수 추가
+ */
+export const isValidErrorCode = (code: string): code is ErrorCode => {
+  return code in ERROR_MESSAGES;
+};
+
+/**
+ * ErrorCode로 메시지 템플릿 가져오기
+ * customMessage가 제공되면 기본 메시지를 덮어씀
+ */
 export const getErrorMessage = (
   code: ErrorCode,
   customMessage?: string
 ): MessageTemplate => {
   const template = ERROR_MESSAGES[code];
-  return customMessage
-    ? { ...template, message: customMessage }
-    : template;
+  
+  return {
+    ...template,
+    message: customMessage || template.message,
+  };
 };

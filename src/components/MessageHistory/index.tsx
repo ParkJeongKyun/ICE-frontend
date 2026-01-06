@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useMessage, MessageItem } from '@/contexts/MessageContext';
 import {
     HistoryButton,
@@ -47,15 +47,20 @@ const MessageHistory: React.FC = () => {
     const { messageHistory, unreadCount, clearHistory, markAsRead, deleteMessage } = useMessage();
 
     const handleToggle = useCallback(() => {
-        setIsOpen((prev) => {
-            if (!prev && unreadCount > 0) {
-                messageHistory.forEach((msg) => {
-                    if (!msg.read) markAsRead(msg.id);
-                });
-            }
-            return !prev;
-        });
-    }, [messageHistory, unreadCount, markAsRead]);
+        setIsOpen((prev) => !prev);
+    }, []);
+
+    // ✅ 의존성 배열 최소화 - 첫 오픈 시에만 실행
+    useEffect(() => {
+        if (isOpen && unreadCount > 0) {
+            // ✅ 일괄 처리로 리렌더링 최소화
+            const unreadIds = messageHistory
+                .filter((msg) => !msg.read)
+                .map((msg) => msg.id);
+            
+            unreadIds.forEach((id) => markAsRead(id));
+        }
+    }, [isOpen]); // ✅ isOpen만 의존성으로 설정
 
     const handleClose = useCallback(() => setIsOpen(false), []);
 

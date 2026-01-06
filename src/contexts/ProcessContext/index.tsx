@@ -33,7 +33,7 @@ export const ProcessProvider: React.FC<{ children: React.ReactNode }> = ({
       startProcessing,
       stopProcessing,
     }),
-    [isProcessing, startProcessing, stopProcessing]
+    [isProcessing]
   );
 
   return (

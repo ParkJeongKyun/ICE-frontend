@@ -88,8 +88,8 @@ export const useHexViewerSearch = () => {
               return;
             }
 
-            if (e.data.error) {
-              showError('SEARCH_WASM_ERROR');
+            if (e.data.errorCode) {
+              showError(e.data.errorCode, e.data.error);
               resolve(null);
               return;
             }
@@ -171,8 +171,8 @@ export const useHexViewerSearch = () => {
               return;
             }
 
-            if (e.data.error) {
-              showError('SEARCH_WASM_ERROR');
+            if (e.data.errorCode) {
+              showError(e.data.errorCode, e.data.error);
               resolve(null);
               return;
             }

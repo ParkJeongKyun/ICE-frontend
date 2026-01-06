@@ -6,7 +6,7 @@ import React, {
   useMemo,
   useRef,
 } from 'react';
-import { ErrorCode, getErrorMessage } from '@/constants/messages';
+import { ErrorCode, getErrorMessage, isValidErrorCode } from '@/constants/messages';
 
 export type MessageType = 'info' | 'success' | 'warning' | 'error';
 
@@ -27,13 +27,13 @@ interface MessageOptions {
   onClose?: () => void;
 }
 
-const MAX_TOAST_COUNT = 3; // 최대 토스트 표시 개수
+const MAX_TOAST_COUNT = 3;
 
 interface MessageContextType {
   showMessage: (options: MessageOptions | string) => void;
-  showError: (code: ErrorCode, customMessage?: string) => void;
+  showError: (code: ErrorCode | string, customMessage?: string) => void;
   hideMessage: (id: string, removeFromHistory?: boolean) => void;
-  currentMessages: MessageItem[]; // 배열로 변경
+  currentMessages: MessageItem[];
   messageHistory: MessageItem[];
   clearHistory: () => void;
   markAsRead: (id: string) => void;
@@ -83,7 +83,6 @@ export const MessageProvider: React.FC<{ children: React.ReactNode }> = ({
       if (updated.length > MAX_TOAST_COUNT) {
         const removed = updated.shift();
         if (removed) {
-          // setTimeout으로 비동기 처리하여 상태 업데이트 충돌 방지
           setTimeout(() => hideMessage(removed.id), 0);
         }
       }
@@ -101,7 +100,15 @@ export const MessageProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [hideMessage]);
 
   const showError = useCallback(
-    (code: ErrorCode, customMessage?: string) => {
+    (code: ErrorCode | string, customMessage?: string) => {
+      // ✅ 타입 가드로 유효성 검증
+      if (!isValidErrorCode(code)) {
+        console.warn('[MessageContext] Invalid error code:', code);
+        const template = getErrorMessage('UNKNOWN_ERROR', customMessage || code);
+        showMessage(template);
+        return;
+      }
+      
       const template = getErrorMessage(code, customMessage);
       showMessage(template);
     },
@@ -127,7 +134,6 @@ export const MessageProvider: React.FC<{ children: React.ReactNode }> = ({
     [messageHistory]
   );
 
-  // useMemo 최적화 - 필수 값만 포함
   const value = useMemo(
     () => ({
       showMessage,
@@ -143,8 +149,12 @@ export const MessageProvider: React.FC<{ children: React.ReactNode }> = ({
     [
       showMessage,
       showError,
+      hideMessage,
       currentMessages,
       messageHistory,
+      clearHistory,
+      markAsRead,
+      deleteMessage,
       unreadCount,
     ]
   );

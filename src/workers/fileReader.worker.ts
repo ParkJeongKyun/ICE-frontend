@@ -19,15 +19,17 @@ if (process.env.NODE_ENV === 'development') {
 self.addEventListener('error', (event) => {
   console.error('[Worker] Uncaught error:', event.error);
   self.postMessage({
-    type: 'WASM_ERROR',
-    error: `Worker error: ${event.error?.message || event.message}`,
+    type: 'ERROR',
+    errorCode: 'WORKER_ERROR',
+    error: event.error?.message || event.message,
   });
 });
 
 self.addEventListener('unhandledrejection', (event) => {
   console.error('[Worker] Unhandled promise rejection:', event.reason);
   self.postMessage({
-    type: 'WASM_ERROR',
+    type: 'ERROR',
+    errorCode: 'WORKER_ERROR',
     error: `Promise rejection: ${event.reason}`,
   });
 });
@@ -222,28 +224,41 @@ self.addEventListener('message', (e: MessageEvent<WorkerMessage>) => {
 
 // EXIF 처리 함수
 async function processExif(imageData: Uint8Array) {
+  // ✅ WASM 준비 대기 로직 통일
   const startTime = Date.now();
-  while (!wasmReady && Date.now() - startTime < 3000) {
+  const timeout = 3000;
+  
+  while (!wasmReady && Date.now() - startTime < timeout) {
     await new Promise((resolve) => setTimeout(resolve, 100));
   }
 
   if (!wasmReady || !wasmExifFunc) {
-    self.postMessage({ type: 'EXIF_ERROR', error: 'WASM not ready' });
+    self.postMessage({ 
+      type: 'EXIF_ERROR', 
+      errorCode: 'WASM_NOT_READY',
+      error: 'WASM module not ready' 
+    });
     return;
   }
 
   try {
     const result = wasmExifFunc(imageData);
     
-    // 심각한 에러만 EXIF_ERROR로 처리
     if (result.error) {
-      self.postMessage({ type: 'EXIF_ERROR', error: result.error });
+      self.postMessage({ 
+        type: 'EXIF_ERROR', 
+        errorCode: 'EXIF_PARSE_ERROR',
+        error: result.error 
+      });
     } else {
-      // EXIF 데이터가 없어도 정상 응답
       self.postMessage({ type: 'EXIF_RESULT', result });
     }
   } catch (error) {
-    self.postMessage({ type: 'EXIF_ERROR', error: (error as Error).message });
+    self.postMessage({ 
+      type: 'EXIF_ERROR', 
+      errorCode: 'EXIF_ERROR',
+      error: (error as Error).message 
+    });
   }
 }
 
@@ -265,20 +280,22 @@ async function searchInFile(
   let totalFound = 0;
   const maxResults = 1000;
 
-  // WASM 준비 대기
+  // ✅ WASM 준비 대기 로직 통일
   const startTime = Date.now();
-  while (!wasmReady && Date.now() - startTime < 3000) {
+  const timeout = 3000;
+  
+  while (!wasmReady && Date.now() - startTime < timeout) {
     await new Promise((resolve) => setTimeout(resolve, 100));
   }
 
-  // ✅ WASM이 준비되지 않았으면 검색 중단
   if (!wasmReady || !wasmSearchFunc) {
     console.error('[Worker] WASM not ready, search aborted');
     self.postMessage({
       type: type === 'HEX' ? 'SEARCH_RESULT_HEX' : 'SEARCH_RESULT_ASCII',
       results: null,
       searchId,
-      error: 'WASM not ready',
+      errorCode: 'WASM_NOT_READY',
+      error: 'WASM module not ready',
     });
     return;
   }
@@ -321,13 +338,14 @@ async function searchInFile(
       };
       const result = wasmSearchFunc(currentChunk, pattern, searchOptions);
       
-      // Handle both error and indices
+      // ✅ 에러 응답 통일
       if (result.error) {
         console.error('[Worker] WASM search error:', result.error);
         self.postMessage({
           type: type === 'HEX' ? 'SEARCH_RESULT_HEX' : 'SEARCH_RESULT_ASCII',
           results: null,
           searchId,
+          errorCode: 'SEARCH_WASM_ERROR',
           error: result.error,
         });
         return;
@@ -340,7 +358,8 @@ async function searchInFile(
         type: type === 'HEX' ? 'SEARCH_RESULT_HEX' : 'SEARCH_RESULT_ASCII',
         results: null,
         searchId,
-        error: 'WASM search failed',
+        errorCode: 'SEARCH_WASM_ERROR',
+        error: (error as Error).message || 'WASM search failed',
       });
       return;
     }

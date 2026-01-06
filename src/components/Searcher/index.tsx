@@ -274,26 +274,6 @@ const Searcher: React.FC<Props> = ({ hexViewerRef }) => {
     setInputValue('');
   }, [searchType]);
 
-  // ✅ 탭 전환 시 캐시 정리
-  useEffect(() => {
-    return () => {
-      const currentTabResults = searchResults[activeKey];
-      if (currentTabResults && !(currentTabResults instanceof Map)) {
-        const cacheKey = getCacheKey(
-          activeKey,
-          currentTabResults.searchType,
-          currentTabResults.inputValue
-        );
-        // 다른 탭 캐시 정리
-        searchResults.__cache__.forEach((_, key) => {
-          if (key !== cacheKey) {
-            searchResults.__cache__.delete(key);
-          }
-        });
-      }
-    };
-  }, [activeKey, getCacheKey, searchResults]);
-
   return (
     <Collapse title="Search" open>
       <SearchDiv>

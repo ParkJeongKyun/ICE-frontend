@@ -126,15 +126,15 @@ const MainLayout: React.FC = () => {
             setIsModalOpen(true);
           }}
         />
-        {(!isWasmReady || isProcessing) && (
-          <ProcessInfo>
-            <Spinner size={16} />
-          </ProcessInfo>
-        )}
         {isProcessing && (
-          <IceHeaderProgressBar $progress={undefined}>
-            <div />
-          </IceHeaderProgressBar>
+          <>
+            <ProcessInfo>
+              <Spinner size={16} />
+            </ProcessInfo>
+            <IceHeaderProgressBar $progress={undefined}>
+              <div />
+            </IceHeaderProgressBar>
+          </>
         )}
       </IceHeader>
 
