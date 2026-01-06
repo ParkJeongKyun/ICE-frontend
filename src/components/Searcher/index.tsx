@@ -137,7 +137,9 @@ const Searcher: React.FC<Props> = ({ hexViewerRef }) => {
       const cachedResults = searchResults.__cache__.get(cacheKey);
 
       if (cachedResults) {
-        console.log('✅ 캐시 HIT:', cacheKey);
+        if (process.env.NODE_ENV === 'development') {
+          console.log('[Searcher] 캐시 HIT:', cacheKey);
+        }
         dispatch({
           type: 'SET_RESULTS',
           key: activeKey,
@@ -149,7 +151,9 @@ const Searcher: React.FC<Props> = ({ hexViewerRef }) => {
         return;
       }
 
-      console.log('❌ 캐시 MISS:', cacheKey);
+      if (process.env.NODE_ENV === 'development') {
+        console.log('[Searcher] 캐시 MISS:', cacheKey);
+      }
 
       // ✅ 검색 수행 (HexViewer가 Worker 처리)
       let results: IndexInfo[] = [];

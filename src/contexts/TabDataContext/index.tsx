@@ -145,13 +145,13 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
       activeData,
       isEmpty,
       encodingState,
-      setEncoding, // ✅ 추가
+      setEncoding,
       scrollPositions,
       selectionStates,
       tabOrder,
-      getNewKey, // ✅ 추가
-      deleteTab, // ✅ 추가
-      reorderTabs, // ✅ 추가
+      getNewKey,
+      deleteTab,
+      reorderTabs,
     ]
   );
 

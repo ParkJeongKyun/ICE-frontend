@@ -56,7 +56,6 @@ export const WorkerProvider: React.FC<{ children: React.ReactNode }> = ({
           stopProcessing();
           showError('WASM_LOAD_FAILED', e.data.error);
         } else if (type === 'ERROR' && e.data.errorCode) {
-          // ✅ showError가 내부에서 검증하므로 그냥 전달
           showError(e.data.errorCode, e.data.error);
         }
       };

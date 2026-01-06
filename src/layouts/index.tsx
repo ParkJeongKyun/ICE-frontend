@@ -50,8 +50,7 @@ const MIN_SIDER_WIDTH = 100;
 const MainLayout: React.FC = () => {
   const { isEmpty, encoding, setEncoding, activeKey, selectionStates } =
     useTabData();
-  const { isWasmReady } = useWorker();
-  const { isProcessing } = useProcess();
+  const { isProcessing, progress } = useProcess();
 
   const hexViewerRef = useRef<HexViewerRef>(null);
   const menuBtnZoneRef = useRef<MenuBtnZoneRef>(null);
@@ -131,7 +130,7 @@ const MainLayout: React.FC = () => {
             <ProcessInfo>
               <Spinner size={16} />
             </ProcessInfo>
-            <IceHeaderProgressBar $progress={undefined}>
+            <IceHeaderProgressBar $progress={progress} $isProcessing={isProcessing}>
               <div />
             </IceHeaderProgressBar>
           </>

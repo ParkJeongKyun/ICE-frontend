@@ -313,6 +313,7 @@ async function searchInFile(
   };
 
   let currentChunk = await loadChunk(offset);
+  let lastProgressReport = 0;
 
   while (offset < fileSize && totalFound < maxResults) {
     if (
@@ -322,6 +323,17 @@ async function searchInFile(
     ) {
       console.log(`[Worker] Search ${searchId} aborted`);
       return;
+    }
+
+    // ✅ 진행률 보고 (1% 단위로)
+    const progress = Math.floor((offset / fileSize) * 100);
+    if (progress > lastProgressReport) {
+      lastProgressReport = progress;
+      self.postMessage({
+        type: 'SEARCH_PROGRESS',
+        searchId,
+        progress,
+      });
     }
 
     const nextOffset = offset + CHUNK_SIZE;
@@ -338,7 +350,6 @@ async function searchInFile(
       };
       const result = wasmSearchFunc(currentChunk, pattern, searchOptions);
       
-      // ✅ 에러 응답 통일
       if (result.error) {
         console.error('[Worker] WASM search error:', result.error);
         self.postMessage({

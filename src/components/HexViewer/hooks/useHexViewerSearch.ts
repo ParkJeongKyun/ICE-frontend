@@ -9,7 +9,7 @@ import { ERROR_MESSAGES } from '@/constants/messages';
 
 export const useHexViewerSearch = () => {
   const { activeKey, activeData } = useTabData();
-  const { startProcessing, stopProcessing } = useProcess();
+  const { startProcessing, stopProcessing, updateProgress } = useProcess(); // ✅ 단순화
   const { fileWorker } = useWorker();
   const { showError, showMessage } = useMessage();
 
@@ -19,6 +19,19 @@ export const useHexViewerSearch = () => {
   const hexSearchIdRef = useRef<number>(0);
   const asciiSearchIdRef = useRef<number>(0);
   const searchCleanupRef = useRef<Map<number, () => void>>(new Map());
+
+  // ✅ 파일 크기에 따른 동적 타임아웃 계산 (최소 30초, 최대 5분)
+  const getSearchTimeout = useCallback(() => {
+    const GB = 1024 * 1024 * 1024;
+    const baseTimeout = 30000; // 30초
+    const timeoutPerGB = 30000; // GB당 30초 추가
+    const maxTimeout = 300000; // 최대 5분
+
+    const fileSizeInGB = fileSize / GB;
+    const calculatedTimeout = baseTimeout + fileSizeInGB * timeoutPerGB;
+
+    return Math.min(calculatedTimeout, maxTimeout);
+  }, [fileSize]);
 
   const findByOffset = useCallback(
     async (offset: string): Promise<IndexInfo | null> => {
@@ -67,15 +80,42 @@ export const useHexViewerSearch = () => {
 
       startProcessing();
 
+      const searchTimeout = getSearchTimeout();
+
+      if (process.env.NODE_ENV === 'development') {
+        console.log(
+          `[Search] Timeout: ${searchTimeout / 1000}s, Size: ${(fileSize / 1024 / 1024 / 1024).toFixed(2)}GB`
+        );
+      }
+
       return new Promise<IndexInfo[] | null>((resolve, reject) => {
         const timeoutId = setTimeout(() => {
           cleanup();
           stopProcessing();
-          showError('SEARCH_TIMEOUT');
+          showError(
+            'SEARCH_TIMEOUT',
+            `검색 시간이 초과되었습니다. (${searchTimeout / 1000}초)`
+          );
           reject(new Error('Search timeout'));
-        }, 30000);
+        }, searchTimeout);
 
+        let lastProgressUpdate = 0;
         const handleMessage = (e: MessageEvent) => {
+          if (
+            e.data.type === 'SEARCH_PROGRESS' &&
+            e.data.searchId === searchId
+          ) {
+            const now = Date.now();
+            if (now - lastProgressUpdate > 1000) {
+              if (process.env.NODE_ENV === 'development') {
+                console.log(`[Search] Progress: ${e.data.progress}%`);
+              }
+              updateProgress(e.data.progress);
+              lastProgressUpdate = now;
+            }
+            return;
+          }
+
           if (
             e.data.type === 'SEARCH_RESULT_HEX' &&
             e.data.searchId === searchId
@@ -122,7 +162,18 @@ export const useHexViewerSearch = () => {
         });
       });
     },
-    [file, fileWorker, activeKey, startProcessing, stopProcessing, showError, showMessage]
+    [
+      file,
+      fileWorker,
+      activeKey,
+      startProcessing,
+      stopProcessing,
+      updateProgress,
+      showError,
+      showMessage,
+      getSearchTimeout,
+      fileSize,
+    ]
   );
 
   const findAllByAsciiText = useCallback(
@@ -150,15 +201,42 @@ export const useHexViewerSearch = () => {
 
       startProcessing();
 
+      const searchTimeout = getSearchTimeout();
+
+      if (process.env.NODE_ENV === 'development') {
+        console.log(
+          `[Search] Timeout: ${searchTimeout / 1000}s, Size: ${(fileSize / 1024 / 1024 / 1024).toFixed(2)}GB`
+        );
+      }
+
       return new Promise<IndexInfo[] | null>((resolve, reject) => {
         const timeoutId = setTimeout(() => {
           cleanup();
           stopProcessing();
-          showError('SEARCH_TIMEOUT');
+          showError(
+            'SEARCH_TIMEOUT',
+            `검색 시간이 초과되었습니다. (${searchTimeout / 1000}초)`
+          );
           reject(new Error('Search timeout'));
-        }, 30000);
+        }, searchTimeout);
 
+        let lastProgressUpdate = 0;
         const handleMessage = (e: MessageEvent) => {
+          if (
+            e.data.type === 'SEARCH_PROGRESS' &&
+            e.data.searchId === searchId
+          ) {
+            const now = Date.now();
+            if (now - lastProgressUpdate > 1000) {
+              if (process.env.NODE_ENV === 'development') {
+                console.log(`[Search] Progress: ${e.data.progress}%`);
+              }
+              updateProgress(e.data.progress);
+              lastProgressUpdate = now;
+            }
+            return;
+          }
+
           if (
             e.data.type === 'SEARCH_RESULT_ASCII' &&
             e.data.searchId === searchId
@@ -206,7 +284,18 @@ export const useHexViewerSearch = () => {
         });
       });
     },
-    [file, fileWorker, activeKey, startProcessing, stopProcessing, showError, showMessage]
+    [
+      file,
+      fileWorker,
+      activeKey,
+      startProcessing,
+      stopProcessing,
+      updateProgress,
+      showError,
+      showMessage,
+      getSearchTimeout,
+      fileSize,
+    ]
   );
 
   const cleanup = useCallback(() => {

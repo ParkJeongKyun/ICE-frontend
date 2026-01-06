@@ -42,7 +42,7 @@ export const IceHeader = styled.div<{
 `;
 
 // 진행률 바 (헤더 내부에서 사용)
-export const IceHeaderProgressBar = styled.div<{ $progress?: number }>`
+export const IceHeaderProgressBar = styled.div<{ $progress: number; $isProcessing: boolean }>`
   position: absolute;
   left: 0;
   top: 100%; /* 헤더 바로 아래 */
@@ -51,28 +51,15 @@ export const IceHeaderProgressBar = styled.div<{ $progress?: number }>`
   background: transparent;
   z-index: 1001;
   pointer-events: none;
+  opacity: ${({ $isProcessing }) => ($isProcessing ? 1 : 0)};
+  transition: opacity 0.2s ease;
 
   /* 실제 진행률 바 */
   & > div {
     height: 100%;
     background: var(--ice-main-color);
-    width: 10%;
-    transition: none;
-    ${({ $progress }) =>
-      typeof $progress !== 'number'
-        ? `
-      animation: loading-bar-move 4s linear infinite;
-    `
-        : ''}
-  }
-
-  @keyframes loading-bar-move {
-    0% {
-      transform: translateX(0);
-    }
-    100% {
-      transform: translateX(calc(100vw - 80px));
-    }
+    width: ${({ $progress }) => `${Math.max($progress, 2)}%`}; /* 최소 2%로 시작 */
+    transition: width 0.3s ease;
   }
 `;
 
