@@ -35,10 +35,13 @@ const Wrapper = styled.div`
   height: 100%;
 `;
 
-const Content = styled.div<{ $x: number; $y: number }>`
+const Content = styled.div.attrs<{ $x: number; $y: number }>(({ $x, $y }) => ({
+  style: {
+    left: `${$x + 12}px`,
+    top: `${$y + 12}px`,
+  },
+}))<{ $x: number; $y: number }>`
   position: fixed;
-  left: ${({ $x }) => $x + 12}px;
-  top: ${({ $y }) => $y + 12}px;
   background: var(--main-bg-color);
   border: 1px solid var(--main-line-color);
   color: var(--main-color);
