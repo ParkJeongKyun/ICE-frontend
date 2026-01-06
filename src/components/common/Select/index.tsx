@@ -5,7 +5,6 @@ import {
     SelectDropdown,
     SelectOption,
 } from './index.styles';
-import Tooltip from '@/components/common/Tooltip';
 
 export interface SelectOption {
     value: string;
@@ -18,8 +17,6 @@ interface SelectProps {
     onChange: (value: string) => void;
     placeholder?: string;
     tooltip?: string;
-    tooltipType?: 'fixed' | 'follow';
-    tooltipDelay?: number;
 }
 
 const Select: React.FC<SelectProps> = ({
@@ -28,8 +25,6 @@ const Select: React.FC<SelectProps> = ({
     onChange,
     placeholder = 'Select...',
     tooltip,
-    tooltipType = 'fixed',
-    tooltipDelay = 500,
 }) => {
     const [isOpen, setIsOpen] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
@@ -62,9 +57,13 @@ const Select: React.FC<SelectProps> = ({
         }
     }, [isOpen]);
 
-    const selectContent = (
+    return (
         <SelectContainer ref={containerRef}>
-            <SelectButton onClick={handleToggle} type="button">
+            <SelectButton 
+                onClick={handleToggle} 
+                type="button"
+                title={tooltip}
+            >
                 {selectedOption?.label || placeholder}
             </SelectButton>
             {isOpen && (
@@ -81,19 +80,6 @@ const Select: React.FC<SelectProps> = ({
                 </SelectDropdown>
             )}
         </SelectContainer>
-    );
-
-    return tooltip ? (
-        <Tooltip 
-            text={tooltip} 
-            type={tooltipType} 
-            forceHide={isOpen}
-            delay={tooltipDelay}
-        >
-            {selectContent}
-        </Tooltip>
-    ) : (
-        selectContent
     );
 };
 

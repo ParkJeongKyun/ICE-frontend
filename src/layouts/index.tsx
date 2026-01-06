@@ -242,7 +242,6 @@ const MainLayout: React.FC = () => {
               options={encodingOptions}
               onChange={(value) => setEncoding(value as EncodingType)}
               tooltip="인코딩"
-              tooltipType="fixed"
             />
           )}
           <MessageHistory />
