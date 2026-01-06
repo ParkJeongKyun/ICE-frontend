@@ -82,7 +82,7 @@ export const useHexViewerSearch = () => {
 
       const searchTimeout = getSearchTimeout();
 
-      if (process.env.NODE_ENV === 'development') {
+      if (import.meta.env.DEV) {
         console.log(
           `[Search] Timeout: ${searchTimeout / 1000}s, Size: ${(fileSize / 1024 / 1024 / 1024).toFixed(2)}GB`
         );
@@ -107,7 +107,7 @@ export const useHexViewerSearch = () => {
           ) {
             const now = Date.now();
             if (now - lastProgressUpdate > 1000) {
-              if (process.env.NODE_ENV === 'development') {
+              if (import.meta.env.DEV) {
                 console.log(`[Search] Progress: ${e.data.progress}%`);
               }
               updateProgress(e.data.progress);
@@ -203,7 +203,7 @@ export const useHexViewerSearch = () => {
 
       const searchTimeout = getSearchTimeout();
 
-      if (process.env.NODE_ENV === 'development') {
+      if (import.meta.env.DEV) {
         console.log(
           `[Search] Timeout: ${searchTimeout / 1000}s, Size: ${(fileSize / 1024 / 1024 / 1024).toFixed(2)}GB`
         );
@@ -228,7 +228,7 @@ export const useHexViewerSearch = () => {
           ) {
             const now = Date.now();
             if (now - lastProgressUpdate > 1000) {
-              if (process.env.NODE_ENV === 'development') {
+              if (import.meta.env.DEV) {
                 console.log(`[Search] Progress: ${e.data.progress}%`);
               }
               updateProgress(e.data.progress);

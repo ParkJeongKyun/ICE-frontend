@@ -10,14 +10,8 @@ import type {
 
 declare const self: DedicatedWorkerGlobalScope;
 
-// ✅ 개발 환경에서만 로그
-if (process.env.NODE_ENV === 'development') {
-  console.log('[Worker] Script loaded');
-}
-
 // 전역 에러 핸들러
 self.addEventListener('error', (event) => {
-  console.error('[Worker] Uncaught error:', event.error);
   self.postMessage({
     type: 'ERROR',
     errorCode: 'WORKER_ERROR',
@@ -26,7 +20,6 @@ self.addEventListener('error', (event) => {
 });
 
 self.addEventListener('unhandledrejection', (event) => {
-  console.error('[Worker] Unhandled promise rejection:', event.reason);
   self.postMessage({
     type: 'ERROR',
     errorCode: 'WORKER_ERROR',
@@ -56,7 +49,6 @@ async function initWasm() {
   }
 
   if (wasmInitializing) {
-    console.log('[Worker] WASM initialization already in progress');
     return;
   }
 
@@ -64,12 +56,11 @@ async function initWasm() {
 
   try {
     if (goInstance) {
-      console.log('[Worker] Cleaning up previous WASM instance');
       if (goInstance.exit) {
         try {
           goInstance.exit(0);
         } catch (e) {
-          console.warn('[Worker] Error during Go instance cleanup:', e);
+          // Cleanup error ignored
         }
       }
       goInstance = null;
@@ -115,11 +106,9 @@ async function initWasm() {
 
     wasmReady = true;
     wasmInitializing = false;
-    console.log('[Worker] ✅ WASM loaded successfully');
     self.postMessage({ type: 'WASM_READY' });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    console.error('[Worker] ❌ WASM load failed:', errorMessage);
     wasmReady = false;
     wasmInitializing = false;
     goInstance = null;
@@ -177,7 +166,6 @@ self.addEventListener('message', (e: MessageEvent<WorkerMessage>) => {
       cancelSearch = true;
       if (searchId !== undefined) {
         cancelledSearchIds.add(searchId);
-        console.log(`[Worker] Search ${searchId} cancelled`);
       }
       break;
 
@@ -185,10 +173,6 @@ self.addEventListener('message', (e: MessageEvent<WorkerMessage>) => {
       if (!wasmInitializing) {
         wasmReady = false;
         initWasm();
-      } else {
-        console.warn(
-          '[Worker] WASM is already initializing, ignoring RELOAD_WASM'
-        );
       }
       break;
 
@@ -289,7 +273,6 @@ async function searchInFile(
   }
 
   if (!wasmReady || !wasmSearchFunc) {
-    console.error('[Worker] WASM not ready, search aborted');
     self.postMessage({
       type: type === 'HEX' ? 'SEARCH_RESULT_HEX' : 'SEARCH_RESULT_ASCII',
       results: null,
@@ -299,8 +282,6 @@ async function searchInFile(
     });
     return;
   }
-
-  console.log('[Worker] Search using WASM');
 
   let nextChunkPromise: Promise<Uint8Array> | null = null;
 
@@ -321,11 +302,9 @@ async function searchInFile(
       searchId !== undefined &&
       cancelledSearchIds.has(searchId)
     ) {
-      console.log(`[Worker] Search ${searchId} aborted`);
       return;
     }
 
-    // ✅ 진행률 보고 (1% 단위로)
     const progress = Math.floor((offset / fileSize) * 100);
     if (progress > lastProgressReport) {
       lastProgressReport = progress;
@@ -351,7 +330,6 @@ async function searchInFile(
       const result = wasmSearchFunc(currentChunk, pattern, searchOptions);
       
       if (result.error) {
-        console.error('[Worker] WASM search error:', result.error);
         self.postMessage({
           type: type === 'HEX' ? 'SEARCH_RESULT_HEX' : 'SEARCH_RESULT_ASCII',
           results: null,
@@ -364,7 +342,6 @@ async function searchInFile(
       
       chunkResults = result.indices || [];
     } catch (error) {
-      console.error('[Worker] WASM search error:', error);
       self.postMessage({
         type: type === 'HEX' ? 'SEARCH_RESULT_HEX' : 'SEARCH_RESULT_ASCII',
         results: null,

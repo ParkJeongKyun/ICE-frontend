@@ -137,7 +137,7 @@ const Searcher: React.FC<Props> = ({ hexViewerRef }) => {
       const cachedResults = searchResults.__cache__.get(cacheKey);
 
       if (cachedResults) {
-        if (process.env.NODE_ENV === 'development') {
+        if (import.meta.env.DEV) {
           console.log('[Searcher] 캐시 HIT:', cacheKey);
         }
         dispatch({
@@ -151,7 +151,7 @@ const Searcher: React.FC<Props> = ({ hexViewerRef }) => {
         return;
       }
 
-      if (process.env.NODE_ENV === 'development') {
+      if (import.meta.env.DEV) {
         console.log('[Searcher] 캐시 MISS:', cacheKey);
       }
 
