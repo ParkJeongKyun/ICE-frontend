@@ -58,7 +58,7 @@ export const IceHeaderProgressBar = styled.div<{ $progress: number; $isProcessin
   & > div {
     height: 100%;
     background: var(--ice-main-color);
-    width: ${({ $progress }) => `${Math.max($progress, 2)}%`}; /* 최소 2%로 시작 */
+    width: ${({ $progress }) => `${Math.max($progress, 0)}%`};
     transition: width 0.3s ease;
   }
 `;
