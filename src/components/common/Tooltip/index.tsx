@@ -4,51 +4,125 @@ import styled from 'styled-components';
 interface TooltipProps {
   text: string;
   children: React.ReactNode;
+  type?: 'fixed' | 'follow';
+  forceHide?: boolean;
+  delay?: number;
 }
 
-const Tooltip: React.FC<TooltipProps> = ({ text, children }) => {
-  const [tooltipPosition, setTooltipPosition] = useState({ left: 0, top: 0 });
+const Tooltip: React.FC<TooltipProps> = ({ 
+  text, 
+  children, 
+  type = 'follow', 
+  forceHide = false,
+  delay = 500 
+}) => {
+  const [isHovered, setIsHovered] = useState(false);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
-  const handleMouseEnter = (e: React.MouseEvent<HTMLDivElement>) => {
-    const { left, top, width, height } =
-      e.currentTarget.getBoundingClientRect();
-    setTooltipPosition({ left: left + width / 2, top: top + height });
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (type === 'follow') {
+      setMousePos({ x: e.clientX, y: e.clientY });
+    }
   };
 
+  const shouldShow = isHovered && !forceHide;
+
   return (
-    <TooltipWrapper onMouseEnter={handleMouseEnter}>
+    <Wrapper
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      onMouseMove={handleMouseMove}
+    >
       {children}
-      <TooltipText
-        style={{ left: tooltipPosition.left, top: tooltipPosition.top }}
-      >
-        {text}
-      </TooltipText>
-    </TooltipWrapper>
+      {shouldShow && type === 'fixed' && (
+        <FixedContent $delay={delay}>
+          {text}
+        </FixedContent>
+      )}
+      {shouldShow && type === 'follow' && (
+        <FollowContent $x={mousePos.x} $y={mousePos.y} $delay={delay}>
+          {text}
+        </FollowContent>
+      )}
+    </Wrapper>
   );
 };
 
-const TooltipWrapper = styled.div`
+const Wrapper = styled.div`
   position: relative;
   display: inline-flex;
-  cursor: pointer;
+  height: 100%;
 `;
 
-const TooltipText = styled.div`
-  visibility: hidden;
-  background-color: var(--main-bg-color);
+const FixedContent = styled.div<{ $delay: number }>`
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--main-bg-color);
   border: 1px solid var(--main-line-color);
   color: var(--main-color);
-  text-align: center;
+  padding: 6px 10px;
   border-radius: 4px;
-  padding: 5px 5px;
-  position: fixed;
-  z-index: 1000;
-  opacity: 0;
-  transition: opacity 0.3s;
   font-size: 0.75rem;
-  ${TooltipWrapper}:hover & {
-    visibility: visible;
-    opacity: 0.8;
+  white-space: nowrap;
+  z-index: 100001;
+  pointer-events: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  
+  opacity: 0;
+  animation: fadeInUp 0.15s forwards;
+  animation-delay: ${({ $delay }) => $delay}ms;
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateX(-50%) translateY(4px);
+    }
+    to {
+      opacity: 0.95;
+      transform: translateX(-50%) translateY(0);
+    }
+  }
+
+  /* Arrow */
+  &::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: var(--main-line-color);
+  }
+`;
+
+const FollowContent = styled.div<{ $x: number; $y: number; $delay: number }>`
+  position: fixed;
+  left: ${({ $x }) => $x + 12}px;
+  top: ${({ $y }) => $y + 12}px;
+  background: var(--main-bg-color);
+  border: 1px solid var(--main-line-color);
+  color: var(--main-color);
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  z-index: 100001;
+  pointer-events: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  
+  opacity: 0;
+  animation: fadeIn 0.15s forwards;
+  animation-delay: ${({ $delay }) => $delay}ms;
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 0.95;
+    }
   }
 `;
 

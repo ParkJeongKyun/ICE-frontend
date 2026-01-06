@@ -18,7 +18,6 @@ import {
   SelectLabel,
   SelectValue,
   Separator,
-  ProcessMsg,
   IceFooterRight,
 } from './index.styles';
 import MenuBtnZone, { MenuBtnZoneRef } from '@/components/MenuBtnZone';
@@ -242,6 +241,8 @@ const MainLayout: React.FC = () => {
               value={encoding}
               options={encodingOptions}
               onChange={(value) => setEncoding(value as EncodingType)}
+              tooltip="인코딩"
+              tooltipType="fixed"
             />
           )}
           <MessageHistory />

@@ -82,7 +82,7 @@ export const IceFooter = styled.div<{ $isMobile?: boolean }>`
   align-items: stretch;
   gap: 8px;
   height: 24px;
-  padding: 0px 8px;
+  padding: 0px 0px 0px 8px;
   background-color: var(--main-bg-color);
   border-top: 1px solid var(--main-line-color);
   font-size: 0.7rem;
@@ -278,10 +278,8 @@ export const IceMobileBottom = styled.div`
 export const IceFooterRight = styled.div`
   display: flex;
   align-items: stretch;
-  gap: 8px;
   font-size: 0.7rem;
   font-weight: 500;
   flex-shrink: 0;
-  margin-left: 8px;
   position: relative;
 `;

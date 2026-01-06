@@ -5,6 +5,7 @@ export const SelectContainer = styled.div`
   height: 100%;
   display: flex;
   align-items: stretch;
+  overflow: visible;
 `;
 
 export const SelectButton = styled.button`
