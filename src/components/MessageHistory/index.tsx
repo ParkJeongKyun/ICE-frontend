@@ -50,18 +50,6 @@ const MessageHistory: React.FC = () => {
         setIsOpen((prev) => !prev);
     }, []);
 
-    // ✅ 의존성 배열 최소화 - 첫 오픈 시에만 실행
-    useEffect(() => {
-        if (isOpen && unreadCount > 0) {
-            // ✅ 일괄 처리로 리렌더링 최소화
-            const unreadIds = messageHistory
-                .filter((msg) => !msg.read)
-                .map((msg) => msg.id);
-            
-            unreadIds.forEach((id) => markAsRead(id));
-        }
-    }, [isOpen]); // ✅ isOpen만 의존성으로 설정
-
     const handleClose = useCallback(() => setIsOpen(false), []);
 
     const toggleExpand = useCallback((id: string) => {

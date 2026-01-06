@@ -28,7 +28,7 @@ const MessageModal: React.FC = () => {
   // ✅ 클로저로 안정적인 참조 보장
   const handleClose = useCallback(
     (id: string) => {
-      hideMessage(id, false); // ✅ removeFromHistory는 false (토스트만 닫음)
+      hideMessage(id, true);
     },
     [hideMessage]
   );
