@@ -41,13 +41,17 @@ export const SelectDropdown = styled.div`
   border-radius: 3px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   z-index: 100000;
-  min-width: 120px;
+  min-width: 140px;
+  margin: 0;
+  padding: 5px 5px;
   overflow: hidden;
 `;
 
 export const SelectOption = styled.div<{ $isSelected: boolean }>`
-  padding: 6px 10px;
+  padding: 3px 3px;
   font-size: 0.7rem;
+  text-align: left;
+  border-radius: 3px;
   color: var(--main-color);
   cursor: pointer;
   background-color: ${({ $isSelected }) =>
