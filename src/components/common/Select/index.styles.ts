@@ -40,7 +40,7 @@ export const SelectDropdown = styled.div`
   border: 1px solid var(--main-line-color);
   border-radius: 3px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  z-index: 100000;
+  z-index: 900;
   min-width: 140px;
   margin: 0;
   padding: 5px 5px;

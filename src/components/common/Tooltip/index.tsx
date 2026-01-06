@@ -49,7 +49,7 @@ const Content = styled.div.attrs<{ $x: number; $y: number }>(({ $x, $y }) => ({
   border-radius: 4px;
   font-size: 0.75rem;
   white-space: nowrap;
-  z-index: 100001;
+  z-index: 900;
   pointer-events: none;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 `;

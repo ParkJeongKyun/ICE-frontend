@@ -39,7 +39,7 @@ export const HistoryOverlay = styled.div<{ $isMobile: boolean }>`
   right: 0;
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.3);
-  z-index: 9998;
+  z-index: 900;
   display: ${({ $isMobile }) => ($isMobile ? 'block' : 'none')};
 `;
 
@@ -53,7 +53,7 @@ export const HistoryPanel = styled.div<{ $isOpen: boolean }>`
   border: 1px solid var(--main-line-color);
   border-radius: 4px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  z-index: 9999;
+  z-index: 901;
   display: ${({ $isOpen }) => ($isOpen ? 'flex' : 'none')};
   flex-direction: column;
   overflow: hidden;

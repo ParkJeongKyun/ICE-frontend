@@ -49,7 +49,7 @@ export const IceHeaderProgressBar = styled.div<{ $progress: number; $isProcessin
   width: 100%;
   height: 1.5px;
   background: transparent;
-  z-index: 1001;
+  z-index: 800;
   pointer-events: none;
   opacity: ${({ $isProcessing }) => ($isProcessing ? 1 : 0)};
   transition: opacity 0.2s ease;
