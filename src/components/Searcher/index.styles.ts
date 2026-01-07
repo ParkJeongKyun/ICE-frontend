@@ -23,7 +23,7 @@ export const SearchDiv = styled.div`
   align-items: center;
   gap: 5px;
   justify-content: space-between;
-  margin-bottom: 5px;
+  padding: 2px 0px;
   user-select: none;
 `;
 
@@ -54,43 +54,6 @@ export const SearchInput = styled.input`
   }
 `;
 
-// 체크박스
-export const SearchCheckBox = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  input[type='checkbox'] {
-    width: 12px;
-    height: 12px;
-    cursor: pointer;
-  }
-
-  &:hover {
-    cursor: pointer;
-  }
-
-  > span {
-    margin-left: 5px;
-    font-size: 0.75rem;
-    text-align: start;
-  }
-`;
-
-export const ResultDiv = styled.div`
-  display: flex;
-  text-align: center;
-  align-items: center;
-  justify-content: space-between;
-`;
-
-export const TextDiv = styled.div`
-  display: flex;
-  min-height: 25px;
-  align-items: center;
-  justify-content: center;
-`;
-
 export const Result = styled.div`
   display: flex;
   align-items: center;
@@ -101,30 +64,21 @@ export const Result = styled.div`
   padding: 2px 0px 2px 0px;
 `;
 
-export const ButtonDiv = styled.div`
-  display: flex;
-  min-height: 25px;
+export const ButtonDiv = styled.div<{ $disabled?: boolean }>`
+  display: ${(props) => (props.$disabled ? 'none' : 'inline-flex')};
   align-items: center;
   justify-content: center;
-`;
-
-export const SearchBtn = styled.div<{ $disabled?: boolean }>`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 2px 1px 2px 1px;
-  padding: 2px 4px 2px 4px;
+  margin: 2px 1px;
+  padding: 2px 4px;
   border-radius: 2.5px;
   font-weight: 600;
   font-size: 0.6rem;
   color: var(--main-color);
-  border: 1px solid var(--main-line-color);
+  cursor: pointer;
   &:hover {
-    cursor: pointer;
     color: var(--ice-main-color);
     background-color: var(--main-hover-color);
   }
-  display: ${(props) => (props.$disabled ? `none` : 'inline-flex')};
 `;
 
 export const ResetBtn = styled.div`

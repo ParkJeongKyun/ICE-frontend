@@ -9,22 +9,20 @@ import React, {
 } from 'react';
 import {
   ButtonDiv,
-  SearchBtn,
   Result,
-  ResultDiv,
   SearchData,
   SearchDiv,
   SearchInput,
   SearchLabel,
-  TextDiv,
   SearchSelect,
   ResetBtn,
-  SearchCheckBox,
 } from './index.styles';
 import { HexViewerRef, IndexInfo } from '@/components/HexViewer';
 import Tooltip from '@/components/common/Tooltip';
 import { TabKey } from '@/types';
 import XIcon from '@/components/common/Icons/XIcon';
+import ChevronLeftIcon from '@/components/common/Icons/ChevronLeftIcon';
+import ChevronRightIcon from '@/components/common/Icons/ChevronRightIcon';
 import { useTabData } from '@/contexts/TabDataContext';
 import type {
   SearchType,
@@ -293,83 +291,92 @@ const Searcher: React.FC<Props> = ({ hexViewerRef }) => {
       <SearchDiv>
         <SearchLabel>검색어</SearchLabel>
         <SearchData style={{ display: 'flex', gap: 8 }}>
-            <SearchInput
-              value={inputValue}
-              onChange={handleInputChange}
-              onKeyDown={handleInputKeyPress}
-              maxLength={searchType === 'offset' ? 8 : 50}
-              placeholder={`${searchType} 값을 입력하세요.`}
-            />
-          <SearchBtn
+          {searchType === 'ascii' && (
+            <ButtonDiv
+              onClick={() => setIgnoreCase((prev) => !prev)}
+              title={ignoreCase ? '대소문자 구분 안함 (클릭하여 구분)' : '대소문자 구분 (클릭하여 무시)'}
+              style={{
+                padding: '2px 6px',
+                fontSize: '0.7rem',
+                opacity: ignoreCase ? 1 : 0.5,
+                backgroundColor: ignoreCase ? 'var(--main-hover-color)' : 'transparent',
+                minWidth: 'auto',
+              }}
+            >
+              Aa
+            </ButtonDiv>
+          )}
+          <SearchInput
+            value={inputValue}
+            onChange={handleInputChange}
+            onKeyDown={handleInputKeyPress}
+            maxLength={searchType === 'offset' ? 8 : 50}
+            placeholder={`${searchType} 값을 입력하세요.`}
+          />
+
+          <ButtonDiv
             onClick={() => inputValue && search(inputValue, searchType)}
           >
             SEARCH
-          </SearchBtn>
+          </ButtonDiv>
         </SearchData>
       </SearchDiv>
-      {searchType === 'ascii' && (
-        <SearchDiv>
-          <SearchCheckBox onClick={() => setIgnoreCase((prev) => !prev)}>
-            <input
-              type="checkbox"
-              checked={ignoreCase}
-              onChange={(e) => setIgnoreCase(e.target.checked)}
-            />
-            <span>대소문자를 구분하지 않음</span>
-          </SearchCheckBox>
-        </SearchDiv>
-      )}
-      {searchResults[activeKey] &&
-        !(searchResults[activeKey] instanceof Map) &&
-        (searchResults[activeKey] as SearchResult).results.length > 0 && (
-          <ResultDiv>
-            <TextDiv>
-              <Result>
-                <Tooltip text="최대 1000개까지 검색 가능">
-                  총{' '}
+      <SearchDiv style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
+        {searchResults[activeKey] &&
+          !(searchResults[activeKey] instanceof Map) &&
+          (searchResults[activeKey] as SearchResult).results.length > 0 && (
+            <Result style={{ display: 'inline-block' }}>
+              <Tooltip text="최대 1000개까지 검색 가능">
+                {(searchResults[activeKey] as SearchResult).results.length > 1 ? (
+                  <>
+                    <span style={{ color: 'var(--ice-main-color)' }}>
+                      {(searchResults[activeKey] as SearchResult).currentIndex + 1}
+                    </span>
+                    <span> of </span>
+                    <span style={{ color: 'var(--ice-main-color_1)' }}>
+                      {(searchResults[activeKey] as SearchResult).results.length}
+                    </span>
+                  </>
+                ) : (
                   <span style={{ color: 'var(--ice-main-color_1)' }}>
                     {(searchResults[activeKey] as SearchResult).results.length}
                   </span>
-                  개의 결과{' '}
-                  {(searchResults[activeKey] as SearchResult).results.length >
-                    1 && (
-                    <>
-                      중{' '}
-                      <span style={{ color: 'var(--ice-main-color)' }}>
-                        {(searchResults[activeKey] as SearchResult)
-                          .currentIndex + 1}
-                      </span>
-                      번째
-                    </>
-                  )}
-                </Tooltip>
-                <ResetBtn onClick={handleResetButtonClick}>
-                  <Tooltip text="검색 종료">
-                    <XIcon height={15} width={15} />
-                  </Tooltip>
-                </ResetBtn>
-              </Result>
-            </TextDiv>
-            <ButtonDiv>
-              <SearchBtn
+                )}
+              </Tooltip>
+            </Result>
+          )}
+        {searchResults[activeKey] &&
+          !(searchResults[activeKey] instanceof Map) &&
+          (searchResults[activeKey] as SearchResult).results.length > 0 && (
+            <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexShrink: 0 }}>
+              <ButtonDiv
                 onClick={handlePrevButtonClick}
                 $disabled={
                   (searchResults[activeKey] as SearchResult).results.length <= 1
                 }
+                title="이전 결과"
+                style={{ padding: '2px 4px', minWidth: 'auto', display: 'flex', alignItems: 'center' }}
               >
-                PREV
-              </SearchBtn>
-              <SearchBtn
+                <ChevronLeftIcon width={14} height={14} />
+              </ButtonDiv>
+              <ButtonDiv
                 onClick={handleNextButtonClick}
                 $disabled={
                   (searchResults[activeKey] as SearchResult).results.length <= 1
                 }
+                title="다음 결과"
+                style={{ padding: '2px 4px', minWidth: 'auto', display: 'flex', alignItems: 'center' }}
               >
-                NEXT
-              </SearchBtn>
-            </ButtonDiv>
-          </ResultDiv>
-        )}
+                <ChevronRightIcon width={14} height={14} />
+              </ButtonDiv>
+              <ResetBtn onClick={handleResetButtonClick}>
+                <Tooltip text="검색 종료">
+                  <XIcon height={15} width={15} />
+                </Tooltip>
+              </ResetBtn>
+            </div>
+          )}
+      </SearchDiv>
     </Collapse>
   );
 };
