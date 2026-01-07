@@ -22,7 +22,7 @@ export const MessageModalContainer = styled.div`
   pointer-events: none;
 
   @media (max-width: 768px) {
-    top: 10px;
+    top: 30px;
     bottom: auto;
     right: 10px;
     left: 10px;

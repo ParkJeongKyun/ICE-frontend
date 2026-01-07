@@ -55,43 +55,43 @@ export const SearchInput = styled.input`
 `;
 
 export const Result = styled.div`
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  font-size: 0.7rem;
-  font-weight: 600;
-  margin: 2px 0px 2px 0px;
-  padding: 2px 0px 2px 0px;
+  gap: 3px;
+  font-size: 0.65rem;
+  font-weight: 500;
+  color: var(--main-color);
+  opacity: 0.8;
 `;
 
 export const ButtonDiv = styled.div<{ $disabled?: boolean }>`
   display: ${(props) => (props.$disabled ? 'none' : 'inline-flex')};
   align-items: center;
   justify-content: center;
-  margin: 2px 1px;
-  padding: 2px 4px;
-  border-radius: 2.5px;
-  font-weight: 600;
-  font-size: 0.6rem;
+  padding: 2px;
+  border-radius: 2px;
   color: var(--main-color);
   cursor: pointer;
+  opacity: 0.6;
+  font-size: 0.65rem;
+  transition: opacity 0.2s ease;
   &:hover {
+    opacity: 1;
     color: var(--ice-main-color);
-    background-color: var(--main-hover-color);
   }
 `;
 
-export const ResetBtn = styled.div`
-  display: inline-flex;
-  margin: 0px 5px;
+export const SearchResultBar = styled.div`
+  display: flex;
   align-items: center;
-  justify-content: center;
-  svg {
-    stroke: var(--main-color);
-  }
-  &:hover {
-    svg {
-      stroke: var(--ice-main-color); // 호버 시 아이콘 컬러 변경
-    }
-  }
+  justify-content: space-between;
+  gap: 8px;
+  padding: 2px 0;
+  min-height: 24px;
+`;
+
+export const NavigationButtons = styled.div`
+  display: flex;
+  gap: 0px;
+  align-items: center;
 `;

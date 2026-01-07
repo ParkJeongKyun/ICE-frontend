@@ -76,7 +76,7 @@ const MainLayout: React.FC = () => {
     axis: 'x',
     initial: MIN_SIDER_WIDTH * 3,
     reverse: true,
-    max: MIN_SIDER_WIDTH * 4,
+    max: MIN_SIDER_WIDTH * 4.5,
   });
 
   const selectionInfo = (() => {
@@ -130,7 +130,10 @@ const MainLayout: React.FC = () => {
             <ProcessInfo>
               <Spinner size={16} />
             </ProcessInfo>
-            <IceHeaderProgressBar $progress={progress} $isProcessing={isProcessing}>
+            <IceHeaderProgressBar
+              $progress={progress}
+              $isProcessing={isProcessing}
+            >
               <div />
             </IceHeaderProgressBar>
           </>
