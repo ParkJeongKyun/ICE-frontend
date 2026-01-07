@@ -8,7 +8,6 @@ import {
   EndianLabel,
   EndianRadio,
   SectionDiv,
-  SectionTitleDiv,
   NotSelectedDiv,
 } from './index.styles';
 import { useTabData } from '@/contexts/TabDataContext';
@@ -191,7 +190,6 @@ const DataInspector: React.FC = () => {
           ) : (
             <>
               <SectionDiv>
-                <SectionTitleDiv>Raw</SectionTitleDiv>
                 <ContentDiv>
                   <CellHeaderDiv>Binary</CellHeaderDiv>
                   <CellBodyDiv>{info?.bin}</CellBodyDiv>
@@ -202,7 +200,6 @@ const DataInspector: React.FC = () => {
                 </ContentDiv>
               </SectionDiv>
               <SectionDiv>
-                <SectionTitleDiv>Text</SectionTitleDiv>
                 <ContentDiv>
                   <CellHeaderDiv>ASCII</CellHeaderDiv>
                   <CellBodyDiv>{info?.ascii}</CellBodyDiv>
@@ -216,9 +213,7 @@ const DataInspector: React.FC = () => {
                   <CellBodyDiv>{info?.utf16}</CellBodyDiv>
                 </ContentDiv>
               </SectionDiv>
-              {/* Integer 섹션 */}
               <SectionDiv>
-                <SectionTitleDiv>Integer</SectionTitleDiv>
                 {info?.integers.map((item) => (
                   <ContentDiv key={item.label}>
                     <CellHeaderDiv>{item.label}</CellHeaderDiv>
@@ -226,21 +221,17 @@ const DataInspector: React.FC = () => {
                   </ContentDiv>
                 ))}
               </SectionDiv>
-              {/* Floating Point 섹션 추가 */}
               <SectionDiv>
-                <SectionTitleDiv>Floating Point</SectionTitleDiv>
                 <ContentDiv>
-                  <CellHeaderDiv>Float32(Single)</CellHeaderDiv>
+                  <CellHeaderDiv>Float32</CellHeaderDiv>
                   <CellBodyDiv>{info?.float32}</CellBodyDiv>
                 </ContentDiv>
                 <ContentDiv>
-                  <CellHeaderDiv>Float64(Double)</CellHeaderDiv>
+                  <CellHeaderDiv>Float64</CellHeaderDiv>
                   <CellBodyDiv>{info?.float64}</CellBodyDiv>
                 </ContentDiv>
               </SectionDiv>
-              {/* Time/Date 섹션 추가 */}
               <SectionDiv>
-                <SectionTitleDiv>Time/Date</SectionTitleDiv>
                 <ContentDiv>
                   <CellHeaderDiv>OLETIME</CellHeaderDiv>
                   <CellBodyDiv>{info?.oletime}</CellBodyDiv>
@@ -262,17 +253,15 @@ const DataInspector: React.FC = () => {
                   <CellBodyDiv>{info?.dosdatetime}</CellBodyDiv>
                 </ContentDiv>
                 <ContentDiv>
-                  <CellHeaderDiv>time_t (32bit)</CellHeaderDiv>
+                  <CellHeaderDiv>time_t32</CellHeaderDiv>
                   <CellBodyDiv>{info?.timet32}</CellBodyDiv>
                 </ContentDiv>
                 <ContentDiv>
-                  <CellHeaderDiv>time_t (64bit)</CellHeaderDiv>
+                  <CellHeaderDiv>time_t64</CellHeaderDiv>
                   <CellBodyDiv>{info?.timet64}</CellBodyDiv>
                 </ContentDiv>
               </SectionDiv>
-              {/* GUID 섹션 추가 */}
               <SectionDiv>
-                <SectionTitleDiv>GUID</SectionTitleDiv>
                 <ContentDiv>
                   <CellHeaderDiv>GUID</CellHeaderDiv>
                   <CellBodyDiv>{info?.guid}</CellBodyDiv>

@@ -16,7 +16,7 @@ export const ContentDiv = styled.div`
 export const CellHeaderDiv = styled.div`
   text-align: left;
   font-size: 0.75rem;
-  min-width: 40%;
+  min-width: 35%;
   font-weight: 500;
   &:hover {
     background-color: var(--main-hover-color);
@@ -58,14 +58,5 @@ export const EndianRadio = styled.input.attrs({ type: 'radio' })`
 `;
 
 export const SectionDiv = styled.div`
-  margin-bottom: 4px;
-`;
-
-export const SectionTitleDiv = styled.div`
-  text-align: left;
-  font-weight: 600;
-  font-size: 0.75rem;
-  margin: 4px 0 2px 0;
-  color: var(--ice-main-color);
-  user-select: none;
+  margin: 10px 0px;
 `;

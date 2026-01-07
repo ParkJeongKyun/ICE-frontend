@@ -1,3 +1,5 @@
+import { getDate } from "./exifParser";
+
 // 최소 바이트 수 정의
 export const MIN_BYTE_LENGTHS = {
   UInt8: 1,
@@ -153,7 +155,7 @@ export function bytesToOLETIME(
   if (isNaN(days)) return '-';
   const ms = days * 24 * 60 * 60 * 1000;
   const date = new Date(Date.UTC(1899, 11, 30) + ms);
-  return isNaN(date.getTime()) ? '-' : date.toISOString();
+  return isNaN(date.getTime()) ? '-' : getDate(date);
 }
 
 // Windows FILETIME (8 bytes)
@@ -172,18 +174,18 @@ export function bytesToFILETIME(
     low = bytes[4] | (bytes[5] << 8) | (bytes[6] << 16) | (bytes[7] << 24);
   }
   const filetime = (BigInt(high) << 32n) + BigInt(low);
-  
+
   // 유효성 검사: 0이거나 음수이면 유효하지 않음
   if (filetime <= 0n) return '-';
-  
+
   // 합리적인 범위 체크 (1601-01-01 ~ 9999-12-31)
   const MIN_FILETIME = 0n;
   const MAX_FILETIME = 2650467743999999999n; // 9999-12-31 23:59:59.999
   if (filetime < MIN_FILETIME || filetime > MAX_FILETIME) return '-';
-  
+
   const ms = Number(filetime / 10000n);
   const date = new Date(Date.UTC(1601, 0, 1) + ms);
-  return isNaN(date.getTime()) ? '-' : date.toISOString();
+  return isNaN(date.getTime()) ? '-' : getDate(date);
 }
 
 // DOS Date (2 bytes)
@@ -232,10 +234,12 @@ export function bytesToDOSDateTime(
     timeBytes = bytes.slice(0, 2);
     dateBytes = bytes.slice(2, 4);
   }
-  const date = bytesToDOSDate(dateBytes, littleEndian);
-  const time = bytesToDOSTime(timeBytes, littleEndian);
-  if (date === '-' || time === '-') return '-';
-  return `${date} ${time}`;
+  const dateStr = bytesToDOSDate(dateBytes, littleEndian);
+  const timeStr = bytesToDOSTime(timeBytes, littleEndian);
+  if (dateStr === '-' || timeStr === '-') return '-';
+  
+  const dateTime = new Date(`${dateStr}T${timeStr}`);
+  return isNaN(dateTime.getTime()) ? '-' : getDate(dateTime);
 }
 
 // time_t 32bit (4 bytes)
@@ -248,7 +252,7 @@ export function bytesToTimeT32(
     ? bytes[0] | (bytes[1] << 8) | (bytes[2] << 16) | (bytes[3] << 24)
     : bytes[3] | (bytes[2] << 8) | (bytes[1] << 16) | (bytes[0] << 24);
   const date = new Date(val * 1000);
-  return isNaN(date.getTime()) ? '-' : date.toISOString();
+  return isNaN(date.getTime()) ? '-' : getDate(date);
 }
 
 // time_t 64bit (8 bytes)
@@ -280,7 +284,7 @@ export function bytesToTimeT64(
       (BigInt(bytes[0]) << 56n);
   }
   const date = new Date(Number(val) * 1000);
-  return isNaN(date.getTime()) ? '-' : date.toISOString();
+  return isNaN(date.getTime()) ? '-' : getDate(date);
 }
 
 // GUID (16 bytes)
