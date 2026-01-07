@@ -26,7 +26,7 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
   { hexViewerRef, openModal },
   ref
 ) => {
-  const { showError } = useMessage();
+  const { showMessage } = useMessage();
   const { setTabData, setActiveKey, getNewKey } = useTabData();
   const { fileWorker, isWasmReady } = useWorker();
   const { startProcessing, stopProcessing, isProcessing } = useProcess();
@@ -51,17 +51,17 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
       if (!file) return;
 
       if (!fileWorker) {
-        showError('WORKER_NOT_INITIALIZED');
+        showMessage('WORKER_NOT_INITIALIZED');
         return;
       }
 
       if (!isWasmReady) {
-        showError('WASM_LOADING');
+        showMessage('WASM_LOADING');
         return;
       }
 
       if (isProcessing) {
-        showError('FILE_PROCESSING_FAILED', '이미 파일 처리 중입니다.');
+        showMessage('FILE_PROCESSING_FAILED', '이미 파일 처리 중입니다.');
         return;
       }
 
@@ -137,9 +137,9 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
           error instanceof Error &&
           error.message === 'EXIF_PROCESSING_TIMEOUT'
         ) {
-          showError('EXIF_PROCESSING_TIMEOUT');
+          showMessage('EXIF_PROCESSING_TIMEOUT');
         } else {
-          showError('FILE_PROCESSING_FAILED', errorMessage);
+          showMessage('FILE_PROCESSING_FAILED', errorMessage);
         }
       } finally {
         stopProcessing();
@@ -152,7 +152,7 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
       fileWorker,
       isWasmReady,
       isProcessing,
-      showError,
+      showMessage,
       startProcessing,
       stopProcessing,
       getNewKey,

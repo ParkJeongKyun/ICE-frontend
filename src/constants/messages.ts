@@ -7,7 +7,7 @@ export interface MessageTemplate {
   duration: number;
 }
 
-export const ERROR_MESSAGES = {
+export const MESSAGES = {
   // Worker 관련
   WORKER_NOT_INITIALIZED: {
     type: 'error' as MessageType,
@@ -33,7 +33,7 @@ export const ERROR_MESSAGES = {
     message: 'Worker를 초기화하지 못했습니다.',
     duration: 10000,
   },
-  
+
   // WASM 관련
   WASM_LOADING: {
     type: 'warning' as MessageType,
@@ -53,6 +53,12 @@ export const ERROR_MESSAGES = {
     message: 'WASM이 아직 준비되지 않았습니다.\n잠시 후 다시 시도해주세요.',
     duration: 6000,
   },
+  WASM_LOADED_SUCCESS: {
+    type: 'success' as MessageType,
+    title: 'WASM 로딩 완료',
+    message: 'WASM 모듈이 성공적으로 로드되었습니다.',
+    duration: 4000,
+  },
 
   // 파일 처리 관련
   FILE_PROCESSING_FAILED: {
@@ -70,7 +76,8 @@ export const ERROR_MESSAGES = {
   FILE_READ_FAILED: {
     type: 'error' as MessageType,
     title: '파일 읽기 실패',
-    message: '파일을 읽을 수 없습니다.\n파일이 손상되었거나 지원하지 않는 형식일 수 있습니다.',
+    message:
+      '파일을 읽을 수 없습니다.\n파일이 손상되었거나 지원하지 않는 형식일 수 있습니다.',
     duration: 5000,
   },
   FILE_TOO_LARGE: {
@@ -79,7 +86,7 @@ export const ERROR_MESSAGES = {
     message: '파일 크기가 너무 큽니다.\n최대 지원 크기는 100MB입니다.',
     duration: 4000,
   },
-  
+
   // EXIF 관련
   EXIF_ERROR: {
     type: 'error' as MessageType,
@@ -122,7 +129,8 @@ export const ERROR_MESSAGES = {
   SEARCH_HEX_LENGTH_ERROR: {
     type: 'error' as MessageType,
     title: 'HEX 길이 오류',
-    message: 'HEX 문자열 길이가 올바르지 않습니다.\n짝수 개의 문자를 입력해주세요.',
+    message:
+      'HEX 문자열 길이가 올바르지 않습니다.\n짝수 개의 문자를 입력해주세요.',
     duration: 8000,
   },
   SEARCH_NO_RESULTS: {
@@ -169,25 +177,25 @@ export const ERROR_MESSAGES = {
   },
 } as const;
 
-export type ErrorCode = keyof typeof ERROR_MESSAGES;
+export type MessageCode = keyof typeof MESSAGES;
 
 /**
  * ✅ 타입 가드 함수 추가
  */
-export const isValidErrorCode = (code: string): code is ErrorCode => {
-  return code in ERROR_MESSAGES;
+export const isValidMessageCode = (code: string): code is MessageCode => {
+  return code in MESSAGES;
 };
 
 /**
  * ErrorCode로 메시지 템플릿 가져오기
  * customMessage가 제공되면 기본 메시지를 덮어씀
  */
-export const getErrorMessage = (
-  code: ErrorCode,
+export const getMessage = (
+  code: MessageCode,
   customMessage?: string
 ): MessageTemplate => {
-  const template = ERROR_MESSAGES[code];
-  
+  const template = MESSAGES[code];
+
   return {
     ...template,
     message: customMessage || template.message,

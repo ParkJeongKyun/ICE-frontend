@@ -34,7 +34,7 @@ export const WorkerProvider: React.FC<{ children: React.ReactNode }> = ({
   const [fileWorker, setFileWorker] = useState<Worker | null>(null);
   const [isWasmReady, setIsWasmReady] = useState(false);
   const { startProcessing, stopProcessing } = useProcess();
-  const { showError } = useMessage();
+  const { showMessage } = useMessage();
 
   useEffect(() => {
     startProcessing();
@@ -47,16 +47,15 @@ export const WorkerProvider: React.FC<{ children: React.ReactNode }> = ({
         const { type } = e.data;
 
         if (type === 'WASM_READY') {
-          console.log('[WorkerContext] ✅ WASM is ready!');
           setIsWasmReady(true);
           stopProcessing();
+          showMessage('WASM_LOADED_SUCCESS');
         } else if (type === 'WASM_ERROR') {
-          console.error('[WorkerContext] ❌ WASM load failed:', e.data.error);
           setIsWasmReady(false);
           stopProcessing();
-          showError('WASM_LOAD_FAILED', e.data.error);
+          showMessage('WASM_LOAD_FAILED', e.data.error);
         } else if (type === 'ERROR' && e.data.errorCode) {
-          showError(e.data.errorCode, e.data.error);
+          showMessage(e.data.errorCode, e.data.error);
         }
       };
 
@@ -64,7 +63,7 @@ export const WorkerProvider: React.FC<{ children: React.ReactNode }> = ({
         console.error('[WorkerContext] ❌ Worker error:', error.message);
         setIsWasmReady(false);
         stopProcessing();
-        showError('WORKER_ERROR', error.message);
+        showMessage('WORKER_ERROR', error.message);
       };
 
       setFileWorker(newFileWorker);
@@ -76,9 +75,9 @@ export const WorkerProvider: React.FC<{ children: React.ReactNode }> = ({
     } catch (error) {
       console.error('[WorkerContext] ❌ Failed to create worker:', error);
       stopProcessing();
-      showError('WORKER_INIT_FAILED', (error as Error).message);
+      showMessage('WORKER_INIT_FAILED', (error as Error).message);
     }
-  }, [startProcessing, stopProcessing, showError]);
+  }, [startProcessing, stopProcessing, showMessage]);
 
   const getWorkerCache = useCallback(
     (key: TabKey) => cacheRef.current.get(key),

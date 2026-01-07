@@ -5,13 +5,12 @@ import { useWorker } from '@/contexts/WorkerContext';
 import { useMessage } from '@/contexts/MessageContext';
 import { asciiToBytes } from '@/utils/hexViewer';
 import { IndexInfo } from '../index';
-import { ERROR_MESSAGES } from '@/constants/messages';
 
 export const useHexViewerSearch = () => {
   const { activeKey, activeData } = useTabData();
   const { startProcessing, stopProcessing, updateProgress } = useProcess(); // ✅ 단순화
   const { fileWorker } = useWorker();
-  const { showError, showMessage } = useMessage();
+  const { showMessage } = useMessage();
 
   const file = activeData?.file;
   const fileSize = file?.size || 0;
@@ -54,7 +53,7 @@ export const useHexViewerSearch = () => {
 
       const hexPattern = hex.replace(/[^0-9a-fA-F]/g, '').toLowerCase();
       if (hexPattern.length % 2 !== 0) {
-        showError('SEARCH_HEX_LENGTH_ERROR');
+        showMessage('SEARCH_HEX_LENGTH_ERROR');
         return null;
       }
 
@@ -92,7 +91,7 @@ export const useHexViewerSearch = () => {
         const timeoutId = setTimeout(() => {
           cleanup();
           stopProcessing();
-          showError(
+          showMessage(
             'SEARCH_TIMEOUT',
             `검색 시간이 초과되었습니다. (${searchTimeout / 1000}초)`
           );
@@ -129,18 +128,18 @@ export const useHexViewerSearch = () => {
             }
 
             if (e.data.errorCode) {
-              showError(e.data.errorCode, e.data.error);
+              showMessage(e.data.errorCode, e.data.error);
               resolve(null);
               return;
             }
 
             if (e.data.results && e.data.results.length > 0) {
-              showMessage({
-                ...ERROR_MESSAGES.SEARCH_SUCCESS,
-                message: `${e.data.results.length}개의 결과를 찾았습니다.`,
-              });
+              showMessage(
+                'SEARCH_SUCCESS',
+                `${e.data.results.length}개의 결과를 찾았습니다.`
+              );
             } else {
-              showError('SEARCH_NO_RESULTS');
+              showMessage('SEARCH_NO_RESULTS');
             }
             resolve(e.data.results);
           }
@@ -169,7 +168,6 @@ export const useHexViewerSearch = () => {
       startProcessing,
       stopProcessing,
       updateProgress,
-      showError,
       showMessage,
       getSearchTimeout,
       fileSize,
@@ -213,7 +211,7 @@ export const useHexViewerSearch = () => {
         const timeoutId = setTimeout(() => {
           cleanup();
           stopProcessing();
-          showError(
+          showMessage(
             'SEARCH_TIMEOUT',
             `검색 시간이 초과되었습니다. (${searchTimeout / 1000}초)`
           );
@@ -250,18 +248,18 @@ export const useHexViewerSearch = () => {
             }
 
             if (e.data.errorCode) {
-              showError(e.data.errorCode, e.data.error);
+              showMessage(e.data.errorCode, e.data.error);
               resolve(null);
               return;
             }
 
             if (e.data.results && e.data.results.length > 0) {
-              showMessage({
-                ...ERROR_MESSAGES.SEARCH_SUCCESS,
-                message: `${e.data.results.length}개의 결과를 찾았습니다.`,
-              });
+              showMessage(
+                'SEARCH_SUCCESS',
+                `${e.data.results.length}개의 결과를 찾았습니다.`
+              );
             } else {
-              showError('SEARCH_NO_RESULTS');
+              showMessage('SEARCH_NO_RESULTS');
             }
             resolve(e.data.results);
           }
@@ -291,7 +289,6 @@ export const useHexViewerSearch = () => {
       startProcessing,
       stopProcessing,
       updateProgress,
-      showError,
       showMessage,
       getSearchTimeout,
       fileSize,

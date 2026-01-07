@@ -6,7 +6,7 @@ import React, {
   useMemo,
   useRef,
 } from 'react';
-import { ErrorCode, getErrorMessage, isValidErrorCode } from '@/constants/messages';
+import { MessageCode, getMessage, isValidMessageCode } from '@/constants/messages';
 
 export type MessageType = 'info' | 'success' | 'warning' | 'error';
 
@@ -30,8 +30,7 @@ interface MessageOptions {
 const MAX_TOAST_COUNT = 3;
 
 interface MessageContextType {
-  showMessage: (options: MessageOptions | string) => void;
-  showError: (code: ErrorCode | string, customMessage?: string) => void;
+  showMessage: (code: MessageCode | string, customMessage?: string) => void;
   hideMessage: (id: string, removeFromHistory?: boolean) => void;
   currentMessages: MessageItem[];
   messageHistory: MessageItem[];
@@ -57,13 +56,13 @@ export const MessageProvider: React.FC<{ children: React.ReactNode }> = ({
       timeoutsRef.current.delete(id);
     }
     setCurrentMessages((prev) => prev.filter((msg) => msg.id !== id));
-    
+
     if (removeFromHistory) {
       setMessageHistory((prev) => prev.filter((msg) => msg.id !== id));
     }
   }, []);
 
-  const showMessage = useCallback((options: MessageOptions | string) => {
+  const onMessage = useCallback((options: MessageOptions | string) => {
     const opts: MessageOptions =
       typeof options === 'string'
         ? { message: options, type: 'info', duration: 6000 }
@@ -99,20 +98,19 @@ export const MessageProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, [hideMessage]);
 
-  const showError = useCallback(
-    (code: ErrorCode | string, customMessage?: string) => {
-      // ✅ 타입 가드로 유효성 검증
-      if (!isValidErrorCode(code)) {
+  const showMessage = useCallback(
+    (code: MessageCode | string, customMessage?: string) => {
+      if (!isValidMessageCode(code)) {
         console.warn('[MessageContext] Invalid error code:', code);
-        const template = getErrorMessage('UNKNOWN_ERROR', customMessage || code);
-        showMessage(template);
+        const template = getMessage('UNKNOWN_ERROR', customMessage || code);
+        onMessage(template);
         return;
       }
-      
-      const template = getErrorMessage(code, customMessage);
-      showMessage(template);
+
+      const template = getMessage(code, customMessage);
+      onMessage(template);
     },
-    [showMessage]
+    [onMessage]
   );
 
   const clearHistory = useCallback(() => {
@@ -137,7 +135,6 @@ export const MessageProvider: React.FC<{ children: React.ReactNode }> = ({
   const value = useMemo(
     () => ({
       showMessage,
-      showError,
       hideMessage,
       currentMessages,
       messageHistory,
@@ -148,7 +145,6 @@ export const MessageProvider: React.FC<{ children: React.ReactNode }> = ({
     }),
     [
       showMessage,
-      showError,
       hideMessage,
       currentMessages,
       messageHistory,

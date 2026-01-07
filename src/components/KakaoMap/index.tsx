@@ -13,7 +13,7 @@ interface Props {
 }
 
 const KakaoMap: React.FC<Props> = ({ latitude, longitude }) => {
-  const { showError } = useMessage();
+  const { showMessage } = useMessage();
 
   useLayoutEffect(() => {
     if (isValidLocation(latitude, longitude)) {
@@ -21,12 +21,12 @@ const KakaoMap: React.FC<Props> = ({ latitude, longitude }) => {
         mapscript(latitude, longitude);
       } catch (error) {
         console.error('[KakaoMap] Map initialization failed:', error);
-        showError('KAKAO_MAP_LOAD_ERROR');
+        showMessage('KAKAO_MAP_LOAD_ERROR');
       }
     } else {
-      showError('KAKAO_MAP_INVALID_LOCATION');
+      showMessage('KAKAO_MAP_INVALID_LOCATION');
     }
-  }, [latitude, longitude, showError]);
+  }, [latitude, longitude, showMessage]);
 
   const mapscript = (lat: any, lng: any) => {
     const container = document.getElementById('IceLocaionMap');

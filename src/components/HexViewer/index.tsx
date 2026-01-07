@@ -6,7 +6,6 @@ import React, {
   forwardRef,
   useCallback,
   useReducer,
-  useMemo,
 } from 'react';
 import { useTabData } from '@/contexts/TabDataContext';
 import { useWorker } from '@/contexts/WorkerContext';
@@ -69,7 +68,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     selectionStates,
   } = useTabData();
   const { fileWorker, getWorkerCache } = useWorker();
-  const { showError } = useMessage();
+  const { showMessage } = useMessage();
 
   // ===== Basic States =====
   const file = activeData?.file;
@@ -287,11 +286,11 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
           forceRender();
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류';
-          showError('FILE_PROCESSING_FAILED', `워커 초기화 실패: ${errorMessage}`);
+          showMessage('FILE_PROCESSING_FAILED', `워커 초기화 실패: ${errorMessage}`);
         }
       })();
     }
-  }, [file, activeKey, getWorkerCache, scrollPositions, requestChunks, visibleRows, fileSize, fileWorker, setScrollPositions, initializeWorker, showError]);
+  }, [file, activeKey, getWorkerCache, scrollPositions, requestChunks, visibleRows, fileSize, fileWorker, setScrollPositions, initializeWorker, showMessage]);
 
   useEffect(() => {
     renderHeader();
@@ -361,10 +360,10 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
 
   // ===== Render =====
   return (
-    <HexViewerContainer 
-      onWheel={handleWheel} 
-      onTouchStart={handleTouchStart} 
-      onTouchMove={handleTouchMove} 
+    <HexViewerContainer
+      onWheel={handleWheel}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
       <CanvasContainer ref={containerRef} tabIndex={0}>
