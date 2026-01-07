@@ -162,6 +162,9 @@ const About: React.FC = () => (
           <SectionTitle>인적사항</SectionTitle>
           <List>
             <ListItem>
+              <strong>이름</strong> 박정균 Park Jeong Kyun
+            </ListItem>
+            <ListItem>
               <strong>생년월일</strong> 2001년 2월 23일{' '}
               <span
                 style={{
