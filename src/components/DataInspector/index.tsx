@@ -32,7 +32,6 @@ import {
   bytesToTimeT32,
   bytesToTimeT64,
   bytesToGUID,
-  bytesToAssembly,
   MIN_BYTE_LENGTHS,
 } from '@/utils/dataInspector';
 import { byteToChar } from '@/utils/encoding';
@@ -141,10 +140,6 @@ const DataInspector: React.FC = () => {
     // GUID
     const guid = bytes.length >= MIN_BYTE_LENGTHS.GUID ? bytesToGUID(getSlice(MIN_BYTE_LENGTHS.GUID), endian === 'le') : '-';
 
-    // Assembly
-    const asmX86 = bytes.length >= MIN_BYTE_LENGTHS.ASM_X86 ? bytesToAssembly(bytes, 'x86', endian === 'le') : '-';
-    const asmArm = bytes.length >= MIN_BYTE_LENGTHS.ASM_ARM ? bytesToAssembly(bytes, 'arm', endian === 'le') : '-';
-
     return {
       integers,
       float32,
@@ -162,8 +157,6 @@ const DataInspector: React.FC = () => {
       timet32,
       timet64,
       guid,
-      asmX86,
-      asmArm,
     };
   }, [bytes, endian]);
 
@@ -283,19 +276,6 @@ const DataInspector: React.FC = () => {
                 <ContentDiv>
                   <CellHeaderDiv>GUID</CellHeaderDiv>
                   <CellBodyDiv>{info?.guid}</CellBodyDiv>
-                </ContentDiv>
-              </SectionDiv>
-              
-              {/* Assembly 섹션 추가 */}
-              <SectionDiv>
-                <SectionTitleDiv>Assembly</SectionTitleDiv>
-                <ContentDiv>
-                  <CellHeaderDiv>x86</CellHeaderDiv>
-                  <CellBodyDiv>{info?.asmX86}</CellBodyDiv>
-                </ContentDiv>
-                <ContentDiv>
-                  <CellHeaderDiv>ARM</CellHeaderDiv>
-                  <CellBodyDiv>{info?.asmArm}</CellBodyDiv>
                 </ContentDiv>
               </SectionDiv>
             </>
