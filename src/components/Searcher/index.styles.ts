@@ -23,7 +23,7 @@ export const SearchDiv = styled.div`
   align-items: center;
   gap: 5px;
   justify-content: space-between;
-  margin-bottom: 10px;
+  margin-bottom: 5px;
   user-select: none;
 `;
 

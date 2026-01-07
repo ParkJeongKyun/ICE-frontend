@@ -10,28 +10,31 @@ export const NotSelectedDiv = styled.div`
 export const ContentDiv = styled.div`
   display: flex;
   gap: 5px;
-  margin-bottom: 5px;
+  width: 100%;
 `;
 
 export const CellHeaderDiv = styled.div`
+  border-radius: 2px;
   text-align: left;
   font-size: 0.75rem;
-  min-width: 35%;
+  flex: 0 0 35%;
   font-weight: 500;
+  padding: 2px 5px;
   &:hover {
     background-color: var(--main-hover-color);
   }
 `;
 
 export const CellBodyDiv = styled.div`
+  border-radius: 2px;
   text-align: left;
   font-size: 0.75rem;
-  min-width: 60%;
+  flex: 1;
   color: var(--ice-main-color);
+  padding: 2px 5px;
   &:hover {
     background-color: var(--main-hover-color);
   }
-  word-wrap: break-word;
 `;
 
 export const EndianRadioGroup = styled.div`
@@ -39,7 +42,7 @@ export const EndianRadioGroup = styled.div`
   align-items: center;
   justify-content: center;
   gap: 16px;
-  padding: 0px;
+  padding-bottom: 10px;
   user-select: none;
 `;
 
@@ -58,5 +61,6 @@ export const EndianRadio = styled.input.attrs({ type: 'radio' })`
 `;
 
 export const SectionDiv = styled.div`
-  margin: 10px 0px;
+  padding: 5px 0px;
+  border-top: 1px solid var(--main-line-color);
 `;
