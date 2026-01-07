@@ -23,6 +23,7 @@ import { TabKey } from '@/types';
 import XIcon from '@/components/common/Icons/XIcon';
 import ChevronLeftIcon from '@/components/common/Icons/ChevronLeftIcon';
 import ChevronRightIcon from '@/components/common/Icons/ChevronRightIcon';
+import SearchIcon from '@/components/common/Icons/SearchIcon';
 import { useTabData } from '@/contexts/TabDataContext';
 import type {
   SearchType,
@@ -314,7 +315,7 @@ const Searcher: React.FC<Props> = ({ hexViewerRef }) => {
             onClick={() => inputValue && search(inputValue, searchType)}
             title="검색"
           >
-            SEARCH
+            <SearchIcon width={16} height={16} />
           </ButtonDiv>
         </SearchData>
       </SearchDiv>
