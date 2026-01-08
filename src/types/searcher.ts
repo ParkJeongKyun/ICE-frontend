@@ -1,7 +1,7 @@
 import { TabKey } from '@/types';
 import { IndexInfo } from '@/components/HexViewer';
 
-export type SearchType = 'offset' | 'hex' | 'ascii';
+export type SearchType = 'hex' | 'ascii';
 export type SearchCacheKey = string;
 
 export interface SearchResult {

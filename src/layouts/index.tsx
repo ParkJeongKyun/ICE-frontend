@@ -38,12 +38,12 @@ import {
   EncodingType,
 } from '@/contexts/TabDataContext';
 import Logo from '@/components/common/Icons/Logo';
-import { useWorker } from '@/contexts/WorkerContext';
 import DataInspector from '@/components/DataInspector';
 import MessageModal from '@/components/MessageModal';
 import MessageHistory from '@/components/MessageHistory';
 import Spinner from '@/components/common/Spinner';
 import Select from '@/components/common/Select';
+import OffsetNavigator from '@/components/OffsetNavigator';
 
 const MIN_SIDER_WIDTH = 100;
 
@@ -125,6 +125,7 @@ const MainLayout: React.FC = () => {
             setIsModalOpen(true);
           }}
         />
+        <OffsetNavigator hexViewerRef={hexViewerRef} />
         {isProcessing && (
           <>
             <ProcessInfo>

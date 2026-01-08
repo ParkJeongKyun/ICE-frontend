@@ -98,7 +98,6 @@ const reducer = (
 
 const filterInput = (inputValue: string, type: SearchType) => {
   switch (type) {
-    case 'offset':
     case 'hex':
       return inputValue.replace(/[^0-9a-fA-F]/g, '');
     case 'ascii':
@@ -111,7 +110,7 @@ const filterInput = (inputValue: string, type: SearchType) => {
 const Searcher: React.FC<Props> = ({ hexViewerRef }) => {
   const { activeKey } = useTabData();
   const [searchResults, dispatch] = useReducer(reducer, initialState);
-  const [searchType, setSearchType] = useState<SearchType>('offset');
+  const [searchType, setSearchType] = useState<SearchType>('hex');
   const [inputValue, setInputValue] = useState('');
   const [ignoreCase, setIgnoreCase] = useState(true);
   const searchTabKeyRef = useRef<TabKey>(activeKey);
@@ -156,10 +155,7 @@ const Searcher: React.FC<Props> = ({ hexViewerRef }) => {
 
       // ✅ 검색 수행 (HexViewer가 Worker 처리)
       let results: IndexInfo[] = [];
-      if (type === 'offset') {
-        const res = await hexViewerRef.current.findByOffset(inputValue);
-        results = res ? [res] : [];
-      } else if (type === 'hex') {
+      if (type === 'hex') {
         results = (await hexViewerRef.current.findAllByHex(inputValue)) || [];
       } else if (type === 'ascii') {
         results =
@@ -180,8 +176,8 @@ const Searcher: React.FC<Props> = ({ hexViewerRef }) => {
           tabKey: activeKey,
         });
 
-        // ✅ offset은 캐시하지 않음
-        if (results.length > 0 && type !== 'offset') {
+        // ✅ 캐시 저장
+        if (results.length > 0) {
           dispatch({
             type: 'SET_CACHE',
             cacheKey,
@@ -283,7 +279,6 @@ const Searcher: React.FC<Props> = ({ hexViewerRef }) => {
         <SearchLabel>타입</SearchLabel>
         <SearchData>
           <SearchSelect value={searchType} onChange={handleSearchTypeChange}>
-            <option value="offset">Offset</option>
             <option value="hex">Hex</option>
             <option value="ascii">ASCII</option>
           </SearchSelect>
@@ -296,7 +291,7 @@ const Searcher: React.FC<Props> = ({ hexViewerRef }) => {
             value={inputValue}
             onChange={handleInputChange}
             onKeyDown={handleInputKeyPress}
-            maxLength={searchType === 'offset' ? 8 : 50}
+            maxLength={50}
             placeholder={`${searchType} 값을 입력하세요.`}
           />
           {searchType === 'ascii' && (
