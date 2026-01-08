@@ -1,7 +1,7 @@
 /* global kakao */
 import { useLayoutEffect } from 'react';
 import { IceMap, IceMapContainer } from './index.styles';
-import { isValidLocation } from '@/utils/getAddress';
+import { isValidLocation, isWithinKoreaBounds } from '@/utils/getAddress';
 import { useMessage } from '@/contexts/MessageContext';
 
 /* Kakao Map */
@@ -17,6 +17,18 @@ const KakaoMap: React.FC<Props> = ({ latitude, longitude }) => {
 
   useLayoutEffect(() => {
     if (isValidLocation(latitude, longitude)) {
+      const lat = parseFloat(latitude);
+      const lng = parseFloat(longitude);
+      
+      // 대한민국 영토 범위 체크
+      if (!isWithinKoreaBounds(lat, lng)) {
+        console.info(
+          `[KakaoMap] 해외 좌표 감지: (${lat}, ${lng}) - 지도 표시 불가`
+        );
+        showMessage('KAKAO_MAP_OUT_OF_BOUNDS');
+        return;
+      }
+      
       try {
         mapscript(latitude, longitude);
       } catch (error) {

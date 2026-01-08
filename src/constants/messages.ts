@@ -175,6 +175,12 @@ export const MESSAGES = {
     message: '유효한 GPS 정보가 없습니다.',
     duration: 6000,
   },
+  KAKAO_MAP_OUT_OF_BOUNDS: {
+    type: 'info' as MessageType,
+    title: '해외 좌표 감지',
+    message: '대한민국 영토 범위 밖의 좌표입니다.\n카카오맵은 국내 위치만 지원합니다.',
+    duration: 6000,
+  },
 } as const;
 
 export type MessageCode = keyof typeof MESSAGES;
