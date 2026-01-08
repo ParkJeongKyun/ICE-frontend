@@ -36,7 +36,7 @@ import {
   useTabData,
   EncodingType,
 } from '@/contexts/TabDataContext';
-import { RefProvider, useRefs } from '@/contexts/RefContext';
+import { useRefs } from '@/contexts/RefContext';
 import Logo from '@/components/common/Icons/Logo';
 import DataInspector from '@/components/DataInspector';
 import MessageModal from '@/components/MessageModal';
@@ -47,7 +47,7 @@ import OffsetNavigator from '@/components/OffsetNavigator';
 
 const MIN_SIDER_WIDTH = 100;
 
-const MainLayoutContent: React.FC = () => {
+const MainLayout: React.FC = () => {
   const { isEmpty, encoding, setEncoding, activeKey, selectionStates } =
     useTabData();
   const { isProcessing, progress } = useProcess();
@@ -266,14 +266,6 @@ const MainLayoutContent: React.FC = () => {
       </Modal>
       <MessageModal />
     </IceMainLayout>
-  );
-};
-
-const MainLayout: React.FC = () => {
-  return (
-    <RefProvider>
-      <MainLayoutContent />
-    </RefProvider>
   );
 };
 

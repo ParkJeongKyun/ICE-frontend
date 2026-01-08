@@ -2,6 +2,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { ProcessProvider } from '@/contexts/ProcessContext';
 import { WorkerProvider } from '@/contexts/WorkerContext';
 import { TabDataProvider } from '@/contexts/TabDataContext';
+import { RefProvider } from '@/contexts/RefContext';
 import RouterList from '@/routes';
 import { MessageProvider } from './contexts/MessageContext';
 
@@ -12,7 +13,9 @@ function App() {
         <ProcessProvider>
           <WorkerProvider>
             <TabDataProvider>
-              <RouterList />
+              <RefProvider>
+                <RouterList />
+              </RefProvider>
             </TabDataProvider>
           </WorkerProvider>
         </ProcessProvider>
