@@ -28,7 +28,7 @@ const EDUCATION = [
     status: '졸업',
     year: '2019',
   },
-  { school: '협성고등학교', major: '', status: '졸업', year: '2019' },
+  { school: '협성고등학교', major: '', status: '졸업', year: '2020' },
 ];
 
 const MILITARY = {

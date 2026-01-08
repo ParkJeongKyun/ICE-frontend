@@ -3,14 +3,12 @@ import styled from 'styled-components';
 export const NavigatorContainer = styled.div`
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 0 12px;
+  gap: 0px;
+  padding: 0px;
   height: 100%;
-  
-  @media (max-width: 768px) {
-    gap: 4px;
-    padding: 0 8px;
-  }
+  flex-shrink: 1;
+  margin-left: auto;
+  min-width: 0;
 `;
 
 export const NavigatorLabel = styled.label`
@@ -21,72 +19,36 @@ export const NavigatorLabel = styled.label`
 `;
 
 export const NavigatorInput = styled.input`
-  width: 120px;
-  padding: 4px 8px;
-  font-size: 0.85rem;
-  font-family: 'JetBrains Mono', monospace;
-  background: var(--ice-bg-secondary);
-  color: var(--ice-text-color);
-  border: 1px solid var(--ice-border-color);
-  border-radius: 4px;
-  outline: none;
-  transition: all 0.2s ease;
-
-  &:focus {
-    border-color: var(--ice-main-color);
-    box-shadow: 0 0 0 2px rgba(var(--ice-main-color-rgb), 0.1);
-  }
-
-  &::placeholder {
-    color: var(--ice-text-secondary);
-    opacity: 0.5;
-  }
-  
-  @media (max-width: 768px) {
-    width: 90px;
-    padding: 3px 6px;
-    font-size: 0.8rem;
+  flex: 1;
+  min-width: 60px;
+  max-width: 200px;
+  color: var(--main-color);
+  background-color: var(--main-bg-color);
+  border: none;
+  border-bottom: 1px solid var(--main-line-color);
+  box-sizing: border-box;
+  font-size: 0.75rem;
+  min-height: 25px;
+  &:focus,
+  &:hover {
+    outline: none;
+    background-color: var(--main-hover-color_1);
   }
 `;
 
-export const NavigatorButton = styled.button`
-  display: flex;
+export const NavigatorButton = styled.div`
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
-  padding: 0;
-  background: var(--ice-bg-secondary);
-  color: var(--ice-text-color);
-  border: 1px solid var(--ice-border-color);
-  border-radius: 4px;
+  padding: 2px;
+  border-radius: 2px;
+  color: var(--main-color);
   cursor: pointer;
-  transition: all 0.2s ease;
-
+  opacity: 0.6;
+  font-size: 0.65rem;
+  transition: opacity 0.2s ease;
   &:hover {
-    background: var(--ice-bg-hover);
-    border-color: var(--ice-main-color);
-  }
-
-  &:active {
-    transform: scale(0.95);
-  }
-
-  svg {
-    opacity: 0.8;
-  }
-
-  &:hover svg {
     opacity: 1;
-  }
-  
-  @media (max-width: 768px) {
-    width: 24px;
-    height: 24px;
-    
-    svg {
-      width: 14px;
-      height: 14px;
-    }
+    color: var(--ice-main-color);
   }
 `;

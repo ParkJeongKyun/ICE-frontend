@@ -116,21 +116,20 @@ const MainLayout: React.FC = () => {
   return (
     <IceMainLayout $isResizing={isLeftSideDragging || isRightSideDragging}>
       <IceHeader $isMobile={isMobile}>
-        <Logo showText />
-        <MenuBtnZone
-          ref={menuBtnZoneRef}
-          hexViewerRef={hexViewerRef}
-          openModal={(key) => {
-            setModalContentKey(key);
-            setIsModalOpen(true);
-          }}
-        />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <Logo showText />
+          <MenuBtnZone
+            ref={menuBtnZoneRef}
+            hexViewerRef={hexViewerRef}
+            openModal={(key) => {
+              setModalContentKey(key);
+              setIsModalOpen(true);
+            }}
+          />
+        </div>
         <OffsetNavigator hexViewerRef={hexViewerRef} />
         {isProcessing && (
           <>
-            <ProcessInfo>
-              <Spinner size={16} />
-            </ProcessInfo>
             <IceHeaderProgressBar
               $progress={progress}
               $isProcessing={isProcessing}
@@ -239,6 +238,13 @@ const MainLayout: React.FC = () => {
           )}
         </SelectInfo>
         <IceFooterRight>
+          {isProcessing && (
+            <>
+              <ProcessInfo>
+                <Spinner size={16} />
+              </ProcessInfo>
+            </>
+          )}
           {!isEmpty && (
             <Select
               value={encoding}
