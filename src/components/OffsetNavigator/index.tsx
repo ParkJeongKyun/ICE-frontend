@@ -1,6 +1,6 @@
 import React, { useCallback, useState, useRef, useEffect } from 'react';
-import { HexViewerRef } from '@/components/HexViewer';
 import { useTabData } from '@/contexts/TabDataContext';
+import { useRefs } from '@/contexts/RefContext';
 import {
   NavigatorContainer,
   NavigatorInput,
@@ -11,11 +11,8 @@ import SearchIcon from '@/components/common/Icons/SearchIcon';
 
 type Radix = 16 | 10 | 8;
 
-interface Props {
-  hexViewerRef: React.RefObject<HexViewerRef | null>;
-}
-
-const OffsetNavigator: React.FC<Props> = ({ hexViewerRef }) => {
+const OffsetNavigator: React.FC = () => {
+  const { hexViewerRef } = useRefs();
   const { activeKey, isEmpty } = useTabData();
   const [inputValue, setInputValue] = useState('');
   const [radix, setRadix] = useState<Radix>(16);

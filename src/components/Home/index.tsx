@@ -1,4 +1,4 @@
-import { MenuBtnZoneRef } from '@/components/MenuBtnZone';
+import { useRefs } from '@/contexts/RefContext';
 import {
   Btn,
   HomeDiv,
@@ -13,13 +13,9 @@ import {
 } from './index.styles';
 import { isMobile } from 'react-device-detect';
 import Logo from '../common/Icons/Logo';
-import { RefObject } from 'react';
 
-interface Props {
-  menuBtnZoneRef: RefObject<MenuBtnZoneRef | null>;
-}
-
-const Home: React.FC<Props> = ({ menuBtnZoneRef }) => {
+const Home: React.FC = () => {
+  const { menuBtnZoneRef } = useRefs();
   return (
     <HomeDiv>
       <ContientDiv>

@@ -1,5 +1,5 @@
 import Collapse from '@/components/common/Collapse';
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
   CellBodyDiv,
   CellHeaderDiv,
@@ -8,8 +8,11 @@ import {
   EndianButton,
   SectionDiv,
   NotSelectedDiv,
+  JumpButton,
 } from './index.styles';
 import { useTabData } from '@/contexts/TabDataContext';
+import { useRefs } from '@/contexts/RefContext';
+import ChevronRightIcon from '@/components/common/Icons/ChevronRightIcon';
 import {
   bytesToUnsigned,
   bytesToSigned,
@@ -35,6 +38,7 @@ import {
 import { byteToChar } from '@/utils/encoding';
 
 const DataInspector: React.FC = () => {
+  const { hexViewerRef } = useRefs();
   const { activeKey, selectionStates } = useTabData();
   const selectionRange = selectionStates[activeKey] || {
     start: null,
@@ -43,6 +47,28 @@ const DataInspector: React.FC = () => {
   };
   const bytes = selectionRange.selectedBytes ?? new Uint8Array();
   const [endian, setEndian] = useState<'le' | 'be'>('le');
+
+  const handleJumpToOffset = useCallback(
+    async (value: string) => {
+      if (!hexViewerRef?.current || value === '-' || selectionRange.start === null) return;
+      
+      const numValue = parseInt(value, 10);
+      if (isNaN(numValue)) return;
+      
+      // 현재 오프셋에서 상대적으로 계산
+      const targetOffset = selectionRange.start + numValue;
+      
+      // 음수 오프셋은 이동하지 않음
+      if (targetOffset < 0) return;
+      
+      const hexStr = targetOffset.toString(16);
+      const result = await hexViewerRef.current.findByOffset(hexStr);
+      if (result) {
+        hexViewerRef.current.scrollToIndex(result.index, result.offset);
+      }
+    },
+    [hexViewerRef, selectionRange.start]
+  );
 
   const info = useMemo(() => {
     if (!bytes || bytes.length === 0) return null;
@@ -209,12 +235,27 @@ const DataInspector: React.FC = () => {
                 </ContentDiv>
               </SectionDiv>
               <SectionDiv>
-                {info?.integers.map((item) => (
-                  <ContentDiv key={item.label}>
-                    <CellHeaderDiv>{item.label}</CellHeaderDiv>
-                    <CellBodyDiv>{item.value}</CellBodyDiv>
-                  </ContentDiv>
-                ))}
+                {info?.integers.map((item) => {
+                  const numValue = parseInt(item.value, 10);
+                  const isValidOffset = item.value !== '-' && !isNaN(numValue);
+                  
+                  return (
+                    <ContentDiv key={item.label}>
+                      <CellHeaderDiv>
+                        {item.label}
+                        {isValidOffset && hexViewerRef && selectionRange.start !== null && (
+                          <JumpButton
+                            onClick={() => handleJumpToOffset(item.value)}
+                            title={`현재 오프셋(0x${selectionRange.start.toString(16).toUpperCase()}) ${numValue >= 0 ? '+' : ''}${item.value} → 0x${(selectionRange.start + numValue).toString(16).toUpperCase()}로 이동`}
+                          >
+                            <ChevronRightIcon width={14} height={14} />
+                          </JumpButton>
+                        )}
+                      </CellHeaderDiv>
+                      <CellBodyDiv>{item.value}</CellBodyDiv>
+                    </ContentDiv>
+                  );
+                })}
               </SectionDiv>
               <SectionDiv>
                 <ContentDiv>

@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   FlexGrow,
   IceContent,
@@ -20,7 +20,7 @@ import {
   Separator,
   IceFooterRight,
 } from './index.styles';
-import MenuBtnZone, { MenuBtnZoneRef } from '@/components/MenuBtnZone';
+import MenuBtnZone from '@/components/MenuBtnZone';
 import TabWindow from '@/components/TabWindow';
 import ExifRowViewer from '@/components/ExifRowViewer';
 import Modal from '@/components/common/Modal';
@@ -28,7 +28,6 @@ import AboutMD from '@/components/markdown/AboutMD';
 import HelpMD from '@/components/markdown/HelpMD';
 import { useResizable } from 'react-resizable-layout';
 import Searcher from '@/components/Searcher';
-import { HexViewerRef } from '@/components/HexViewer';
 import { useProcess } from '@/contexts/ProcessContext';
 import Home from '@/components/Home';
 import { isMobile } from 'react-device-detect';
@@ -37,6 +36,7 @@ import {
   useTabData,
   EncodingType,
 } from '@/contexts/TabDataContext';
+import { RefProvider, useRefs } from '@/contexts/RefContext';
 import Logo from '@/components/common/Icons/Logo';
 import DataInspector from '@/components/DataInspector';
 import MessageModal from '@/components/MessageModal';
@@ -47,13 +47,11 @@ import OffsetNavigator from '@/components/OffsetNavigator';
 
 const MIN_SIDER_WIDTH = 100;
 
-const MainLayout: React.FC = () => {
+const MainLayoutContent: React.FC = () => {
   const { isEmpty, encoding, setEncoding, activeKey, selectionStates } =
     useTabData();
   const { isProcessing, progress } = useProcess();
-
-  const hexViewerRef = useRef<HexViewerRef>(null);
-  const menuBtnZoneRef = useRef<MenuBtnZoneRef>(null);
+  const { menuBtnZoneRef } = useRefs();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalContentKey, setModalContentKey] = useState<string | null>(null);
@@ -120,14 +118,13 @@ const MainLayout: React.FC = () => {
           <Logo showText />
           <MenuBtnZone
             ref={menuBtnZoneRef}
-            hexViewerRef={hexViewerRef}
             openModal={(key) => {
               setModalContentKey(key);
               setIsModalOpen(true);
             }}
           />
         </div>
-        <OffsetNavigator hexViewerRef={hexViewerRef} />
+        <OffsetNavigator />
         {isProcessing && (
           <>
             <IceHeaderProgressBar
@@ -143,7 +140,7 @@ const MainLayout: React.FC = () => {
       {isMobile ? (
         <IceMobileLayout>
           <IceMobileContent>
-            {isEmpty ? <Home menuBtnZoneRef={menuBtnZoneRef} /> : <TabWindow />}
+            {isEmpty ? <Home /> : <TabWindow />}
           </IceMobileContent>
           {!isEmpty && (
             <IceMobileBottom>
@@ -151,7 +148,7 @@ const MainLayout: React.FC = () => {
                 <ExifRowViewer />
               </div>
               <div>
-                <Searcher hexViewerRef={hexViewerRef} />
+                <Searcher />
               </div>
               <div>
                 <DataInspector />
@@ -181,7 +178,7 @@ const MainLayout: React.FC = () => {
           <FlexGrow>
             <IceContent>
               {isEmpty ? (
-                <Home menuBtnZoneRef={menuBtnZoneRef} />
+                <Home />
               ) : (
                 <TabWindow />
               )}
@@ -201,7 +198,7 @@ const MainLayout: React.FC = () => {
                     : 'block',
               }}
             >
-              <Searcher hexViewerRef={hexViewerRef} />
+              <Searcher />
               <DataInspector />
             </IceRightSider>
           </FlexGrow>
@@ -269,6 +266,14 @@ const MainLayout: React.FC = () => {
       </Modal>
       <MessageModal />
     </IceMainLayout>
+  );
+};
+
+const MainLayout: React.FC = () => {
+  return (
+    <RefProvider>
+      <MainLayoutContent />
+    </RefProvider>
   );
 };
 

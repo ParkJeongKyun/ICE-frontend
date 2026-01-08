@@ -1,16 +1,16 @@
 import React, { useEffect, useCallback } from 'react';
-import { ChangeEvent, Ref, useImperativeHandle, useRef, useState } from 'react';
+import { ChangeEvent, useImperativeHandle, useRef, useState, forwardRef } from 'react';
 import styled from 'styled-components';
 import MenuBtn from '@/components/common/MenuBtn';
 import HexViewer, { HexViewerRef } from '@/components/HexViewer';
 import { useProcess } from '@/contexts/ProcessContext';
 import { useTabData } from '@/contexts/TabDataContext';
+import { useRefs } from '@/contexts/RefContext';
 import { parseExifData, readFileForExif } from '@/utils/exifParser';
 import { useWorker } from '@/contexts/WorkerContext';
 import { useMessage } from '@/contexts/MessageContext';
 
 interface Props {
-  hexViewerRef: Ref<HexViewerRef>;
   openModal: (key: string) => void;
 }
 
@@ -23,9 +23,10 @@ export interface MenuBtnZoneRef {
 const EXIF_TIMEOUT = 30000;
 
 const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
-  { hexViewerRef, openModal },
+  { openModal },
   ref
 ) => {
+  const { hexViewerRef } = useRefs();
   const { showMessage } = useMessage();
   const { setTabData, setActiveKey, getNewKey } = useTabData();
   const { fileWorker, isWasmReady } = useWorker();

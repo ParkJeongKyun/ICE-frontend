@@ -20,6 +20,13 @@ export const CellHeaderDiv = styled.div`
   flex: 0 0 35%;
   font-weight: 500;
   padding: 2px 5px;
+  word-break: break-all;
+  overflow-wrap: break-word;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
   &:hover {
     background-color: var(--main-hover-color);
   }
@@ -32,8 +39,29 @@ export const CellBodyDiv = styled.div`
   flex: 1;
   color: var(--ice-main-color);
   padding: 2px 5px;
+  word-break: break-all;
+  overflow-wrap: break-word;
+  min-width: 0;
   &:hover {
     background-color: var(--main-hover-color);
+  }
+`;
+
+export const JumpButton = styled.div`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  border-radius: 2px;
+  color: var(--main-color);
+  cursor: pointer;
+  opacity: 0.5;
+  transition: opacity 0.2s ease;
+  flex-shrink: 0;
+  
+  &:hover {
+    opacity: 1;
+    color: var(--ice-main-color);
   }
 `;
 

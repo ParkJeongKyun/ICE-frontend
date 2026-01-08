@@ -18,13 +18,14 @@ import {
   SearchResultBar,
   NavigationButtons,
 } from './index.styles';
-import { HexViewerRef, IndexInfo } from '@/components/HexViewer';
+import { IndexInfo } from '@/components/HexViewer';
 import { TabKey } from '@/types';
 import XIcon from '@/components/common/Icons/XIcon';
 import ChevronLeftIcon from '@/components/common/Icons/ChevronLeftIcon';
 import ChevronRightIcon from '@/components/common/Icons/ChevronRightIcon';
 import SearchIcon from '@/components/common/Icons/SearchIcon';
 import { useTabData } from '@/contexts/TabDataContext';
+import { useRefs } from '@/contexts/RefContext';
 import type {
   SearchType,
   SearchCacheKey,
@@ -32,10 +33,6 @@ import type {
   SearchStateWithCache,
   SearchAction,
 } from '@/types/searcher';
-
-interface Props {
-  hexViewerRef: React.RefObject<HexViewerRef | null>;
-}
 
 const initialState: SearchStateWithCache = {
   __cache__: new Map(),
@@ -107,7 +104,8 @@ const filterInput = (inputValue: string, type: SearchType) => {
   }
 };
 
-const Searcher: React.FC<Props> = ({ hexViewerRef }) => {
+const Searcher: React.FC = () => {
+  const { hexViewerRef } = useRefs();
   const { activeKey } = useTabData();
   const [searchResults, dispatch] = useReducer(reducer, initialState);
   const [searchType, setSearchType] = useState<SearchType>('hex');
@@ -316,8 +314,8 @@ const Searcher: React.FC<Props> = ({ hexViewerRef }) => {
       </SearchDiv>
       <SearchResultBar>
         {searchResults[activeKey] &&
-        !(searchResults[activeKey] instanceof Map) &&
-        (searchResults[activeKey] as SearchResult).results.length > 0 ? (
+          !(searchResults[activeKey] instanceof Map) &&
+          (searchResults[activeKey] as SearchResult).results.length > 0 ? (
           <>
             <Result>
               {(searchResults[activeKey] as SearchResult).results.length > 1 ? (
@@ -334,17 +332,17 @@ const Searcher: React.FC<Props> = ({ hexViewerRef }) => {
                   </span>
                   {(searchResults[activeKey] as SearchResult).results.length >=
                     1000 && (
-                    <span
-                      style={{
-                        opacity: 0.6,
-                        fontSize: '0.6rem',
-                        marginLeft: '2px',
-                      }}
-                      title="최대 1000개까지만 표시됩니다"
-                    >
-                      (max)
-                    </span>
-                  )}
+                      <span
+                        style={{
+                          opacity: 0.6,
+                          fontSize: '0.6rem',
+                          marginLeft: '2px',
+                        }}
+                        title="최대 1000개까지만 표시됩니다"
+                      >
+                        (max)
+                      </span>
+                    )}
                 </>
               ) : (
                 <span>1 found</span>
