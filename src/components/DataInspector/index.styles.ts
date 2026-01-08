@@ -39,25 +39,31 @@ export const CellBodyDiv = styled.div`
 
 export const EndianRadioGroup = styled.div`
   display: flex;
-  align-items: center;
+  align-items: stretch;
   justify-content: center;
-  gap: 16px;
-  padding-bottom: 10px;
+  gap: 0px;
   user-select: none;
+  width: 100%;
 `;
 
-export const EndianLabel = styled.label`
+export const EndianButton = styled.div<{ $active: boolean }>`
+  flex: 1;
   display: flex;
   align-items: center;
-  font-size: 0.75rem;
-  color: var(--ice-main-color);
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding-bottom: 5px;
+  color: var(--main-color);
+  opacity: ${props => props.$active ? 1 : 0.4};
   cursor: pointer;
-  gap: 4px;
-`;
-
-export const EndianRadio = styled.input.attrs({ type: 'radio' })`
-  accent-color: var(--ice-main-color);
-  margin-right: 4px;
+  transition: all 0.2s ease;
+  outline: none;
+  
+  &:hover {
+    opacity: 1;
+    color: var(--ice-main-color);
+  }
 `;
 
 export const SectionDiv = styled.div`

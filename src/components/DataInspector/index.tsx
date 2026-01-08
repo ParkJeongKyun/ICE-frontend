@@ -5,8 +5,7 @@ import {
   CellHeaderDiv,
   ContentDiv,
   EndianRadioGroup,
-  EndianLabel,
-  EndianRadio,
+  EndianButton,
   SectionDiv,
   NotSelectedDiv,
 } from './index.styles';
@@ -164,26 +163,22 @@ const DataInspector: React.FC = () => {
       title="Data Inspector"
       children={
         <>
-          {/* 엔디안 선택 라디오 */}
+          {/* 엔디안 선택 탭 */}
           <EndianRadioGroup>
-            <EndianLabel>
-              <EndianRadio
-                name="endian"
-                value="le"
-                checked={endian === 'le'}
-                onChange={() => setEndian('le')}
-              />
+            <EndianButton
+              $active={endian === 'le'}
+              onClick={() => setEndian('le')}
+              title='리틀엔디안으로 변경'
+            >
               Little Endian
-            </EndianLabel>
-            <EndianLabel>
-              <EndianRadio
-                name="endian"
-                value="be"
-                checked={endian === 'be'}
-                onChange={() => setEndian('be')}
-              />
+            </EndianButton>
+            <EndianButton
+              $active={endian === 'be'}
+              onClick={() => setEndian('be')}
+              title='빅엔디안으로 변경'
+            >
               Big Endian
-            </EndianLabel>
+            </EndianButton>
           </EndianRadioGroup>
           {bytes.length === 0 ? (
             <NotSelectedDiv>선택된 데이터 없음</NotSelectedDiv>

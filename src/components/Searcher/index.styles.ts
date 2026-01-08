@@ -87,11 +87,13 @@ export const SearchResultBar = styled.div`
   justify-content: space-between;
   gap: 8px;
   padding: 2px 0;
-  min-height: 24px;
+  min-height: 20px;
+  flex-wrap: wrap;
 `;
 
 export const NavigationButtons = styled.div`
   display: flex;
   gap: 0px;
   align-items: center;
+  flex-shrink: 0;
 `;
