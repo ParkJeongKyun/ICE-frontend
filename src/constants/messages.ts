@@ -157,6 +157,20 @@ export const MESSAGES = {
     duration: 4000,
   },
 
+  // 복사 관련
+  COPY_SUCCESS: {
+    type: 'success' as MessageType,
+    title: '복사 완료',
+    message: '클립보드에 복사되었습니다.',
+    duration: 3000,
+  },
+  COPY_FAILED: {
+    type: 'error' as MessageType,
+    title: '복사 실패',
+    message: '클립보드에 복사하지 못했습니다.',
+    duration: 5000,
+  },
+
   // 성공 메시지
   FILE_LOADED_SUCCESS: {
     type: 'success' as MessageType,

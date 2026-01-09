@@ -1,5 +1,6 @@
 import { RefObject, useCallback, useState } from 'react';
 import { useTabData } from '@/contexts/TabDataContext';
+import { useMessage } from '@/contexts/MessageContext';
 import { LAYOUT, HEX_START_X, ASCII_START_X, MAX_COPY_SIZE, COPY_CHUNK_SIZE } from '@/constants/hexViewer';
 
 interface UseHexViewerSelectionProps {
@@ -10,6 +11,7 @@ export const useHexViewerSelection = ({
   firstRowRef,
 }: UseHexViewerSelectionProps) => {
   const { activeKey, selectionStates, setSelectionStates, activeData } = useTabData();
+  const { showMessage } = useMessage();
   
   const file = activeData?.file;
   const fileSize = file?.size || 0;
@@ -116,7 +118,13 @@ export const useHexViewerSelection = ({
   // ===== Context Menu =====
   const handleContextMenu = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
-    setContextMenu({ x: e.clientX, y: e.clientY });
+    
+    let y = e.clientY;
+    if (y + 100 > window.innerHeight) {
+      y = window.innerHeight - 100;
+    }
+    
+    setContextMenu({ x: e.clientX, y });
   }, []);
 
   const closeContextMenu = useCallback(() => setContextMenu(null), []);
@@ -143,18 +151,34 @@ export const useHexViewerSelection = ({
             }
           }
           await navigator.clipboard.writeText(format === 'hex' ? result.trim() : result);
+          showMessage('COPY_SUCCESS');
         } catch (error) {
           console.error(`${format.toUpperCase()} 복사 실패:`, error);
-          alert('복사 실패: ' + (error as Error).message);
+          showMessage('COPY_FAILED');
         }
       }
       setContextMenu(null);
     },
-    [selectionStates, activeKey, file]
+    [selectionStates, activeKey, file, showMessage]
   );
 
   const handleCopyHex = useCallback(() => handleCopy('hex'), [handleCopy]);
   const handleCopyText = useCallback(() => handleCopy('text'), [handleCopy]);
+
+  const handleCopyOffset = useCallback(async () => {
+    const current = selectionStates[activeKey];
+    if (current?.start !== null && current?.end !== null) {
+      const offset = Math.min(current.start, current.end);
+      try {
+        await navigator.clipboard.writeText(offset.toString(16).toUpperCase());
+        showMessage('COPY_SUCCESS');
+      } catch (error) {
+        console.error('오프셋 복사 실패:', error);
+        showMessage('COPY_FAILED');
+      }
+    }
+    setContextMenu(null);
+  }, [selectionStates, activeKey, showMessage]);
 
   return {
     // Selection state
@@ -175,5 +199,6 @@ export const useHexViewerSelection = ({
     // Copy
     handleCopyHex,
     handleCopyText,
+    handleCopyOffset,
   };
 };

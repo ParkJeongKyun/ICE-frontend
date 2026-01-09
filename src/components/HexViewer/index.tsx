@@ -115,6 +115,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     handleContextMenu,
     handleCopyHex,
     handleCopyText,
+    handleCopyOffset,
   } = useHexViewerSelection({
     firstRowRef,
   });
@@ -415,6 +416,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
           onBlur={closeContextMenu}
         >
           <ContextMenuList>
+            <ContextMenuItem onClick={handleCopyOffset}>Copy Offset (Hex)</ContextMenuItem>
             <ContextMenuItem onClick={handleCopyHex}>Copy (Hex String)</ContextMenuItem>
             <ContextMenuItem onClick={handleCopyText}>Copy (ASCII Text)</ContextMenuItem>
           </ContextMenuList>

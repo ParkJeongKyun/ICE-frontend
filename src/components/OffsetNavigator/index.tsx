@@ -85,7 +85,7 @@ const OffsetNavigator: React.FC = () => {
         value={inputValue}
         onChange={handleInputChange}
         onKeyDown={handleKeyPress}
-        maxLength={radix === 16 ? 8 : radix === 10 ? 10 : 11}
+        maxLength={radix === 16 ? 20 : radix === 10 ? 25 : 27}
         placeholder={placeholder}
       />
       <NavigatorButton onClick={handleButtonClick} title="오프셋으로 이동">
