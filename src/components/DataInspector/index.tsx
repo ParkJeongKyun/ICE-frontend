@@ -39,7 +39,7 @@ import {
 import { byteToChar } from '@/utils/encoding';
 
 const DataInspector: React.FC = () => {
-  const { hexViewerRef } = useRefs();
+  const { searcherRef } = useRefs();
   const { activeSelectionState, activeData } = useTabData();
   const [endian, setEndian] = useState<'le' | 'be'>('le');
 
@@ -49,7 +49,7 @@ const DataInspector: React.FC = () => {
   // 상대 오프셋 이동 핸들러
   const handleJumpToOffset = useCallback(
     async (value: string) => {
-      if (!hexViewerRef?.current || value === '-' || activeSelectionState.start === null) return;
+      if (!searcherRef?.current || value === '-' || activeSelectionState.start === null) return;
 
       const numValue = parseInt(value, 10);
       if (isNaN(numValue)) return;
@@ -58,29 +58,23 @@ const DataInspector: React.FC = () => {
       if (targetOffset < 0 || targetOffset >= fileSize) return;
 
       const hexStr = targetOffset.toString(16);
-      const result = await hexViewerRef.current.findByOffset(hexStr);
-      if (result) {
-        hexViewerRef.current.scrollToIndex(result.index, result.offset);
-      }
+      await searcherRef.current.findByOffset(hexStr);
     },
-    [hexViewerRef, activeSelectionState.start, fileSize]
+    [searcherRef, activeSelectionState.start, fileSize]
   );
 
   // 절대 오프셋 이동 핸들러
   const handleJumpToAbsoluteOffset = useCallback(
     async (value: string) => {
-      if (!hexViewerRef?.current || value === '-') return;
+      if (!searcherRef?.current || value === '-') return;
 
       const numValue = parseInt(value, 10);
       if (isNaN(numValue) || numValue < 0 || numValue >= fileSize) return;
 
       const hexStr = numValue.toString(16);
-      const result = await hexViewerRef.current.findByOffset(hexStr);
-      if (result) {
-        hexViewerRef.current.scrollToIndex(result.index, result.offset);
-      }
+      await searcherRef.current.findByOffset(hexStr);
     },
-    [hexViewerRef, fileSize]
+    [searcherRef, fileSize]
   );
 
   const info = useMemo(() => {
@@ -241,7 +235,6 @@ const DataInspector: React.FC = () => {
 
                   const targetOffset = activeSelectionState.start !== null ? activeSelectionState.start + numValue : null;
                   const canJumpRelative =
-                    hexViewerRef &&
                     activeSelectionState.start !== null &&
                     numValue !== 0 &&
                     targetOffset !== null &&
@@ -264,7 +257,7 @@ const DataInspector: React.FC = () => {
                       </CellHeaderDiv>
                       <CellBodyDiv>
                         <span>{item.value}</span>
-                        {hexViewerRef && canJumpAbsolute && (
+                        {canJumpAbsolute && (
                           <JumpButton
                             onClick={() => handleJumpToAbsoluteOffset(item.value)}
                             title={`절대 오프셋 이동: 0x${numValue.toString(16).toUpperCase()} / ${numValue}`}

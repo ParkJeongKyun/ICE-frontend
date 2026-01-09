@@ -6,6 +6,8 @@ import React, {
   useReducer,
   useRef,
   useState,
+  forwardRef,
+  useImperativeHandle,
 } from 'react';
 import {
   ButtonDiv,
@@ -26,6 +28,8 @@ import ChevronRightIcon from '@/components/common/Icons/ChevronRightIcon';
 import SearchIcon from '@/components/common/Icons/SearchIcon';
 import { useTabData } from '@/contexts/TabDataContext';
 import { useRefs } from '@/contexts/RefContext';
+import { useMessage } from '@/contexts/MessageContext';
+import { useSearch } from './hooks/useSearch';
 import type {
   SearchType,
   SearchCacheKey,
@@ -34,11 +38,16 @@ import type {
   SearchAction,
 } from '@/types/searcher';
 
+export interface SearcherRef {
+  findByOffset: (offset: string, shouldScroll?: boolean) => Promise<IndexInfo | null>;
+  findAllByHex: (hex: string, shouldScroll?: boolean) => Promise<IndexInfo[] | null>;
+  findAllByAsciiText: (text: string, ignoreCase: boolean, shouldScroll?: boolean) => Promise<IndexInfo[] | null>;
+}
+
 const initialState: SearchStateWithCache = {
   __cache__: new Map(),
 };
 
-// ✅ SearchAction 사용
 const reducer = (
   state: SearchStateWithCache,
   action: SearchAction
@@ -75,7 +84,6 @@ const reducer = (
       const newCache = new Map(state.__cache__);
       newCache.set(action.cacheKey, action.results);
 
-      // ✅ LRU: 최대 20개까지만 유지
       if (newCache.size > 20) {
         const firstKey = newCache.keys().next().value;
         if (firstKey !== undefined) {
@@ -93,27 +101,18 @@ const reducer = (
   }
 };
 
-const filterInput = (inputValue: string, type: SearchType) => {
-  switch (type) {
-    case 'hex':
-      return inputValue.replace(/[^0-9a-fA-F]/g, '');
-    case 'ascii':
-      return inputValue.replace(/[^\x00-\x7F]/g, '');
-    default:
-      return inputValue;
-  }
-};
-
-const Searcher: React.FC = () => {
+const Searcher: React.ForwardRefRenderFunction<SearcherRef> = (_, ref) => {
   const { hexViewerRef } = useRefs();
   const { activeKey } = useTabData();
+  const { showMessage } = useMessage();
   const [searchResults, dispatch] = useReducer(reducer, initialState);
   const [searchType, setSearchType] = useState<SearchType>('hex');
   const [inputValue, setInputValue] = useState('');
   const [ignoreCase, setIgnoreCase] = useState(true);
   const searchTabKeyRef = useRef<TabKey>(activeKey);
 
-  // ✅ 캐시 키 생성 함수 - 타입 안전성 강화
+  const { findByOffset, findAllByHex, findAllByAsciiText, cleanup: cleanupSearch, filterInput } = useSearch();
+
   const getCacheKey = useCallback(
     (tabKey: TabKey, type: SearchType, value: string): SearchCacheKey => {
       const caseKey = type === 'ascii' ? (ignoreCase ? ':ic' : ':cs') : '';
@@ -122,9 +121,8 @@ const Searcher: React.FC = () => {
     [ignoreCase]
   );
 
-  // ✅ 검색 함수 - fileWorker 제거 (HexViewer가 처리)
   const search = useCallback(
-    async (inputValue: string, type: SearchType) => {
+    async (inputValue: string, type: SearchType, shouldScroll = true) => {
       if (!hexViewerRef.current) return;
 
       searchTabKeyRef.current = activeKey;
@@ -144,6 +142,20 @@ const Searcher: React.FC = () => {
           searchType: type,
           tabKey: activeKey,
         });
+        
+        if (cachedResults.length > 0) {
+          showMessage(
+            'SEARCH_SUCCESS',
+            `${cachedResults.length}개의 결과를 찾았습니다.`
+          );
+        } else {
+          showMessage('SEARCH_NO_RESULTS');
+        }
+        
+        // shouldScroll=true면 첫 번째 결과로 직접 스크롤
+        if (shouldScroll && cachedResults.length > 0 && hexViewerRef.current) {
+          hexViewerRef.current.scrollToIndex(cachedResults[0].index, cachedResults[0].offset);
+        }
         return;
       }
 
@@ -151,19 +163,13 @@ const Searcher: React.FC = () => {
         console.log('[Searcher] 캐시 MISS:', cacheKey);
       }
 
-      // ✅ 검색 수행 (HexViewer가 Worker 처리)
       let results: IndexInfo[] = [];
       if (type === 'hex') {
-        results = (await hexViewerRef.current.findAllByHex(inputValue)) || [];
+        results = (await findAllByHex(inputValue)) || [];
       } else if (type === 'ascii') {
-        results =
-          (await hexViewerRef.current.findAllByAsciiText(
-            inputValue,
-            ignoreCase
-          )) || [];
+        results = (await findAllByAsciiText(inputValue, ignoreCase)) || [];
       }
 
-      // ✅ 탭 검증 후 저장
       if (searchTabKeyRef.current === activeKey) {
         dispatch({
           type: 'SET_RESULTS',
@@ -174,17 +180,19 @@ const Searcher: React.FC = () => {
           tabKey: activeKey,
         });
 
-        // ✅ 캐시 저장
-        if (results.length > 0) {
-          dispatch({
-            type: 'SET_CACHE',
-            cacheKey,
-            results,
-          });
+        dispatch({
+          type: 'SET_CACHE',
+          cacheKey,
+          results,
+        });
+
+        // shouldScroll=true면 첫 번째 결과로 직접 스크롤
+        if (shouldScroll && results.length > 0 && hexViewerRef.current) {
+          hexViewerRef.current.scrollToIndex(results[0].index, results[0].offset);
         }
       }
     },
-    [hexViewerRef, activeKey, ignoreCase, getCacheKey, searchResults.__cache__]
+    [activeKey, ignoreCase, getCacheKey, searchResults.__cache__, findAllByHex, findAllByAsciiText, showMessage, hexViewerRef]
   );
 
   const handleInputChange = useCallback(
@@ -192,7 +200,7 @@ const Searcher: React.FC = () => {
       const filteredValue = filterInput(e.target.value, searchType);
       setInputValue(filteredValue);
     },
-    [searchType]
+    [filterInput, searchType]
   );
 
   const handleInputKeyPress = useCallback(
@@ -244,7 +252,6 @@ const Searcher: React.FC = () => {
     setInputValue('');
   }, []);
 
-  // ✅ 현재 활성 탭의 결과만 표시
   const currentResult = useMemo(() => {
     const result = searchResults[activeKey];
     if (
@@ -270,6 +277,59 @@ const Searcher: React.FC = () => {
   useEffect(() => {
     setInputValue('');
   }, [searchType]);
+
+  useEffect(() => {
+    return () => {
+      cleanupSearch();
+    };
+  }, [cleanupSearch]);
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      // shouldScroll=true면 직접 스크롤, false면 상태 업데이트만 (useEffect에서 처리)
+      findByOffset: async (offset: string, shouldScroll = true) => {
+        if (!offset.trim()) {
+          showMessage('SEARCH_NO_INPUT');
+          return null;
+        }
+
+        const result = await findByOffset(offset);
+        
+        if (result === null) {
+          // findByOffset는 내부적으로 유효성 검사 후 null 반환
+          // 범위 외 또는 잘못된 입력
+          const byteOffset = parseInt(offset, 16);
+          if (isNaN(byteOffset)) {
+            showMessage('SEARCH_INVALID_HEX');
+          } else {
+            showMessage('SEARCH_OFFSET_OUT_OF_RANGE');
+          }
+          return null;
+        }
+
+        if (shouldScroll && hexViewerRef.current) {
+          hexViewerRef.current.scrollToIndex(result.index, result.offset);
+        }
+        return result;
+      },
+      // search 함수를 활용해서 캐시, dispatch, 메시지까지 처리
+      findAllByHex: async (hex: string, shouldScroll = true) => {
+        await search(hex, 'hex', shouldScroll);
+        const result = searchResults[activeKey];
+        return result && !(result instanceof Map) ? result.results : null;
+      },
+      // search 함수를 활용해서 캐시, dispatch, 메시지까지 처리
+      findAllByAsciiText: async (text: string, ignoreCase: boolean, shouldScroll = true) => {
+        // ignoreCase 변경이 필요하면 state 업데이트
+        setIgnoreCase(ignoreCase);
+        await search(text, 'ascii', shouldScroll);
+        const result = searchResults[activeKey];
+        return result && !(result instanceof Map) ? result.results : null;
+      },
+    }),
+    [findByOffset, search, searchResults, activeKey, hexViewerRef, showMessage]
+  );
 
   return (
     <Collapse title="Search" open>
@@ -378,4 +438,4 @@ const Searcher: React.FC = () => {
   );
 };
 
-export default React.memo(Searcher);
+export default React.memo(forwardRef<SearcherRef>(Searcher));

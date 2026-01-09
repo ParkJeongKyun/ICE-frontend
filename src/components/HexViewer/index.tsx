@@ -37,7 +37,6 @@ import { useHexViewerCache } from './hooks/useHexViewerCache';
 import { useHexViewerSelection } from './hooks/useHexViewerSelection';
 import { useHexViewerRender } from './hooks/useHexViewerRender';
 import { useHexViewerWorker } from './hooks/useHexViewerWorker';
-import { useHexViewerSearch } from './hooks/useHexViewerSearch';
 import { useHexViewerXScroll } from './hooks/useHexViewerXScroll';
 import { useHexViewerYScroll } from './hooks/useHexViewerYScroll';
 
@@ -47,13 +46,7 @@ export interface IndexInfo {
 }
 
 export interface HexViewerRef {
-  findByOffset: (offset: string) => Promise<IndexInfo | null>;
-  findAllByHex: (hex: string) => Promise<IndexInfo[] | null>;
-  findAllByAsciiText: (
-    text: string,
-    ignoreCase: boolean
-  ) => Promise<IndexInfo[] | null>;
-  scrollToIndex: (rowIndex: number, offset: number) => void;
+  scrollToIndex: (index: number, offset: number) => void;
 }
 
 const { bytesPerRow, rowHeight } = LAYOUT;
@@ -190,10 +183,6 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     },
     [updateScrollPosition]
   );
-
-  const {
-    findByOffset, findAllByHex, findAllByAsciiText, cleanup: cleanupSearch
-  } = useHexViewerSearch();
 
   // ===== Effects =====
   useEffect(() => {
@@ -335,27 +324,23 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
 
   useEffect(() => {
     return () => {
-      cleanupSearch();
       if (rafRef.current !== null) {
         cancelAnimationFrame(rafRef.current);
         rafRef.current = null;
       }
     };
-  }, [cleanupSearch]);
+  }, []);
 
   useImperativeHandle(
     ref,
     () => ({
-      findByOffset,
-      findAllByHex,
-      findAllByAsciiText,
       scrollToIndex: (index: number, offset: number) => {
         const targetRow = Math.floor(index / bytesPerRow);
         handleScrollPositionUpdate(targetRow);
         updateSelection(index, index + offset - 1);
       },
     }),
-    [findByOffset, findAllByHex, findAllByAsciiText, handleScrollPositionUpdate, updateSelection]
+    [handleScrollPositionUpdate, updateSelection]
   );
 
   // ===== Render =====

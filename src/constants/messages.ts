@@ -126,13 +126,6 @@ export const MESSAGES = {
     message: 'WASM 검색 중 오류가 발생했습니다.',
     duration: 10000,
   },
-  SEARCH_HEX_LENGTH_ERROR: {
-    type: 'error' as MessageType,
-    title: 'HEX 길이 오류',
-    message:
-      'HEX 문자열 길이가 올바르지 않습니다.\n짝수 개의 문자를 입력해주세요.',
-    duration: 8000,
-  },
   SEARCH_NO_RESULTS: {
     type: 'info' as MessageType,
     title: '검색 완료',
@@ -143,6 +136,24 @@ export const MESSAGES = {
     type: 'success' as MessageType,
     title: '검색 완료',
     message: '검색이 완료되었습니다.',
+    duration: 4000,
+  },
+  SEARCH_NO_INPUT: {
+    type: 'warning' as MessageType,
+    title: '입력 값 없음',
+    message: '검색어를 입력해주세요.',
+    duration: 4000,
+  },
+  SEARCH_INVALID_HEX: {
+    type: 'warning' as MessageType,
+    title: '유효하지 않은 HEX',
+    message: '유효한 16진수(0-9, A-F)를 입력해주세요.',
+    duration: 4000,
+  },
+  SEARCH_OFFSET_OUT_OF_RANGE: {
+    type: 'warning' as MessageType,
+    title: '범위 초과',
+    message: '파일 범위를 벗어난 오프셋입니다.',
     duration: 4000,
   },
 

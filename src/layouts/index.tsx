@@ -51,7 +51,7 @@ const MainLayout: React.FC = () => {
   const { isEmpty, encoding, setEncoding, activeSelectionState } =
     useTabData();
   const { isProcessing, progress } = useProcess();
-  const { menuBtnZoneRef } = useRefs();
+  const { menuBtnZoneRef, searcherRef } = useRefs();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalContentKey, setModalContentKey] = useState<string | null>(null);
@@ -148,7 +148,7 @@ const MainLayout: React.FC = () => {
                 <ExifRowViewer />
               </div>
               <div>
-                <Searcher />
+                <Searcher ref={searcherRef} />
               </div>
               <div>
                 <DataInspector />
@@ -198,7 +198,7 @@ const MainLayout: React.FC = () => {
                     : 'block',
               }}
             >
-              <Searcher />
+              <Searcher ref={searcherRef} />
               <DataInspector />
             </IceRightSider>
           </FlexGrow>

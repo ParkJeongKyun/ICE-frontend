@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useRef, useEffect } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useTabData } from '@/contexts/TabDataContext';
 import { useRefs } from '@/contexts/RefContext';
 import {
@@ -12,15 +12,10 @@ import SearchIcon from '@/components/common/Icons/SearchIcon';
 type Radix = 16 | 10 | 8;
 
 const OffsetNavigator: React.FC = () => {
-  const { hexViewerRef } = useRefs();
-  const { activeKey, isEmpty } = useTabData();
+  const { searcherRef } = useRefs();
+  const { isEmpty } = useTabData();
   const [inputValue, setInputValue] = useState('');
   const [radix, setRadix] = useState<Radix>(16);
-  const activeKeyRef = useRef(activeKey);
-
-  useEffect(() => {
-    activeKeyRef.current = activeKey;
-  }, [activeKey]);
 
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -40,19 +35,16 @@ const OffsetNavigator: React.FC = () => {
 
   const navigateToOffset = useCallback(
     async (offsetStr: string) => {
-      if (!hexViewerRef.current || !offsetStr) return;
+      if (!offsetStr || !searcherRef.current) return;
 
       // 진법에 따라 10진수로 변환 후 16진수 문자열로 변환
       const decimalValue = parseInt(offsetStr, radix);
       if (isNaN(decimalValue)) return;
       
       const hexStr = decimalValue.toString(16);
-      const result = await hexViewerRef.current.findByOffset(hexStr);
-      if (result && activeKeyRef.current === activeKey) {
-        hexViewerRef.current.scrollToIndex(result.index, result.offset);
-      }
+      await searcherRef.current.findByOffset(hexStr);
     },
-    [hexViewerRef, activeKey, radix]
+    [searcherRef, radix]
   );
 
   const handleKeyPress = useCallback(

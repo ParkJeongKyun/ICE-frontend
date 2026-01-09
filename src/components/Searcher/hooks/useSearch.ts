@@ -4,11 +4,23 @@ import { useProcess } from '@/contexts/ProcessContext';
 import { useWorker } from '@/contexts/WorkerContext';
 import { useMessage } from '@/contexts/MessageContext';
 import { asciiToBytes } from '@/utils/hexViewer';
-import { IndexInfo } from '../index';
+import { IndexInfo } from '@/components/HexViewer';
+import type { SearchType } from '@/types/searcher';
 
-export const useHexViewerSearch = () => {
+const filterInput = (inputValue: string, type: SearchType) => {
+  switch (type) {
+    case 'hex':
+      return inputValue.replace(/[^0-9a-fA-F]/g, '');
+    case 'ascii':
+      return inputValue.replace(/[^\x00-\x7F]/g, '');
+    default:
+      return inputValue;
+  }
+};
+
+export const useSearch = () => {
   const { activeKey, activeData } = useTabData();
-  const { startProcessing, stopProcessing, updateProgress } = useProcess(); // ✅ 단순화
+  const { startProcessing, stopProcessing, updateProgress } = useProcess();
   const { fileWorker } = useWorker();
   const { showMessage } = useMessage();
 
@@ -34,13 +46,10 @@ export const useHexViewerSearch = () => {
 
   const findByOffset = useCallback(
     async (offset: string): Promise<IndexInfo | null> => {
-      if (offset.trim()) {
-        const byteOffset = parseInt(offset, 16);
-        if (!isNaN(byteOffset) && byteOffset >= 0 && byteOffset < fileSize) {
-          return { index: byteOffset, offset: 1 };
-        }
-      }
-      return null;
+      if (!offset.trim()) return null;
+      const byteOffset = parseInt(offset, 16);
+      if (isNaN(byteOffset) || byteOffset < 0 || byteOffset >= fileSize) return null;
+      return { index: byteOffset, offset: 1 };
     },
     [fileSize]
   );
@@ -51,10 +60,10 @@ export const useHexViewerSearch = () => {
 
       const searchStartTabKey = activeKey;
 
-      const hexPattern = hex.replace(/[^0-9a-fA-F]/g, '').toLowerCase();
+      let hexPattern = hex.replace(/[^0-9a-fA-F]/g, '').toLowerCase();
+      // 홀수면 앞에 0을 붙임
       if (hexPattern.length % 2 !== 0) {
-        showMessage('SEARCH_HEX_LENGTH_ERROR');
-        return null;
+        hexPattern = '0' + hexPattern;
       }
 
       const patternBytes = new Uint8Array(
@@ -253,14 +262,6 @@ export const useHexViewerSearch = () => {
               return;
             }
 
-            if (e.data.results && e.data.results.length > 0) {
-              showMessage(
-                'SEARCH_SUCCESS',
-                `${e.data.results.length}개의 결과를 찾았습니다.`
-              );
-            } else {
-              showMessage('SEARCH_NO_RESULTS');
-            }
             resolve(e.data.results);
           }
         };
@@ -305,5 +306,6 @@ export const useHexViewerSearch = () => {
     findAllByHex,
     findAllByAsciiText,
     cleanup,
+    filterInput,
   };
 };
