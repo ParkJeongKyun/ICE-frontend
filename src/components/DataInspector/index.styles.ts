@@ -42,6 +42,10 @@ export const CellBodyDiv = styled.div`
   word-break: break-all;
   overflow-wrap: break-word;
   min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0px;
   &:hover {
     background-color: var(--main-hover-color);
   }

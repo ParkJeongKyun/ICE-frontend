@@ -82,7 +82,7 @@ const OffsetNavigator: React.FC = () => {
   if (isEmpty) return null;
 
   const radixLabel = radix === 16 ? '0x' : radix === 10 ? 'De' : '0o';
-  const placeholder = radix === 16 ? '오프셋 검색(16진수)' : radix === 10 ? '오프셋 검색(10진수)' : '오프셋 검색(8진수)';
+  const placeholder = radix === 16 ? '절대 오프셋 검색(16진수)' : radix === 10 ? '절대 오프셋 검색(10진수)' : '절대 오프셋 검색(8진수)';
 
   return (
     <NavigatorContainer>

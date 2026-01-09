@@ -13,6 +13,7 @@ import {
 import { useTabData } from '@/contexts/TabDataContext';
 import { useRefs } from '@/contexts/RefContext';
 import ChevronRightIcon from '@/components/common/Icons/ChevronRightIcon';
+import DoubleChevronsRightIcon from '@/components/common/Icons/DoubleChevronsRightIcon';
 import {
   bytesToUnsigned,
   bytesToSigned,
@@ -39,35 +40,53 @@ import { byteToChar } from '@/utils/encoding';
 
 const DataInspector: React.FC = () => {
   const { hexViewerRef } = useRefs();
-  const { activeKey, selectionStates } = useTabData();
+  const { activeKey, selectionStates, activeData } = useTabData();
+  const [endian, setEndian] = useState<'le' | 'be'>('le');
+
+  // 선택된 데이터 정보
   const selectionRange = selectionStates[activeKey] || {
     start: null,
     end: null,
     selectedBytes: undefined,
   };
   const bytes = selectionRange.selectedBytes ?? new Uint8Array();
-  const [endian, setEndian] = useState<'le' | 'be'>('le');
+  const fileSize = activeData?.file?.size ?? 0;
 
+  // 상대 오프셋 이동 핸들러
   const handleJumpToOffset = useCallback(
     async (value: string) => {
       if (!hexViewerRef?.current || value === '-' || selectionRange.start === null) return;
-      
+
       const numValue = parseInt(value, 10);
       if (isNaN(numValue)) return;
-      
-      // 현재 오프셋에서 상대적으로 계산
+
       const targetOffset = selectionRange.start + numValue;
-      
-      // 음수 오프셋은 이동하지 않음
-      if (targetOffset < 0) return;
-      
+      if (targetOffset < 0 || targetOffset >= fileSize) return;
+
       const hexStr = targetOffset.toString(16);
       const result = await hexViewerRef.current.findByOffset(hexStr);
       if (result) {
         hexViewerRef.current.scrollToIndex(result.index, result.offset);
       }
     },
-    [hexViewerRef, selectionRange.start]
+    [hexViewerRef, selectionRange.start, fileSize]
+  );
+
+  // 절대 오프셋 이동 핸들러
+  const handleJumpToAbsoluteOffset = useCallback(
+    async (value: string) => {
+      if (!hexViewerRef?.current || value === '-') return;
+
+      const numValue = parseInt(value, 10);
+      if (isNaN(numValue) || numValue < 0 || numValue >= fileSize) return;
+
+      const hexStr = numValue.toString(16);
+      const result = await hexViewerRef.current.findByOffset(hexStr);
+      if (result) {
+        hexViewerRef.current.scrollToIndex(result.index, result.offset);
+      }
+    },
+    [hexViewerRef, fileSize]
   );
 
   const info = useMemo(() => {
@@ -140,16 +159,16 @@ const DataInspector: React.FC = () => {
     const float32 =
       bytes.length >= MIN_BYTE_LENGTHS.Float32
         ? (() => {
-            const v = bytesToFloat32(getSlice(MIN_BYTE_LENGTHS.Float32), endian === 'le');
-            return v !== null && v !== undefined ? v.toExponential() : '-';
-          })()
+          const v = bytesToFloat32(getSlice(MIN_BYTE_LENGTHS.Float32), endian === 'le');
+          return v !== null && v !== undefined ? v.toExponential() : '-';
+        })()
         : '-';
     const float64 =
       bytes.length >= MIN_BYTE_LENGTHS.Float64
         ? (() => {
-            const v = bytesToFloat64(getSlice(MIN_BYTE_LENGTHS.Float64), endian === 'le');
-            return v !== null && v !== undefined ? v.toExponential() : '-';
-          })()
+          const v = bytesToFloat64(getSlice(MIN_BYTE_LENGTHS.Float64), endian === 'le');
+          return v !== null && v !== undefined ? v.toExponential() : '-';
+        })()
         : '-';
 
     // Time/Date
@@ -211,6 +230,70 @@ const DataInspector: React.FC = () => {
           ) : (
             <>
               <SectionDiv>
+                {info?.integers.map((item) => {
+                  const numValue = parseInt(item.value, 10);
+                  const isValidNumber = item.value !== '-' && !isNaN(numValue);
+
+                  if (!isValidNumber) {
+                    return (
+                      <ContentDiv key={item.label}>
+                        <CellHeaderDiv>{item.label}</CellHeaderDiv>
+                        <CellBodyDiv>
+                          <span>{item.value}</span>
+                        </CellBodyDiv>
+                      </ContentDiv>
+                    );
+                  }
+
+                  const targetOffset = selectionRange.start !== null ? selectionRange.start + numValue : null;
+                  const canJumpRelative =
+                    hexViewerRef &&
+                    selectionRange.start !== null &&
+                    numValue !== 0 &&
+                    targetOffset !== null &&
+                    targetOffset >= 0 &&
+                    targetOffset < fileSize;
+                  const canJumpAbsolute = numValue >= 0 && numValue < fileSize;
+
+                  return (
+                    <ContentDiv key={item.label}>
+                      <CellHeaderDiv>
+                        {item.label}
+                        {canJumpRelative && (
+                          <JumpButton
+                            onClick={() => handleJumpToOffset(item.value)}
+                            title={`상대 오프셋 이동: 현재(0x${selectionRange.start!.toString(16).toUpperCase()} / ${selectionRange.start}) ${numValue >= 0 ? '+' : ''}${item.value} → 0x${targetOffset!.toString(16).toUpperCase()} / ${targetOffset}`}
+                          >
+                            <DoubleChevronsRightIcon width={14} height={14} />
+                          </JumpButton>
+                        )}
+                      </CellHeaderDiv>
+                      <CellBodyDiv>
+                        <span>{item.value}</span>
+                        {hexViewerRef && canJumpAbsolute && (
+                          <JumpButton
+                            onClick={() => handleJumpToAbsoluteOffset(item.value)}
+                            title={`절대 오프셋 이동: 0x${numValue.toString(16).toUpperCase()} / ${numValue}`}
+                          >
+                            <ChevronRightIcon width={14} height={14} />
+                          </JumpButton>
+                        )}
+                      </CellBodyDiv>
+                    </ContentDiv>
+                  );
+                })}
+              </SectionDiv>
+              <SectionDiv>
+                <ContentDiv>
+                  <CellHeaderDiv>Float32</CellHeaderDiv>
+                  <CellBodyDiv>{info?.float32}</CellBodyDiv>
+                </ContentDiv>
+                <ContentDiv>
+                  <CellHeaderDiv>Float64</CellHeaderDiv>
+                  <CellBodyDiv>{info?.float64}</CellBodyDiv>
+                </ContentDiv>
+              </SectionDiv>
+              <SectionDiv>
                 <ContentDiv>
                   <CellHeaderDiv>Binary</CellHeaderDiv>
                   <CellBodyDiv>{info?.bin}</CellBodyDiv>
@@ -232,39 +315,6 @@ const DataInspector: React.FC = () => {
                 <ContentDiv>
                   <CellHeaderDiv>UTF-16</CellHeaderDiv>
                   <CellBodyDiv>{info?.utf16}</CellBodyDiv>
-                </ContentDiv>
-              </SectionDiv>
-              <SectionDiv>
-                {info?.integers.map((item) => {
-                  const numValue = parseInt(item.value, 10);
-                  const isValidOffset = item.value !== '-' && !isNaN(numValue);
-                  
-                  return (
-                    <ContentDiv key={item.label}>
-                      <CellHeaderDiv>
-                        {item.label}
-                        {isValidOffset && hexViewerRef && selectionRange.start !== null && (
-                          <JumpButton
-                            onClick={() => handleJumpToOffset(item.value)}
-                            title={`현재 오프셋(0x${selectionRange.start.toString(16).toUpperCase()}) ${numValue >= 0 ? '+' : ''}${item.value} → 0x${(selectionRange.start + numValue).toString(16).toUpperCase()}로 이동`}
-                          >
-                            <ChevronRightIcon width={14} height={14} />
-                          </JumpButton>
-                        )}
-                      </CellHeaderDiv>
-                      <CellBodyDiv>{item.value}</CellBodyDiv>
-                    </ContentDiv>
-                  );
-                })}
-              </SectionDiv>
-              <SectionDiv>
-                <ContentDiv>
-                  <CellHeaderDiv>Float32</CellHeaderDiv>
-                  <CellBodyDiv>{info?.float32}</CellBodyDiv>
-                </ContentDiv>
-                <ContentDiv>
-                  <CellHeaderDiv>Float64</CellHeaderDiv>
-                  <CellBodyDiv>{info?.float64}</CellBodyDiv>
                 </ContentDiv>
               </SectionDiv>
               <SectionDiv>
