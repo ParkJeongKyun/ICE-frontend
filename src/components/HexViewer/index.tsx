@@ -65,7 +65,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     activeKey,
     scrollPositions,
     setScrollPositions,
-    selectionStates,
+    activeSelectionState,
   } = useTabData();
   const { fileWorker, getWorkerCache } = useWorker();
   const { showMessage } = useMessage();
@@ -74,7 +74,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   const file = activeData?.file;
   const fileSize = file?.size || 0;
   const rowCount = Math.ceil(fileSize / bytesPerRow);
-  const selectionRange = selectionStates[activeKey];
+  const selectionRange = activeSelectionState;
 
   const [canvasSize, setCanvasSize] = useState({ width: 800, height: 400 });
   const [renderCount, forceRender] = useReducer((x) => x + 1, 0);

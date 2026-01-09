@@ -39,7 +39,7 @@ export const useHexViewerRender = ({
   isInitialLoadingRef,
   hasValidDataRef,
 }: UseHexViewerRenderProps) => {
-  const { activeKey, encoding, selectionStates, activeData } = useTabData();
+  const { encoding, activeSelectionState, activeData } = useTabData();
 
   const file = activeData?.file;
   const fileSize = file?.size || 0;
@@ -155,10 +155,7 @@ export const useHexViewerRender = ({
 
     const renderRows = Math.ceil(renderHeight / LAYOUT.rowHeight) + 1;
     const currentFirstRow = firstRowRef.current;
-    const currentSelectionRange = selectionStates[activeKey] || {
-      start: null,
-      end: null,
-    };
+    const currentSelectionRange = activeSelectionState;
     const currentEncoding = encoding;
 
     let validByteCount = 0;
@@ -275,9 +272,8 @@ export const useHexViewerRender = ({
     getByte,
     fileSize,
     rowCount,
-    activeKey,
+    activeSelectionState,
     encoding,
-    selectionStates,
     canvasSizeRef,
     isInitialLoadingRef,
     hasValidDataRef,

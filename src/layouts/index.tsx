@@ -48,7 +48,7 @@ import OffsetNavigator from '@/components/OffsetNavigator';
 const MIN_SIDER_WIDTH = 100;
 
 const MainLayout: React.FC = () => {
-  const { isEmpty, encoding, setEncoding, activeKey, selectionStates } =
+  const { isEmpty, encoding, setEncoding, activeSelectionState } =
     useTabData();
   const { isProcessing, progress } = useProcess();
   const { menuBtnZoneRef } = useRefs();
@@ -78,7 +78,7 @@ const MainLayout: React.FC = () => {
   });
 
   const selectionInfo = (() => {
-    const selection = selectionStates[activeKey];
+    const selection = activeSelectionState;
     if (!selection?.start || !selection?.end) return null;
 
     const minOffset = Math.min(selection.start, selection.end);

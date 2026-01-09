@@ -25,6 +25,7 @@ interface TabDataContextType {
   setActiveKey: React.Dispatch<React.SetStateAction<TabKey>>;
   getNewKey: () => TabKey;
   activeData: TabData[TabKey];
+  activeSelectionState: SelectionState;
   isEmpty: boolean;
   encoding: EncodingType;
   setEncoding: (encoding: EncodingType) => void;
@@ -76,6 +77,15 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const activeData = useMemo(() => tabData[activeKey], [tabData, activeKey]);
   const isEmpty = useMemo(() => Object.keys(tabData).length === 0, [tabData]);
+  const activeSelectionState = useMemo(
+    () =>
+      selectionStates[activeKey] || {
+        start: null,
+        end: null,
+        selectedBytes: undefined,
+      },
+    [selectionStates, activeKey]
+  );
 
   const reorderTabs = useCallback((fromIndex: number, toIndex: number) => {
     setTabOrder((prev) => {
@@ -127,6 +137,7 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
       setActiveKey,
       getNewKey,
       activeData,
+      activeSelectionState,
       isEmpty,
       encoding: encodingState,
       setEncoding,
@@ -143,6 +154,7 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
       tabData,
       activeKey,
       activeData,
+      activeSelectionState,
       isEmpty,
       encodingState,
       setEncoding,
