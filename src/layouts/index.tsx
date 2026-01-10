@@ -79,7 +79,7 @@ const MainLayout: React.FC = () => {
 
   const selectionInfo = (() => {
     const selection = activeSelectionState;
-    if (!selection?.start || !selection?.end) return null;
+    if (selection?.start === null || selection?.start < 0 || selection?.end === null || selection?.end < 0) return null;
 
     const minOffset = Math.min(selection.start, selection.end);
     const maxOffset = Math.max(selection.start, selection.end);

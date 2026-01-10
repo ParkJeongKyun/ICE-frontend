@@ -37,6 +37,10 @@ interface TabDataContextType {
   setSelectionStates: React.Dispatch<
     React.SetStateAction<Record<TabKey, SelectionState>>
   >;
+  cursorPositions: Record<TabKey, number>;
+  setCursorPositions: React.Dispatch<
+    React.SetStateAction<Record<TabKey, number>>
+  >;
   deleteTab: (key: TabKey) => void;
   tabOrder: TabKey[];
   setTabOrder: React.Dispatch<React.SetStateAction<TabKey[]>>;
@@ -61,6 +65,7 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
   const [encodingState, setEncodingState] = useState<EncodingType>('ansi');
   const [scrollPositions, setScrollPositions] = useState<Record<TabKey, number>>({});
   const [selectionStates, setSelectionStates] = useState<Record<TabKey, SelectionState>>({});
+  const [cursorPositions, setCursorPositions] = useState<Record<TabKey, number>>({});
   const [tabOrder, setTabOrder] = useState<TabKey[]>([]);
 
   // ✅ 다른 Context 사용
@@ -115,6 +120,11 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
         return rest;
       });
 
+      setCursorPositions((prev) => {
+        const { [key]: _, ...rest } = prev;
+        return rest;
+      });
+
       setTabOrder((prev) => prev.filter((k) => k !== key));
     },
     [deleteWorkerCache]
@@ -145,6 +155,8 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
       setScrollPositions,
       selectionStates,
       setSelectionStates,
+      cursorPositions,
+      setCursorPositions,
       deleteTab,
       tabOrder,
       setTabOrder,
@@ -160,6 +172,7 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
       setEncoding,
       scrollPositions,
       selectionStates,
+      cursorPositions,
       tabOrder,
       getNewKey,
       deleteTab,

@@ -39,7 +39,7 @@ export const useHexViewerRender = ({
   isInitialLoadingRef,
   hasValidDataRef,
 }: UseHexViewerRenderProps) => {
-  const { encoding, activeSelectionState, activeData } = useTabData();
+  const { encoding, activeSelectionState, activeData, activeKey, cursorPositions } = useTabData();
 
   const file = activeData?.file;
   const fileSize = file?.size || 0;
@@ -265,6 +265,41 @@ export const useHexViewerRender = ({
       ctx.drawImage(offscreenCanvas, 0, 0);
       if (validByteCount > 0) hasValidDataRef.current = true;
     }
+
+    // ===== Draw Cursor =====
+    const cursor = cursorPositions[activeKey];
+    if (cursor !== undefined) {
+      const cursorRow = Math.floor(cursor / LAYOUT.bytesPerRow);
+      const cursorCol = cursor % LAYOUT.bytesPerRow;
+      const firstRow = firstRowRef.current;
+
+      if (cursorRow >= firstRow && cursorRow < firstRow + Math.ceil(renderHeight / LAYOUT.rowHeight) + 1) {
+        ctx.save();
+        const dpr = getDevicePixelRatio();
+        ctx.scale(dpr, 1);
+
+        const y = (cursorRow - firstRow) * LAYOUT.rowHeight + LAYOUT.rowHeight / 2;
+        
+        // HEX 영역 커서 (세로 라인)
+        const xHex = HEX_START_X + cursorCol * LAYOUT.hexByteWidth + LAYOUT.hexByteWidth / 2;
+        ctx.strokeStyle = '#FFB800';
+        ctx.lineWidth = 2;
+        ctx.globalAlpha = 0.8;
+        ctx.beginPath();
+        ctx.moveTo(xHex, y - LAYOUT.rowHeight / 2 + 2);
+        ctx.lineTo(xHex, y + LAYOUT.rowHeight / 2 - 2);
+        ctx.stroke();
+
+        // ASCII 영역 커서 (세로 라인)
+        const xAsc = ASCII_START_X + cursorCol * LAYOUT.asciiCharWidth + LAYOUT.asciiCharWidth / 2;
+        ctx.beginPath();
+        ctx.moveTo(xAsc, y - LAYOUT.rowHeight / 2 + 2);
+        ctx.lineTo(xAsc, y + LAYOUT.rowHeight / 2 - 2);
+        ctx.stroke();
+
+        ctx.restore();
+      }
+    }
   }, [
     canvasRef,
     firstRowRef,
@@ -277,6 +312,8 @@ export const useHexViewerRender = ({
     canvasSizeRef,
     isInitialLoadingRef,
     hasValidDataRef,
+    activeKey,
+    cursorPositions,
   ]);
 
   return { directRender, renderHeader };

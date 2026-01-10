@@ -1,4 +1,4 @@
-import { RefObject, useCallback, useState } from 'react';
+import { RefObject, useCallback, useState, useRef, useEffect } from 'react';
 import { useTabData } from '@/contexts/TabDataContext';
 import { useMessage } from '@/contexts/MessageContext';
 import { LAYOUT, HEX_START_X, ASCII_START_X, MAX_COPY_SIZE, COPY_CHUNK_SIZE } from '@/constants/hexViewer';
@@ -10,7 +10,7 @@ interface UseHexViewerSelectionProps {
 export const useHexViewerSelection = ({
   firstRowRef,
 }: UseHexViewerSelectionProps) => {
-  const { activeKey, selectionStates, setSelectionStates, activeData } = useTabData();
+  const { activeKey, selectionStates, setSelectionStates, activeData, cursorPositions, setCursorPositions } = useTabData();
   const { showMessage } = useMessage();
   
   const file = activeData?.file;
@@ -24,6 +24,9 @@ export const useHexViewerSelection = ({
     y: number;
   } | null>(null);
 
+  // ===== Drag State =====
+  const dragStartRef = useRef<number | null>(null);
+
   // ===== Selection Update =====
   const updateSelection = useCallback(
     (start: number | null, end: number | null) => {
@@ -32,31 +35,30 @@ export const useHexViewerSelection = ({
         [activeKey]: { start, end, selectedBytes: prev[activeKey]?.selectedBytes },
       }));
 
-      (async () => {
-        let selectedBytes: Uint8Array | undefined = undefined;
-        if (
-          start !== null &&
-          end !== null &&
-          file &&
-          fileSize > 0
-        ) {
-          const s = Math.max(0, Math.min(start, end));
-          // 16바이트는 무조건 s부터 저장
-          const length = Math.min(16, fileSize - s);
-          if (length > 0) {
-            const buf = await file.slice(s, s + length).arrayBuffer();
-            selectedBytes = new Uint8Array(buf);
+      // 비동기로 선택된 바이트 읽기
+      if (start !== null && end !== null && file && fileSize > 0) {
+        (async () => {
+          try {
+            const s = Math.max(0, Math.min(start, end));
+            const length = Math.min(16, fileSize - s);
+            if (length > 0) {
+              const buf = await file.slice(s, s + length).arrayBuffer();
+              const selectedBytes = new Uint8Array(buf);
+              
+              setSelectionStates((prev) => {
+                const cur = prev[activeKey];
+                if (!cur || cur.start !== start || cur.end !== end) return prev;
+                return {
+                  ...prev,
+                  [activeKey]: { start, end, selectedBytes },
+                };
+              });
+            }
+          } catch (error) {
+            console.error('선택 바이트 읽기 실패:', error);
           }
-        }
-        setSelectionStates((prev) => {
-          const cur = prev[activeKey];
-          if (!cur || cur.start !== start || cur.end !== end) return prev;
-          return {
-            ...prev,
-            [activeKey]: { start, end, selectedBytes },
-          };
-        });
-      })();
+        })();
+      }
     },
     [activeKey, setSelectionStates, file, fileSize]
   );
@@ -86,34 +88,58 @@ export const useHexViewerSelection = ({
     [firstRowRef, rowCount, fileSize]
   );
 
-  // ===== Mouse Events =====
+  // ===== Mouse Events - Optimized =====
   const handleMouseDown = useCallback(
-    async (e: React.MouseEvent) => {
+    (e: React.MouseEvent) => {
       if (e.button !== 0) return;
-      const rect = (e.target as HTMLCanvasElement).getBoundingClientRect();
+      const target = e.target as HTMLCanvasElement;
+      if (!target || !target.getBoundingClientRect) return;
+      
+      const rect = target.getBoundingClientRect();
       const idx = getByteIndexFromMouse(e.clientX - rect.left, e.clientY - rect.top);
-      if (idx !== null) {
-        setIsDragging(true);
-        await updateSelection(idx, idx);
+      if (idx === null) return;
+
+      dragStartRef.current = idx;
+      setIsDragging(true);
+      
+      // 커서 위치 업데이트
+      setCursorPositions((prev) => ({
+        ...prev,
+        [activeKey]: idx,
+      }));
+      
+      // 선택 시작
+      if (!e.shiftKey) {
+        updateSelection(idx, idx);
+      } else {
+        const current = selectionStates[activeKey];
+        const startIdx = current?.start ?? idx;
+        updateSelection(startIdx, idx);
       }
     },
-    [getByteIndexFromMouse, updateSelection]
+    [getByteIndexFromMouse, updateSelection, activeKey, setCursorPositions, selectionStates]
   );
 
   const handleMouseMove = useCallback(
-    async (e: React.MouseEvent) => {
-      if (!isDragging) return;
-      const rect = (e.target as HTMLCanvasElement).getBoundingClientRect();
+    (e: React.MouseEvent) => {
+      if (!isDragging || dragStartRef.current === null) return;
+
+      const target = e.target as HTMLCanvasElement;
+      if (!target || !target.getBoundingClientRect) return;
+      
+      const rect = target.getBoundingClientRect();
       const idx = getByteIndexFromMouse(e.clientX - rect.left, e.clientY - rect.top);
-      if (idx !== null) {
-        const current = selectionStates[activeKey];
-        if (current?.start !== null) await updateSelection(current.start, idx);
-      }
+      if (idx === null) return;
+
+      updateSelection(dragStartRef.current, idx);
     },
-    [isDragging, getByteIndexFromMouse, selectionStates, activeKey, updateSelection]
+    [isDragging, getByteIndexFromMouse, updateSelection]
   );
 
-  const handleMouseUp = useCallback(() => setIsDragging(false), []);
+  const handleMouseUp = useCallback(() => {
+    setIsDragging(false);
+    dragStartRef.current = null;
+  }, []);
 
   // ===== Context Menu =====
   const handleContextMenu = useCallback((e: React.MouseEvent) => {
@@ -180,6 +206,75 @@ export const useHexViewerSelection = ({
     setContextMenu(null);
   }, [selectionStates, activeKey, showMessage]);
 
+  // ===== Selection Range Helper =====
+  const updateSelectionRange = useCallback(
+    (cursor: number, shiftKey: boolean) => {
+      const current = selectionStates[activeKey];
+      
+      if (shiftKey) {
+        // Shift: 선택 범위 확장
+        const startIdx = current?.start ?? cursor;
+        updateSelection(startIdx, cursor);
+      } else {
+        // Shift 없음: 커서 위치만 설정
+        updateSelection(cursor, cursor);
+      }
+    },
+    [activeKey, selectionStates, updateSelection]
+  );
+
+  // ===== Keyboard Navigation =====
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      const key = e.key;
+      if (!['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(key)) return;
+
+      e.preventDefault();
+      const cursor = cursorPositions[activeKey] ?? 0;
+      const shiftKey = e.shiftKey;
+      let newCursor = cursor;
+
+      // 커서 이동 계산
+      switch (key) {
+        case 'ArrowUp':
+          newCursor = Math.max(0, cursor - LAYOUT.bytesPerRow);
+          break;
+        case 'ArrowDown':
+          newCursor = Math.min(fileSize - 1, cursor + LAYOUT.bytesPerRow);
+          break;
+        case 'ArrowLeft':
+          newCursor = Math.max(0, cursor - 1);
+          break;
+        case 'ArrowRight':
+          newCursor = Math.min(fileSize - 1, cursor + 1);
+          break;
+        case 'Home':
+          newCursor = Math.max(0, cursor - (cursor % LAYOUT.bytesPerRow));
+          break;
+        case 'End':
+          newCursor = Math.min(fileSize - 1, cursor + (LAYOUT.bytesPerRow - 1 - (cursor % LAYOUT.bytesPerRow)));
+          break;
+      }
+
+      // 커서 위치 업데이트
+      setCursorPositions((prev) => ({
+        ...prev,
+        [activeKey]: newCursor,
+      }));
+
+      // 선택 범위 업데이트
+      updateSelectionRange(newCursor, shiftKey);
+    },
+    [activeKey, cursorPositions, fileSize, setCursorPositions, updateSelectionRange]
+  );
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      dragStartRef.current = null;
+    };
+  }, []);
+
   return {
     // Selection state
     isDragging,
@@ -200,5 +295,8 @@ export const useHexViewerSelection = ({
     handleCopyHex,
     handleCopyText,
     handleCopyOffset,
+    
+    // Keyboard
+    handleKeyDown,
   };
 };

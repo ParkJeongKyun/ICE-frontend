@@ -20,12 +20,18 @@ export const CanvasContainer = styled.div`
   flex-direction: row;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: none;
+  user-select: none;
+  -webkit-user-select: none;
 
   /* 네이티브 스크롤바 숨김 */
   &::-webkit-scrollbar {
     display: none;
   }
   scrollbar-width: none;
+  
+  &:focus {
+    outline: none;
+  }
 `;
 
 // 캔버스 영역
@@ -59,6 +65,16 @@ export const StyledCanvas = styled.canvas`
   /* GPU 가속 최적화 */
   transform: translateZ(0);
   backface-visibility: hidden;
+  outline: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  touch-action: none;
+  
+  &:focus {
+    outline: none;
+  }
 `;
 
 // 가상 수평 스크롤바

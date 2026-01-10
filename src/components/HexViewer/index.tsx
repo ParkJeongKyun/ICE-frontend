@@ -59,6 +59,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     scrollPositions,
     setScrollPositions,
     activeSelectionState,
+    cursorPositions,
   } = useTabData();
   const { fileWorker, getWorkerCache } = useWorker();
   const { showMessage } = useMessage();
@@ -116,6 +117,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     handleCopyHex,
     handleCopyText,
     handleCopyOffset,
+    handleKeyDown,
   } = useHexViewerSelection({
     firstRowRef,
   });
@@ -332,6 +334,29 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     };
   }, []);
 
+  // 커서 위치 변화 시 자동 스크롤
+  useEffect(() => {
+    const cursor = cursorPositions[activeKey];
+    if (cursor === undefined) return;
+
+    const cursorRow = Math.floor(cursor / bytesPerRow);
+    const visibleStart = firstRowRef.current;
+    const visibleEnd = visibleStart + visibleRows;
+
+    // 커서가 화면 밖에 있으면 스크롤
+    if (cursorRow < visibleStart) {
+      setScrollPositions((prev) => ({
+        ...prev,
+        [activeKey]: cursorRow,
+      }));
+    } else if (cursorRow >= visibleEnd) {
+      setScrollPositions((prev) => ({
+        ...prev,
+        [activeKey]: Math.max(0, cursorRow - visibleRows + 1),
+      }));
+    }
+  }, [activeKey, cursorPositions, bytesPerRow, visibleRows, setScrollPositions]);
+
   useImperativeHandle(
     ref,
     () => ({
@@ -352,7 +377,14 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
-      <CanvasContainer ref={containerRef} tabIndex={0}>
+      <CanvasContainer 
+        ref={containerRef} 
+        tabIndex={0}
+        onMouseDown={(e) => {
+          // 캔테이너 포커스 처리
+          e.currentTarget.focus();
+        }}
+      >
         <CanvasArea
           style={{
             minWidth: `${MIN_HEX_WIDTH}px`,
@@ -379,6 +411,8 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
             onContextMenu={handleContextMenu}
+            onKeyDown={handleKeyDown}
+            tabIndex={-1}
           />
         </CanvasArea>
       </CanvasContainer>
