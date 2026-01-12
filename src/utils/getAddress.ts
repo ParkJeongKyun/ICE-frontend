@@ -2,7 +2,7 @@
  * Nominatim (OpenStreetMap) API를 이용한 역지오코딩
  * - 완전 무료, 전 세계 지원
  * - 초당 1 요청 제한
- * - 캐싱은 컴포넌트에서 담당
+ * - 전역 좌표 캐싱으로 중복 API 호출 방지
  */
 
 interface NominatimResponse {
@@ -18,6 +18,39 @@ interface NominatimResponse {
   };
   display_name?: string;
 }
+
+// 전역 좌표→주소 캐시 (모든 탭에서 공유)
+const globalAddressCache = new Map<string, string>();
+
+/**
+ * 전역 캐시에서 주소 조회
+ */
+export const getAddressFromGlobalCache = (lat: string | number, lng: string | number): string | undefined => {
+  const latNum = typeof lat === 'string' ? parseFloat(lat) : lat;
+  const lngNum = typeof lng === 'string' ? parseFloat(lng) : lng;
+
+  if (!isFinite(latNum) || !isFinite(lngNum)) {
+    return undefined;
+  }
+
+  const cacheKey = `${latNum},${lngNum}`;
+  return globalAddressCache.get(cacheKey);
+};
+
+/**
+ * 전역 캐시에 주소 저장
+ */
+export const setAddressToGlobalCache = (lat: string | number, lng: string | number, address: string): void => {
+  const latNum = typeof lat === 'string' ? parseFloat(lat) : lat;
+  const lngNum = typeof lng === 'string' ? parseFloat(lng) : lng;
+
+  if (!isFinite(latNum) || !isFinite(lngNum)) {
+    return;
+  }
+
+  const cacheKey = `${latNum},${lngNum}`;
+  globalAddressCache.set(cacheKey, address);
+};
 
 /**
  * Nominatim API를 이용한 좌표 → 주소 변환 (역지오코딩)
@@ -43,7 +76,7 @@ export const getAddress = async (
     const timeoutId = setTimeout(() => controller.abort(), timeout);
 
     const response = await fetch(
-      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latNum}&lon=${lngNum}&zoom=10&addressdetails=1`,
+      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latNum}&lon=${lngNum}&zoom=10&addressdetails=1&accept-language=ko`,
       {
         headers: {
           'User-Agent': 'ICE-Frontend-ExifViewer',

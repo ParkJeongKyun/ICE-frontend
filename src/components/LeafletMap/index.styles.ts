@@ -1,17 +1,23 @@
 import styled from 'styled-components';
 
 // 카카오 맵
-export const IceMapContainer = styled('div')`
+export const IceMapContainer = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
   gap: 0px;
 `;
 
-export const IceMap = styled('div')`
+export const IceMap = styled.div`
   width: 100%;
   height: 150px;
 `;
+
+
+export const AddressInfo = styled.div`
+  padding: 5px 10px;
+`;
+
 
 export const ContentDiv = styled.div`
   display: flex;

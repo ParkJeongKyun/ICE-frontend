@@ -1,8 +1,8 @@
 import React, { useEffect, useCallback } from 'react';
-import { ChangeEvent, useImperativeHandle, useRef, useState, forwardRef } from 'react';
+import { ChangeEvent, useImperativeHandle, useRef, useState } from 'react';
 import styled from 'styled-components';
 import MenuBtn from '@/components/common/MenuBtn';
-import HexViewer, { HexViewerRef } from '@/components/HexViewer';
+import HexViewer from '@/components/HexViewer';
 import { useProcess } from '@/contexts/ProcessContext';
 import { useTabData } from '@/contexts/TabDataContext';
 import { useRefs } from '@/contexts/RefContext';

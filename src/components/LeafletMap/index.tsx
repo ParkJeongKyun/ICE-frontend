@@ -1,8 +1,9 @@
 import { useLayoutEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import { IceMap, IceMapContainer, AddressInfo, ContentDiv, CellHeaderDiv, CellBodyDiv } from './index.styles';
-import { isValidLocation, getAddress } from '@/utils/getAddress';
+import { isValidLocation, getAddress, getAddressFromGlobalCache, setAddressToGlobalCache } from '@/utils/getAddress';
 import { useMessage } from '@/contexts/MessageContext';
+import { useTabData } from '@/contexts/TabDataContext';
 import 'leaflet/dist/leaflet.css';
 
 // Leaflet 마커 아이콘 설정 (기본 아이콘 사용)
@@ -18,9 +19,6 @@ const DefaultIcon = L.icon({
 
 L.Marker.prototype.options.icon = DefaultIcon;
 
-// 주소 캐시 (컴포넌트 외부에서 관리)
-const addressCache = new Map<string, string>();
-
 interface Props {
   latitude: string;
   longitude: string;
@@ -28,38 +26,45 @@ interface Props {
 
 const LeafletMap: React.FC<Props> = ({ latitude, longitude }) => {
   const { showMessage } = useMessage();
+  const { activeKey, updateTabDisplayState } = useTabData();
   const mapRef = useRef<L.Map | null>(null);
   const markerRef = useRef<L.Marker | null>(null);
   const [address, setAddress] = useState<string>('');
 
-  // 주소 조회 및 캐시 관리
+  // 주소 조회: 전역 좌표 캐시 → API → 탭 상태 저장
   useLayoutEffect(() => {
     if (!isValidLocation(latitude, longitude)) {
       return;
     }
 
-    const cacheKey = `${latitude},${longitude}`;
-
-    // 캐시 확인
-    if (addressCache.has(cacheKey)) {
-      console.log('[LeafletMap] 캐시에서 주소 조회:', cacheKey);
-      setAddress(addressCache.get(cacheKey)!);
+    // 1. 전역 좌표 캐시 확인
+    const cachedAddress = getAddressFromGlobalCache(latitude, longitude);
+    if (cachedAddress) {
+      console.log('[LeafletMap] 전역 캐시에서 주소 조회:', `${latitude},${longitude}`);
+      setAddress(cachedAddress);
+      updateTabDisplayState(activeKey, { address: cachedAddress, latitude, longitude });
       return;
     }
 
-    // 주소 조회
+    // 2. API 호출
     (async () => {
       try {
         const resolvedAddress = await getAddress(latitude, longitude);
         console.log('[LeafletMap] 주소 조회 완료:', resolvedAddress);
-        addressCache.set(cacheKey, resolvedAddress);
+        
+        // 3. 전역 캐시에 저장
+        setAddressToGlobalCache(latitude, longitude, resolvedAddress);
+        
+        // 4. 탭 상태에 저장
+        updateTabDisplayState(activeKey, { address: resolvedAddress, latitude, longitude });
+        
         setAddress(resolvedAddress);
       } catch (error) {
         console.warn('[LeafletMap] 주소 조회 실패:', error);
         // 주소 조회 실패해도 지도는 표시됨
       }
     })();
-  }, [latitude, longitude]);
+  }, [latitude, longitude, activeKey, updateTabDisplayState]);
 
   // 지도 초기화 및 렌더링
   useLayoutEffect(() => {
@@ -129,12 +134,12 @@ const LeafletMap: React.FC<Props> = ({ latitude, longitude }) => {
   return (
     <IceMapContainer>
       <IceMap id="IceLocaionMap" />
-      <div style={{padding: "5px 10px"}}>
-      <ContentDiv>
-        <CellHeaderDiv>주소</CellHeaderDiv>
-        <CellBodyDiv>{address || `${latitude}, ${longitude}`}</CellBodyDiv>
-      </ContentDiv>
-      </div>
+      <AddressInfo>
+        <ContentDiv>
+          <CellHeaderDiv>주소</CellHeaderDiv>
+          <CellBodyDiv>{address || `${latitude}, ${longitude}`}</CellBodyDiv>
+        </ContentDiv>
+      </AddressInfo>
     </IceMapContainer>
   );
 };

@@ -20,6 +20,13 @@ export interface SelectionState {
   selectedBytes?: Uint8Array;
 }
 
+// 탭별 표시 상태: 현재 표시 중인 이미지 좌표와 주소
+export interface TabDisplayState {
+  latitude?: string;
+  longitude?: string;
+  address?: string;
+}
+
 interface TabDataContextType {
   tabData: TabData;
   setTabData: React.Dispatch<React.SetStateAction<TabData>>;
@@ -43,6 +50,9 @@ interface TabDataContextType {
   tabOrder: TabKey[];
   setTabOrder: React.Dispatch<React.SetStateAction<TabKey[]>>;
   reorderTabs: (fromIndex: number, toIndex: number) => void;
+  // 탭별 표시 상태 관리
+  tabDisplayStates: Record<TabKey, TabDisplayState>;
+  updateTabDisplayState: (tabKey: TabKey, state: Partial<TabDisplayState>) => void;
 }
 
 const TabDataContext = createContext<TabDataContextType | undefined>(undefined);
@@ -64,12 +74,23 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
   const [scrollPositions, setScrollPositions] = useState<Record<TabKey, number>>({});
   const [selectionStates, setSelectionStates] = useState<Record<TabKey, SelectionState>>({});
   const [tabOrder, setTabOrder] = useState<TabKey[]>([]);
+  const [tabDisplayStates, setTabDisplayStates] = useState<Record<TabKey, TabDisplayState>>({});
 
   const { deleteWorkerCache } = useWorker();
 
   const setEncoding = useCallback((newEncoding: EncodingType) => {
     setEncodingState(newEncoding);
   }, []);
+
+  const updateTabDisplayState = useCallback(
+    (tabKey: TabKey, state: Partial<TabDisplayState>) => {
+      setTabDisplayStates((prev) => ({
+        ...prev,
+        [tabKey]: { ...prev[tabKey], ...state },
+      }));
+    },
+    []
+  );
 
   const getNewKey = useCallback((): TabKey => {
     return `tab-${crypto.randomUUID()}` as TabKey;
@@ -102,6 +123,11 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
       });
 
       setSelectionStates((prev) => {
+        const { [key]: _, ...rest } = prev;
+        return rest;
+      });
+
+      setTabDisplayStates((prev) => {
         const { [key]: _, ...rest } = prev;
         return rest;
       });
@@ -153,6 +179,8 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
       tabOrder,
       setTabOrder,
       reorderTabs,
+      tabDisplayStates,
+      updateTabDisplayState,
     }),
     [
       tabData,
@@ -168,6 +196,8 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
       getNewKey,
       deleteTab,
       reorderTabs,
+      tabDisplayStates,
+      updateTabDisplayState,
     ]
   );
 
