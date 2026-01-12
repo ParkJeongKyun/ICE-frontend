@@ -70,7 +70,7 @@ export const StyledCanvas = styled.canvas`
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
-  touch-action: none;
+  touch-action: pan-x;
   
   &:focus {
     outline: none;
