@@ -1,302 +1,365 @@
-import { RefObject, useCallback, useState, useRef, useEffect } from 'react';
+import { RefObject, useCallback, useRef, useEffect, useState } from 'react';
 import { useTabData } from '@/contexts/TabDataContext';
 import { useMessage } from '@/contexts/MessageContext';
-import { LAYOUT, HEX_START_X, ASCII_START_X, MAX_COPY_SIZE, COPY_CHUNK_SIZE } from '@/constants/hexViewer';
+import {
+  LAYOUT,
+  HEX_START_X,
+  ASCII_START_X,
+  MAX_COPY_SIZE,
+  COPY_CHUNK_SIZE,
+} from '@/constants/hexViewer';
+
+// ===== Type Definitions =====
+interface ContextMenuState {
+  x: number;
+  y: number;
+}
 
 interface UseHexViewerSelectionProps {
   firstRowRef: RefObject<number>;
+  fileSize: number;
+  rowCount: number;
 }
 
 export const useHexViewerSelection = ({
   firstRowRef,
+  fileSize,
+  rowCount,
 }: UseHexViewerSelectionProps) => {
-  const { activeKey, selectionStates, setSelectionStates, activeData, cursorPositions, setCursorPositions } = useTabData();
+  const { activeKey, activeData, selectionStates, setSelectionStates } =
+    useTabData();
   const { showMessage } = useMessage();
-  
+
   const file = activeData?.file;
-  const fileSize = file?.size || 0;
-  const rowCount = Math.ceil(fileSize / LAYOUT.bytesPerRow);
-  
-  // ===== Selection State =====
-  const [isDragging, setIsDragging] = useState(false);
-  const [contextMenu, setContextMenu] = useState<{
-    x: number;
-    y: number;
-  } | null>(null);
 
-  // ===== Drag State =====
-  const dragStartRef = useRef<number | null>(null);
+  // ===== Local UI State =====
+  const contextMenuRef = useRef<ContextMenuState | null>(null);
 
-  // ===== Selection Update =====
-  const updateSelection = useCallback(
-    (start: number | null, end: number | null) => {
-      setSelectionStates((prev) => ({
-        ...prev,
-        [activeKey]: { start, end, selectedBytes: prev[activeKey]?.selectedBytes },
-      }));
+  // Context에서 현재 선택 상태 가져오기
+  const selection = selectionStates[activeKey] || {
+    cursor: null,
+    start: null,
+    end: null,
+    isDragging: false,
+    dragStart: null,
+    selectedBytes: undefined,
+  };
 
-      // 비동기로 선택된 바이트 읽기
-      if (start !== null && end !== null && file && fileSize > 0) {
-        (async () => {
-          try {
-            const s = Math.max(0, Math.min(start, end));
-            const length = Math.min(16, fileSize - s);
-            if (length > 0) {
-              const buf = await file.slice(s, s + length).arrayBuffer();
-              const selectedBytes = new Uint8Array(buf);
-              
-              setSelectionStates((prev) => {
-                const cur = prev[activeKey];
-                if (!cur || cur.start !== start || cur.end !== end) return prev;
-                return {
-                  ...prev,
-                  [activeKey]: { start, end, selectedBytes },
-                };
-              });
-            }
-          } catch (error) {
-            console.error('선택 바이트 읽기 실패:', error);
-          }
-        })();
-      }
+  // ===== Selection State Update =====
+  const updateSelectionState = useCallback(
+    (updates: Partial<typeof selection>) => {
+      setSelectionStates((prev) => {
+        const current = prev[activeKey];
+        if (!current) {
+          return {
+            ...prev,
+            [activeKey]: { ...selection, ...updates },
+          };
+        }
+
+        // 변경 감지: 실제 변경이 있을 때만 업데이트
+        const hasChanged = Object.entries(updates).some(
+          ([key, value]) => current[key as keyof typeof current] !== value
+        );
+
+        if (!hasChanged) return prev;
+
+        return {
+          ...prev,
+          [activeKey]: { ...current, ...updates },
+        };
+      });
     },
-    [activeKey, setSelectionStates, file, fileSize]
+    [activeKey, selection, setSelectionStates]
   );
 
-  // ===== Byte Index Calculation =====
+  // ===== Byte Index from Mouse Position =====
   const getByteIndexFromMouse = useCallback(
     (x: number, y: number): number | null => {
       const row = firstRowRef.current + Math.floor(y / LAYOUT.rowHeight);
       if (row < 0 || row >= rowCount) return null;
 
-      if (x >= HEX_START_X && x < HEX_START_X + LAYOUT.bytesPerRow * LAYOUT.hexByteWidth) {
+      // Check HEX region
+      if (
+        x >= HEX_START_X &&
+        x < HEX_START_X + LAYOUT.bytesPerRow * LAYOUT.hexByteWidth
+      ) {
         const col = Math.floor((x - HEX_START_X) / LAYOUT.hexByteWidth);
         if (col < 0 || col >= LAYOUT.bytesPerRow) return null;
-        const idx = row * LAYOUT.bytesPerRow + col;
-        return idx >= fileSize ? null : idx;
+        return row * LAYOUT.bytesPerRow + col < fileSize
+          ? row * LAYOUT.bytesPerRow + col
+          : null;
       }
 
-      if (x >= ASCII_START_X && x < ASCII_START_X + LAYOUT.bytesPerRow * LAYOUT.asciiCharWidth) {
+      // Check ASCII region
+      if (
+        x >= ASCII_START_X &&
+        x < ASCII_START_X + LAYOUT.bytesPerRow * LAYOUT.asciiCharWidth
+      ) {
         const col = Math.floor((x - ASCII_START_X) / LAYOUT.asciiCharWidth);
         if (col < 0 || col >= LAYOUT.bytesPerRow) return null;
-        const idx = row * LAYOUT.bytesPerRow + col;
-        return idx >= fileSize ? null : idx;
+        return row * LAYOUT.bytesPerRow + col < fileSize
+          ? row * LAYOUT.bytesPerRow + col
+          : null;
       }
 
       return null;
     },
-    [firstRowRef, rowCount, fileSize]
+    [fileSize, rowCount, firstRowRef]
   );
 
-  // ===== Mouse Events - Optimized =====
+  useEffect(() => {
+    const readBytes = async () => {
+      if (selection.start === null || selection.end === null || !file) {
+        return;
+      }
+
+      try {
+        const s = Math.max(0, Math.min(selection.start, selection.end));
+        const length = Math.min(16, fileSize - s);
+        if (length > 0) {
+          const buf = await file.slice(s, s + length).arrayBuffer();
+          updateSelectionState({ selectedBytes: new Uint8Array(buf) });
+        }
+      } catch (error) {
+        console.error('Failed to read selected bytes:', error);
+      }
+    };
+
+    readBytes();
+  }, [selection.start, selection.end, file, fileSize, updateSelectionState]);
+
+  // ===== Mouse Events =====
   const handleMouseDown = useCallback(
-    (e: React.MouseEvent) => {
+    (e: React.MouseEvent<HTMLCanvasElement>) => {
       if (e.button !== 0) return;
-      const target = e.target as HTMLCanvasElement;
-      if (!target || !target.getBoundingClientRect) return;
-      
-      const rect = target.getBoundingClientRect();
-      const idx = getByteIndexFromMouse(e.clientX - rect.left, e.clientY - rect.top);
+
+      const rect = e.currentTarget.getBoundingClientRect();
+      const idx = getByteIndexFromMouse(
+        e.clientX - rect.left,
+        e.clientY - rect.top
+      );
+
       if (idx === null) return;
 
-      dragStartRef.current = idx;
-      setIsDragging(true);
-      
-      // 커서 위치 업데이트
-      setCursorPositions((prev) => ({
-        ...prev,
-        [activeKey]: idx,
-      }));
-      
-      // 선택 시작
-      if (!e.shiftKey) {
-        updateSelection(idx, idx);
+      if (e.shiftKey) {
+        const start = selection.start ?? idx;
+        updateSelectionState({
+          start,
+          end: idx,
+          cursor: idx,
+          isDragging: false,
+          dragStart: null,
+        });
       } else {
-        const current = selectionStates[activeKey];
-        const startIdx = current?.start ?? idx;
-        updateSelection(startIdx, idx);
+        updateSelectionState({
+          cursor: idx,
+          start: idx,
+          end: idx,
+          isDragging: true,
+          dragStart: idx,
+        });
       }
     },
-    [getByteIndexFromMouse, updateSelection, activeKey, setCursorPositions, selectionStates]
+    [getByteIndexFromMouse, selection.start, updateSelectionState]
   );
 
   const handleMouseMove = useCallback(
-    (e: React.MouseEvent) => {
-      if (!isDragging || dragStartRef.current === null) return;
+    (e: React.MouseEvent<HTMLCanvasElement>) => {
+      if (!selection.isDragging) return;
 
-      const target = e.target as HTMLCanvasElement;
-      if (!target || !target.getBoundingClientRect) return;
-      
-      const rect = target.getBoundingClientRect();
-      const idx = getByteIndexFromMouse(e.clientX - rect.left, e.clientY - rect.top);
-      if (idx === null) return;
+      const rect = e.currentTarget.getBoundingClientRect();
+      const idx = getByteIndexFromMouse(
+        e.clientX - rect.left,
+        e.clientY - rect.top
+      );
 
-      updateSelection(dragStartRef.current, idx);
+      if (idx !== null) {
+        updateSelectionState({ cursor: idx, end: idx });
+      }
     },
-    [isDragging, getByteIndexFromMouse, updateSelection]
+    [selection.isDragging, getByteIndexFromMouse, updateSelectionState]
   );
 
   const handleMouseUp = useCallback(() => {
-    setIsDragging(false);
-    dragStartRef.current = null;
-  }, []);
+    if (
+      selection.isDragging &&
+      selection.start !== null &&
+      selection.end !== null
+    ) {
+      updateSelectionState({ isDragging: false, dragStart: null });
+    }
+  }, [
+    selection.isDragging,
+    selection.start,
+    selection.end,
+    updateSelectionState,
+  ]);
 
   // ===== Context Menu =====
   const handleContextMenu = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
-    
     let y = e.clientY;
-    if (y + 100 > window.innerHeight) {
-      y = window.innerHeight - 100;
-    }
-    
-    setContextMenu({ x: e.clientX, y });
+    if (y + 100 > window.innerHeight) y = window.innerHeight - 100;
+    contextMenuRef.current = { x: e.clientX, y };
   }, []);
 
-  const closeContextMenu = useCallback(() => setContextMenu(null), []);
+  const closeContextMenu = useCallback(() => {
+    contextMenuRef.current = null;
+  }, []);
 
+  // ===== Copy Operations =====
   const handleCopy = useCallback(
     async (format: 'hex' | 'text') => {
-      const current = selectionStates[activeKey];
-      if (current?.start !== null && current?.end !== null && file) {
-        const start = Math.min(current.start, current.end);
-        const end = Math.max(current.start, current.end) + 1;
-        const actualEnd = start + Math.min(end - start, MAX_COPY_SIZE);
+      if (selection.start === null || selection.end === null || !file) return;
 
-        try {
-          const arrayBuffer = await file.slice(start, actualEnd).arrayBuffer();
-          const selected = new Uint8Array(arrayBuffer);
-          let result = '';
+      const start = Math.min(selection.start, selection.end);
+      const end = Math.max(selection.start, selection.end) + 1;
+      const actualEnd = start + Math.min(end - start, MAX_COPY_SIZE);
 
-          for (let i = 0; i < selected.length; i += COPY_CHUNK_SIZE) {
-            const chunk = selected.slice(i, Math.min(i + COPY_CHUNK_SIZE, selected.length));
-            if (format === 'hex') {
-              result += Array.from(chunk).map((b) => b.toString(16).padStart(2, '0')).join(' ') + ' ';
-            } else {
-              result += Array.from(chunk).map((b) => (b >= 0x20 && b <= 0x7e ? String.fromCharCode(b) : '.')).join('');
-            }
-          }
-          await navigator.clipboard.writeText(format === 'hex' ? result.trim() : result);
-          showMessage('COPY_SUCCESS');
-        } catch (error) {
-          console.error(`${format.toUpperCase()} 복사 실패:`, error);
-          showMessage('COPY_FAILED');
+      try {
+        const arrayBuffer = await file.slice(start, actualEnd).arrayBuffer();
+        const selected = new Uint8Array(arrayBuffer);
+        let result = '';
+
+        for (let i = 0; i < selected.length; i += COPY_CHUNK_SIZE) {
+          const chunk = selected.slice(
+            i,
+            Math.min(i + COPY_CHUNK_SIZE, selected.length)
+          );
+          result +=
+            format === 'hex'
+              ? Array.from(chunk)
+                  .map((b) => b.toString(16).padStart(2, '0'))
+                  .join(' ') + ' '
+              : Array.from(chunk)
+                  .map((b) =>
+                    b >= 0x20 && b <= 0x7e ? String.fromCharCode(b) : '.'
+                  )
+                  .join('');
         }
+
+        await navigator.clipboard.writeText(
+          format === 'hex' ? result.trim() : result
+        );
+        showMessage('COPY_SUCCESS');
+      } catch (error) {
+        console.error(`${format.toUpperCase()} copy failed:`, error);
+        showMessage('COPY_FAILED');
       }
-      setContextMenu(null);
+
+      contextMenuRef.current = null;
     },
-    [selectionStates, activeKey, file, showMessage]
+    [selection.start, selection.end, file, showMessage]
   );
 
   const handleCopyHex = useCallback(() => handleCopy('hex'), [handleCopy]);
   const handleCopyText = useCallback(() => handleCopy('text'), [handleCopy]);
-
   const handleCopyOffset = useCallback(async () => {
-    const current = selectionStates[activeKey];
-    if (current?.start !== null && current?.end !== null) {
-      const offset = Math.min(current.start, current.end);
-      try {
-        await navigator.clipboard.writeText(offset.toString(16).toUpperCase());
-        showMessage('COPY_SUCCESS');
-      } catch (error) {
-        console.error('오프셋 복사 실패:', error);
-        showMessage('COPY_FAILED');
-      }
-    }
-    setContextMenu(null);
-  }, [selectionStates, activeKey, showMessage]);
+    if (selection.start === null || selection.end === null) return;
 
-  // ===== Selection Range Helper =====
-  const updateSelectionRange = useCallback(
-    (cursor: number, shiftKey: boolean) => {
-      const current = selectionStates[activeKey];
-      
-      if (shiftKey) {
-        // Shift: 선택 범위 확장
-        const startIdx = current?.start ?? cursor;
-        updateSelection(startIdx, cursor);
-      } else {
-        // Shift 없음: 커서 위치만 설정
-        updateSelection(cursor, cursor);
-      }
-    },
-    [activeKey, selectionStates, updateSelection]
-  );
+    const offset = Math.min(selection.start, selection.end);
+    try {
+      await navigator.clipboard.writeText(offset.toString(16).toUpperCase());
+      showMessage('COPY_SUCCESS');
+    } catch (error) {
+      console.error('Failed to copy offset:', error);
+      showMessage('COPY_FAILED');
+    }
+    contextMenuRef.current = null;
+  }, [selection.start, selection.end, showMessage]);
 
   // ===== Keyboard Navigation =====
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
-      const key = e.key;
-      if (!['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(key)) return;
+      const { key } = e;
+      if (
+        ![
+          'ArrowUp',
+          'ArrowDown',
+          'ArrowLeft',
+          'ArrowRight',
+          'Home',
+          'End',
+        ].includes(key)
+      )
+        return;
 
       e.preventDefault();
-      const cursor = cursorPositions[activeKey] ?? 0;
-      const shiftKey = e.shiftKey;
+
+      const cursor = selection.cursor ?? 0;
       let newCursor = cursor;
 
-      // 커서 이동 계산
-      switch (key) {
-        case 'ArrowUp':
-          newCursor = Math.max(0, cursor - LAYOUT.bytesPerRow);
-          break;
-        case 'ArrowDown':
-          newCursor = Math.min(fileSize - 1, cursor + LAYOUT.bytesPerRow);
-          break;
-        case 'ArrowLeft':
-          newCursor = Math.max(0, cursor - 1);
-          break;
-        case 'ArrowRight':
-          newCursor = Math.min(fileSize - 1, cursor + 1);
-          break;
-        case 'Home':
-          newCursor = Math.max(0, cursor - (cursor % LAYOUT.bytesPerRow));
-          break;
-        case 'End':
-          newCursor = Math.min(fileSize - 1, cursor + (LAYOUT.bytesPerRow - 1 - (cursor % LAYOUT.bytesPerRow)));
-          break;
+      const keyActions: Record<string, () => void> = {
+        ArrowUp: () => (newCursor = Math.max(0, cursor - LAYOUT.bytesPerRow)),
+        ArrowDown: () =>
+          (newCursor = Math.min(fileSize - 1, cursor + LAYOUT.bytesPerRow)),
+        ArrowLeft: () => (newCursor = Math.max(0, cursor - 1)),
+        ArrowRight: () => (newCursor = Math.min(fileSize - 1, cursor + 1)),
+        Home: () =>
+          (newCursor = Math.max(0, cursor - (cursor % LAYOUT.bytesPerRow))),
+        End: () =>
+          (newCursor = Math.min(
+            fileSize - 1,
+            cursor + (LAYOUT.bytesPerRow - 1 - (cursor % LAYOUT.bytesPerRow))
+          )),
+      };
+
+      keyActions[key]?.();
+
+      if (e.shiftKey) {
+        const start = selection.start ?? newCursor;
+        updateSelectionState({ start, end: newCursor, cursor: newCursor });
+      } else {
+        updateSelectionState({
+          cursor: newCursor,
+          start: newCursor,
+          end: newCursor,
+          isDragging: false,
+          dragStart: null,
+        });
       }
-
-      // 커서 위치 업데이트
-      setCursorPositions((prev) => ({
-        ...prev,
-        [activeKey]: newCursor,
-      }));
-
-      // 선택 범위 업데이트
-      updateSelectionRange(newCursor, shiftKey);
     },
-    [activeKey, cursorPositions, fileSize, setCursorPositions, updateSelectionRange]
+    [fileSize, selection, updateSelectionState]
   );
 
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      dragStartRef.current = null;
-    };
-  }, []);
+  // ===== Cleanup =====
+  useEffect(
+    () => () => {
+      contextMenuRef.current = null;
+    },
+    []
+  );
+
+  // ===== Set Selection (for external API) =====
+  const setSelection = useCallback(
+    (index: number, endIndex: number, isDragging = false) => {
+      setSelectionStates((prev) => ({
+        ...prev,
+        [activeKey]: {
+          ...(prev[activeKey] || {}),
+          cursor: index,
+          start: index,
+          end: endIndex,
+          isDragging,
+          dragStart: null,
+        },
+      }));
+    },
+    [activeKey, setSelectionStates]
+  );
 
   return {
-    // Selection state
-    isDragging,
-    updateSelection,
-    
-    // Context menu
-    contextMenu,
-    setContextMenu,
+    contextMenu: contextMenuRef.current,
     closeContextMenu,
-    
-    // Mouse events
     handleMouseDown,
     handleMouseMove,
     handleMouseUp,
     handleContextMenu,
-    
-    // Copy
     handleCopyHex,
     handleCopyText,
     handleCopyOffset,
-    
-    // Keyboard
     handleKeyDown,
+    setSelection,
   };
 };

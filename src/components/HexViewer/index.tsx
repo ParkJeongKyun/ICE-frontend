@@ -4,7 +4,6 @@ import React, {
   useState,
   useImperativeHandle,
   forwardRef,
-  useCallback,
   useReducer,
 } from 'react';
 import { useTabData } from '@/contexts/TabDataContext';
@@ -25,13 +24,7 @@ import {
   ContextMenuItem,
 } from './index.styles';
 import { isMobile } from 'react-device-detect';
-import {
-  CHUNK_REQUEST_DEBOUNCE,
-  LAYOUT,
-  MIN_HEX_WIDTH,
-  COLOR_KEYS,
-  DEFAULT_COLORS,
-} from '@/constants/hexViewer';
+import { CHUNK_REQUEST_DEBOUNCE, LAYOUT, MIN_HEX_WIDTH, COLOR_KEYS, DEFAULT_COLORS } from '@/constants/hexViewer';
 import { getDevicePixelRatio } from '@/utils/hexViewer';
 import { useHexViewerCache } from './hooks/useHexViewerCache';
 import { useHexViewerSelection } from './hooks/useHexViewerSelection';
@@ -51,7 +44,7 @@ export interface HexViewerRef {
 
 const { bytesPerRow, rowHeight } = LAYOUT;
 
-const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
+const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (props, ref) => {
   const {
     activeData,
     encoding,
@@ -59,7 +52,6 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     scrollPositions,
     setScrollPositions,
     activeSelectionState,
-    cursorPositions,
   } = useTabData();
   const { fileWorker, getWorkerCache } = useWorker();
   const { showMessage } = useMessage();
@@ -68,10 +60,9 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   const file = activeData?.file;
   const fileSize = file?.size || 0;
   const rowCount = Math.ceil(fileSize / bytesPerRow);
-  const selectionRange = activeSelectionState;
 
   const [canvasSize, setCanvasSize] = useState({ width: 800, height: 400 });
-  const [renderCount, forceRender] = useReducer((x) => x + 1, 0);
+  const [, forceRender] = useReducer((x) => x + 1, 0);
 
   // ===== Refs =====
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -106,8 +97,6 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   const firstRowRef = useRef(0);
 
   const {
-    isDragging,
-    updateSelection,
     contextMenu,
     closeContextMenu,
     handleMouseDown,
@@ -118,8 +107,11 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     handleCopyText,
     handleCopyOffset,
     handleKeyDown,
+    setSelection,
   } = useHexViewerSelection({
     firstRowRef,
+    fileSize,
+    rowCount,
   });
 
   const { directRender, renderHeader } = useHexViewerRender({
@@ -139,7 +131,6 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     chunkCacheRef,
     requestedChunksRef,
     onChunkLoaded: forceRender,
-    isDraggingRef,
     isInitialLoadingRef,
     visibleRows,
     checkCacheSize,
@@ -165,7 +156,6 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     canvasHeight: canvasSize.height,
     requestChunks,
     firstRowRef,
-    renderCount,
   });
 
   const {
@@ -180,17 +170,10 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
     containerRef,
   });
 
-  const handleScrollPositionUpdate = useCallback(
-    (position: number) => {
-      updateScrollPosition(position);
-    },
-    [updateScrollPosition]
-  );
-
   // ===== Effects =====
   useEffect(() => {
-    isDraggingRef.current = isDragging;
-  }, [isDragging]);
+    isDraggingRef.current = activeSelectionState?.isDragging ?? false;
+  }, [activeSelectionState?.isDragging]);
 
   useEffect(() => {
     directRenderRef.current = directRender;
@@ -275,7 +258,11 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
       (async () => {
         try {
           await initializeWorker(0);
+          isInitialLoadingRef.current = false;
           forceRender();
+          requestAnimationFrame(() => {
+            directRenderRef.current();
+          });
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류';
           showMessage('FILE_PROCESSING_FAILED', `워커 초기화 실패: ${errorMessage}`);
@@ -285,26 +272,27 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
   }, [file, activeKey, getWorkerCache, scrollPositions, requestChunks, visibleRows, fileSize, fileWorker, setScrollPositions, initializeWorker, showMessage]);
 
   useEffect(() => {
-    renderHeader();
-  }, [renderHeader, canvasSize]);
-
-  useEffect(() => {
     canvasSizeRef.current = canvasSize;
-  }, [canvasSize]);
+    renderHeader();
+  }, [canvasSize, renderHeader]);
 
+  // 렌더링 트리거
   useEffect(() => {
-    if (!isInitialLoadingRef.current) {
-      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
-      if (!isDraggingRef.current) {
-        directRenderRef.current();
-      } else {
+    if (!isInitialLoadingRef.current && hasValidDataRef.current) {
+      if (isDraggingRef.current) {
+        // 드래그 중: RAF로 스케줄링하여 부드럽게
+        if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
         rafRef.current = requestAnimationFrame(() => {
           directRenderRef.current();
           rafRef.current = null;
         });
+      } else {
+        // 일반 상황: 즉시 렌더링
+        if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+        directRenderRef.current();
       }
     }
-  }, [selectionRange, encoding, canvasSize, renderCount]);
+  }, [activeSelectionState, encoding, canvasSize, scrollPositions, activeKey]);
 
   useEffect(() => {
     if (!file || !fileWorker || isDraggingRef.current) return;
@@ -312,7 +300,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
       requestChunks(firstRowRef.current, fileWorker, file, fileSize, visibleRows + 30);
     }, CHUNK_REQUEST_DEBOUNCE);
     return () => clearTimeout(timer);
-  }, [renderCount, file, visibleRows, fileSize, requestChunks, fileWorker]);
+  }, [file, visibleRows, fileSize, requestChunks, fileWorker]);
 
   useEffect(() => {
     if (!contextMenu) return;
@@ -336,10 +324,9 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
 
   // 커서 위치 변화 시 자동 스크롤
   useEffect(() => {
-    const cursor = cursorPositions[activeKey];
-    if (cursor === undefined) return;
+    if (activeSelectionState?.cursor === null) return;
 
-    const cursorRow = Math.floor(cursor / bytesPerRow);
+    const cursorRow = Math.floor(activeSelectionState.cursor / bytesPerRow);
     const visibleStart = firstRowRef.current;
     const visibleEnd = visibleStart + visibleRows;
 
@@ -355,18 +342,20 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
         [activeKey]: Math.max(0, cursorRow - visibleRows + 1),
       }));
     }
-  }, [activeKey, cursorPositions, bytesPerRow, visibleRows, setScrollPositions]);
+  }, [activeKey, activeSelectionState?.cursor, bytesPerRow, visibleRows, setScrollPositions]);
 
   useImperativeHandle(
     ref,
     () => ({
       scrollToIndex: (index: number, offset: number) => {
         const targetRow = Math.floor(index / bytesPerRow);
-        handleScrollPositionUpdate(targetRow);
-        updateSelection(index, index + offset - 1);
+        updateScrollPosition(targetRow);
+
+        const endIndex = offset > 0 ? Math.min(index + offset - 1, fileSize - 1) : index;
+        setSelection(index, endIndex);
       },
     }),
-    [handleScrollPositionUpdate, updateSelection]
+    [updateScrollPosition, bytesPerRow, fileSize, setSelection]
   );
 
   // ===== Render =====
@@ -377,8 +366,8 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (_, ref) => {
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
-      <CanvasContainer 
-        ref={containerRef} 
+      <CanvasContainer
+        ref={containerRef}
         tabIndex={0}
         onMouseDown={(e) => {
           // 캔테이너 포커스 처리

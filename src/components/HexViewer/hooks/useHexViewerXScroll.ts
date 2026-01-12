@@ -107,7 +107,7 @@ export const useHexViewerXScroll = ({
 
   const handleScrollbarMouseDown = useCallback(
     (e: React.MouseEvent) => {
-      e.preventDefault();
+      // e.preventDefault();
       e.stopPropagation();
       handleScrollbarStart(e.clientX);
     },
@@ -116,7 +116,7 @@ export const useHexViewerXScroll = ({
 
   const handleScrollbarTouchStart = useCallback(
     (e: React.TouchEvent) => {
-      e.preventDefault();
+      // e.preventDefault();
       e.stopPropagation();
       if (e.touches.length === 1) {
         handleScrollbarStart(e.touches[0].clientX);

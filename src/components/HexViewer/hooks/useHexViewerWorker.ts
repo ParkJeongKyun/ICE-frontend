@@ -7,7 +7,6 @@ interface UseHexViewerWorkerProps {
   chunkCacheRef: RefObject<Map<number, Uint8Array>>;
   requestedChunksRef: RefObject<Set<number>>;
   onChunkLoaded: () => void;
-  isDraggingRef: RefObject<boolean>;
   isInitialLoadingRef: RefObject<boolean>;
   visibleRows: number;
   checkCacheSize: () => void;
@@ -17,7 +16,6 @@ export const useHexViewerWorker = ({
   chunkCacheRef,
   requestedChunksRef,
   onChunkLoaded,
-  isDraggingRef,
   isInitialLoadingRef,
   visibleRows,
   checkCacheSize,
@@ -80,7 +78,7 @@ export const useHexViewerWorker = ({
             cache.set(offset, data);
             if (chunkCacheRef.current) chunkCacheRef.current = cache;
             checkCacheSize();
-            if (!isDraggingRef.current) onChunkLoaded();
+            onChunkLoaded();
           }
         };
 
@@ -129,7 +127,7 @@ export const useHexViewerWorker = ({
             cache.set(offset, data);
             if (chunkCacheRef.current) chunkCacheRef.current = cache;
             checkCacheSize();
-            if (!isDraggingRef.current) onChunkLoaded();
+            onChunkLoaded();
           }
         };
 

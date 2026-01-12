@@ -17,7 +17,6 @@ interface UseHexViewerYScrollProps {
     currentVisibleRows: number
   ) => void;
   firstRowRef: RefObject<number>;
-  renderCount: number;
 }
 
 export const useHexViewerYScroll = ({
@@ -27,9 +26,8 @@ export const useHexViewerYScroll = ({
   canvasHeight,
   requestChunks,
   firstRowRef,
-  renderCount,
 }: UseHexViewerYScrollProps) => {
-  const { activeKey, setScrollPositions, activeData } = useTabData();
+  const { activeKey, scrollPositions, setScrollPositions, activeData } = useTabData();
   const { fileWorker } = useWorker();
 
   const file = activeData?.file;
@@ -39,7 +37,6 @@ export const useHexViewerYScroll = ({
   const [scrollbarDragging, setScrollbarDragging] = useState(false);
   const [scrollbarStartY, setScrollbarStartY] = useState(0);
   const [scrollbarStartRow, setScrollbarStartRow] = useState(0);
-  const isDraggingRef = useRef(false);
   
   const touchStartYRef = useRef<number | null>(null);
   const touchStartRowRef = useRef<number | null>(null);
@@ -48,8 +45,8 @@ export const useHexViewerYScroll = ({
   const shouldShowScrollbar = rowCount > visibleRows && fileSize > 0;
   const scrollbarHeight = Math.max(30, (visibleRows / rowCount) * canvasHeight);
   const scrollbarTop = useMemo(
-    () => calculateScrollbarTop(firstRowRef.current, maxFirstRow, canvasHeight, scrollbarHeight),
-    [maxFirstRow, canvasHeight, scrollbarHeight, renderCount, firstRowRef]
+    () => calculateScrollbarTop(scrollPositions[activeKey] ?? 0, maxFirstRow, canvasHeight, scrollbarHeight),
+    [scrollPositions, activeKey, maxFirstRow, canvasHeight, scrollbarHeight]
   );
 
   // ===== Common Scroll Update =====
@@ -115,7 +112,6 @@ export const useHexViewerYScroll = ({
   const handleScrollbarStart = useCallback(
     (clientY: number) => {
       setScrollbarDragging(true);
-      isDraggingRef.current = true;
       setScrollbarStartY(clientY);
       setScrollbarStartRow(firstRowRef.current);
       document.body.style.userSelect = 'none';
@@ -125,7 +121,6 @@ export const useHexViewerYScroll = ({
 
   const handleScrollbarEnd = useCallback(() => {
     setScrollbarDragging(false);
-    isDraggingRef.current = false;
     document.body.style.userSelect = '';
   }, []);
 
@@ -149,7 +144,6 @@ export const useHexViewerYScroll = ({
   const scrollbarDragEffect = useCallback(() => {
     if (!scrollbarDragging || !fileWorker || !file) return;
 
-    isDraggingRef.current = true;
     requestChunks(firstRowRef.current, fileWorker, file, fileSize, visibleRows + 100);
 
     let animationFrameId: number | null = null;

@@ -43,13 +43,13 @@ const DataInspector: React.FC = () => {
   const { activeSelectionState, activeData } = useTabData();
   const [endian, setEndian] = useState<'le' | 'be'>('le');
 
-  const bytes = activeSelectionState.selectedBytes ?? new Uint8Array();
+  const bytes = activeSelectionState?.selectedBytes ?? new Uint8Array();
   const fileSize = activeData?.file?.size ?? 0;
 
   // 상대 오프셋 이동 핸들러
   const handleJumpToOffset = useCallback(
     async (value: string) => {
-      if (!searcherRef?.current || value === '-' || activeSelectionState.start === null) return;
+      if (!searcherRef?.current || value === '-' || activeSelectionState?.start === null) return;
 
       const numValue = parseInt(value, 10);
       if (isNaN(numValue)) return;
@@ -60,7 +60,7 @@ const DataInspector: React.FC = () => {
       const hexStr = targetOffset.toString(16);
       await searcherRef.current.findByOffset(hexStr);
     },
-    [searcherRef, activeSelectionState.start, fileSize]
+    [searcherRef, activeSelectionState?.start, fileSize]
   );
 
   // 절대 오프셋 이동 핸들러
@@ -233,9 +233,9 @@ const DataInspector: React.FC = () => {
                     );
                   }
 
-                  const targetOffset = activeSelectionState.start !== null ? activeSelectionState.start + numValue : null;
+                  const targetOffset = activeSelectionState?.start !== null ? activeSelectionState.start + numValue : null;
                   const canJumpRelative =
-                    activeSelectionState.start !== null &&
+                    activeSelectionState?.start !== null &&
                     numValue !== 0 &&
                     targetOffset !== null &&
                     targetOffset >= 0 &&
@@ -249,7 +249,7 @@ const DataInspector: React.FC = () => {
                         {canJumpRelative && (
                           <JumpButton
                             onClick={() => handleJumpToOffset(item.value)}
-                            title={`상대 오프셋 이동: 현재(0x${activeSelectionState.start!.toString(16).toUpperCase()} / ${activeSelectionState.start}) ${numValue >= 0 ? '+' : ''}${item.value} → 0x${targetOffset!.toString(16).toUpperCase()} / ${targetOffset}`}
+                            title={`상대 오프셋 이동: 현재(0x${activeSelectionState?.start!.toString(16).toUpperCase()} / ${activeSelectionState?.start}) ${numValue >= 0 ? '+' : ''}${item.value} → 0x${targetOffset!.toString(16).toUpperCase()} / ${targetOffset}`}
                           >
                             <DoubleChevronsRightIcon width={14} height={14} />
                           </JumpButton>
