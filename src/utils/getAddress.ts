@@ -1,60 +1,89 @@
-/* global kakao */
-/* Kakao Map */
-declare var kakao: any;
-
 /**
- * 대한민국 영토 위경도 범위
- * - 위도(Latitude): 33.0 ~ 38.6 (제주도 포함, 독도 포함)
- * - 경도(Longitude): 124.5 ~ 132.0 (서해 ~ 독도)
+ * Nominatim (OpenStreetMap) API를 이용한 역지오코딩
+ * - 완전 무료, 전 세계 지원
+ * - 초당 1 요청 제한
+ * - 캐싱은 컴포넌트에서 담당
  */
-const KOREA_BOUNDS = {
-  LAT_MIN: 33.0,
-  LAT_MAX: 38.6,
-  LNG_MIN: 124.5,
-  LNG_MAX: 132.0,
-} as const;
 
-/**
- * 좌표가 대한민국 영토 범위 내에 있는지 확인
- */
-export function isWithinKoreaBounds(lat: number, lng: number): boolean {
-  return (
-    lat >= KOREA_BOUNDS.LAT_MIN &&
-    lat <= KOREA_BOUNDS.LAT_MAX &&
-    lng >= KOREA_BOUNDS.LNG_MIN &&
-    lng <= KOREA_BOUNDS.LNG_MAX
-  );
+interface NominatimResponse {
+  address: {
+    country?: string;
+    country_code?: string;
+    state?: string;
+    county?: string;
+    city?: string;
+    town?: string;
+    village?: string;
+    [key: string]: string | undefined;
+  };
+  display_name?: string;
 }
 
-/*** 카카오맵 API 이용 맵 데이터 얻기 */
-export const getAddress = (
+/**
+ * Nominatim API를 이용한 좌표 → 주소 변환 (역지오코딩)
+ * 캐싱은 컴포넌트에서 처리
+ * @param lat 위도
+ * @param lng 경도
+ * @returns 주소 문자열
+ */
+export const getAddress = async (
   lat: string | number,
-  lng: string | number
+  lng: string | number,
+  timeout: number = 5000
 ): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const latNum = typeof lat === 'string' ? parseFloat(lat) : lat;
-    const lngNum = typeof lng === 'string' ? parseFloat(lng) : lng;
+  const latNum = typeof lat === 'string' ? parseFloat(lat) : lat;
+  const lngNum = typeof lng === 'string' ? parseFloat(lng) : lng;
 
-    // 대한민국 영토 범위 체크 - API 호출 전 필터링
-    if (!isWithinKoreaBounds(latNum, lngNum)) {
-      reject('OUT_OF_KOREA_BOUNDS');
-      return;
+  if (!isFinite(latNum) || !isFinite(lngNum)) {
+    throw new Error('Invalid coordinates');
+  }
+
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+    const response = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latNum}&lon=${lngNum}&zoom=10&addressdetails=1`,
+      {
+        headers: {
+          'User-Agent': 'ICE-Frontend-ExifViewer',
+        },
+        signal: controller.signal,
+      }
+    );
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      throw new Error(`Nominatim API error: ${response.status}`);
     }
 
-    let geocoder = new kakao.maps.services.Geocoder();
-    let coord = new kakao.maps.LatLng(lat, lng);
-    let callback = function (result: any, status: any) {
-      if (status === kakao.maps.services.Status.OK) {
-        // 도로명 주소 우선으로 주기, 없으면 구주소
-        let road_address = result[0]?.road_address?.address_name;
-        let address = result[0]?.address?.address_name;
-        resolve(road_address ? road_address : address);
-      } else {
-        reject(status);
-      }
-    };
-    geocoder.coord2Address(coord.getLng(), coord.getLat(), callback);
-  });
+    const data: NominatimResponse = await response.json();
+
+    let result = '';
+    // display_name이 가장 완전한 주소
+    if (data.display_name) {
+      result = data.display_name;
+    } else if (data.address) {
+      // 대체: address 객체에서 조합
+      const parts = [
+        data.address.country,
+        data.address.state,
+        data.address.county,
+        data.address.city || data.address.town || data.address.village,
+      ].filter(Boolean);
+
+      result = parts.length > 0 ? parts.join(', ') : `${latNum}, ${lngNum}`;
+    } else {
+      // 최후의 수단: 좌표만 반환
+      result = `${latNum}, ${lngNum}`;
+    }
+
+    return result;
+  } catch (error) {
+    console.error('[getAddress] Nominatim API 호출 실패:', error);
+    throw error;
+  }
 };
 
 // 위치값 유효성 검사

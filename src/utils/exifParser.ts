@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import { ExifRow } from '@/types';
-import { getAddress, isValidLocation, isWithinKoreaBounds } from './getAddress';
+import { isValidLocation } from './getAddress';
 
 /**
  * EXIF 데이터 추출을 위한 파일 읽기
@@ -51,6 +51,8 @@ export interface ParsedExifResult {
 
 /**
  * EXIF 데이터 파싱
+ * - 주소 변환은 수행하지 않음 (맵 컴포넌트에서 처리)
+ * - 좌표만 표시
  */
 export const parseExifData = async (
   exifData: string,
@@ -71,32 +73,14 @@ export const parseExifData = async (
         meta.map(async (item, index) => {
           let processedData = item.data;
 
-          // Location 태그 처리
+          // Location 태그 처리 - 좌표만 표시
           if (item.tag === 'Location') {
             try {
               [lat, lng] = item.origindata.split(',').map((v) => v.trim());
 
               if (isValidLocation(lat, lng)) {
-                const latNum = parseFloat(lat);
-                const lngNum = parseFloat(lng);
-                
-                // 대한민국 영토 범위 내에 있을 때만 API 호출
-                if (isWithinKoreaBounds(latNum, lngNum)) {
-                  try {
-                    address = await getAddress(lat, lng);
-                    processedData = address;
-                  } catch (error) {
-                    console.warn('[ExifParser] Kakao API 호출 실패:', error);
-                    // API 호출 실패 시 좌표만 표시
-                    processedData = `${lat}, ${lng}`;
-                  }
-                } else {
-                  // 해외 좌표는 좌표만 표시 (주소 변환 시도 X)
-                  console.info(
-                    `[ExifParser] 해외 좌표 감지: (${lat}, ${lng}) - API 호출 생략`
-                  );
-                  processedData = `${lat}, ${lng} (해외)`;
-                }
+                // 좌표만 표시 (주소는 맵에서 처리)
+                processedData = `${lat}, ${lng}`;
               }
             } catch (error) {
               console.error('Location 파싱 실패:', error);

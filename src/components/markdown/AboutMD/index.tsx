@@ -58,7 +58,9 @@ const txt = `
 - [React Bits - 인터렉티브 웹 UI](https://github.com/DavidHDev/react-bits)
 - [Go Exif - GoLang Exif 분석 라이브러리](https://pkg.go.dev/github.com/dsoprea/go-exif)
 - [Yara - 악성코드 탐지 도구](https://github.com/VirusTotal/yara)
-- [KaKao Map - 지도 API](https://apis.map.kakao.com/)
+- [Nominatim - 오픈소스 Geocoding](https://nominatim.org/)
+- [Leaflet - JavaScript 지도 라이브러리](https://leafletjs.com/)
+- [OpenStreetMap - 지도 데이터](https://www.openstreetmap.org/)
 - [Milkdown - 마크다운 에디터 프레임워크](https://milkdown.dev/)
 - [React Markdown - 마크다운 렌더러](https://github.com/remarkjs/react-markdown)
 - [Google Analytics - 웹 로그 분석 서비스](https://analytics.google.com/analytics/web/)
@@ -66,6 +68,12 @@ const txt = `
 
 const relase_txt = `
 ## 릴리즈 노트
+
+### v2026.01.12
+- 지도 변경 KakaoMap → Leaflet(OpenStreetMap)
+- 전 세계 지도 및 주소 
+- 검색 및 오프셋 점프 기능 개선
+- UI/UX 개선
 
 ### v2026.01.04
 - Data Inspector 기능 추가

@@ -188,22 +188,16 @@ export const MESSAGES = {
   },
 
   // 카카오맵 관련
-  KAKAO_MAP_LOAD_ERROR: {
+  LEAFLET_MAP_LOAD_ERROR: {
     type: 'error' as MessageType,
     title: '지도 로드 실패',
-    message: '카카오맵을 불러오는데 실패했습니다.',
+    message: 'Leaflet 지도를 불러오는데 실패했습니다.',
     duration: 8000,
   },
-  KAKAO_MAP_INVALID_LOCATION: {
+  LEAFLET_MAP_INVALID_LOCATION: {
     type: 'warning' as MessageType,
     title: '위치 정보 없음',
     message: '유효한 GPS 정보가 없습니다.',
-    duration: 6000,
-  },
-  KAKAO_MAP_OUT_OF_BOUNDS: {
-    type: 'info' as MessageType,
-    title: '해외 좌표 감지',
-    message: '대한민국 영토 범위 밖의 좌표입니다.\n카카오맵은 국내 위치만 지원합니다.',
     duration: 6000,
   },
 } as const;

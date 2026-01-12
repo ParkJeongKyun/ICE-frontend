@@ -9,7 +9,7 @@ import {
   ViewerDiv,
 } from './index.styles';
 import { isValidLocation } from '@/utils/getAddress';
-import KakaoMap from '@/components/KakaoMap';
+import LeafletMap from '@/components/LeafletMap';
 import Tooltip from '@/components/common/Tooltip';
 import { useTabData } from '@/contexts/TabDataContext';
 import { getBytes, getDate } from '@/utils/exifParser';
@@ -78,13 +78,13 @@ const ExifRowViewer: React.FC = () => {
           open
         />
       )}
-      {activeData?.location.address &&
+      {
         isValidLocation(activeData?.location.lat, activeData?.location.lng) && (
           <Collapse
             title="Map"
             children={
               <>
-                <KakaoMap
+                <LeafletMap
                   latitude={activeData?.location.lat || ''}
                   longitude={activeData?.location.lng || ''}
                 />
