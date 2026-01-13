@@ -1,0 +1,118 @@
+{
+  "WORKER_NOT_INITIALIZED": {
+    "title": "Worker Error",
+    "message": "Worker is not initialized.\nPlease refresh the page."
+  },
+  "WORKER_CREATION_FAILED": {
+    "title": "Worker Creation Failed",
+    "message": "Failed to create worker.\nPlease refresh the page."
+  },
+  "WORKER_ERROR": {
+    "title": "Worker Error",
+    "message": "An error occurred in the worker."
+  },
+  "WORKER_INIT_FAILED": {
+    "title": "Worker Initialization Failed",
+    "message": "Failed to initialize the worker."
+  },
+  "WASM_LOADING": {
+    "title": "WASM Loading",
+    "message": "WASM is loading.\nPlease try again later."
+  },
+  "WASM_LOAD_FAILED": {
+    "title": "WASM Load Failed",
+    "message": "Failed to load WASM module."
+  },
+  "WASM_NOT_READY": {
+    "title": "WASM Not Ready",
+    "message": "WASM is not ready yet.\nPlease try again later."
+  },
+  "WASM_LOADED_SUCCESS": {
+    "title": "WASM Loaded",
+    "message": "WASM module loaded successfully."
+  },
+  "FILE_PROCESSING_FAILED": {
+    "title": "File Processing Failed",
+    "message": "An error occurred while processing the file."
+  },
+  "FILE_READ_ERROR": {
+    "title": "File Read Error",
+    "message": "An error occurred while reading the file."
+  },
+  "FILE_READ_FAILED": {
+    "title": "File Read Failed",
+    "message": "Cannot read the file.\nThe file may be corrupted or in an unsupported format."
+  },
+  "FILE_TOO_LARGE": {
+    "title": "File Too Large",
+    "message": "The file is too large.\nThe maximum supported size is 100MB."
+  },
+  "EXIF_ERROR": {
+    "title": "EXIF Error",
+    "message": "Failed to process EXIF data."
+  },
+  "EXIF_PARSE_ERROR": {
+    "title": "EXIF Parse Error",
+    "message": "An error occurred while parsing EXIF data."
+  },
+  "EXIF_PROCESSING_TIMEOUT": {
+    "title": "EXIF Processing Timeout",
+    "message": "EXIF data processing timed out.\nPlease try again."
+  },
+  "SEARCH_FAILED": {
+    "title": "Search Failed",
+    "message": "An error occurred during search."
+  },
+  "SEARCH_TIMEOUT": {
+    "title": "Search Timeout",
+    "message": "Search timed out.\nPlease try again."
+  },
+  "SEARCH_WASM_ERROR": {
+    "title": "WASM Search Error",
+    "message": "An error occurred during WASM search."
+  },
+  "SEARCH_NO_RESULTS": {
+    "title": "No Results",
+    "message": "No search results found."
+  },
+  "SEARCH_SUCCESS": {
+    "title": "Search Complete",
+    "message": "Search completed successfully."
+  },
+  "SEARCH_NO_INPUT": {
+    "title": "No Input",
+    "message": "Please enter a search term."
+  },
+  "SEARCH_INVALID_HEX": {
+    "title": "Invalid HEX",
+    "message": "Please enter a valid hexadecimal (0-9, A-F)."
+  },
+  "SEARCH_OFFSET_OUT_OF_RANGE": {
+    "title": "Offset Out of Range",
+    "message": "Offset is out of file range."
+  },
+  "COPY_SUCCESS": {
+    "title": "Copy Success",
+    "message": "Copied to clipboard."
+  },
+  "COPY_FAILED": {
+    "title": "Copy Failed",
+    "message": "Failed to copy to clipboard."
+  },
+  "FILE_LOADED_SUCCESS": {
+    "title": "File Loaded",
+    "message": "File loaded successfully."
+  },
+  "UNKNOWN_ERROR": {
+    "title": "Unknown Error",
+    "message": "An unknown error occurred.\nPlease try again."
+  },
+  "LEAFLET_MAP_LOAD_ERROR": {
+    "title": "Map Load Failed",
+    "message": "Failed to load Leaflet map."
+  },
+  "LEAFLET_MAP_INVALID_LOCATION": {
+    "title": "No Location Info",
+    "message": "No valid GPS information."
+  }
+}

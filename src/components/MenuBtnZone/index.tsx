@@ -1,6 +1,7 @@
 import React, { useEffect, useCallback } from 'react';
 import { ChangeEvent, useImperativeHandle, useRef, useState } from 'react';
 import styled from 'styled-components';
+import { useTranslation } from 'react-i18next';
 import MenuBtn from '@/components/common/MenuBtn';
 import HexViewer from '@/components/HexViewer';
 import { useProcess } from '@/contexts/ProcessContext';
@@ -26,6 +27,7 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
   { openModal },
   ref
 ) => {
+  const { t } = useTranslation();
   const { hexViewerRef } = useRefs();
   const { showMessage } = useMessage();
   const { setTabData, setActiveKey, getNewKey } = useTabData();
@@ -62,7 +64,7 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
       }
 
       if (isProcessing) {
-        showMessage('FILE_PROCESSING_FAILED', '이미 파일 처리 중입니다.');
+        showMessage('FILE_PROCESSING_FAILED', t('home.processing'));
         return;
       }
 
@@ -194,15 +196,15 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
     <Div>
       <MenuBtn
         onClick={handleOpenClick}
-        text="Open"
+        text={t('menu.open')}
         disabled={isProcessing}
-        disabledTxt="파일 처리 중입니다"
+        disabledTxt={t('menu.fileProcessing')}
       />
       <FileInput type="file" ref={fileInputRef} onChange={handleFileChange} />
       <ToolsMenuContainer ref={toolsMenuRef}>
         <MenuBtn
           onClick={() => setShowToolsMenu(!showToolsMenu)}
-          text="Tools"
+          text={t('menu.tools')}
         />
         {showToolsMenu && (
           <ToolsDropdownMenu>
@@ -210,14 +212,14 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
               <ToolsMenuItem
                 onClick={() => handleToolsMenuItemClick('linknote')}
               >
-                LinkNote
+                {t('menu.linknote')}
               </ToolsMenuItem>
             </ToolsMenuList>
           </ToolsDropdownMenu>
         )}
       </ToolsMenuContainer>
-      <MenuBtn onClick={() => openModal('help')} text="Help" />
-      <MenuBtn onClick={() => openModal('about')} text="About" />
+      <MenuBtn onClick={() => openModal('help')} text={t('menu.help')} />
+      <MenuBtn onClick={() => openModal('about')} text={t('menu.about')} />
     </Div>
   );
 };

@@ -1,0 +1,118 @@
+{
+  "WORKER_NOT_INITIALIZED": {
+    "title": "워커 오류",
+    "message": "워커가 초기화되지 않았습니다.\n페이지를 새로고침해주세요."
+  },
+  "WORKER_CREATION_FAILED": {
+    "title": "워커 생성 실패",
+    "message": "워커를 생성하는데 실패했습니다.\n페이지를 새로고침해주세요."
+  },
+  "WORKER_ERROR": {
+    "title": "Worker 오류",
+    "message": "Worker에서 오류가 발생했습니다."
+  },
+  "WORKER_INIT_FAILED": {
+    "title": "Worker 초기화 실패",
+    "message": "Worker를 초기화하지 못했습니다."
+  },
+  "WASM_LOADING": {
+    "title": "WASM 로딩 중",
+    "message": "WASM이 로딩 중입니다.\n잠시 후 다시 시도해주세요."
+  },
+  "WASM_LOAD_FAILED": {
+    "title": "WASM 로딩 실패",
+    "message": "WASM 모듈을 불러오지 못했습니다."
+  },
+  "WASM_NOT_READY": {
+    "title": "WASM 준비 안됨",
+    "message": "WASM이 아직 준비되지 않았습니다.\n잠시 후 다시 시도해주세요."
+  },
+  "WASM_LOADED_SUCCESS": {
+    "title": "WASM 로딩 완료",
+    "message": "WASM 모듈이 성공적으로 로드되었습니다."
+  },
+  "FILE_PROCESSING_FAILED": {
+    "title": "파일 처리 실패",
+    "message": "파일을 처리하는 중 오류가 발생했습니다."
+  },
+  "FILE_READ_ERROR": {
+    "title": "파일 읽기 오류",
+    "message": "파일을 읽는 중 오류가 발생했습니다."
+  },
+  "FILE_READ_FAILED": {
+    "title": "파일 읽기 실패",
+    "message": "파일을 읽을 수 없습니다.\n파일이 손상되었거나 지원하지 않는 형식일 수 있습니다."
+  },
+  "FILE_TOO_LARGE": {
+    "title": "파일 크기 초과",
+    "message": "파일 크기가 너무 큽니다.\n최대 지원 크기는 100MB입니다."
+  },
+  "EXIF_ERROR": {
+    "title": "EXIF 처리 오류",
+    "message": "EXIF 데이터를 처리하지 못했습니다."
+  },
+  "EXIF_PARSE_ERROR": {
+    "title": "EXIF 파싱 오류",
+    "message": "EXIF 데이터를 파싱하는 중 오류가 발생했습니다."
+  },
+  "EXIF_PROCESSING_TIMEOUT": {
+    "title": "EXIF 처리 시간 초과",
+    "message": "EXIF 데이터 처리 시간이 초과되었습니다.\n다시 시도해주세요."
+  },
+  "SEARCH_FAILED": {
+    "title": "검색 실패",
+    "message": "검색 중 오류가 발생했습니다."
+  },
+  "SEARCH_TIMEOUT": {
+    "title": "검색 시간 초과",
+    "message": "검색 시간이 초과되었습니다.\n다시 시도해주세요."
+  },
+  "SEARCH_WASM_ERROR": {
+    "title": "WASM 검색 오류",
+    "message": "WASM 검색 중 오류가 발생했습니다."
+  },
+  "SEARCH_NO_RESULTS": {
+    "title": "검색 완료",
+    "message": "검색 결과가 없습니다."
+  },
+  "SEARCH_SUCCESS": {
+    "title": "검색 완료",
+    "message": "검색이 완료되었습니다."
+  },
+  "SEARCH_NO_INPUT": {
+    "title": "입력 값 없음",
+    "message": "검색어를 입력해주세요."
+  },
+  "SEARCH_INVALID_HEX": {
+    "title": "유효하지 않은 HEX",
+    "message": "유효한 16진수(0-9, A-F)를 입력해주세요."
+  },
+  "SEARCH_OFFSET_OUT_OF_RANGE": {
+    "title": "범위 초과",
+    "message": "파일 범위를 벗어난 오프셋입니다."
+  },
+  "COPY_SUCCESS": {
+    "title": "복사 완료",
+    "message": "클립보드에 복사되었습니다."
+  },
+  "COPY_FAILED": {
+    "title": "복사 실패",
+    "message": "클립보드에 복사하지 못했습니다."
+  },
+  "FILE_LOADED_SUCCESS": {
+    "title": "파일 로드 완료",
+    "message": "파일이 성공적으로 로드되었습니다."
+  },
+  "UNKNOWN_ERROR": {
+    "title": "알 수 없는 오류",
+    "message": "알 수 없는 오류가 발생했습니다.\n다시 시도해주세요."
+  },
+  "LEAFLET_MAP_LOAD_ERROR": {
+    "title": "지도 로드 실패",
+    "message": "Leaflet 지도를 불러오는데 실패했습니다."
+  },
+  "LEAFLET_MAP_INVALID_LOCATION": {
+    "title": "위치 정보 없음",
+    "message": "유효한 GPS 정보가 없습니다."
+  }
+}

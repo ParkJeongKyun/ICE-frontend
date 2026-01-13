@@ -1,4 +1,5 @@
 import { MessageType } from '@/contexts/MessageContext';
+import i18n from 'i18next';
 
 export interface MessageTemplate {
   type: MessageType;
@@ -11,193 +12,192 @@ export const MESSAGES = {
   // Worker 관련
   WORKER_NOT_INITIALIZED: {
     type: 'error' as MessageType,
-    title: '워커 오류',
-    message: '워커가 초기화되지 않았습니다.\n페이지를 새로고침해주세요.',
+    title: 'messages:WORKER_NOT_INITIALIZED.title',
+    message: 'messages:WORKER_NOT_INITIALIZED.message',
     duration: 10000,
   },
   WORKER_CREATION_FAILED: {
     type: 'error' as MessageType,
-    title: '워커 생성 실패',
-    message: '워커를 생성하는데 실패했습니다.\n페이지를 새로고침해주세요.',
+    title: 'messages:WORKER_CREATION_FAILED.title',
+    message: 'messages:WORKER_CREATION_FAILED.message',
     duration: 10000,
   },
   WORKER_ERROR: {
     type: 'error' as MessageType,
-    title: 'Worker 오류',
-    message: 'Worker에서 오류가 발생했습니다.',
+    title: 'messages:WORKER_ERROR.title',
+    message: 'messages:WORKER_ERROR.message',
     duration: 10000,
   },
   WORKER_INIT_FAILED: {
     type: 'error' as MessageType,
-    title: 'Worker 초기화 실패',
-    message: 'Worker를 초기화하지 못했습니다.',
+    title: 'messages:WORKER_INIT_FAILED.title',
+    message: 'messages:WORKER_INIT_FAILED.message',
     duration: 10000,
   },
 
   // WASM 관련
   WASM_LOADING: {
     type: 'warning' as MessageType,
-    title: 'WASM 로딩 중',
-    message: 'WASM이 로딩 중입니다.\n잠시 후 다시 시도해주세요.',
+    title: 'messages:WASM_LOADING.title',
+    message: 'messages:WASM_LOADING.message',
     duration: 6000,
   },
   WASM_LOAD_FAILED: {
     type: 'error' as MessageType,
-    title: 'WASM 로딩 실패',
-    message: 'WASM 모듈을 불러오지 못했습니다.',
+    title: 'messages:WASM_LOAD_FAILED.title',
+    message: 'messages:WASM_LOAD_FAILED.message',
     duration: 10000,
   },
   WASM_NOT_READY: {
     type: 'warning' as MessageType,
-    title: 'WASM 준비 안됨',
-    message: 'WASM이 아직 준비되지 않았습니다.\n잠시 후 다시 시도해주세요.',
+    title: 'messages:WASM_NOT_READY.title',
+    message: 'messages:WASM_NOT_READY.message',
     duration: 6000,
   },
   WASM_LOADED_SUCCESS: {
     type: 'success' as MessageType,
-    title: 'WASM 로딩 완료',
-    message: 'WASM 모듈이 성공적으로 로드되었습니다.',
+    title: 'messages:WASM_LOADED_SUCCESS.title',
+    message: 'messages:WASM_LOADED_SUCCESS.message',
     duration: 4000,
   },
 
   // 파일 처리 관련
   FILE_PROCESSING_FAILED: {
     type: 'error' as MessageType,
-    title: '파일 처리 실패',
-    message: '파일을 처리하는 중 오류가 발생했습니다.',
+    title: 'messages:FILE_PROCESSING_FAILED.title',
+    message: 'messages:FILE_PROCESSING_FAILED.message',
     duration: 10000,
   },
   FILE_READ_ERROR: {
     type: 'error' as MessageType,
-    title: '파일 읽기 오류',
-    message: '파일을 읽는 중 오류가 발생했습니다.',
+    title: 'messages:FILE_READ_ERROR.title',
+    message: 'messages:FILE_READ_ERROR.message',
     duration: 10000,
   },
   FILE_READ_FAILED: {
     type: 'error' as MessageType,
-    title: '파일 읽기 실패',
-    message:
-      '파일을 읽을 수 없습니다.\n파일이 손상되었거나 지원하지 않는 형식일 수 있습니다.',
+    title: 'messages:FILE_READ_FAILED.title',
+    message: 'messages:FILE_READ_FAILED.message',
     duration: 5000,
   },
   FILE_TOO_LARGE: {
     type: 'warning' as MessageType,
-    title: '파일 크기 초과',
-    message: '파일 크기가 너무 큽니다.\n최대 지원 크기는 100MB입니다.',
+    title: 'messages:FILE_TOO_LARGE.title',
+    message: 'messages:FILE_TOO_LARGE.message',
     duration: 4000,
   },
 
   // EXIF 관련
   EXIF_ERROR: {
     type: 'error' as MessageType,
-    title: 'EXIF 처리 오류',
-    message: 'EXIF 데이터를 처리하지 못했습니다.',
+    title: 'messages:EXIF_ERROR.title',
+    message: 'messages:EXIF_ERROR.message',
     duration: 10000,
   },
   EXIF_PARSE_ERROR: {
     type: 'error' as MessageType,
-    title: 'EXIF 파싱 오류',
-    message: 'EXIF 데이터를 파싱하는 중 오류가 발생했습니다.',
+    title: 'messages:EXIF_PARSE_ERROR.title',
+    message: 'messages:EXIF_PARSE_ERROR.message',
     duration: 10000,
   },
   EXIF_PROCESSING_TIMEOUT: {
     type: 'error' as MessageType,
-    title: 'EXIF 처리 시간 초과',
-    message: 'EXIF 데이터 처리 시간이 초과되었습니다.\n다시 시도해주세요.',
+    title: 'messages:EXIF_PROCESSING_TIMEOUT.title',
+    message: 'messages:EXIF_PROCESSING_TIMEOUT.message',
     duration: 10000,
   },
 
   // 검색 관련
   SEARCH_FAILED: {
     type: 'error' as MessageType,
-    title: '검색 실패',
-    message: '검색 중 오류가 발생했습니다.',
+    title: 'messages:SEARCH_FAILED.title',
+    message: 'messages:SEARCH_FAILED.message',
     duration: 10000,
   },
   SEARCH_TIMEOUT: {
     type: 'error' as MessageType,
-    title: '검색 시간 초과',
-    message: '검색 시간이 초과되었습니다.\n다시 시도해주세요.',
+    title: 'messages:SEARCH_TIMEOUT.title',
+    message: 'messages:SEARCH_TIMEOUT.message',
     duration: 10000,
   },
   SEARCH_WASM_ERROR: {
     type: 'error' as MessageType,
-    title: 'WASM 검색 오류',
-    message: 'WASM 검색 중 오류가 발생했습니다.',
+    title: 'messages:SEARCH_WASM_ERROR.title',
+    message: 'messages:SEARCH_WASM_ERROR.message',
     duration: 10000,
   },
   SEARCH_NO_RESULTS: {
     type: 'info' as MessageType,
-    title: '검색 완료',
-    message: '검색 결과가 없습니다.',
+    title: 'messages:SEARCH_NO_RESULTS.title',
+    message: 'messages:SEARCH_NO_RESULTS.message',
     duration: 6000,
   },
   SEARCH_SUCCESS: {
     type: 'success' as MessageType,
-    title: '검색 완료',
-    message: '검색이 완료되었습니다.',
+    title: 'messages:SEARCH_SUCCESS.title',
+    message: 'messages:SEARCH_SUCCESS.message',
     duration: 4000,
   },
   SEARCH_NO_INPUT: {
     type: 'warning' as MessageType,
-    title: '입력 값 없음',
-    message: '검색어를 입력해주세요.',
+    title: 'messages:SEARCH_NO_INPUT.title',
+    message: 'messages:SEARCH_NO_INPUT.message',
     duration: 4000,
   },
   SEARCH_INVALID_HEX: {
     type: 'warning' as MessageType,
-    title: '유효하지 않은 HEX',
-    message: '유효한 16진수(0-9, A-F)를 입력해주세요.',
+    title: 'messages:SEARCH_INVALID_HEX.title',
+    message: 'messages:SEARCH_INVALID_HEX.message',
     duration: 4000,
   },
   SEARCH_OFFSET_OUT_OF_RANGE: {
     type: 'warning' as MessageType,
-    title: '범위 초과',
-    message: '파일 범위를 벗어난 오프셋입니다.',
+    title: 'messages:SEARCH_OFFSET_OUT_OF_RANGE.title',
+    message: 'messages:SEARCH_OFFSET_OUT_OF_RANGE.message',
     duration: 4000,
   },
 
   // 복사 관련
   COPY_SUCCESS: {
     type: 'success' as MessageType,
-    title: '복사 완료',
-    message: '클립보드에 복사되었습니다.',
+    title: 'messages:COPY_SUCCESS.title',
+    message: 'messages:COPY_SUCCESS.message',
     duration: 3000,
   },
   COPY_FAILED: {
     type: 'error' as MessageType,
-    title: '복사 실패',
-    message: '클립보드에 복사하지 못했습니다.',
+    title: 'messages:COPY_FAILED.title',
+    message: 'messages:COPY_FAILED.message',
     duration: 5000,
   },
 
   // 성공 메시지
   FILE_LOADED_SUCCESS: {
     type: 'success' as MessageType,
-    title: '파일 로드 완료',
-    message: '파일이 성공적으로 로드되었습니다.',
+    title: 'messages:FILE_LOADED_SUCCESS.title',
+    message: 'messages:FILE_LOADED_SUCCESS.message',
     duration: 4000,
   },
 
   // 일반 오류
   UNKNOWN_ERROR: {
     type: 'error' as MessageType,
-    title: '알 수 없는 오류',
-    message: '알 수 없는 오류가 발생했습니다.\n다시 시도해주세요.',
+    title: 'messages:UNKNOWN_ERROR.title',
+    message: 'messages:UNKNOWN_ERROR.message',
     duration: 10000,
   },
 
   // 카카오맵 관련
   LEAFLET_MAP_LOAD_ERROR: {
     type: 'error' as MessageType,
-    title: '지도 로드 실패',
-    message: 'Leaflet 지도를 불러오는데 실패했습니다.',
+    title: 'messages:LEAFLET_MAP_LOAD_ERROR.title',
+    message: 'messages:LEAFLET_MAP_LOAD_ERROR.message',
     duration: 8000,
   },
   LEAFLET_MAP_INVALID_LOCATION: {
     type: 'warning' as MessageType,
-    title: '위치 정보 없음',
-    message: '유효한 GPS 정보가 없습니다.',
+    title: 'messages:LEAFLET_MAP_INVALID_LOCATION.title',
+    message: 'messages:LEAFLET_MAP_INVALID_LOCATION.message',
     duration: 6000,
   },
 } as const;
@@ -220,9 +220,9 @@ export const getMessage = (
   customMessage?: string
 ): MessageTemplate => {
   const template = MESSAGES[code];
-
   return {
     ...template,
-    message: customMessage || template.message,
+    title: i18n.t(template.title),
+    message: customMessage || i18n.t(template.message),
   };
 };

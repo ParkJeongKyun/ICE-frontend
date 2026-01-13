@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   FlexGrow,
   IceContent,
@@ -44,12 +45,13 @@ import MessageHistory from '@/components/MessageHistory';
 import Spinner from '@/components/common/Spinner';
 import Select from '@/components/common/Select';
 import OffsetNavigator from '@/components/OffsetNavigator';
+import LanguageSwitcher from '@/components/common/LanguageSwitcher';
 
 const MIN_SIDER_WIDTH = 100;
 
 const MainLayout: React.FC = () => {
-  const { isEmpty, encoding, setEncoding, activeSelectionState } =
-    useTabData();
+  const { t } = useTranslation();
+  const { isEmpty, encoding, setEncoding, activeSelectionState } = useTabData();
   const { isProcessing, progress } = useProcess();
   const { menuBtnZoneRef, searcherRef } = useRefs();
 
@@ -92,14 +94,15 @@ const MainLayout: React.FC = () => {
 
   const [modalTitle, modalContent] = useMemo(() => {
     const modalData = {
-      about: ['사이트 정보', <AboutMD key="about" />],
-      help: ['도움말', <HelpMD key="help" />],
+      about: [t('menu.about'), <AboutMD key="about" />],
+      help: [t('menu.help'), <HelpMD key="help" />],
     };
     const data = modalContentKey
       ? modalData[modalContentKey as keyof typeof modalData]
       : null;
     return data ? [<b key="title">{data[0]}</b>, data[1]] : [null, null];
-  }, [modalContentKey]);
+  }, [modalContentKey, t]);
+
 
   const showHex = (decimal: number) => (
     <SelectValue>
@@ -122,6 +125,7 @@ const MainLayout: React.FC = () => {
               setIsModalOpen(true);
             }}
           />
+          <LanguageSwitcher />
         </div>
         <OffsetNavigator />
         {isProcessing && (
@@ -209,21 +213,21 @@ const MainLayout: React.FC = () => {
           {selectionInfo ? (
             isMobile ? (
               <div>
-                <SelectLabel>오프셋:</SelectLabel>
+                <SelectLabel>{t('footer.offset')}:</SelectLabel>
                 {showHex(selectionInfo.minOffset)}
               </div>
             ) : (
               <>
                 <div>
-                  <SelectLabel>선택:</SelectLabel>
+                  <SelectLabel>{t('footer.selection')}:</SelectLabel>
                   {showHex(selectionInfo.length)}
                 </div>
                 <div>
-                  <SelectLabel>오프셋:</SelectLabel>
+                  <SelectLabel>{t('footer.offset')}:</SelectLabel>
                   {showHex(selectionInfo.minOffset)}
                 </div>
                 <div>
-                  <SelectLabel>범위:</SelectLabel>
+                  <SelectLabel>{t('footer.range')}:</SelectLabel>
                   {showHex(selectionInfo.minOffset)}-
                   {showHex(selectionInfo.maxOffset)}
                 </div>
@@ -246,7 +250,7 @@ const MainLayout: React.FC = () => {
               value={encoding}
               options={encodingOptions}
               onChange={(value) => setEncoding(value as EncodingType)}
-              tooltip="인코딩"
+              tooltip={t('footer.encoding')}
             />
           )}
           <MessageHistory />

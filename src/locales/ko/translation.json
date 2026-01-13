@@ -1,0 +1,31 @@
+{
+  "welcome": "ICE에 오신 것을 환영합니다!",
+  "description": "웹 기반 헥스 뷰어 및 이미지 메타데이터(Exif) 분석 도구입니다.",
+  "home": {
+    "subtitle1": "이미지 메타데이터 분석",
+    "subtitle2": "파일 HEX 뷰어",
+    "subtitle3": "웹 애플리케이션",
+    "startGuide": "시작하기",
+    "openFile": "파일 열기...",
+    "help": "도움말...",
+    "about": "사이트 정보...",
+    "browserBased": "웹 브라우저 기반으로 동작",
+    "noPersonalData": "수집 및 처리되는 개인정보 없음",
+    "noServerUpload": "파일을 열어도 서버에 업로드 및 저장되지 않음",
+    "processing": "파일 처리 중입니다"
+  },
+  "menu": {
+    "open": "파일 열기",
+    "tools": "도구",
+    "help": "도움말",
+    "about": "정보",
+    "linknote": "LinkNote",
+    "fileProcessing": "파일 처리 중입니다"
+  },
+  "footer": {
+    "selection": "선택",
+    "offset": "오프셋",
+    "range": "범위",
+    "encoding": "인코딩"
+  }
+}

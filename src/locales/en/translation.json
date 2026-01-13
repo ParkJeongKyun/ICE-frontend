@@ -1,0 +1,31 @@
+{
+  "welcome": "Welcome to ICE!",
+  "description": "A web-based hex viewer and image metadata (Exif) analysis tool.",
+  "home": {
+    "subtitle1": "Image Metadata Analysis",
+    "subtitle2": "File HEX Viewer",
+    "subtitle3": "Web Application",
+    "startGuide": "Getting Started",
+    "openFile": "Open File...",
+    "help": "Help...",
+    "about": "About...",
+    "browserBased": "Works on web browser",
+    "noPersonalData": "No personal data collection or processing",
+    "noServerUpload": "Files are not uploaded or stored on server",
+    "processing": "Processing file"
+  },
+  "menu": {
+    "open": "Open",
+    "tools": "Tools",
+    "help": "Help",
+    "about": "About",
+    "linknote": "LinkNote",
+    "fileProcessing": "Processing file..."
+  },
+  "footer": {
+    "selection": "Selection",
+    "offset": "Offset",
+    "range": "Range",
+    "encoding": "Encoding"
+  }
+}

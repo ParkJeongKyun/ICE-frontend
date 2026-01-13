@@ -13,9 +13,12 @@ import {
 } from './index.styles';
 import { isMobile } from 'react-device-detect';
 import Logo from '../common/Icons/Logo';
+import { useTranslation } from 'react-i18next';
 
 const Home: React.FC = () => {
   const { menuBtnZoneRef } = useRefs();
+  const { t } = useTranslation();
+
   return (
     <HomeDiv>
       <ContientDiv>
@@ -30,39 +33,39 @@ const Home: React.FC = () => {
             </Version>
           </Title>
           <SubTitleDiv>
-            <SubTitle>이미지 메타데이터 분석</SubTitle>
-            <SubTitle>파일 HEX 뷰어</SubTitle>
-            <SubTitle>웹 애플리케이션</SubTitle>
+            <SubTitle>{t('home.subtitle1')}</SubTitle>
+            <SubTitle>{t('home.subtitle2')}</SubTitle>
+            <SubTitle>{t('home.subtitle3')}</SubTitle>
           </SubTitleDiv>
         </TitleDiv>
         <StartDiv>
-          시작하기
+          {t('home.startGuide')}
           <Btn
             onClick={() => {
               menuBtnZoneRef.current?.openBtnClick();
             }}
           >
-            파일 열기...
+            {t('home.openFile')}
           </Btn>
           <Btn
             onClick={() => {
               menuBtnZoneRef.current?.helpBtnClick();
             }}
           >
-            도움말...
+            {t('home.help')}
           </Btn>
           <Btn
             onClick={() => {
               menuBtnZoneRef.current?.aboutBtnClick();
             }}
           >
-            사이트 정보...
+            {t('home.about')}
           </Btn>
         </StartDiv>
         <InfoDiv>
-          <div>웹 브라우저 기반으로 동작</div>
-          <div>수집 및 처리되는 개인정보 없음</div>
-          <div>파일을 열어도 서버에 업로드 및 저장되지 않음</div>
+          <div>{t('home.browserBased')}</div>
+          <div>{t('home.noPersonalData')}</div>
+          <div>{t('home.noServerUpload')}</div>
           <div>{import.meta.env.VITE_APP_COPYRIGHT}</div>
         </InfoDiv>
       </ContientDiv>
