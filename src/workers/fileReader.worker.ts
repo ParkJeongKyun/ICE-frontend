@@ -93,7 +93,7 @@ async function initWasm() {
     await Promise.race([
       wasmReadyPromise,
       new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('WASM 초기화 타임아웃')), 10000)
+        setTimeout(() => reject(new Error('WASM INIT TIMEOUT')), 10000)
       ),
     ]);
 
@@ -101,7 +101,7 @@ async function initWasm() {
     wasmExifFunc = (self as any).exifFunc;
 
     if (!wasmSearchFunc || !wasmExifFunc) {
-      throw new Error('WASM 함수가 등록되지 않았습니다');
+      throw new Error('WASM FUNCTIONS NOT FOUND');
     }
 
     wasmReady = true;

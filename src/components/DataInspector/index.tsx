@@ -1,5 +1,6 @@
 import Collapse from '@/components/common/Collapse';
 import React, { useCallback, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   CellBodyDiv,
   CellHeaderDiv,
@@ -39,6 +40,7 @@ import {
 import { byteToChar } from '@/utils/encoding';
 
 const DataInspector: React.FC = () => {
+  const { t } = useTranslation();
   const { searcherRef } = useRefs();
   const { activeSelectionState, activeData } = useTabData();
   const [endian, setEndian] = useState<'le' | 'be'>('le');
@@ -93,12 +95,12 @@ const DataInspector: React.FC = () => {
 
     // Integer (Unsigned + Signed + Int24 + LEB128)
     const intLabels = [
-      'UInt8', 'Int8',
-      'UInt16', 'Int16',
-      'UInt24', 'Int24',
-      'UInt32', 'Int32',
-      'UInt64', 'Int64',
-      'ULEB128', 'SLEB128',
+      t('dataInspector.dataTypes.uint8'), t('dataInspector.dataTypes.int8'),
+      t('dataInspector.dataTypes.uint16'), t('dataInspector.dataTypes.int16'),
+      t('dataInspector.dataTypes.uint24'), t('dataInspector.dataTypes.int24'),
+      t('dataInspector.dataTypes.uint32'), t('dataInspector.dataTypes.int32'),
+      t('dataInspector.dataTypes.uint64'), t('dataInspector.dataTypes.int64'),
+      t('dataInspector.dataTypes.uleb128'), t('dataInspector.dataTypes.sleb128'),
     ];
     const intValues = [
       bytes.length >= MIN_BYTE_LENGTHS.UInt8
@@ -193,7 +195,7 @@ const DataInspector: React.FC = () => {
 
   return (
     <Collapse
-      title="Data Inspector"
+      title={t('dataInspector.title')}
       children={
         <>
           {/* 엔디안 선택 탭 */}
@@ -201,20 +203,20 @@ const DataInspector: React.FC = () => {
             <EndianButton
               $active={endian === 'le'}
               onClick={() => setEndian('le')}
-              title='리틀엔디안으로 변경'
+              title={t('dataInspector.littleEndianTooltip')}
             >
-              Little Endian
+              {t('dataInspector.littleEndian')}
             </EndianButton>
             <EndianButton
               $active={endian === 'be'}
               onClick={() => setEndian('be')}
-              title='빅엔디안으로 변경'
+              title={t('dataInspector.bigEndianTooltip')}
             >
-              Big Endian
+              {t('dataInspector.bigEndian')}
             </EndianButton>
           </EndianRadioGroup>
           {bytes.length === 0 ? (
-            <NotSelectedDiv>선택된 데이터 없음</NotSelectedDiv>
+            <NotSelectedDiv>{t('dataInspector.noSelection')}</NotSelectedDiv>
           ) : (
             <>
               <SectionDiv>
@@ -249,7 +251,14 @@ const DataInspector: React.FC = () => {
                         {canJumpRelative && (
                           <JumpButton
                             onClick={() => handleJumpToOffset(item.value)}
-                            title={`상대 오프셋 이동: 현재(0x${activeSelectionState?.start!.toString(16).toUpperCase()} / ${activeSelectionState?.start}) ${numValue >= 0 ? '+' : ''}${item.value} → 0x${targetOffset!.toString(16).toUpperCase()} / ${targetOffset}`}
+                            title={t('dataInspector.relativeJumpTooltip', {
+                              current: activeSelectionState?.start!.toString(16).toUpperCase(),
+                              currentDec: activeSelectionState?.start,
+                              operator: numValue >= 0 ? '+' : '',
+                              value: item.value,
+                              target: targetOffset!.toString(16).toUpperCase(),
+                              targetDec: targetOffset,
+                            })}
                           >
                             <DoubleChevronsRightIcon width={14} height={14} />
                           </JumpButton>
@@ -260,7 +269,10 @@ const DataInspector: React.FC = () => {
                         {canJumpAbsolute && (
                           <JumpButton
                             onClick={() => handleJumpToAbsoluteOffset(item.value)}
-                            title={`절대 오프셋 이동: 0x${numValue.toString(16).toUpperCase()} / ${numValue}`}
+                            title={t('dataInspector.absoluteJumpTooltip', {
+                              target: numValue.toString(16).toUpperCase(),
+                              targetDec: numValue,
+                            })}
                           >
                             <ChevronRightIcon width={14} height={14} />
                           </JumpButton>
@@ -272,71 +284,71 @@ const DataInspector: React.FC = () => {
               </SectionDiv>
               <SectionDiv>
                 <ContentDiv>
-                  <CellHeaderDiv>Float32</CellHeaderDiv>
+                  <CellHeaderDiv>{t('dataInspector.dataTypes.float32')}</CellHeaderDiv>
                   <CellBodyDiv>{info?.float32}</CellBodyDiv>
                 </ContentDiv>
                 <ContentDiv>
-                  <CellHeaderDiv>Float64</CellHeaderDiv>
+                  <CellHeaderDiv>{t('dataInspector.dataTypes.float64')}</CellHeaderDiv>
                   <CellBodyDiv>{info?.float64}</CellBodyDiv>
                 </ContentDiv>
               </SectionDiv>
               <SectionDiv>
                 <ContentDiv>
-                  <CellHeaderDiv>Binary</CellHeaderDiv>
+                  <CellHeaderDiv>{t('dataInspector.dataTypes.binary')}</CellHeaderDiv>
                   <CellBodyDiv>{info?.bin}</CellBodyDiv>
                 </ContentDiv>
                 <ContentDiv>
-                  <CellHeaderDiv>Base64</CellHeaderDiv>
+                  <CellHeaderDiv>{t('dataInspector.dataTypes.base64')}</CellHeaderDiv>
                   <CellBodyDiv>{info?.base64}</CellBodyDiv>
                 </ContentDiv>
               </SectionDiv>
               <SectionDiv>
                 <ContentDiv>
-                  <CellHeaderDiv>ASCII</CellHeaderDiv>
+                  <CellHeaderDiv>{t('dataInspector.dataTypes.ascii')}</CellHeaderDiv>
                   <CellBodyDiv>{info?.ascii}</CellBodyDiv>
                 </ContentDiv>
                 <ContentDiv>
-                  <CellHeaderDiv>UTF-8</CellHeaderDiv>
+                  <CellHeaderDiv>{t('dataInspector.dataTypes.utf8')}</CellHeaderDiv>
                   <CellBodyDiv>{info?.utf8}</CellBodyDiv>
                 </ContentDiv>
                 <ContentDiv>
-                  <CellHeaderDiv>UTF-16</CellHeaderDiv>
+                  <CellHeaderDiv>{t('dataInspector.dataTypes.utf16')}</CellHeaderDiv>
                   <CellBodyDiv>{info?.utf16}</CellBodyDiv>
                 </ContentDiv>
               </SectionDiv>
               <SectionDiv>
                 <ContentDiv>
-                  <CellHeaderDiv>OLETIME</CellHeaderDiv>
+                  <CellHeaderDiv>{t('dataInspector.dataTypes.oletime')}</CellHeaderDiv>
                   <CellBodyDiv>{info?.oletime}</CellBodyDiv>
                 </ContentDiv>
                 <ContentDiv>
-                  <CellHeaderDiv>FILETIME</CellHeaderDiv>
+                  <CellHeaderDiv>{t('dataInspector.dataTypes.filetime')}</CellHeaderDiv>
                   <CellBodyDiv>{info?.filetime}</CellBodyDiv>
                 </ContentDiv>
                 <ContentDiv>
-                  <CellHeaderDiv>DOS Date</CellHeaderDiv>
+                  <CellHeaderDiv>{t('dataInspector.dataTypes.dosDate')}</CellHeaderDiv>
                   <CellBodyDiv>{info?.dosdate}</CellBodyDiv>
                 </ContentDiv>
                 <ContentDiv>
-                  <CellHeaderDiv>DOS Time</CellHeaderDiv>
+                  <CellHeaderDiv>{t('dataInspector.dataTypes.dosTime')}</CellHeaderDiv>
                   <CellBodyDiv>{info?.dostime}</CellBodyDiv>
                 </ContentDiv>
                 <ContentDiv>
-                  <CellHeaderDiv>DOS Date&Time</CellHeaderDiv>
+                  <CellHeaderDiv>{t('dataInspector.dataTypes.dosDateTime')}</CellHeaderDiv>
                   <CellBodyDiv>{info?.dosdatetime}</CellBodyDiv>
                 </ContentDiv>
                 <ContentDiv>
-                  <CellHeaderDiv>time_t32</CellHeaderDiv>
+                  <CellHeaderDiv>{t('dataInspector.dataTypes.timeT32')}</CellHeaderDiv>
                   <CellBodyDiv>{info?.timet32}</CellBodyDiv>
                 </ContentDiv>
                 <ContentDiv>
-                  <CellHeaderDiv>time_t64</CellHeaderDiv>
+                  <CellHeaderDiv>{t('dataInspector.dataTypes.timeT64')}</CellHeaderDiv>
                   <CellBodyDiv>{info?.timet64}</CellBodyDiv>
                 </ContentDiv>
               </SectionDiv>
               <SectionDiv>
                 <ContentDiv>
-                  <CellHeaderDiv>GUID</CellHeaderDiv>
+                  <CellHeaderDiv>{t('dataInspector.dataTypes.guid')}</CellHeaderDiv>
                   <CellBodyDiv>{info?.guid}</CellBodyDiv>
                 </ContentDiv>
               </SectionDiv>

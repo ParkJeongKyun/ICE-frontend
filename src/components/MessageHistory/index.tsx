@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useMessage, MessageItem } from '@/contexts/MessageContext';
 import {
     HistoryButton,
@@ -42,6 +43,7 @@ const ICON_MAP = {
 };
 
 const MessageHistory: React.FC = () => {
+    const { t } = useTranslation();
     const [isOpen, setIsOpen] = useState(false);
     const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
     const { messageHistory, unreadCount, clearHistory, markAsRead, deleteMessage } = useMessage();
@@ -94,14 +96,14 @@ const MessageHistory: React.FC = () => {
 
             <HistoryPanel $isOpen={isOpen}>
                 <HistoryHeader>
-                    <HistoryTitle>Notifications</HistoryTitle>
+                    <HistoryTitle>{t('notifications.title')}</HistoryTitle>
                     <HistoryActions>
                         {messageHistory.length > 0 && (
-                            <HistoryClearBtn onClick={clearHistory} title="모두 지우기">
+                            <HistoryClearBtn onClick={clearHistory} title={t('notifications.clearAll')}>
                                 <TrashIcon width={12} height={12} />
                             </HistoryClearBtn>
                         )}
-                        <HistoryClearBtn onClick={handleClose} title="닫기">
+                        <HistoryClearBtn onClick={handleClose} title={t('notifications.close')}>
                             <XIcon width={12} height={12} />
                         </HistoryClearBtn>
                     </HistoryActions>
@@ -109,7 +111,7 @@ const MessageHistory: React.FC = () => {
 
                 <HistoryList>
                     {messageHistory.length === 0 ? (
-                        <EmptyHistory>알림이 없습니다</EmptyHistory>
+                        <EmptyHistory>{t('notifications.noNotifications')}</EmptyHistory>
                     ) : (
                         messageHistory.map((msg) => {
                             const isExpanded = expandedItems.has(msg.id);
@@ -131,7 +133,7 @@ const MessageHistory: React.FC = () => {
                                             </HistoryItemMessagePreview>
                                         </HistoryItemPreview>
                                         <HistoryItemActions onClick={(e) => e.stopPropagation()}>
-                                            <HistoryItemDelete onClick={() => deleteMessage(msg.id)} title="삭제">
+                                            <HistoryItemDelete onClick={() => deleteMessage(msg.id)} title={t('notifications.delete')}>
                                                 <XIcon width={10} height={10} />
                                             </HistoryItemDelete>
                                         </HistoryItemActions>

@@ -9,6 +9,7 @@ import React, {
   forwardRef,
   useImperativeHandle,
 } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ButtonDiv,
   Result,
@@ -102,6 +103,7 @@ const reducer = (
 };
 
 const Searcher: React.ForwardRefRenderFunction<SearcherRef> = (_, ref) => {
+  const { t } = useTranslation();
   const { hexViewerRef } = useRefs();
   const { activeKey } = useTabData();
   const { showMessage } = useMessage();
@@ -144,10 +146,7 @@ const Searcher: React.ForwardRefRenderFunction<SearcherRef> = (_, ref) => {
         });
         
         if (cachedResults.length > 0) {
-          showMessage(
-            'SEARCH_SUCCESS',
-            `${cachedResults.length}개의 결과를 찾았습니다.`
-          );
+          showMessage('SEARCH_SUCCESS', t('searcher.success', { count: cachedResults.length }));
         } else {
           showMessage('SEARCH_NO_RESULTS');
         }
@@ -332,41 +331,41 @@ const Searcher: React.ForwardRefRenderFunction<SearcherRef> = (_, ref) => {
   );
 
   return (
-    <Collapse title="Search" open>
+    <Collapse title={t('searcher.title')} open>
       <SearchDiv>
-        <SearchLabel>타입</SearchLabel>
+        <SearchLabel>{t('searcher.typeLabel')}</SearchLabel>
         <SearchData>
           <SearchSelect value={searchType} onChange={handleSearchTypeChange}>
-            <option value="hex">Hex</option>
-            <option value="ascii">ASCII</option>
+            <option value="hex">{t('searcher.hexOption')}</option>
+            <option value="ascii">{t('searcher.asciiOption')}</option>
           </SearchSelect>
         </SearchData>
       </SearchDiv>
       <SearchDiv>
-        <SearchLabel>검색어</SearchLabel>
+        <SearchLabel>{t('searcher.searchLabel')}</SearchLabel>
         <SearchData style={{ display: 'flex' }}>
           <SearchInput
             value={inputValue}
             onChange={handleInputChange}
             onKeyDown={handleInputKeyPress}
             maxLength={50}
-            placeholder={`${searchType} 값을 입력하세요.`}
+            placeholder={t('searcher.placeholder', { type: searchType.toUpperCase() })}
           />
           {searchType === 'ascii' && (
             <ButtonDiv
               onClick={() => setIgnoreCase((prev) => !prev)}
-              title={ignoreCase ? '대소문자 구분 안함' : '대소문자 구분'}
+              title={ignoreCase ? t('searcher.caseInsensitiveTooltip') : t('searcher.caseSensitiveTooltip')}
               style={{
                 opacity: ignoreCase ? 1 : 0.4,
                 fontWeight: ignoreCase ? 600 : 400,
               }}
             >
-              Aa
+              {t('searcher.caseSensitiveToggle')}
             </ButtonDiv>
           )}
           <ButtonDiv
             onClick={() => inputValue && search(inputValue, searchType)}
-            title="검색"
+            title={t('searcher.searchTooltip')}
           >
             <SearchIcon width={16} height={16} />
           </ButtonDiv>
@@ -398,14 +397,14 @@ const Searcher: React.ForwardRefRenderFunction<SearcherRef> = (_, ref) => {
                           fontSize: '0.6rem',
                           marginLeft: '2px',
                         }}
-                        title="최대 1000개까지만 표시됩니다"
+                        title={t('searcher.maxResultsTooltip')}
                       >
-                        (max)
+                        {t('searcher.maxResults')}
                       </span>
                     )}
                 </>
               ) : (
-                <span>1 found</span>
+                <span>{t('searcher.foundOne')}</span>
               )}
             </Result>
             <NavigationButtons>
@@ -414,7 +413,7 @@ const Searcher: React.ForwardRefRenderFunction<SearcherRef> = (_, ref) => {
                 $disabled={
                   (searchResults[activeKey] as SearchResult).results.length <= 1
                 }
-                title="이전"
+                title={t('searcher.prevTooltip')}
               >
                 <ChevronLeftIcon width={16} height={16} />
               </ButtonDiv>
@@ -423,11 +422,11 @@ const Searcher: React.ForwardRefRenderFunction<SearcherRef> = (_, ref) => {
                 $disabled={
                   (searchResults[activeKey] as SearchResult).results.length <= 1
                 }
-                title="다음"
+                title={t('searcher.nextTooltip')}
               >
                 <ChevronRightIcon width={16} height={16} />
               </ButtonDiv>
-              <ButtonDiv onClick={handleResetButtonClick} title="초기화">
+              <ButtonDiv onClick={handleResetButtonClick} title={t('searcher.resetTooltip')}>
                 <XIcon height={16} width={16} />
               </ButtonDiv>
             </NavigationButtons>

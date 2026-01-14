@@ -1,4 +1,5 @@
 import React, { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useTabData } from '@/contexts/TabDataContext';
 import { useRefs } from '@/contexts/RefContext';
 import {
@@ -12,6 +13,7 @@ import SearchIcon from '@/components/common/Icons/SearchIcon';
 type Radix = 16 | 10 | 8;
 
 const OffsetNavigator: React.FC = () => {
+  const { t } = useTranslation();
   const { searcherRef } = useRefs();
   const { isEmpty } = useTabData();
   const [inputValue, setInputValue] = useState('');
@@ -74,11 +76,14 @@ const OffsetNavigator: React.FC = () => {
   if (isEmpty) return null;
 
   const radixLabel = radix === 16 ? '0x' : radix === 10 ? 'De' : '0o';
-  const placeholder = radix === 16 ? '절대 오프셋 검색(16진수)' : radix === 10 ? '절대 오프셋 검색(10진수)' : '절대 오프셋 검색(8진수)';
+  const placeholder = 
+    radix === 16 ? t('offsetNavigator.hexPlaceholder') : 
+    radix === 10 ? t('offsetNavigator.decPlaceholder') : 
+    t('offsetNavigator.octPlaceholder');
 
   return (
     <NavigatorContainer>
-      <RadixButton onClick={handleRadixChange} title="16/10/8진수 전환">
+      <RadixButton onClick={handleRadixChange} title={t('offsetNavigator.radixTooltip')}>
         {radixLabel}
       </RadixButton>
       <NavigatorInput
@@ -88,7 +93,7 @@ const OffsetNavigator: React.FC = () => {
         maxLength={radix === 16 ? 20 : radix === 10 ? 25 : 27}
         placeholder={placeholder}
       />
-      <NavigatorButton onClick={handleButtonClick} title="오프셋으로 이동">
+      <NavigatorButton onClick={handleButtonClick} title={t('offsetNavigator.navigateTooltip')}>
         <SearchIcon width={16} height={16} />
       </NavigatorButton>
     </NavigatorContainer>
