@@ -1,6 +1,5 @@
 import dayjs from 'dayjs';
-import { ExifRow } from '@/types';
-import { isValidLocation } from './getAddress';
+import { ExifRow, ParsedExifResult } from '@/types';
 
 /**
  * EXIF 데이터 추출을 위한 파일 읽기
@@ -28,27 +27,6 @@ export const readFileForExif = async (file: File): Promise<ArrayBuffer> => {
   return total.buffer;
 };
 
-interface ExifMeta {
-  tag: string;
-  comment: string;
-  data: string;
-  origindata: string;
-  type: string;
-  name: string;
-  unit: string;
-  example: any;
-}
-
-export interface ParsedExifResult {
-  rows: ExifRow[] | null;
-  thumbnail: string;
-  location: {
-    lat: string;
-    lng: string;
-    address: string;
-  };
-}
-
 /**
  * EXIF 데이터 파싱
  * - 주소 변환은 수행하지 않음 (맵 컴포넌트에서 처리)
@@ -63,40 +41,27 @@ export const parseExifData = async (
   let thumbnail = '';
   let lat = 'NaN';
   let lng = 'NaN';
-  let address = '';
 
   try {
-    const meta: ExifMeta[] = JSON.parse(exifData);
+    const meta: ExifRow[] = JSON.parse(exifData);
 
     if (meta && Array.isArray(meta)) {
       rows = await Promise.all(
         meta.map(async (item, index) => {
-          let processedData = item.data;
-
           // Location 태그 처리 - 좌표만 표시
           if (item.tag === 'Location') {
             try {
-              [lat, lng] = item.origindata.split(',').map((v) => v.trim());
-
-              if (isValidLocation(lat, lng)) {
-                // 좌표만 표시 (주소는 맵에서 처리)
-                processedData = `${lat}, ${lng}`;
-              }
+              [lat, lng] = item.data.split(',').map((v) => v.trim());
             } catch (error) {
               console.error('Location 파싱 실패:', error);
             }
           }
 
           return {
-            id: index + 1,
-            meta: item.tag,
-            comment: item.comment,
-            data: processedData,
-            origindata: item.origindata,
-            name: item.name,
+            tag: item.tag,
+            data: item.data,
             type: item.type,
             unit: item.unit,
-            example: item.example,
           };
         })
       );
@@ -113,7 +78,7 @@ export const parseExifData = async (
   return {
     rows,
     thumbnail,
-    location: { lat, lng, address },
+    location: { lat, lng },
   };
 };
 

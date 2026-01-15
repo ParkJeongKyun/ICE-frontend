@@ -1,0 +1,486 @@
+{
+  "Location": {
+    "name": "Location",
+    "description": "Latitude and Longitude coordinates of the image capture location"
+  },
+  "DateTime": {
+    "name": "Date/Time",
+    "description": "Image capture date/time, creation date"
+  },
+  "DateTimeOriginal": {
+    "name": "Original Date/Time",
+    "description": "Original image capture date/time"
+  },
+  "DateTimeDigitized": {
+    "name": "Date/Time Digitized",
+    "description": "Digital image creation date/time"
+  },
+  "SubSecTime": {
+    "name": "Sub-second Time",
+    "description": "Sub-second component of capture time"
+  },
+  "SubSecTimeOriginal": {
+    "name": "Sub-second Time Original",
+    "description": "Sub-second component of original capture time"
+  },
+  "SubSecTimeDigitized": {
+    "name": "Sub-second Time Digitized",
+    "description": "Sub-second component of digitization time"
+  },
+  "ImageUniqueID": {
+    "name": "Image Unique ID",
+    "description": "Image unique identifier"
+  },
+  "Make": {
+    "name": "Camera Make",
+    "description": "Camera or scanner manufacturer"
+  },
+  "Model": {
+    "name": "Camera Model",
+    "description": "Camera or scanner model name"
+  },
+  "Software": {
+    "name": "Software",
+    "description": "Software name and version that created the image"
+  },
+  "Artist": {
+    "name": "Artist",
+    "description": "Image creator (photographer) information"
+  },
+  "Copyright": {
+    "name": "Copyright",
+    "description": "Image copyright information"
+  },
+  "ImageDescription": {
+    "name": "Image Description",
+    "description": "Description of the image"
+  },
+  "MakerNote": {
+    "name": "Maker Note",
+    "description": "Manufacturer-provided additional information"
+  },
+  "UserComment": {
+    "name": "User Comment",
+    "description": "User-added comments/notes/memo information"
+  },
+  "ExifVersion": {
+    "name": "Exif Version",
+    "description": "Exif specification version"
+  },
+  "FlashpixVersion": {
+    "name": "Flashpix Version",
+    "description": "FlashPix specification version"
+  },
+  "ImageWidth": {
+    "name": "Image Width",
+    "description": "Image width in pixels"
+  },
+  "ImageLength": {
+    "name": "Image Height",
+    "description": "Image height in pixels"
+  },
+  "BitsPerSample": {
+    "name": "Bits Per Sample",
+    "description": "Number of bits allocated to represent each pixel"
+  },
+  "Compression": {
+    "name": "Compression",
+    "description": "Image compression method"
+  },
+  "PhotometricInterpretation": {
+    "name": "Photometric Interpretation",
+    "description": "Color component interpretation, color space and model"
+  },
+  "Orientation": {
+    "name": "Orientation",
+    "description": "Image rotation and flip information"
+  },
+  "SamplesPerPixel": {
+    "name": "Samples Per Pixel",
+    "description": "Number of components per pixel"
+  },
+  "PlanarConfiguration": {
+    "name": "Planar Configuration",
+    "description": "Storage method for color components"
+  },
+  "YCbCrSubSampling": {
+    "name": "YCbCr Sub Sampling",
+    "description": "Ratio of YCbCr components sampling"
+  },
+  "YCbCrPositioning": {
+    "name": "YCbCr Positioning",
+    "description": "Position of YCbCr components"
+  },
+  "XResolution": {
+    "name": "X Resolution",
+    "description": "Horizontal image resolution"
+  },
+  "YResolution": {
+    "name": "Y Resolution",
+    "description": "Vertical image resolution"
+  },
+  "ResolutionUnit": {
+    "name": "Resolution Unit",
+    "description": "Unit for XResolution and YResolution"
+  },
+  "ColorSpace": {
+    "name": "Color Space",
+    "description": "Image color space information"
+  },
+  "ComponentsConfiguration": {
+    "name": "Components Configuration",
+    "description": "Color component configuration"
+  },
+  "CompressedBitsPerPixel": {
+    "name": "Compressed Bits Per Pixel",
+    "description": "Number of bits used during compression"
+  },
+  "PixelXDimension": {
+    "name": "Pixel X Dimension",
+    "description": "Image width in pixels"
+  },
+  "PixelYDimension": {
+    "name": "Pixel Y Dimension",
+    "description": "Image height in pixels"
+  },
+  "ExifIFDPointer": {
+    "name": "Exif IFD Pointer",
+    "description": "Pointer to Exif IFD (Image File Directory)"
+  },
+  "GPSInfoIFDPointer": {
+    "name": "GPS Info IFD Pointer",
+    "description": "Pointer to GPS IFD"
+  },
+  "InteroperabilityIFDPointer": {
+    "name": "Interoperability IFD Pointer",
+    "description": "Pointer to Interoperability IFD"
+  },
+  "InteroperabilityIndex": {
+    "name": "Interoperability Index",
+    "description": "Interoperability metadata index"
+  },
+  "RelatedSoundFile": {
+    "name": "Related Sound File",
+    "description": "Related audio file information"
+  },
+  "ExposureTime": {
+    "name": "Exposure Time",
+    "description": "Exposure time"
+  },
+  "FNumber": {
+    "name": "F-Number",
+    "description": "Lens F-Number (aperture value)"
+  },
+  "ExposureProgram": {
+    "name": "Exposure Program",
+    "description": "Exposure program information"
+  },
+  "SpectralSensitivity": {
+    "name": "Spectral Sensitivity",
+    "description": "Spectral sensitivity used by the camera"
+  },
+  "ISOSpeedRatings": {
+    "name": "ISO Speed",
+    "description": "ISO sensitivity value"
+  },
+  "OECF": {
+    "name": "OECF",
+    "description": "Optoelectric Conversion Function"
+  },
+  "ShutterSpeedValue": {
+    "name": "Shutter Speed",
+    "description": "Shutter speed value"
+  },
+  "ApertureValue": {
+    "name": "Aperture Value",
+    "description": "Aperture (F-Number) value"
+  },
+  "BrightnessValue": {
+    "name": "Brightness Value",
+    "description": "Image brightness value"
+  },
+  "ExposureBiasValue": {
+    "name": "Exposure Bias",
+    "description": "Exposure bias value"
+  },
+  "MaxApertureValue": {
+    "name": "Max Aperture Value",
+    "description": "Maximum aperture (F-Number) value"
+  },
+  "SubjectDistance": {
+    "name": "Subject Distance",
+    "description": "Subject distance value in meters"
+  },
+  "MeteringMode": {
+    "name": "Metering Mode",
+    "description": "Metering mode"
+  },
+  "LightSource": {
+    "name": "Light Source",
+    "description": "Light source used during capture"
+  },
+  "Flash": {
+    "name": "Flash",
+    "description": "Flash firing status and mode"
+  },
+  "FocalLength": {
+    "name": "Focal Length",
+    "description": "Lens focal length"
+  },
+  "SubjectArea": {
+    "name": "Subject Area",
+    "description": "Subject area coordinates"
+  },
+  "FlashEnergy": {
+    "name": "Flash Energy",
+    "description": "Flash energy value"
+  },
+  "SpatialFrequencyResponse": {
+    "name": "Spatial Frequency Response",
+    "description": "Spatial Frequency Response function"
+  },
+  "FocalPlaneXResolution": {
+    "name": "Focal Plane X Resolution",
+    "description": "Focal plane X resolution"
+  },
+  "FocalPlaneYResolution": {
+    "name": "Focal Plane Y Resolution",
+    "description": "Focal plane Y resolution"
+  },
+  "FocalPlaneResolutionUnit": {
+    "name": "Focal Plane Resolution Unit",
+    "description": "Unit for focal plane resolution"
+  },
+  "SubjectLocation": {
+    "name": "Subject Location",
+    "description": "Subject location coordinates in pixels"
+  },
+  "ExposureIndex": {
+    "name": "Exposure Index",
+    "description": "Exposure index value"
+  },
+  "SensingMethod": {
+    "name": "Sensing Method",
+    "description": "Image sensor type"
+  },
+  "FileSource": {
+    "name": "File Source",
+    "description": "Image data source/creation method"
+  },
+  "SceneType": {
+    "name": "Scene Type",
+    "description": "Scene capture type"
+  },
+  "CFAPattern": {
+    "name": "CFA Pattern",
+    "description": "Color Filter Array pattern"
+  },
+  "CustomRendered": {
+    "name": "Custom Rendered",
+    "description": "Image post-processing method"
+  },
+  "ExposureMode": {
+    "name": "Exposure Mode",
+    "description": "Exposure mode"
+  },
+  "WhiteBalance": {
+    "name": "White Balance",
+    "description": "White balance adjustment"
+  },
+  "DigitalZoomRatio": {
+    "name": "Digital Zoom Ratio",
+    "description": "Digital zoom ratio"
+  },
+  "FocalLengthIn35mmFilm": {
+    "name": "Focal Length in 35mm",
+    "description": "Equivalent focal length on 35mm film"
+  },
+  "SceneCaptureType": {
+    "name": "Scene Capture Type",
+    "description": "Scene capture mode"
+  },
+  "GainControl": {
+    "name": "Gain Control",
+    "description": "Gain adjustment method"
+  },
+  "Contrast": {
+    "name": "Contrast",
+    "description": "Image contrast"
+  },
+  "Saturation": {
+    "name": "Saturation",
+    "description": "Image saturation"
+  },
+  "Sharpness": {
+    "name": "Sharpness",
+    "description": "Image sharpness"
+  },
+  "DeviceSettingDescription": {
+    "name": "Device Setting Description",
+    "description": "Camera or equipment settings information"
+  },
+  "SubjectDistanceRange": {
+    "name": "Subject Distance Range",
+    "description": "Subject distance range"
+  },
+  "LensMake": {
+    "name": "Lens Make",
+    "description": "Lens manufacturer name"
+  },
+  "LensModel": {
+    "name": "Lens Model",
+    "description": "Lens model name"
+  },
+  "XPTitle": {
+    "name": "XP Title",
+    "description": "Extended property image title"
+  },
+  "XPComment": {
+    "name": "XP Comment",
+    "description": "Extended property image comment"
+  },
+  "XPAuthor": {
+    "name": "XP Author",
+    "description": "Extended property image author"
+  },
+  "XPKeywords": {
+    "name": "XP Keywords",
+    "description": "Extended property image keywords"
+  },
+  "XPSubject": {
+    "name": "XP Subject",
+    "description": "Extended property image subject"
+  },
+  "ThumbJPEGInterchangeFormat": {
+    "name": "Thumbnail Offset",
+    "description": "Thumbnail image offset"
+  },
+  "ThumbJPEGInterchangeFormatLength": {
+    "name": "Thumbnail Length",
+    "description": "Thumbnail image length"
+  },
+  "GPSVersionID": {
+    "name": "GPS Version ID",
+    "description": "GPS version information"
+  },
+  "GPSLatitudeRef": {
+    "name": "GPS Latitude Ref",
+    "description": "GPS latitude direction"
+  },
+  "GPSLatitude": {
+    "name": "GPS Latitude",
+    "description": "GPS latitude (degrees, minutes, seconds)"
+  },
+  "GPSLongitudeRef": {
+    "name": "GPS Longitude Ref",
+    "description": "GPS longitude direction"
+  },
+  "GPSLongitude": {
+    "name": "GPS Longitude",
+    "description": "GPS longitude (degrees, minutes, seconds)"
+  },
+  "GPSAltitudeRef": {
+    "name": "GPS Altitude Ref",
+    "description": "GPS altitude reference system"
+  },
+  "GPSAltitude": {
+    "name": "GPS Altitude",
+    "description": "GPS altitude value"
+  },
+  "GPSTimeStamp": {
+    "name": "GPS Time Stamp",
+    "description": "GPS timestamp (hours, minutes, seconds)"
+  },
+  "GPSSatelites": {
+    "name": "GPS Satellites",
+    "description": "Number of GPS satellites used"
+  },
+  "GPSStatus": {
+    "name": "GPS Status",
+    "description": "GPS receiver status"
+  },
+  "GPSMeasureMode": {
+    "name": "GPS Measure Mode",
+    "description": "GPS measurement method"
+  },
+  "GPSDOP": {
+    "name": "GPS DOP",
+    "description": "GPS receiver precision"
+  },
+  "GPSSpeedRef": {
+    "name": "GPS Speed Ref",
+    "description": "GPS speed reference"
+  },
+  "GPSSpeed": {
+    "name": "GPS Speed",
+    "description": "GPS speed"
+  },
+  "GPSTrackRef": {
+    "name": "GPS Track Ref",
+    "description": "GPS track direction reference"
+  },
+  "GPSTrack": {
+    "name": "GPS Track",
+    "description": "GPS track direction"
+  },
+  "GPSImgDirectionRef": {
+    "name": "GPS Image Direction Ref",
+    "description": "GPS image direction reference"
+  },
+  "GPSImgDirection": {
+    "name": "GPS Image Direction",
+    "description": "GPS image direction"
+  },
+  "GPSMapDatum": {
+    "name": "GPS Map Datum",
+    "description": "GPS coordinate system"
+  },
+  "GPSDestLatitudeRef": {
+    "name": "GPS Dest Latitude Ref",
+    "description": "GPS destination latitude reference"
+  },
+  "GPSDestLatitude": {
+    "name": "GPS Dest Latitude",
+    "description": "GPS destination latitude"
+  },
+  "GPSDestLongitudeRef": {
+    "name": "GPS Dest Longitude Ref",
+    "description": "GPS destination longitude reference"
+  },
+  "GPSDestLongitude": {
+    "name": "GPS Dest Longitude",
+    "description": "GPS destination longitude"
+  },
+  "GPSDestBearingRef": {
+    "name": "GPS Dest Bearing Ref",
+    "description": "GPS destination bearing reference"
+  },
+  "GPSDestBearing": {
+    "name": "GPS Dest Bearing",
+    "description": "GPS destination bearing"
+  },
+  "GPSDestDistanceRef": {
+    "name": "GPS Dest Distance Ref",
+    "description": "GPS destination distance reference"
+  },
+  "GPSDestDistance": {
+    "name": "GPS Dest Distance",
+    "description": "GPS destination distance"
+  },
+  "GPSProcessingMethod": {
+    "name": "GPS Processing Method",
+    "description": "GPS processing method"
+  },
+  "GPSAreaInformation": {
+    "name": "GPS Area Information",
+    "description": "GPS area information"
+  },
+  "GPSDateStamp": {
+    "name": "GPS Date Stamp",
+    "description": "GPS date (YYYY:MM:DD format)"
+  },
+  "GPSDifferential": {
+    "name": "GPS Differential",
+    "description": "GPS differential correction information"
+  }
+}

@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import MenuBtn from '@/components/common/MenuBtn';
 import HexViewer from '@/components/HexViewer';
 import { useProcess } from '@/contexts/ProcessContext';
-import { useTabData } from '@/contexts/TabDataContext';
+import { useTab } from '@/contexts/TabDataContext';
 import { useRefs } from '@/contexts/RefContext';
 import { parseExifData, readFileForExif } from '@/utils/exifParser';
 import { useWorker } from '@/contexts/WorkerContext';
@@ -30,7 +30,7 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
   const { t } = useTranslation();
   const { hexViewerRef } = useRefs();
   const { showMessage } = useMessage();
-  const { setTabData, setActiveKey, getNewKey } = useTabData();
+  const { setTabData, setActiveKey, getNewKey } = useTab();
   const { fileWorker, isWasmReady } = useWorker();
   const { startProcessing, stopProcessing, isProcessing } = useProcess();
   const fileInputRef = useRef<HTMLInputElement>(null);

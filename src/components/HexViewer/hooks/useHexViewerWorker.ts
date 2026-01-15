@@ -1,5 +1,5 @@
 import { RefObject, useCallback, useRef } from 'react';
-import { useTabData } from '@/contexts/TabDataContext';
+import { useTab } from '@/contexts/TabDataContext';
 import { useWorker } from '@/contexts/WorkerContext';
 import { CHUNK_SIZE, LAYOUT } from '@/constants/hexViewer';
 
@@ -20,7 +20,7 @@ export const useHexViewerWorker = ({
   visibleRows,
   checkCacheSize,
 }: UseHexViewerWorkerProps) => {
-  const { activeKey, activeData } = useTabData();
+  const { activeKey, activeData } = useTab();
   const { fileWorker, setWorkerCache } = useWorker();
   
   const file = activeData?.file;

@@ -27,7 +27,7 @@ import XIcon from '@/components/common/Icons/XIcon';
 import ChevronLeftIcon from '@/components/common/Icons/ChevronLeftIcon';
 import ChevronRightIcon from '@/components/common/Icons/ChevronRightIcon';
 import SearchIcon from '@/components/common/Icons/SearchIcon';
-import { useTabData } from '@/contexts/TabDataContext';
+import { useTab } from '@/contexts/TabDataContext';
 import { useRefs } from '@/contexts/RefContext';
 import { useMessage } from '@/contexts/MessageContext';
 import { useSearch } from './hooks/useSearch';
@@ -105,7 +105,7 @@ const reducer = (
 const Searcher: React.ForwardRefRenderFunction<SearcherRef> = (_, ref) => {
   const { t } = useTranslation();
   const { hexViewerRef } = useRefs();
-  const { activeKey } = useTabData();
+  const { activeKey } = useTab();
   const { showMessage } = useMessage();
   const [searchResults, dispatch] = useReducer(reducer, initialState);
   const [searchType, setSearchType] = useState<SearchType>('hex');

@@ -3,7 +3,7 @@ import L from 'leaflet';
 import { IceMap, IceMapContainer, AddressInfo, ContentDiv, CellHeaderDiv, CellBodyDiv } from './index.styles';
 import { isValidLocation, getAddress, getAddressFromGlobalCache, setAddressToGlobalCache } from '@/utils/getAddress';
 import { useMessage } from '@/contexts/MessageContext';
-import { useTabData } from '@/contexts/TabDataContext';
+import { useTab } from '@/contexts/TabDataContext';
 import 'leaflet/dist/leaflet.css';
 
 // Leaflet 마커 아이콘 설정 (기본 아이콘 사용)
@@ -26,7 +26,7 @@ interface Props {
 
 const LeafletMap: React.FC<Props> = ({ latitude, longitude }) => {
   const { showMessage } = useMessage();
-  const { activeKey, updateTabDisplayState } = useTabData();
+  const { activeKey, updateTabDisplayState } = useTab();
   const mapRef = useRef<L.Map | null>(null);
   const markerRef = useRef<L.Marker | null>(null);
   const [address, setAddress] = useState<string>('');

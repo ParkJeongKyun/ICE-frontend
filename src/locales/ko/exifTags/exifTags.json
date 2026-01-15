@@ -1,0 +1,486 @@
+{
+  "Location": {
+    "name": "좌표",
+    "description": "이미지가 촬영된 위치의 위도 및 경도 좌표"
+  },
+  "DateTime": {
+    "name": "촬영 시간",
+    "description": "이미지 촬영 일시, 생성 날짜"
+  },
+  "DateTimeOriginal": {
+    "name": "원본 이미지 촬영 일시",
+    "description": "원본 이미지의 촬영 일시"
+  },
+  "DateTimeDigitized": {
+    "name": "이미지 디지털화 일시",
+    "description": "디지털 이미지의 생성 일시"
+  },
+  "SubSecTime": {
+    "name": "초 단위 이하 정밀도(촬영 일시)",
+    "description": "촬영 시간의 초단위 이하 부분"
+  },
+  "SubSecTimeOriginal": {
+    "name": "초 단위 이하 정밀도(원본 촬영 일시)",
+    "description": "원본 이미지의 촬영 시간의 초단위 이하 부분"
+  },
+  "SubSecTimeDigitized": {
+    "name": "초 단위 이하 정밀도(디지털화 일시)",
+    "description": "디지털 이미지의 생성 시간의 초단위 이하 부분"
+  },
+  "ImageUniqueID": {
+    "name": "이미지 고유 ID",
+    "description": "이미지 고유 ID"
+  },
+  "Make": {
+    "name": "제조사",
+    "description": "카메라 또는 스캐너의 제조사"
+  },
+  "Model": {
+    "name": "모델",
+    "description": "카메라 또는 스캐너의 모델명"
+  },
+  "Software": {
+    "name": "사용 소프트웨어",
+    "description": "이미지를 생성한 소프트웨어의 이름 및 버전 정보"
+  },
+  "Artist": {
+    "name": "작가",
+    "description": "이미지의 작가(사진 작가) 정보"
+  },
+  "Copyright": {
+    "name": "이미지 저작권",
+    "description": "이미지의 저작권 정보"
+  },
+  "ImageDescription": {
+    "name": "이미지 설명",
+    "description": "이미지에 대한 설명"
+  },
+  "MakerNote": {
+    "name": "카메라 제조사 메모",
+    "description": "제조사가 제공하는 부가 정보"
+  },
+  "UserComment": {
+    "name": "사용자 주석",
+    "description": "사용자가 추가한 코멘트/주석/메모 정보"
+  },
+  "ExifVersion": {
+    "name": "Exif 형식 버전",
+    "description": "Exif 규격의 버전 정보"
+  },
+  "FlashpixVersion": {
+    "name": "Flashpix 버전",
+    "description": "FlashPix 규격의 버전 정보"
+  },
+  "ImageWidth": {
+    "name": "가로 크기(너비)",
+    "description": "픽셀 단위의 가로 크기"
+  },
+  "ImageLength": {
+    "name": "세로 크기(높이)",
+    "description": "픽셀 단위의 세로 크기"
+  },
+  "BitsPerSample": {
+    "name": "픽셀당 비트 수",
+    "description": "각 픽셀이 표현하는 색상 값을 표현하기 위해 할당된 비트 수"
+  },
+  "Compression": {
+    "name": "압축",
+    "description": "이미지의 압축 방식"
+  },
+  "PhotometricInterpretation": {
+    "name": "픽셀해석방식",
+    "description": "색상 구성 요소의 해석 방식, 색공간 및 색상모델"
+  },
+  "Orientation": {
+    "name": "회전",
+    "description": "이미지의 회전, 뒤집기 정보"
+  },
+  "SamplesPerPixel": {
+    "name": "픽셀당 컬러 샘플 수",
+    "description": "픽셀당 구성 요소의 수, 픽셀당 샘플 수"
+  },
+  "PlanarConfiguration": {
+    "name": "픽셀데이터저장방식",
+    "description": "여러 색상 구성 요소를 각각 저장하는 방식, 샘플 데이터 배열 방식, 플레인 구성"
+  },
+  "YCbCrSubSampling": {
+    "name": "YCbCr 하위 샘플링",
+    "description": "YCbCr 색 공간에서 샘플링되는 구성 요소의 비율"
+  },
+  "YCbCrPositioning": {
+    "name": "YCbCr 위치",
+    "description": "YCbCr 색 공간에서 구성 요소의 위치"
+  },
+  "XResolution": {
+    "name": "수평/가로 해상도",
+    "description": "이미지의 가로 해상도"
+  },
+  "YResolution": {
+    "name": "수직/세로 해상도",
+    "description": "이미지의 세로 해상도"
+  },
+  "ResolutionUnit": {
+    "name": "해상도 단위",
+    "description": "XResolution 및 YResolution의 해상도 단위"
+  },
+  "ColorSpace": {
+    "name": "이미지 색 공간",
+    "description": "이미지의 색 공간 정보"
+  },
+  "ComponentsConfiguration": {
+    "name": "이미지 색 구성 요소",
+    "description": "이미지의 각 색 구성 요소의 구성 정보"
+  },
+  "CompressedBitsPerPixel": {
+    "name": "이미지의 압축된 비트 수",
+    "description": "이미지 압축 시 사용된 비트의 수"
+  },
+  "PixelXDimension": {
+    "name": "이미지 가로 크기",
+    "description": "이미지의 가로 크기/픽셀 수"
+  },
+  "PixelYDimension": {
+    "name": "이미지 세로 크기",
+    "description": "이미지의 세로 크기/픽셀 수"
+  },
+  "ExifIFDPointer": {
+    "name": "Exif 정보가 저장된 위치",
+    "description": "Exif 데이터를 저장하는 IFD(이미지 파일 디렉토리)의 위치 정보"
+  },
+  "GPSInfoIFDPointer": {
+    "name": "GPS 정보가 저장된 위치",
+    "description": "GPS 데이터를 저장하는 IFD의 위치 정보"
+  },
+  "InteroperabilityIFDPointer": {
+    "name": "상호 운용성 정보가 저장된 위치",
+    "description": "교환 가능성 정보를 저장하는 IFD의 위치 정보"
+  },
+  "InteroperabilityIndex": {
+    "name": "상호 운용성 정보의 IFD 포인터",
+    "description": "관련 연관 IFD의 색인, 상호운용성메타데이터인덱스"
+  },
+  "RelatedSoundFile": {
+    "name": "관련 음향 파일 정보",
+    "description": "이미지와 관련된 음성 파일 정보"
+  },
+  "ExposureTime": {
+    "name": "노출 시간",
+    "description": "노출 시간"
+  },
+  "FNumber": {
+    "name": "조리개 값",
+    "description": "렌즈의 F 값(조리개 값)"
+  },
+  "ExposureProgram": {
+    "name": "노출 프로그램",
+    "description": "노출 프로그램 정보"
+  },
+  "SpectralSensitivity": {
+    "name": "분광 감도",
+    "description": "카메라가 사용한 스펙트럼 감도를 나타내는 문자열"
+  },
+  "ISOSpeedRatings": {
+    "name": "ISO 속도",
+    "description": "ISO 민감도 값을 나타내는 정수"
+  },
+  "OECF": {
+    "name": "OECF(광학및전기적특성곡선)",
+    "description": "광학 전기 변환 함수/광학및전기적특성곡선(Optoelectric Conversion Function)을 표현하는 바이트 시퀀스"
+  },
+  "ShutterSpeedValue": {
+    "name": "셔터 스피드",
+    "description": "노출 시간을 나타내는 유리수 값/셔터 스피드값"
+  },
+  "ApertureValue": {
+    "name": "조리개 값",
+    "description": "조리개 값(F-Number)을 나타내는 유리수 값"
+  },
+  "BrightnessValue": {
+    "name": "밝기 값",
+    "description": "사진의 밝기를 나타내는 유리수 값"
+  },
+  "ExposureBiasValue": {
+    "name": "노출 보정 값",
+    "description": "노출 보정 값을 나타내는 유리수 값"
+  },
+  "MaxApertureValue": {
+    "name": "최대 조리개 값",
+    "description": "렌즈의 최대 조리개(F-Number) 값을 나타내는 유리수 값"
+  },
+  "SubjectDistance": {
+    "name": "초점 거리",
+    "description": "초점 거리 값을 나타내는 유리수 값"
+  },
+  "MeteringMode": {
+    "name": "측광 모드",
+    "description": "측광 모드를 나타내는 정수"
+  },
+  "LightSource": {
+    "name": "광원",
+    "description": "촬영 시 사용된 광원의 종류를 나타내는 정수"
+  },
+  "Flash": {
+    "name": "플래시",
+    "description": "플래시 사용 여부와 플래시 모드를 나타내는 비트 필드"
+  },
+  "FocalLength": {
+    "name": "초점 거리",
+    "description": "렌즈의 초점 거리를 나타내는 유리수 값"
+  },
+  "SubjectArea": {
+    "name": "초점 영역",
+    "description": "초점 영역을 나타내는 배열 값"
+  },
+  "FlashEnergy": {
+    "name": "플래시 에너지",
+    "description": "플래시 에너지 값을 나타내는 유리수 값"
+  },
+  "SpatialFrequencyResponse": {
+    "name": "공간 주파수 응답",
+    "description": "주파수 응답 함수(Spatial Frequency Response)를 표현하는 바이트 시퀀스"
+  },
+  "FocalPlaneXResolution": {
+    "name": "초점 평면 X축 해상도",
+    "description": "초점 평면 X축 해상도를 나타내는 유리수 값"
+  },
+  "FocalPlaneYResolution": {
+    "name": "초점 평면 Y축 해상도",
+    "description": "초점 평면 Y축 해상도를 나타내는 유리수 값"
+  },
+  "FocalPlaneResolutionUnit": {
+    "name": "초점면 해상도의 단위",
+    "description": "초점면 해상도의 단위를 나타내는 정수"
+  },
+  "SubjectLocation": {
+    "name": "주요 대상 위치의 XY 좌표",
+    "description": "주요 대상 위치의 XY 좌표, 초점 영역의 위치를 나타내는 배열 값"
+  },
+  "ExposureIndex": {
+    "name": "노출 색온도 지수",
+    "description": "노출 보정 값과 ISO 속도를 조합한 값을 나타내는 유리수 값"
+  },
+  "SensingMethod": {
+    "name": "이미지 센서 타입",
+    "description": "이미지/측광 센서 유형을 나타내는 정수"
+  },
+  "FileSource": {
+    "name": "파일 생성 방법",
+    "description": "이미지 데이터의 소스/파일 생성 방법을 나타내는 정수"
+  },
+  "SceneType": {
+    "name": "촬영 장면 유형",
+    "description": "촬영 장면의 종류를 나타내는 정수"
+  },
+  "CFAPattern": {
+    "name": "컬러 필터 배열 패턴",
+    "description": "컬러 필터 배열(CFA) 패턴을 나타내는 바이트 시퀀스"
+  },
+  "CustomRendered": {
+    "name": "사용자 지정 이미지 처리 방법",
+    "description": "이미지 후처리를 나타내는 정수"
+  },
+  "ExposureMode": {
+    "name": "노출 모드",
+    "description": "노출 모드를 나타내는 정수"
+  },
+  "WhiteBalance": {
+    "name": "백색 균형 설정",
+    "description": "화이트 밸런스(백색 균형) 조정 설정"
+  },
+  "DigitalZoomRatio": {
+    "name": "디지털 줌 비율",
+    "description": "디지털 줌 비율 (실제 광학 줌 비율과 달리 이미지 크기를 줄이는 것)"
+  },
+  "FocalLengthIn35mmFilm": {
+    "name": "35mm 필름 카메라에서의 초점 거리",
+    "description": "35mm 필름 기준 등가 초점 거리 (렌즈의 초점 거리에 해당)"
+  },
+  "SceneCaptureType": {
+    "name": "촬영 모드 유형",
+    "description": "촬영 모드"
+  },
+  "GainControl": {
+    "name": "촬영 시 게인 제어 방법",
+    "description": "이미지의 밝기/대조 조절"
+  },
+  "Contrast": {
+    "name": "이미지 대비",
+    "description": "이미지 대비"
+  },
+  "Saturation": {
+    "name": "이미지 채도",
+    "description": "이미지 채도"
+  },
+  "Sharpness": {
+    "name": "이미지 선명도",
+    "description": "이미지 선명도"
+  },
+  "DeviceSettingDescription": {
+    "name": "장치 설정 설명",
+    "description": "카메라 또는 장비의 설정에 대한 정보"
+  },
+  "SubjectDistanceRange": {
+    "name": "대상 거리 범위",
+    "description": "초점 거리 범위"
+  },
+  "LensMake": {
+    "name": "렌즈 제조사",
+    "description": "렌즈 제조사 이름"
+  },
+  "LensModel": {
+    "name": "렌즈 모델명",
+    "description": "렌즈 모델 이름"
+  },
+  "XPTitle": {
+    "name": "확장 속성 타이틀",
+    "description": "확장 속성 이미지 제목"
+  },
+  "XPComment": {
+    "name": "확장 속성 코멘트",
+    "description": "확장 속성 이미지에 대한 사용자 코멘트"
+  },
+  "XPAuthor": {
+    "name": "확장 속성 작성자",
+    "description": "확장 속성 이미지 작성자"
+  },
+  "XPKeywords": {
+    "name": "확장 속성 키워드",
+    "description": "확장 속성 이미지 관련 키워드"
+  },
+  "XPSubject": {
+    "name": "확장 속성 주제",
+    "description": "확장 속성 이미지 관련 주제"
+  },
+  "ThumbJPEGInterchangeFormat": {
+    "name": "썸네일 이미지 시작 바이트 위치",
+    "description": "썸네일 이미지 위치"
+  },
+  "ThumbJPEGInterchangeFormatLength": {
+    "name": "썸네일 이미지 길이",
+    "description": "썸네일 이미지의 길이"
+  },
+  "GPSVersionID": {
+    "name": "GPS 정보 버전",
+    "description": "GPS 정보 버전"
+  },
+  "GPSLatitudeRef": {
+    "name": "위도 표시",
+    "description": "위도 방향"
+  },
+  "GPSLatitude": {
+    "name": "위도 값",
+    "description": "위도 값(도,분,초)"
+  },
+  "GPSLongitudeRef": {
+    "name": "경도 표시",
+    "description": "경도 방향"
+  },
+  "GPSLongitude": {
+    "name": "경도 값",
+    "description": "경도 값(도,분,초)"
+  },
+  "GPSAltitudeRef": {
+    "name": "고도 표시",
+    "description": "고도 값의 참조 시스템"
+  },
+  "GPSAltitude": {
+    "name": "고도 값",
+    "description": "고도 값"
+  },
+  "GPSTimeStamp": {
+    "name": "GPS 시간 정보",
+    "description": "GPS 타임스탬프(시,분,초)"
+  },
+  "GPSSatelites": {
+    "name": "사용된 위성 수",
+    "description": "사용된 GPS 위성 수"
+  },
+  "GPSStatus": {
+    "name": "GPS 수신기 상태",
+    "description": "GPS 수신기 상태"
+  },
+  "GPSMeasureMode": {
+    "name": "측위 방법",
+    "description": "측정 방법"
+  },
+  "GPSDOP": {
+    "name": "수평 정확도 지수",
+    "description": "GPS 수신기의 정밀도"
+  },
+  "GPSSpeedRef": {
+    "name": "GPS 속도 단위",
+    "description": "GPS 속도 단위 참조"
+  },
+  "GPSSpeed": {
+    "name": "GPS 속도",
+    "description": "GPS 수신기에서 측정한 속도"
+  },
+  "GPSTrackRef": {
+    "name": "GPS 이동 방향 참조",
+    "description": "GPS 이동 방향 참조"
+  },
+  "GPSTrack": {
+    "name": "GPS 이동 방향",
+    "description": "GPS 수신기에서 측정한 이동 방향"
+  },
+  "GPSImgDirectionRef": {
+    "name": "이미지의 방향 참조",
+    "description": "GPS 이미지 방향 참조"
+  },
+  "GPSImgDirection": {
+    "name": "이미지의 방향",
+    "description": "GPS 수신기에서 측정한 이미지 방향"
+  },
+  "GPSMapDatum": {
+    "name": "사용된 지리 정보 체계",
+    "description": "GPS 수신기에서 사용되는 좌표계, 지리 정보 체계"
+  },
+  "GPSDestLatitudeRef": {
+    "name": "목적지 위도 참조",
+    "description": "목적지 위도 참조"
+  },
+  "GPSDestLatitude": {
+    "name": "목적지 위도",
+    "description": "목적지 위도 (도,분,초)"
+  },
+  "GPSDestLongitudeRef": {
+    "name": "목적지 경도 참조",
+    "description": "목적지 경도 참조"
+  },
+  "GPSDestLongitude": {
+    "name": "목적지 경도",
+    "description": "목적지 경도 (도,분,초)"
+  },
+  "GPSDestBearingRef": {
+    "name": "목적지 방향 참조",
+    "description": "목적지 방향 참조"
+  },
+  "GPSDestBearing": {
+    "name": "목적지 방향",
+    "description": "목적지 방향"
+  },
+  "GPSDestDistanceRef": {
+    "name": "목적지 거리 참조",
+    "description": "목적지 거리 참조"
+  },
+  "GPSDestDistance": {
+    "name": "목적지 거리",
+    "description": "목적지 거리"
+  },
+  "GPSProcessingMethod": {
+    "name": "GPS 정보 처리 방법",
+    "description": "GPS 수신기에서 처리된 방법"
+  },
+  "GPSAreaInformation": {
+    "name": "GPS 지역 정보",
+    "description": "GPS 수신기에서 처리된 영역/지역 정보"
+  },
+  "GPSDateStamp": {
+    "name": "GPS 날짜",
+    "description": "GPS 수신기에서 측정한 일시 (YYYY:MM:DD 형식)"
+  },
+  "GPSDifferential": {
+    "name": "GPS 측정 시간과 UTC 시간과의 차이",
+    "description": "DGPS 수신기에서 측정한 보정 정보의 유무"
+  }
+}

@@ -1,5 +1,6 @@
 import { useRef, useCallback, RefObject } from 'react';
-import { useTabData } from '@/contexts/TabDataContext';
+import { useTab } from '@/contexts/TabDataContext';
+import { useSelection } from '@/contexts/TabDataContext';
 import { getDevicePixelRatio } from '@/utils/hexViewer';
 import { byteToHex, byteToChar } from '@/utils/encoding';
 import {
@@ -39,7 +40,8 @@ export const useHexViewerRender = ({
   isInitialLoadingRef,
   hasValidDataRef,
 }: UseHexViewerRenderProps) => {
-  const { encoding, activeData, activeSelectionState } = useTabData();
+  const { encoding, activeData } = useTab();
+  const { activeSelectionState } = useSelection();
 
   const file = activeData?.file;
   const fileSize = file?.size || 0;

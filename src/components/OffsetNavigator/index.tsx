@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useTabData } from '@/contexts/TabDataContext';
+import { useTab } from '@/contexts/TabDataContext';
 import { useRefs } from '@/contexts/RefContext';
 import {
   NavigatorContainer,
@@ -15,7 +15,7 @@ type Radix = 16 | 10 | 8;
 const OffsetNavigator: React.FC = () => {
   const { t } = useTranslation();
   const { searcherRef } = useRefs();
-  const { isEmpty } = useTabData();
+  const { isEmpty } = useTab();
   const [inputValue, setInputValue] = useState('');
   const [radix, setRadix] = useState<Radix>(16);
 

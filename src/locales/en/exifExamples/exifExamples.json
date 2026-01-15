@@ -1,0 +1,350 @@
+{
+  "Compression": {
+    "1": "Uncompressed",
+    "2": "CCITT 1D",
+    "3": "T4/Group 3 Fax",
+    "4": "T6/Group 4 Fax",
+    "5": "LZW",
+    "6": "JPEG (old-style)",
+    "7": "JPEG",
+    "8": "Adobe Deflate",
+    "9": "JBIG B&W",
+    "10": "JBIG Color",
+    "99": "JPEG",
+    "262": "Kodak 262",
+    "32766": "Next",
+    "32767": "Sony ARW Compressed",
+    "32769": "Packed RAW",
+    "32770": "Samsung SRW Compressed",
+    "32771": "CCIRLEW",
+    "32772": "Samsung SRW Compressed 2",
+    "32773": "PackBits",
+    "32809": "Thunderscan",
+    "32867": "Kodak KDC Compressed",
+    "32895": "IT8CTPAD",
+    "32896": "IT8LW",
+    "32897": "IT8MP",
+    "32898": "IT8BL",
+    "32908": "PixarFilm",
+    "32909": "PixarLog",
+    "32946": "Deflate",
+    "32947": "DCS",
+    "33003": "Aperio JPEG 2000 YCbCr",
+    "33005": "Aperio JPEG 2000 RGB",
+    "34661": "JBIG",
+    "34676": "SGILog",
+    "34677": "SGILog24",
+    "34712": "JPEG 2000",
+    "34713": "Nikon NEF Compressed",
+    "34715": "JBIG2 TIFF FX",
+    "34718": "Microsoft Document Imaging (MDI) Binary Level Codec",
+    "34719": "Microsoft Document Imaging (MDI) Progressive Transform Codec",
+    "34720": "Microsoft Document Imaging (MDI) Vector",
+    "34887": "ESRI Lerc",
+    "34892": "Lossy JPEG",
+    "34925": "LZMA2",
+    "34926": "Zstd",
+    "34927": "WebP",
+    "34933": "PNG",
+    "34934": "JPEG XR",
+    "65000": "Kodak DCR Compressed",
+    "65535": "Pentax PEF Compressed"
+  },
+  "PhotometricInterpretation": {
+    "0": "WhiteIsZero",
+    "1": "BlackIsZero",
+    "2": "RGB",
+    "3": "RGB Palette",
+    "4": "Transparency Mask",
+    "5": "CMYK",
+    "6": "YCbCr",
+    "8": "CIELab",
+    "9": "ICCLab",
+    "10": "ITULab",
+    "32803": "Color Filter Array",
+    "32844": "Pixar LogL",
+    "32845": "Pixar LogLuv",
+    "32892": "Sequential Color Filter",
+    "34892": "Linear Raw",
+    "51177": "Depth Map",
+    "52527": "Semantic Mask"
+  },
+  "Orientation": {
+    "1": "Horizontal (normal)",
+    "2": "Mirror horizontal",
+    "3": "Rotate 180",
+    "4": "Mirror vertical",
+    "5": "Mirror horizontal and rotate 270 CW",
+    "6": "Rotate 90 CW",
+    "7": "Mirror horizontal and rotate 90 CW",
+    "8": "Rotate 270 CW"
+  },
+  "SamplesPerPixel": {
+    "1": "Grayscale image",
+    "3": "Color image (RGB)",
+    "4": "Color image with alpha channel (RGBA)"
+  },
+  "PlanarConfiguration": {
+    "1": "Chunky",
+    "2": "Planar"
+  },
+  "YCbCrSubSampling": {
+    "1 1": "YCbCr4:4:4 (1 1)",
+    "1 2": "YCbCr4:4:0 (1 2)",
+    "1 4": "YCbCr4:4:1 (1 4)",
+    "2 1": "YCbCr4:2:2 (2 1)",
+    "2 2": "YCbCr4:2:0 (2 2)",
+    "2 4": "YCbCr4:2:1 (2 4)",
+    "4 1": "YCbCr4:1:1 (4 1)",
+    "4 2": "YCbCr4:1:0 (4 2)"
+  },
+  "YCbCrPositioning": {
+    "1": "Centered",
+    "2": "Co-sited"
+  },
+  "ResolutionUnit": {
+    "1": "None",
+    "2": "inches",
+    "3": "cm"
+  },
+  "ColorSpace": {
+    "1": "sRGB",
+    "2": "Adobe RGB",
+    "65533": "Wide Gamut RGB",
+    "65534": "ICC Profile",
+    "65535": "Uncalibrated"
+  },
+  "ComponentsConfiguration": {
+    "0": "-",
+    "1": "Y",
+    "2": "Cb",
+    "3": "Cr",
+    "4": "R",
+    "5": "G",
+    "6": "B"
+  },
+  "ExposureProgram": {
+    "0": "Not Defined",
+    "1": "Manual",
+    "2": "Program AE",
+    "3": "Aperture-priority AE",
+    "4": "Shutter speed priority AE",
+    "5": "Creative (Slow speed)",
+    "6": "Action (High speed)",
+    "7": "Portrait",
+    "8": "Landscape",
+    "9": "Bulb"
+  },
+  "MeteringMode": {
+    "0": "Unknown",
+    "1": "Average",
+    "2": "Center-weighted average",
+    "3": "Spot",
+    "4": "Multi-spot",
+    "5": "Multi-segment",
+    "6": "Partial",
+    "255": "Other"
+  },
+  "LightSource": {
+    "0": "Unknown",
+    "1": "Daylight",
+    "2": "Fluorescent",
+    "3": "Tungsten (Incandescent)",
+    "4": "Flash",
+    "9": "Fine Weather",
+    "10": "Cloudy",
+    "11": "Shade",
+    "12": "Daylight Fluorescent",
+    "13": "Day White Fluorescent",
+    "14": "Cool White Fluorescent",
+    "15": "White Fluorescent",
+    "16": "Warm White Fluorescent",
+    "17": "Standard Light A",
+    "18": "Standard Light B",
+    "19": "Standard Light C",
+    "20": "D55",
+    "21": "D65",
+    "22": "D75",
+    "23": "D50",
+    "24": "ISO Studio Tungsten",
+    "255": "Other"
+  },
+  "Flash": {
+    "0": "No Flash",
+    "1": "Fired",
+    "5": "Fired, Return not detected",
+    "7": "Fired, Return detected",
+    "8": "On, Did not fire",
+    "9": "On, Fired",
+    "13": "On, Return not detected",
+    "15": "On, Return detected",
+    "16": "Off, Did not fire",
+    "20": "Off, Did not fire, Return not detected",
+    "24": "Auto, Did not fire",
+    "25": "Auto, Fired",
+    "29": "Auto, Fired, Return not detected",
+    "31": "Auto, Fired, Return detected",
+    "32": "No flash function",
+    "48": "Off, No flash function",
+    "65": "Fired, Red-eye reduction",
+    "69": "Fired, Red-eye reduction, Return not detected",
+    "71": "Fired, Red-eye reduction, Return detected",
+    "73": "On, Red-eye reduction",
+    "77": "On, Red-eye reduction, Return not detected",
+    "79": "On, Red-eye reduction, Return detected",
+    "80": "Off, Red-eye reduction",
+    "88": "Auto, Did not fire, Red-eye reduction",
+    "89": "Auto, Fired, Red-eye reduction",
+    "93": "Auto, Fired, Red-eye reduction, Return not detected",
+    "95": "Auto, Fired, Red-eye reduction, Return detected"
+  },
+  "FocalPlaneResolutionUnit": {
+    "1": "None",
+    "2": "inches",
+    "3": "cm",
+    "4": "mm",
+    "5": "um"
+  },
+  "SensingMethod": {
+    "1": "Monochrome area",
+    "2": "One-chip color area",
+    "3": "Two-chip color area",
+    "4": "Three-chip color area",
+    "5": "Color sequential area",
+    "6": "Monochrome linear",
+    "7": "Trilinear",
+    "8": "Color sequential linear"
+  },
+  "FileSource": {
+    "1": "Film Scanner",
+    "2": "Reflection Print Scanner",
+    "3": "Digital Camera",
+    "\u0003\u0000\u0000\u0000": "Sigma Digital Camera"
+  },
+  "SceneType": {
+    "1": "Directly photographed",
+    "2": "Scanned image",
+    "3": "Large image",
+    "4": "Celebrity",
+    "5": "Landscape",
+    "6": "Action",
+    "7": "Portrait",
+    "8": "Outdoor photography",
+    "9": "Indoor photography",
+    "10": "Special scene",
+    "11": "Auto photography",
+    "12": "Macro photography"
+  },
+  "CustomRendered": {
+    "0": "Normal",
+    "1": "Custom",
+    "2": "HDR (no original saved)",
+    "3": "HDR (original saved)",
+    "4": "Original (for HDR)",
+    "6": "Panorama",
+    "7": "Portrait HDR",
+    "8": "Portrait"
+  },
+  "ExposureMode": {
+    "0": "Auto exposure",
+    "1": "Manual exposure",
+    "2": "Auto bracket",
+    "3": "Depth of field priority",
+    "4": "Shutter speed priority",
+    "5": "Program AE",
+    "6": "Aperture priority",
+    "7": "Shutter speed priority"
+  },
+  "WhiteBalance": {
+    "0": "Auto",
+    "1": "Manual",
+    "2": "Daylight",
+    "3": "Cloudy",
+    "4": "Tungsten",
+    "5": "Fluorescent",
+    "6": "Flash",
+    "7": "Shade",
+    "8": "Custom"
+  },
+  "SceneCaptureType": {
+    "0": "Standard",
+    "1": "Landscape",
+    "2": "Portrait",
+    "3": "Night",
+    "4": "Other"
+  },
+  "GainControl": {
+    "0": "None",
+    "1": "Low gain up",
+    "2": "High gain up",
+    "3": "Low gain down",
+    "4": "High gain down"
+  },
+  "Contrast": {
+    "0": "Normal",
+    "1": "Low",
+    "2": "High"
+  },
+  "Saturation": {
+    "0": "Normal",
+    "1": "Low",
+    "2": "High"
+  },
+  "Sharpness": {
+    "0": "Normal",
+    "1": "Soft",
+    "2": "Hard"
+  },
+  "SubjectDistanceRange": {
+    "0": "Unknown",
+    "1": "Macro",
+    "2": "Close",
+    "3": "Distant"
+  },
+  "GPSLatitudeRef": {
+    "N": "North",
+    "S": "South"
+  },
+  "GPSLongitudeRef": {
+    "E": "East",
+    "W": "West"
+  },
+  "GPSAltitudeRef": {
+    "0": "Sea level",
+    "1": "Below sea level"
+  },
+  "GPSStatus": {
+    "A": "Active",
+    "V": "Void"
+  },
+  "GPSMeasureMode": {
+    "2": "2-dimensional measurement",
+    "3": "3-dimensional measurement"
+  },
+  "GPSSpeedRef": {
+    "K": "km/h",
+    "M": "mph",
+    "N": "knots"
+  },
+  "GPSTrackRef": {
+    "T": "True direction",
+    "M": "Magnetic direction"
+  },
+  "GPSImgDirectionRef": {
+    "T": "True direction",
+    "M": "Magnetic direction"
+  },
+  "GPSDestBearingRef": {
+    "T": "True direction",
+    "M": "Magnetic direction"
+  },
+  "GPSDestDistanceRef": {
+    "K": "km/h",
+    "M": "mph",
+    "N": "knots"
+  },
+  "GPSDifferential": {
+    "0": "No Correction",
+    "1": "Differential Corrected"
+  }
+}

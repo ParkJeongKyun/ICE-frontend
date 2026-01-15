@@ -1,28 +1,25 @@
 // EXIF 메타데이터 열 타입
 export interface ExifRow {
-  // 넘버링
-  id: number;
-  // 영문명
-  meta: string;
-  // 한글명
-  name: string;
+  tag: string;
   // 해석값
   data: string;
-  // 원본 값
-  origindata: string;
   // 타입
   type: string;
   // 단위
   unit: string;
-  // 설명
-  comment: string;
-  // 예제값
-  example: example | null;
+  // offset (추가)
+  offset?: number;
+  // length (추가)
+  length?: number;
 }
 
-// 예제값
-interface example {
-  [key: string]: string;
+export interface ParsedExifResult {
+  rows: ExifRow[] | null;
+  thumbnail: string;
+  location: {
+    lat: string;
+    lng: string;
+  };
 }
 
 // 파일 정보
@@ -46,7 +43,7 @@ export interface TabData {
     window: TabWindow;
     fileinfo: fileinfo;
     thumbnail: string;
-    location: { lat: string; lng: string; address: string };
+    location: { lat: string; lng: string;};
     rows: ExifRow[] | null;
     file: File;
   };

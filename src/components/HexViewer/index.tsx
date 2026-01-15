@@ -6,7 +6,9 @@ import React, {
   forwardRef,
   useReducer,
 } from 'react';
-import { useTabData } from '@/contexts/TabDataContext';
+import { useTab } from '@/contexts/TabDataContext';
+import { useScroll } from '@/contexts/TabDataContext';
+import { useSelection } from '@/contexts/TabDataContext';
 import { useWorker } from '@/contexts/WorkerContext';
 import { useMessage } from '@/contexts/MessageContext';
 import {
@@ -49,10 +51,9 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (props, ref) => 
     activeData,
     encoding,
     activeKey,
-    scrollPositions,
-    setScrollPositions,
-    activeSelectionState,
-  } = useTabData();
+  } = useTab();
+  const { scrollPositions, setScrollPositions } = useScroll();
+  const { activeSelectionState } = useSelection();
   const { fileWorker, getWorkerCache } = useWorker();
   const { showMessage } = useMessage();
 

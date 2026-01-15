@@ -34,7 +34,8 @@ import Home from '@/components/Home';
 import { isMobile } from 'react-device-detect';
 import {
   encodingOptions,
-  useTabData,
+  useTab,
+  useSelection,
   EncodingType,
 } from '@/contexts/TabDataContext';
 import { useRefs } from '@/contexts/RefContext';
@@ -51,7 +52,8 @@ const MIN_SIDER_WIDTH = 100;
 
 const MainLayout: React.FC = () => {
   const { t } = useTranslation();
-  const { isEmpty, encoding, setEncoding, activeSelectionState } = useTabData();
+  const { isEmpty, encoding, setEncoding } = useTab();
+  const { activeSelectionState } = useSelection();
   const { isProcessing, progress } = useProcess();
   const { menuBtnZoneRef, searcherRef } = useRefs();
 

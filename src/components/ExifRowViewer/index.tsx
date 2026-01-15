@@ -11,17 +11,37 @@ import {
 import { isValidLocation } from '@/utils/getAddress';
 import LeafletMap from '@/components/LeafletMap';
 import Tooltip from '@/components/common/Tooltip';
-import { useTabData } from '@/contexts/TabDataContext';
+import { useTab } from '@/contexts/TabDataContext';
 import { getBytes, getDate } from '@/utils/exifParser';
+import { useTranslation } from 'react-i18next';
 
 const ExifRowViewer: React.FC = () => {
-  const { activeData } = useTabData();
+  const { activeData } = useTab();
+  const { t } = useTranslation();
+
+  const getExifTagLabel = (tagMeta: string): { name: string; description: string } => {
+    const tagKey = `${tagMeta}`;
+    const translation = t(tagKey, { ns: 'exifTags', returnObjects: true });
+    if (translation && typeof translation === 'object' && 'name' in translation) {
+      return translation as { name: string; description: string };
+    }
+    
+    return { name: tagMeta, description: '' };
+  };
+
+  const getExifDataDisplay = (tag: string, rawData: string): string => {
+    const examples = t(tag, { ns: 'exifExamples', returnObjects: true });
+    if (examples && typeof examples === 'object' && rawData in examples) {
+      return (examples as Record<string, string>)[rawData];
+    }
+    return rawData;
+  };
 
   return (
     <ViewerDiv>
       {activeData?.thumbnail && (
         <Collapse
-          title="Thumbnail"
+          title={t('exifViewer.thumbnail')}
           children={
             <>
               <ThumbDiv>
@@ -34,27 +54,27 @@ const ExifRowViewer: React.FC = () => {
       )}
       {activeData?.fileinfo && (
         <Collapse
-          title="File Info"
+          title={t('exifViewer.fileInfo')}
           children={
             <>
               <ContentDiv>
-                <CellHeaderDiv>파일명</CellHeaderDiv>
+                <CellHeaderDiv>{t('exifViewer.fileName')}</CellHeaderDiv>
                 <CellBodyDiv>{activeData.fileinfo.name}</CellBodyDiv>
               </ContentDiv>
               <ContentDiv>
-                <CellHeaderDiv>마지막 수정 시간</CellHeaderDiv>
+                <CellHeaderDiv>{t('exifViewer.lastModified')}</CellHeaderDiv>
                 <CellBodyDiv>
                   {getDate(activeData.fileinfo.lastModified)}
                 </CellBodyDiv>
               </ContentDiv>
               <ContentDiv>
-                <CellHeaderDiv>크기</CellHeaderDiv>
+                <CellHeaderDiv>{t('exifViewer.size')}</CellHeaderDiv>
                 <CellBodyDiv>{getBytes(activeData.fileinfo.size)}</CellBodyDiv>
               </ContentDiv>
               <ContentDiv>
                 <CellHeaderDiv>
-                  <Tooltip text={'파일내용 기반 MIME 표준 포맷 추측'}>
-                    MIME 타입
+                  <Tooltip text={t('dataInspector.noSelection')}>
+                    {t('exifViewer.mimeType')}
                   </Tooltip>
                 </CellHeaderDiv>
                 <CellBodyDiv>
@@ -63,10 +83,8 @@ const ExifRowViewer: React.FC = () => {
               </ContentDiv>
               <ContentDiv>
                 <CellHeaderDiv>
-                  <Tooltip
-                    text={'시그니처/푸터/파일내용 기반 파일 확장자 추측 결과'}
-                  >
-                    적절한 확장자
+                  <Tooltip text={t('dataInspector.noSelection')}>
+                    {t('exifViewer.appropriateExtension')}
                   </Tooltip>
                 </CellHeaderDiv>
                 <CellBodyDiv>
@@ -81,7 +99,7 @@ const ExifRowViewer: React.FC = () => {
       {
         isValidLocation(activeData?.location.lat, activeData?.location.lng) && (
           <Collapse
-            title="Map"
+            title={t('exifViewer.map')}
             children={
               <>
                 <LeafletMap
@@ -96,21 +114,25 @@ const ExifRowViewer: React.FC = () => {
         )}
       {activeData?.rows && activeData.rows.length > 0 && (
         <Collapse
-          title="Exif Data"
+          title={t('exifViewer.exifData')}
           children={
             <>
-              {activeData.rows.map((item, index) => (
-                <ContentDiv key={`${index}-info`}>
-                  <CellHeaderDiv>
-                    <Tooltip text={item.meta}>
-                      {item.name.split('(')[0]}
-                    </Tooltip>
-                  </CellHeaderDiv>
-                  <CellBodyDiv>
-                    <Tooltip text={item.origindata}>{item.data}</Tooltip>
-                  </CellBodyDiv>
-                </ContentDiv>
-              ))}
+              {activeData.rows.map((item, index) => {
+                const { name, description } = getExifTagLabel(item.tag);
+                const displayData = getExifDataDisplay(item.tag, item.data);
+                return (
+                  <ContentDiv key={`${index}-info`}>
+                    <CellHeaderDiv>
+                      <Tooltip text={description}>
+                        {name}
+                      </Tooltip>
+                    </CellHeaderDiv>
+                    <CellBodyDiv>
+                      <Tooltip text={item.data}>{displayData}</Tooltip>
+                    </CellBodyDiv>
+                  </ContentDiv>
+                );
+              })}
             </>
           }
           open

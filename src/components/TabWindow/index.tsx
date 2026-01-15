@@ -7,7 +7,7 @@ import {
   TabsContainer,
 } from './index.styles';
 import XIcon from '@/components/common/Icons/XIcon';
-import { useTabData } from '@/contexts/TabDataContext';
+import { useTab } from '@/contexts/TabDataContext';
 import { TabKey } from '@/types';
 
 const TabWindow: React.FC = () => {
@@ -22,7 +22,7 @@ const TabWindow: React.FC = () => {
     deleteTab,
     tabOrder,
     reorderTabs,
-  } = useTabData();
+  } = useTab();
 
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [dropTarget, setDropTarget] = useState<{

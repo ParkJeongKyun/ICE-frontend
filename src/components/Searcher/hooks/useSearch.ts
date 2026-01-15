@@ -1,5 +1,5 @@
 import { useRef, useCallback } from 'react';
-import { useTabData } from '@/contexts/TabDataContext';
+import { useTab } from '@/contexts/TabDataContext';
 import { useProcess } from '@/contexts/ProcessContext';
 import { useWorker } from '@/contexts/WorkerContext';
 import { useMessage } from '@/contexts/MessageContext';
@@ -19,7 +19,7 @@ const filterInput = (inputValue: string, type: SearchType) => {
 };
 
 export const useSearch = () => {
-  const { activeKey, activeData } = useTabData();
+  const { activeKey, activeData } = useTab();
   const { startProcessing, stopProcessing, updateProgress } = useProcess();
   const { fileWorker } = useWorker();
   const { showMessage } = useMessage();

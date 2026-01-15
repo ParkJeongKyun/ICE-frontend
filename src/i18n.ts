@@ -5,13 +5,17 @@ import en from './locales/en/translation.json';
 import ko from './locales/ko/translation.json';
 import enMessages from './locales/en/messages/messages.json';
 import koMessages from './locales/ko/messages/messages.json';
+import enExifTags from './locales/en/exifTags/exifTags.json';
+import koExifTags from './locales/ko/exifTags/exifTags.json';
+import enExifExamples from './locales/en/exifExamples/exifExamples.json';
+import koExifExamples from './locales/ko/exifExamples/exifExamples.json';
 
 i18n
 
 
 const resources = {
-  en: { translation: en, messages: enMessages },
-  ko: { translation: ko, messages: koMessages },
+  en: { translation: en, messages: enMessages, exifTags: enExifTags, exifExamples: enExifExamples },
+  ko: { translation: ko, messages: koMessages, exifTags: koExifTags, exifExamples: koExifExamples },
 };
 type Lang = keyof typeof resources;
 
@@ -39,7 +43,7 @@ i18n
     resources,
     lng: detectLang(),
     fallbackLng: 'en',
-    ns: ['translation', 'messages'],
+    ns: ['translation', 'messages', 'exifTags', 'exifExamples'],
     defaultNS: 'translation',
     interpolation: {
       escapeValue: false, // react는 XSS 방지 자동 처리

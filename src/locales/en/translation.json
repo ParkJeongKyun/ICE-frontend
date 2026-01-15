@@ -98,6 +98,18 @@
     "maxResults": "(max)",
     "maxResultsTooltip": "Maximum 1000 results displayed",
     "foundOne": "1 found",
-    "success": "{{count}} result(s) found",
+    "success": "{{count}} result(s) found"
+  },
+  "exifViewer": {
+    "title": "Exif Data",
+    "fileInfo": "File Info",
+    "fileName": "File Name",
+    "lastModified": "Last Modified",
+    "size": "Size",
+    "mimeType": "MIME Type",
+    "appropriateExtension": "Appropriate Extension",
+    "thumbnail": "Thumbnail",
+    "map": "Map",
+    "exifData": "Exif Data"
   }
 }

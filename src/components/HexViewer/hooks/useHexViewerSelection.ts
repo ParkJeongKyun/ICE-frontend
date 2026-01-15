@@ -1,5 +1,6 @@
 import { RefObject, useCallback, useRef, useEffect, useState } from 'react';
-import { useTabData } from '@/contexts/TabDataContext';
+import { useTab } from '@/contexts/TabDataContext';
+import { useSelection } from '@/contexts/TabDataContext';
 import { useMessage } from '@/contexts/MessageContext';
 import {
   LAYOUT,
@@ -26,8 +27,8 @@ export const useHexViewerSelection = ({
   fileSize,
   rowCount,
 }: UseHexViewerSelectionProps) => {
-  const { activeKey, activeData, selectionStates, setSelectionStates } =
-    useTabData();
+  const { activeKey, activeData } = useTab();
+  const { selectionStates, setSelectionStates } = useSelection();
   const { showMessage } = useMessage();
 
   const file = activeData?.file;

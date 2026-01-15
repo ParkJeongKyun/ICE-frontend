@@ -99,5 +99,17 @@
     "maxResultsTooltip": "최대 1000개까지만 표시됩니다",
     "foundOne": "1개 찾음",
     "success": "{{count}}개의 결과를 찾았습니다."
+  },
+  "exifViewer": {
+    "title": "Exif 데이터",
+    "fileInfo": "파일 정보",
+    "fileName": "파일명",
+    "lastModified": "마지막 수정 시간",
+    "size": "크기",
+    "mimeType": "MIME 타입",
+    "appropriateExtension": "적절한 확장자",
+    "thumbnail": "썸네일",
+    "map": "지도",
+    "exifData": "Exif 데이터"
   }
 }

@@ -11,7 +11,8 @@ import {
   NotSelectedDiv,
   JumpButton,
 } from './index.styles';
-import { useTabData } from '@/contexts/TabDataContext';
+import { useTab } from '@/contexts/TabDataContext';
+import { useSelection } from '@/contexts/TabDataContext';
 import { useRefs } from '@/contexts/RefContext';
 import ChevronRightIcon from '@/components/common/Icons/ChevronRightIcon';
 import DoubleChevronsRightIcon from '@/components/common/Icons/DoubleChevronsRightIcon';
@@ -42,7 +43,8 @@ import { byteToChar } from '@/utils/encoding';
 const DataInspector: React.FC = () => {
   const { t } = useTranslation();
   const { searcherRef } = useRefs();
-  const { activeSelectionState, activeData } = useTabData();
+  const { activeData } = useTab();
+  const { activeSelectionState } = useSelection();
   const [endian, setEndian] = useState<'le' | 'be'>('le');
 
   const bytes = activeSelectionState?.selectedBytes ?? new Uint8Array();

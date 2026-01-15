@@ -1,5 +1,6 @@
 import { useCallback, useRef, useState, useMemo, RefObject } from 'react';
-import { useTabData } from '@/contexts/TabDataContext';
+import { useTab } from '@/contexts/TabDataContext';
+import { useScroll } from '@/contexts/TabDataContext';
 import { useWorker } from '@/contexts/WorkerContext';
 import { UPDATE_INTERVAL, LAYOUT } from '@/constants/hexViewer';
 import { calculateScrollbarTop } from '@/utils/hexViewer';
@@ -27,7 +28,8 @@ export const useHexViewerYScroll = ({
   requestChunks,
   firstRowRef,
 }: UseHexViewerYScrollProps) => {
-  const { activeKey, scrollPositions, setScrollPositions, activeData } = useTabData();
+  const { activeKey, activeData } = useTab();
+  const { scrollPositions, setScrollPositions } = useScroll();
   const { fileWorker } = useWorker();
 
   const file = activeData?.file;

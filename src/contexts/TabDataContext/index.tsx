@@ -27,35 +27,41 @@ export interface TabDisplayState {
   address?: string;
 }
 
-interface TabDataContextType {
+// === Tab Data Context (탭 데이터, 거의 변하지 않음) ===
+interface TabContextType {
   tabData: TabData;
   setTabData: React.Dispatch<React.SetStateAction<TabData>>;
   activeKey: TabKey;
   setActiveKey: React.Dispatch<React.SetStateAction<TabKey>>;
   getNewKey: () => TabKey;
   activeData: TabData[TabKey];
-  activeSelectionState: SelectionState;
   isEmpty: boolean;
   encoding: EncodingType;
   setEncoding: (encoding: EncodingType) => void;
-  scrollPositions: Record<TabKey, number>;
-  setScrollPositions: React.Dispatch<
-    React.SetStateAction<Record<TabKey, number>>
-  >;
-  selectionStates: Record<TabKey, SelectionState>;
-  setSelectionStates: React.Dispatch<
-    React.SetStateAction<Record<TabKey, SelectionState>>
-  >;
   deleteTab: (key: TabKey) => void;
   tabOrder: TabKey[];
   setTabOrder: React.Dispatch<React.SetStateAction<TabKey[]>>;
   reorderTabs: (fromIndex: number, toIndex: number) => void;
-  // 탭별 표시 상태 관리
   tabDisplayStates: Record<TabKey, TabDisplayState>;
   updateTabDisplayState: (tabKey: TabKey, state: Partial<TabDisplayState>) => void;
 }
 
-const TabDataContext = createContext<TabDataContextType | undefined>(undefined);
+// === Scroll Context (스크롤, 자주 변함) ===
+interface ScrollContextType {
+  scrollPositions: Record<TabKey, number>;
+  setScrollPositions: React.Dispatch<React.SetStateAction<Record<TabKey, number>>>;
+}
+
+// === Selection Context (선택, 자주 변함) ===
+interface SelectionContextType {
+  selectionStates: Record<TabKey, SelectionState>;
+  setSelectionStates: React.Dispatch<React.SetStateAction<Record<TabKey, SelectionState>>>;
+  activeSelectionState: SelectionState;
+}
+
+const TabContext = createContext<TabContextType | undefined>(undefined);
+const ScrollContext = createContext<ScrollContextType | undefined>(undefined);
+const SelectionContext = createContext<SelectionContextType | undefined>(undefined);
 
 export const encodingOptions = [
   { value: 'ascii', label: 'ASCII' },
@@ -159,7 +165,8 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
     [selectionStates, activeKey]
   );
 
-  const contextValue = useMemo(
+  // === Tab Context (거의 변하지 않음) ===
+  const tabContextValue = useMemo(
     () => ({
       tabData,
       setTabData,
@@ -167,14 +174,9 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
       setActiveKey,
       getNewKey,
       activeData,
-      activeSelectionState,
       isEmpty,
       encoding: encodingState,
       setEncoding,
-      scrollPositions,
-      setScrollPositions,
-      selectionStates,
-      setSelectionStates,
       deleteTab,
       tabOrder,
       setTabOrder,
@@ -185,13 +187,8 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
     [
       tabData,
       activeKey,
-      activeData,
-      activeSelectionState,
-      isEmpty,
       encodingState,
       setEncoding,
-      scrollPositions,
-      selectionStates,
       tabOrder,
       getNewKey,
       deleteTab,
@@ -201,17 +198,60 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
     ]
   );
 
+  // === Scroll Context (자주 변함) ===
+  const scrollContextValue = useMemo(
+    () => ({
+      scrollPositions,
+      setScrollPositions,
+    }),
+    [scrollPositions]
+  );
+
+  // === Selection Context (자주 변함) ===
+  const selectionContextValue = useMemo(
+    () => ({
+      selectionStates,
+      setSelectionStates,
+      activeSelectionState,
+    }),
+    [selectionStates, activeSelectionState]
+  );
+
+  // === Legacy Context (하위 호환성) ===
+  // 더 이상 생성되지 않음
+  
   return (
-    <TabDataContext.Provider value={contextValue}>
-      {children}
-    </TabDataContext.Provider>
+    <TabContext.Provider value={tabContextValue}>
+      <ScrollContext.Provider value={scrollContextValue}>
+        <SelectionContext.Provider value={selectionContextValue}>
+          {children}
+        </SelectionContext.Provider>
+      </ScrollContext.Provider>
+    </TabContext.Provider>
   );
 };
 
-export const useTabData = () => {
-  const context = useContext(TabDataContext);
+// === 새로운 Hook들 (권장) ===
+export const useTab = () => {
+  const context = useContext(TabContext);
   if (!context) {
-    throw new Error('useTabData must be used within a TabDataProvider');
+    throw new Error('useTab must be used within a TabDataProvider');
+  }
+  return context;
+};
+
+export const useScroll = () => {
+  const context = useContext(ScrollContext);
+  if (!context) {
+    throw new Error('useScroll must be used within a TabDataProvider');
+  }
+  return context;
+};
+
+export const useSelection = () => {
+  const context = useContext(SelectionContext);
+  if (!context) {
+    throw new Error('useSelection must be used within a TabDataProvider');
   }
   return context;
 };
