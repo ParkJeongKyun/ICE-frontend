@@ -7,8 +7,8 @@ interface SvgIconProps {
 }
 
 const DoubleChevronsRightIcon: React.FC<SvgIconProps> = ({
-  width = 18,
-  height = 18,
+  width = 14,
+  height = 14,
   color = 'currentColor',
 }) => (
   <svg
@@ -22,8 +22,8 @@ const DoubleChevronsRightIcon: React.FC<SvgIconProps> = ({
     strokeLinecap="round"
     strokeLinejoin="round"
   >
-    <polyline points="13 17 20 10 13 3" />
-    <polyline points="6 17 13 10 6 3" />
+    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+    <path d="M13 6l6 6l-6 6M6 6l6 6l-6 6" />
   </svg>
 );
 

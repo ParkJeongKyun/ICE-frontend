@@ -1,57 +1,102 @@
-import React, { useState } from 'react';
-import styled from 'styled-components';
+import React, { useState, useEffect, useRef } from 'react';
+import {
+  useFloating,
+  autoUpdate,
+  offset,
+  flip,
+  shift,
+  useHover,
+  useClick,
+  useDismiss,
+  useRole,
+  useInteractions,
+  FloatingPortal,
+  useTransitionStatus,
+} from '@floating-ui/react';
+import { isMobile } from 'react-device-detect';
 
 interface TooltipProps {
   text: string;
   children: React.ReactNode;
+  placement?: 'top' | 'bottom' | 'left' | 'right';
+  duration?: number; // 자동 닫힘 시간 (ms)
 }
 
-const Tooltip: React.FC<TooltipProps> = ({ text, children }) => {
-  const [isHovered, setIsHovered] = useState(false);
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+const Tooltip: React.FC<TooltipProps> = ({ text, children, placement = 'bottom', duration = 0 }) => {
+  const [isOpen, setIsOpen] = useState(false);
 
-  const handleMouseMove = (e: React.MouseEvent) => {
-    setMousePos({ x: e.clientX, y: e.clientY });
-  };
+  // Floating UI 설정
+  const { refs, floatingStyles, context } = useFloating({
+    open: isOpen,
+    onOpenChange: setIsOpen, // 단순히 상태만 변경
+    placement,
+    whileElementsMounted: autoUpdate,
+    middleware: [offset(2), flip(), shift({ padding: 8 })],
+  });
+
+  // 상호작용 정의
+  const hover = useHover(context, { 
+    move: false, 
+    enabled: !isMobile, // PC에서만 호버 작동
+    delay: { open: 200 },
+  });
+
+  const click = useClick(context, { 
+    enabled: isMobile, // 모바일에서만 클릭(토글) 작동
+    toggle: true,      // 다시 누르면 닫힘 (기본값)
+  });
+  const dismiss = useDismiss(context); // 바깥 누르면 닫힘
+  const role = useRole(context, { role: 'tooltip' });
+
+  const { getReferenceProps, getFloatingProps } = useInteractions([
+    hover,
+    click,
+    dismiss,
+    role,
+  ]);
+
+  // 애니메이션 효과
+  const { isMounted, status } = useTransitionStatus(context, { duration: 150 });
+  const opacity = status === 'open' ? 1 : 0;
 
   return (
-    <Wrapper
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      onMouseMove={handleMouseMove}
-    >
-      {children}
-      {isHovered && (
-        <Content $x={mousePos.x} $y={mousePos.y}>
-          {text}
-        </Content>
+    <>
+      <span
+        ref={refs.setReference}
+        {...getReferenceProps()}
+        style={{ display: 'inline-block', cursor: 'pointer' }}
+      >
+        {children}
+      </span>
+
+      {isMounted && (
+        <FloatingPortal>
+          <div
+            ref={refs.setFloating}
+            style={{
+              ...floatingStyles,
+              backgroundColor: 'var(--main-bg-color)',
+              color: 'var(--main-color)',
+              border: '1px solid var(--main-line-color)',
+              padding: '4px 8px',
+              borderRadius: '3px',
+              fontSize: '0.7rem',
+              whiteSpace: 'nowrap',
+              zIndex: 1000,
+              pointerEvents: 'none',
+              boxShadow: '0 1px 4px rgba(0, 0, 0, 0.12)',
+              opacity: opacity,
+              transition: 'opacity 0.15s ease',
+              willChange: 'transform',
+            }}
+            {...getFloatingProps()}
+          >
+            {text}
+          </div>
+        </FloatingPortal>
       )}
-    </Wrapper>
+    </>
   );
 };
-
-const Wrapper = styled.div`
-  display: inline-flex;
-  height: 100%;
-`;
-
-const Content = styled.div.attrs<{ $x: number; $y: number }>(({ $x, $y }) => ({
-  style: {
-    left: `${$x + 12}px`,
-    top: `${$y + 12}px`,
-  },
-}))<{ $x: number; $y: number }>`
-  position: fixed;
-  background: var(--main-bg-color);
-  border: 1px solid var(--main-line-color);
-  color: var(--main-color);
-  padding: 6px 10px;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  white-space: nowrap;
-  z-index: 900;
-  pointer-events: none;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-`;
 
 export default Tooltip;

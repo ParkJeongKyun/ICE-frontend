@@ -31,6 +31,7 @@ import { useTab } from '@/contexts/TabDataContext';
 import { useRefs } from '@/contexts/RefContext';
 import { useMessage } from '@/contexts/MessageContext';
 import { useSearch } from './hooks/useSearch';
+import Tooltip from '@/components/common/Tooltip';
 import type {
   SearchType,
   SearchCacheKey,
@@ -352,23 +353,25 @@ const Searcher: React.ForwardRefRenderFunction<SearcherRef> = (_, ref) => {
             placeholder={t('searcher.placeholder', { type: searchType.toUpperCase() })}
           />
           {searchType === 'ascii' && (
-            <ButtonDiv
-              onClick={() => setIgnoreCase((prev) => !prev)}
-              title={ignoreCase ? t('searcher.caseInsensitiveTooltip') : t('searcher.caseSensitiveTooltip')}
-              style={{
-                opacity: ignoreCase ? 1 : 0.4,
-                fontWeight: ignoreCase ? 600 : 400,
-              }}
-            >
-              {t('searcher.caseSensitiveToggle')}
-            </ButtonDiv>
+            <Tooltip text={ignoreCase ? t('searcher.caseInsensitiveTooltip') : t('searcher.caseSensitiveTooltip')}>
+              <ButtonDiv
+                onClick={() => setIgnoreCase((prev) => !prev)}
+                style={{
+                  opacity: ignoreCase ? 1 : 0.4,
+                  fontWeight: ignoreCase ? 600 : 400,
+                }}
+              >
+                {t('searcher.caseSensitiveToggle')}
+              </ButtonDiv>
+            </Tooltip>
           )}
-          <ButtonDiv
-            onClick={() => inputValue && search(inputValue, searchType)}
-            title={t('searcher.searchTooltip')}
-          >
-            <SearchIcon width={16} height={16} />
-          </ButtonDiv>
+          <Tooltip text={t('searcher.searchTooltip')}>
+            <ButtonDiv
+              onClick={() => inputValue && search(inputValue, searchType)}
+            >
+              <SearchIcon width={16} height={16} />
+            </ButtonDiv>
+          </Tooltip>
         </SearchData>
       </SearchDiv>
       <SearchResultBar>
@@ -391,16 +394,17 @@ const Searcher: React.ForwardRefRenderFunction<SearcherRef> = (_, ref) => {
                   </span>
                   {(searchResults[activeKey] as SearchResult).results.length >=
                     1000 && (
-                      <span
-                        style={{
-                          opacity: 0.6,
-                          fontSize: '0.6rem',
-                          marginLeft: '2px',
-                        }}
-                        title={t('searcher.maxResultsTooltip')}
-                      >
-                        {t('searcher.maxResults')}
-                      </span>
+                      <Tooltip text={t('searcher.maxResultsTooltip')}>
+                        <span
+                          style={{
+                            opacity: 0.6,
+                            fontSize: '0.6rem',
+                            marginLeft: '2px',
+                          }}
+                        >
+                          {t('searcher.maxResults')}
+                        </span>
+                      </Tooltip>
                     )}
                 </>
               ) : (
@@ -408,27 +412,31 @@ const Searcher: React.ForwardRefRenderFunction<SearcherRef> = (_, ref) => {
               )}
             </Result>
             <NavigationButtons>
-              <ButtonDiv
-                onClick={handlePrevButtonClick}
-                $disabled={
-                  (searchResults[activeKey] as SearchResult).results.length <= 1
-                }
-                title={t('searcher.prevTooltip')}
-              >
-                <ChevronLeftIcon width={16} height={16} />
-              </ButtonDiv>
-              <ButtonDiv
-                onClick={handleNextButtonClick}
-                $disabled={
-                  (searchResults[activeKey] as SearchResult).results.length <= 1
-                }
-                title={t('searcher.nextTooltip')}
-              >
-                <ChevronRightIcon width={16} height={16} />
-              </ButtonDiv>
-              <ButtonDiv onClick={handleResetButtonClick} title={t('searcher.resetTooltip')}>
-                <XIcon height={16} width={16} />
-              </ButtonDiv>
+              <Tooltip text={t('searcher.prevTooltip')}>
+                <ButtonDiv
+                  onClick={handlePrevButtonClick}
+                  $disabled={
+                    (searchResults[activeKey] as SearchResult).results.length <= 1
+                  }
+                >
+                  <ChevronLeftIcon width={16} height={16} />
+                </ButtonDiv>
+              </Tooltip>
+              <Tooltip text={t('searcher.nextTooltip')}>
+                <ButtonDiv
+                  onClick={handleNextButtonClick}
+                  $disabled={
+                    (searchResults[activeKey] as SearchResult).results.length <= 1
+                  }
+                >
+                  <ChevronRightIcon width={16} height={16} />
+                </ButtonDiv>
+              </Tooltip>
+              <Tooltip text={t('searcher.resetTooltip')}>
+                <ButtonDiv onClick={handleResetButtonClick}>
+                  <XIcon height={16} width={16} />
+                </ButtonDiv>
+              </Tooltip>
             </NavigationButtons>
           </>
         ) : null}

@@ -27,6 +27,7 @@ export const CellHeaderDiv = styled.div`
   align-items: center;
   justify-content: space-between;
   gap: 0px;
+  line-height: 1;
   &:hover {
     background-color: var(--main-hover-color);
   }
@@ -46,20 +47,21 @@ export const CellBodyDiv = styled.div`
   align-items: center;
   justify-content: space-between;
   gap: 0px;
+  line-height: 1;
   &:hover {
     background-color: var(--main-hover-color);
   }
 `;
 
 export const JumpButton = styled.div`
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
   color: var(--main-color);
   cursor: pointer;
   opacity: 0.5;
   transition: opacity 0.2s ease;
-  height: 100%;
+  flex-shrink: 0;
   
   &:hover {
     opacity: 1;
@@ -70,29 +72,34 @@ export const JumpButton = styled.div`
 export const EndianRadioGroup = styled.div`
   display: flex;
   align-items: stretch;
-  justify-content: center;
+  justify-content: stretch;
   gap: 0px;
   user-select: none;
   width: 100%;
+  > * {
+    flex: 1;
+  }
 `;
 
 export const EndianButton = styled.div<{ $active: boolean }>`
-  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 0.7rem;
   font-weight: 600;
-  padding-bottom: 5px;
+  padding: 3px 0px;
   color: var(--main-color);
   opacity: ${props => props.$active ? 1 : 0.4};
   cursor: pointer;
   transition: all 0.2s ease;
   outline: none;
   
+  border-top: 1px solid var(--main-line-color);
+  
   &:hover {
     opacity: 1;
     color: var(--ice-main-color);
+    background-color: var(--main-hover-color);
   }
 `;
 

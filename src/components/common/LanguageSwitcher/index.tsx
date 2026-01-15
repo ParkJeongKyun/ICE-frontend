@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
 import USFlagIcon from '../Icons/USFlagIcon';
 import KRFlagIcon from '../Icons/KRFlagIcon';
+import Tooltip from '../Tooltip';
 
 const LanguageSwitcher: React.FC = () => {
   const { i18n } = useTranslation();
@@ -16,19 +17,19 @@ const LanguageSwitcher: React.FC = () => {
   const isEnglish = i18n.language === 'en';
 
   return (
-    <FlagButton
-      onClick={handleLanguageToggle}
-      title={`Current: ${currentLangName} (Click to switch)`}
-    >
+    <Tooltip text={`Current: ${currentLangName} (Click to switch)`}>
+      <FlagButton
+        onClick={handleLanguageToggle}
+      >
       {isEnglish ? (
         <USFlagIcon width={28} height={18} />
       ) : (
         <KRFlagIcon width={28} height={18} />
       )}
     </FlagButton>
+    </Tooltip>
   );
 };
-
 const FlagButton = styled.button`
   background: transparent;
   border: none;

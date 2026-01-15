@@ -5,6 +5,7 @@ import {
     SelectDropdown,
     SelectOption,
 } from './index.styles';
+import Tooltip from '../Tooltip';
 
 export interface SelectOption {
     value: string;
@@ -57,15 +58,24 @@ const Select: React.FC<SelectProps> = ({
         }
     }, [isOpen]);
 
+    const button = (
+        <SelectButton 
+            onClick={handleToggle} 
+            type="button"
+        >
+            {selectedOption?.label || placeholder}
+        </SelectButton>
+    );
+
     return (
         <SelectContainer ref={containerRef}>
-            <SelectButton 
-                onClick={handleToggle} 
-                type="button"
-                title={tooltip}
-            >
-                {selectedOption?.label || placeholder}
-            </SelectButton>
+            {tooltip ? (
+                <Tooltip text={tooltip}>
+                    {button}
+                </Tooltip>
+            ) : (
+                button
+            )}
             {isOpen && (
                 <SelectDropdown>
                     {options.map((opt) => (

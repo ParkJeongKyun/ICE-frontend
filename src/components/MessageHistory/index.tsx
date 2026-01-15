@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useMessage, MessageItem } from '@/contexts/MessageContext';
+import Tooltip from '@/components/common/Tooltip';
 import {
     HistoryButton,
     HistoryBadge,
@@ -99,13 +100,17 @@ const MessageHistory: React.FC = () => {
                     <HistoryTitle>{t('notifications.title')}</HistoryTitle>
                     <HistoryActions>
                         {messageHistory.length > 0 && (
-                            <HistoryClearBtn onClick={clearHistory} title={t('notifications.clearAll')}>
-                                <TrashIcon width={12} height={12} />
-                            </HistoryClearBtn>
+                            <Tooltip text={t('notifications.clearAll')}>
+                                <HistoryClearBtn onClick={clearHistory}>
+                                    <TrashIcon width={12} height={12} />
+                                </HistoryClearBtn>
+                            </Tooltip>
                         )}
-                        <HistoryClearBtn onClick={handleClose} title={t('notifications.close')}>
-                            <XIcon width={12} height={12} />
-                        </HistoryClearBtn>
+                        <Tooltip text={t('notifications.close')}>
+                            <HistoryClearBtn onClick={handleClose}>
+                                <XIcon width={12} height={12} />
+                            </HistoryClearBtn>
+                        </Tooltip>
                     </HistoryActions>
                 </HistoryHeader>
 
@@ -133,9 +138,11 @@ const MessageHistory: React.FC = () => {
                                             </HistoryItemMessagePreview>
                                         </HistoryItemPreview>
                                         <HistoryItemActions onClick={(e) => e.stopPropagation()}>
-                                            <HistoryItemDelete onClick={() => deleteMessage(msg.id)} title={t('notifications.delete')}>
-                                                <XIcon width={10} height={10} />
-                                            </HistoryItemDelete>
+                                            <Tooltip text={t('notifications.delete')}>
+                                                <HistoryItemDelete onClick={() => deleteMessage(msg.id)}>
+                                                    <XIcon width={10} height={10} />
+                                                </HistoryItemDelete>
+                                            </Tooltip>
                                         </HistoryItemActions>
                                         <ExpandIcon $isOpen={isExpanded}>
                                             <ChevronDownIcon width={12} height={12} />

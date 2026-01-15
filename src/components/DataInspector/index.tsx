@@ -14,6 +14,7 @@ import {
 import { useTab } from '@/contexts/TabDataContext';
 import { useSelection } from '@/contexts/TabDataContext';
 import { useRefs } from '@/contexts/RefContext';
+import Tooltip from '@/components/common/Tooltip';
 import ChevronRightIcon from '@/components/common/Icons/ChevronRightIcon';
 import DoubleChevronsRightIcon from '@/components/common/Icons/DoubleChevronsRightIcon';
 import {
@@ -202,20 +203,22 @@ const DataInspector: React.FC = () => {
         <>
           {/* 엔디안 선택 탭 */}
           <EndianRadioGroup>
-            <EndianButton
-              $active={endian === 'le'}
-              onClick={() => setEndian('le')}
-              title={t('dataInspector.littleEndianTooltip')}
-            >
-              {t('dataInspector.littleEndian')}
-            </EndianButton>
-            <EndianButton
-              $active={endian === 'be'}
-              onClick={() => setEndian('be')}
-              title={t('dataInspector.bigEndianTooltip')}
-            >
-              {t('dataInspector.bigEndian')}
-            </EndianButton>
+            <Tooltip text={t('dataInspector.littleEndianTooltip')}>
+              <EndianButton
+                $active={endian === 'le'}
+                onClick={() => setEndian('le')}
+              >
+                {t('dataInspector.littleEndian')}
+              </EndianButton>
+            </Tooltip>
+            <Tooltip text={t('dataInspector.bigEndianTooltip')}>
+              <EndianButton
+                $active={endian === 'be'}
+                onClick={() => setEndian('be')}
+              >
+                {t('dataInspector.bigEndian')}
+              </EndianButton>
+            </Tooltip>
           </EndianRadioGroup>
           {bytes.length === 0 ? (
             <NotSelectedDiv>{t('dataInspector.noSelection')}</NotSelectedDiv>
@@ -251,33 +254,35 @@ const DataInspector: React.FC = () => {
                       <CellHeaderDiv>
                         {item.label}
                         {canJumpRelative && (
-                          <JumpButton
-                            onClick={() => handleJumpToOffset(item.value)}
-                            title={t('dataInspector.relativeJumpTooltip', {
-                              current: activeSelectionState?.start!.toString(16).toUpperCase(),
-                              currentDec: activeSelectionState?.start,
-                              operator: numValue >= 0 ? '+' : '',
-                              value: item.value,
-                              target: targetOffset!.toString(16).toUpperCase(),
-                              targetDec: targetOffset,
-                            })}
-                          >
-                            <DoubleChevronsRightIcon width={14} height={14} />
-                          </JumpButton>
+                          <Tooltip text={t('dataInspector.relativeJumpTooltip', {
+                            current: activeSelectionState?.start!.toString(16).toUpperCase(),
+                            currentDec: activeSelectionState?.start,
+                            operator: numValue >= 0 ? '+' : '',
+                            value: item.value,
+                            target: targetOffset!.toString(16).toUpperCase(),
+                            targetDec: targetOffset,
+                          })}>
+                            <JumpButton
+                              onClick={() => handleJumpToOffset(item.value)}
+                            >
+                              <DoubleChevronsRightIcon width={14} height={14} />
+                            </JumpButton>
+                          </Tooltip>
                         )}
                       </CellHeaderDiv>
                       <CellBodyDiv>
                         <span>{item.value}</span>
                         {canJumpAbsolute && (
-                          <JumpButton
-                            onClick={() => handleJumpToAbsoluteOffset(item.value)}
-                            title={t('dataInspector.absoluteJumpTooltip', {
-                              target: numValue.toString(16).toUpperCase(),
-                              targetDec: numValue,
-                            })}
-                          >
-                            <ChevronRightIcon width={14} height={14} />
-                          </JumpButton>
+                          <Tooltip text={t('dataInspector.absoluteJumpTooltip', {
+                            target: numValue.toString(16).toUpperCase(),
+                            targetDec: numValue,
+                          })}>
+                            <JumpButton
+                              onClick={() => handleJumpToAbsoluteOffset(item.value)}
+                            >
+                              <ChevronRightIcon width={14} height={14} />
+                            </JumpButton>
+                          </Tooltip>
                         )}
                       </CellBodyDiv>
                     </ContentDiv>

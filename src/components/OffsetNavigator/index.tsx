@@ -9,6 +9,7 @@ import {
   RadixButton,
 } from './index.styles';
 import SearchIcon from '@/components/common/Icons/SearchIcon';
+import Tooltip from '@/components/common/Tooltip';
 
 type Radix = 16 | 10 | 8;
 
@@ -83,9 +84,11 @@ const OffsetNavigator: React.FC = () => {
 
   return (
     <NavigatorContainer>
-      <RadixButton onClick={handleRadixChange} title={t('offsetNavigator.radixTooltip')}>
-        {radixLabel}
-      </RadixButton>
+      <Tooltip text={t('offsetNavigator.radixTooltip')}>
+        <RadixButton onClick={handleRadixChange}>
+          {radixLabel}
+        </RadixButton>
+      </Tooltip>
       <NavigatorInput
         value={inputValue}
         onChange={handleInputChange}
@@ -93,9 +96,11 @@ const OffsetNavigator: React.FC = () => {
         maxLength={radix === 16 ? 20 : radix === 10 ? 25 : 27}
         placeholder={placeholder}
       />
-      <NavigatorButton onClick={handleButtonClick} title={t('offsetNavigator.navigateTooltip')}>
-        <SearchIcon width={16} height={16} />
-      </NavigatorButton>
+      <Tooltip text={t('offsetNavigator.navigateTooltip')}>
+        <NavigatorButton onClick={handleButtonClick}>
+          <SearchIcon width={16} height={16} />
+        </NavigatorButton>
+      </Tooltip>
     </NavigatorContainer>
   );
 };
