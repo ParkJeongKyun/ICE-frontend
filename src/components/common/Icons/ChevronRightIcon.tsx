@@ -7,8 +7,8 @@ interface SvgIconProps {
 }
 
 const ChevronRightIcon: React.FC<SvgIconProps> = ({
-  width = 18,
-  height = 18,
+  width = 14,
+  height = 14,
   color = 'currentColor',
 }) => (
   <svg

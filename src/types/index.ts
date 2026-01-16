@@ -6,11 +6,12 @@ export interface ExifRow {
   // 타입
   type: string;
   // 단위
-  unit: string;
-  // offset (추가)
-  offset?: number;
-  // length (추가)
-  length?: number;
+  // offset 
+  offset: number;
+  // length 
+  length: number;
+  // isFar 
+  isFar: boolean;
 }
 
 export interface ParsedExifResult {

@@ -53,7 +53,7 @@
 - [SVG REPO - 무료 아이콘](https://www.svgrepo.com/)
 - [Pixabay - 무료 사진](https://pixabay.com/)
 - [React Bits - 인터렉티브 웹 UI](https://github.com/DavidHDev/react-bits)
-- [Go Exif - GoLang Exif 분석 라이브러리](https://pkg.go.dev/github.com/dsoprea/go-exif)
+- [Go Exif - GoLang Exif 분석 라이브러리](https://pkg.go.dev/github.com/dsoprea/go-exif/v3)
 - [Yara - 악성코드 탐지 도구](https://github.com/VirusTotal/yara)
 - [Nominatim - 오픈소스 Geocoding](https://nominatim.org/)
 - [Leaflet - JavaScript 지도 라이브러리](https://leafletjs.com/)

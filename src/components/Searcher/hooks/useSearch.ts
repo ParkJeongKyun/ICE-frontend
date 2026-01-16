@@ -45,11 +45,11 @@ export const useSearch = () => {
   }, [fileSize]);
 
   const findByOffset = useCallback(
-    async (offset: string): Promise<IndexInfo | null> => {
+    async (offset: string, length: number = 1): Promise<IndexInfo | null> => {
       if (!offset.trim()) return null;
       const byteOffset = parseInt(offset, 16);
       if (isNaN(byteOffset) || byteOffset < 0 || byteOffset >= fileSize) return null;
-      return { index: byteOffset, offset: 1 };
+      return { index: byteOffset, offset: length };
     },
     [fileSize]
   );

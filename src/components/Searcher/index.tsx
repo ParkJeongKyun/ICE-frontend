@@ -41,7 +41,7 @@ import type {
 } from '@/types/searcher';
 
 export interface SearcherRef {
-  findByOffset: (offset: string, shouldScroll?: boolean) => Promise<IndexInfo | null>;
+  findByOffset: (offset: string, length?: number, shouldScroll?: boolean) => Promise<IndexInfo | null>;
   findAllByHex: (hex: string, shouldScroll?: boolean) => Promise<IndexInfo[] | null>;
   findAllByAsciiText: (text: string, ignoreCase: boolean, shouldScroll?: boolean) => Promise<IndexInfo[] | null>;
 }
@@ -288,13 +288,13 @@ const Searcher: React.ForwardRefRenderFunction<SearcherRef> = (_, ref) => {
     ref,
     () => ({
       // shouldScroll=true면 직접 스크롤, false면 상태 업데이트만 (useEffect에서 처리)
-      findByOffset: async (offset: string, shouldScroll = true) => {
+      findByOffset: async (offset: string, length: number = 1, shouldScroll = true) => {
         if (!offset.trim()) {
           showMessage('SEARCH_NO_INPUT');
           return null;
         }
 
-        const result = await findByOffset(offset);
+        const result = await findByOffset(offset, length);
         
         if (result === null) {
           // findByOffset는 내부적으로 유효성 검사 후 null 반환

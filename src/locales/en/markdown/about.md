@@ -52,7 +52,7 @@ Sites and libraries that helped with site development. Thank you!
 - [SVG REPO - Free Icons](https://www.svgrepo.com/)
 - [Pixabay - Free Photos](https://pixabay.com/)
 - [React Bits - Interactive Web UI](https://github.com/DavidHDev/react-bits)
-- [Go Exif - GoLang Exif Analysis Library](https://pkg.go.dev/github.com/dsoprea/go-exif)
+- [Go Exif - GoLang Exif Analysis Library](https://pkg.go.dev/github.com/dsoprea/go-exif/v3)
 - [Yara - Malware Detection Tool](https://github.com/VirusTotal/yara)
 - [Nominatim - Open Source Geocoding](https://nominatim.org/)
 - [Leaflet - JavaScript Map Library](https://leafletjs.com/)

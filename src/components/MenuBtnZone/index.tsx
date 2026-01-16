@@ -71,8 +71,8 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
       startProcessing();
 
       try {
-        const arrayBuffer = await readFileForExif(file);
-        const exifBuffer = new Uint8Array(arrayBuffer);
+        const { buffer } = await readFileForExif(file);
+        const exifBuffer = new Uint8Array(buffer);
         const newActiveKey = getNewKey();
 
         const result = await new Promise<any>((resolve, reject) => {
