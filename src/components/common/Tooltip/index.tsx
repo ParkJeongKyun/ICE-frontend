@@ -25,6 +25,10 @@ interface TooltipProps {
 const Tooltip: React.FC<TooltipProps> = ({ text, children, placement = 'bottom', duration = 0 }) => {
   const [isOpen, setIsOpen] = useState(false);
 
+  if (!text || text.trim() === '') {
+    return <>{children}</>;
+  }
+
   // Floating UI 설정
   const { refs, floatingStyles, context } = useFloating({
     open: isOpen,
@@ -61,13 +65,13 @@ const Tooltip: React.FC<TooltipProps> = ({ text, children, placement = 'bottom',
 
   return (
     <>
-      <span
+      <div
         ref={refs.setReference}
         {...getReferenceProps()}
         style={{ display: 'inline-block', cursor: 'pointer' }}
       >
         {children}
-      </span>
+      </div>
 
       {isMounted && (
         <FloatingPortal>
