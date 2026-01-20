@@ -6,19 +6,19 @@ import { useMessage } from '@/contexts/MessageContext';
 import 'leaflet/dist/leaflet.css';
 import { useTranslation } from 'react-i18next';
 import { useAddressCache } from '@/contexts/TabDataContext';
+import markerIcon from '@/assets/marker/marker-camera.svg'
+import shadowIcon from 'leaflet/dist/images/marker-shadow.png';
 
-// Leaflet 마커 아이콘 설정 (기본 아이콘 사용)
-const DefaultIcon = L.icon({
-  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
-  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+const MarkerIcon = L.icon({
+  iconUrl: markerIcon,
+  shadowUrl: shadowIcon,
   iconSize: [25, 41],
   iconAnchor: [12, 41],
   popupAnchor: [1, -34],
   shadowSize: [41, 41],
 });
 
-L.Marker.prototype.options.icon = DefaultIcon;
+L.Marker.prototype.options.icon = MarkerIcon;
 
 interface Props {
   latitude: string;
@@ -83,16 +83,13 @@ const LeafletMap: React.FC<Props> = ({ latitude, longitude }) => {
         mapRef.current = null;
       }
 
-      // 새 맵 생성
-      const map = L.map('IceLocaionMap').setView([lat, lng], 13);
-
-      // OpenStreetMap 타일 레이어 추가
+      const map = L.map('IceLocaionMap').setView([lat, lng], 16);
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors',
         maxZoom: 19,
       }).addTo(map);
 
-      const marker = L.marker([lat, lng], { icon: DefaultIcon }).addTo(map);
+      const marker = L.marker([lat, lng], { icon: MarkerIcon }).addTo(map);
       markerRef.current = marker;
       mapRef.current = map;
 
