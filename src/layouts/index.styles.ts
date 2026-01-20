@@ -35,9 +35,23 @@ export const IceHeader = styled.div<{
   ${(props) =>
     props.$isMobile &&
     `
-      gap: 6px;
+      gap: 4px;
       padding: 2px 6px;
-      height: 22px;
+    `}
+`;
+
+export const IceHeaderLeftSider = styled.div<{
+  $isMobile?: boolean;
+}>`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  /* 모바일 버전용 */
+  ${(props) =>
+    props.$isMobile &&
+    `
+      gap: 4px;
     `}
 `;
 
@@ -80,7 +94,6 @@ export const IceFooter = styled.div<{ $isMobile?: boolean }>`
   ${(props) =>
     props.$isMobile &&
     `
-      height: 22px;
       padding: 0px 6px;
       font-size: 0.65rem;
       gap: 4px;

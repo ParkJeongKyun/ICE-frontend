@@ -21,38 +21,32 @@ const LanguageSwitcher: React.FC = () => {
       <FlagButton
         onClick={handleLanguageToggle}
       >
-      {isEnglish ? (
-        <USFlagIcon width={28} height={18} />
-      ) : (
-        <KRFlagIcon width={28} height={18} />
-      )}
-    </FlagButton>
+        {isEnglish ? (
+          <USFlagIcon width={28} height={18} />
+        ) : (
+          <KRFlagIcon width={28} height={18} />
+        )}
+      </FlagButton>
     </Tooltip>
   );
 };
 const FlagButton = styled.button`
-  background: transparent;
+  position: relative;
+  background: none;
   border: none;
-  padding: 4px;
   cursor: pointer;
-  transition: all 0.2s ease;
-  user-select: none;
+  padding: 0 6px;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 32px;
-  min-height: 32px;
-
-  svg {
-    display: block;
-  }
+  color: var(--main-color);
+  transition: all 0.2s;
+  border-radius: 0;
 
   &:hover {
-    transform: scale(1.1);
-  }
-
-  &:active {
-    transform: scale(0.95);
+    color: var(--ice-main-color);
+    background-color: var(--main-hover-color);
   }
 `;
 

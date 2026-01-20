@@ -20,6 +20,7 @@ import {
   SelectValue,
   Separator,
   IceFooterRight,
+  IceHeaderLeftSider,
 } from './index.styles';
 import MenuBtnZone from '@/components/MenuBtnZone';
 import TabWindow from '@/components/TabWindow';
@@ -118,7 +119,7 @@ const MainLayout: React.FC = () => {
   return (
     <IceMainLayout $isResizing={isLeftSideDragging || isRightSideDragging}>
       <IceHeader $isMobile={isMobile}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <IceHeaderLeftSider $isMobile={isMobile}>
           <Logo showText />
           <MenuBtnZone
             ref={menuBtnZoneRef}
@@ -127,8 +128,8 @@ const MainLayout: React.FC = () => {
               setIsModalOpen(true);
             }}
           />
-          <LanguageSwitcher />
-        </div>
+          {!isMobile && <LanguageSwitcher />}
+        </IceHeaderLeftSider>
         <OffsetNavigator />
         {isProcessing && (
           <>
@@ -255,6 +256,7 @@ const MainLayout: React.FC = () => {
               tooltip={t('footer.encoding')}
             />
           )}
+          {isMobile && <LanguageSwitcher />}
           <MessageHistory />
         </IceFooterRight>
       </IceFooter>
