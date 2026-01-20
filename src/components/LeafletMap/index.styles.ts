@@ -29,9 +29,17 @@ export const CellHeaderDiv = styled.div`
   border-radius: 2px;
   text-align: left;
   font-size: 0.75rem;
-  flex: 0 0 40%;
+  flex: 0 0 35%;
   font-weight: 500;
   padding: 2px 5px;
+  word-break: break-all;
+  overflow-wrap: break-word;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0px;
+  line-height: 1;
   &:hover {
     background-color: var(--main-hover-color);
   }
@@ -44,6 +52,14 @@ export const CellBodyDiv = styled.div`
   flex: 1;
   color: var(--ice-main-color);
   padding: 2px 5px;
+  word-break: break-all;
+  overflow-wrap: break-word;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0px;
+  line-height: 1;
   &:hover {
     background-color: var(--main-hover-color);
   }

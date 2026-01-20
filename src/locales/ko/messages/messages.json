@@ -107,6 +107,10 @@
     "title": "알 수 없는 오류",
     "message": "알 수 없는 오류가 발생했습니다.\n다시 시도해주세요."
   },
+  "ADDRESS_FETCH_ERROR": {
+    "title": "주소 조회 실패",
+    "message": "주소 정보를 불러오지 못했습니다."
+  },
   "LEAFLET_MAP_LOAD_ERROR": {
     "title": "지도 로드 실패",
     "message": "Leaflet 지도를 불러오는데 실패했습니다."

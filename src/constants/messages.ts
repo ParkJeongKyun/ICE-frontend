@@ -187,7 +187,13 @@ export const MESSAGES = {
     duration: 10000,
   },
 
-  // 카카오맵 관련
+  // 맵 관련
+  ADDRESS_FETCH_ERROR: {
+    type: 'error' as MessageType,
+    title: 'messages:ADDRESS_FETCH_ERROR.title',
+    message: 'messages:ADDRESS_FETCH_ERROR.message',
+    duration: 8000,
+  },
   LEAFLET_MAP_LOAD_ERROR: {
     type: 'error' as MessageType,
     title: 'messages:LEAFLET_MAP_LOAD_ERROR.title',

@@ -107,6 +107,10 @@
     "title": "Unknown Error",
     "message": "An unknown error occurred.\nPlease try again."
   },
+  "ADDRESS_FETCH_ERROR": {
+    "title": "Address Fetch Failed",
+    "message": "Failed to fetch address information."
+  },
   "LEAFLET_MAP_LOAD_ERROR": {
     "title": "Map Load Failed",
     "message": "Failed to load Leaflet map."

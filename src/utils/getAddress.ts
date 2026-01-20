@@ -19,42 +19,10 @@ interface NominatimResponse {
   display_name?: string;
 }
 
-// 전역 좌표→주소 캐시 (모든 탭에서 공유)
-const globalAddressCache = new Map<string, string>();
-
-/**
- * 전역 캐시에서 주소 조회
- */
-export const getAddressFromGlobalCache = (lat: string | number, lng: string | number): string | undefined => {
-  const latNum = typeof lat === 'string' ? parseFloat(lat) : lat;
-  const lngNum = typeof lng === 'string' ? parseFloat(lng) : lng;
-
-  if (!isFinite(latNum) || !isFinite(lngNum)) {
-    return undefined;
-  }
-
-  const cacheKey = `${latNum},${lngNum}`;
-  return globalAddressCache.get(cacheKey);
-};
-
-/**
- * 전역 캐시에 주소 저장
- */
-export const setAddressToGlobalCache = (lat: string | number, lng: string | number, address: string): void => {
-  const latNum = typeof lat === 'string' ? parseFloat(lat) : lat;
-  const lngNum = typeof lng === 'string' ? parseFloat(lng) : lng;
-
-  if (!isFinite(latNum) || !isFinite(lngNum)) {
-    return;
-  }
-
-  const cacheKey = `${latNum},${lngNum}`;
-  globalAddressCache.set(cacheKey, address);
-};
 
 /**
  * Nominatim API를 이용한 좌표 → 주소 변환 (역지오코딩)
- * 캐싱은 컴포넌트에서 처리
+ * 캐싱은 컨텍스트에서 처리
  * @param lat 위도
  * @param lng 경도
  * @returns 주소 문자열
@@ -62,7 +30,8 @@ export const setAddressToGlobalCache = (lat: string | number, lng: string | numb
 export const getAddress = async (
   lat: string | number,
   lng: string | number,
-  timeout: number = 5000
+  acceptLanguage: string = 'en',
+  timeout: number = 5000,
 ): Promise<string> => {
   const latNum = typeof lat === 'string' ? parseFloat(lat) : lat;
   const lngNum = typeof lng === 'string' ? parseFloat(lng) : lng;
@@ -76,7 +45,7 @@ export const getAddress = async (
     const timeoutId = setTimeout(() => controller.abort(), timeout);
 
     const response = await fetch(
-      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latNum}&lon=${lngNum}&zoom=10&addressdetails=1&accept-language=ko`,
+      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latNum}&lon=${lngNum}&zoom=10&addressdetails=1&accept-language=${acceptLanguage}`,
       {
         headers: {
           'User-Agent': 'ICE-Frontend-ExifViewer',

@@ -20,12 +20,24 @@ export interface SelectionState {
   selectedBytes?: Uint8Array;
 }
 
-// 탭별 표시 상태: 현재 표시 중인 이미지 좌표와 주소
-export interface TabDisplayState {
+// 좌표별 표시 상태: 현재 표시 중인 이미지 좌표와 주소
+export interface AddressCacheState {
   latitude?: string;
   longitude?: string;
   address?: string;
 }
+
+// 언어별 + 좌표키별로 관리되는 AddressCache
+// 예: addressCache['ko']['37.123,127.456'] = { latitude, longitude, address }
+export type AddressCache = Record<string, Record<string, AddressCacheState>>;
+
+// === AddressCache Context (주소 캐시만 별도 관리) ===
+interface AddressCacheContextType {
+  addressCache: AddressCache;
+  updateAddressCache: (lang: string, lat: string | number, lng: string | number, state: Partial<AddressCacheState>) => void;
+}
+
+const AddressCacheContext = createContext<AddressCacheContextType | undefined>(undefined);
 
 // === Tab Data Context (탭 데이터, 거의 변하지 않음) ===
 interface TabContextType {
@@ -42,8 +54,6 @@ interface TabContextType {
   tabOrder: TabKey[];
   setTabOrder: React.Dispatch<React.SetStateAction<TabKey[]>>;
   reorderTabs: (fromIndex: number, toIndex: number) => void;
-  tabDisplayStates: Record<TabKey, TabDisplayState>;
-  updateTabDisplayState: (tabKey: TabKey, state: Partial<TabDisplayState>) => void;
 }
 
 // === Scroll Context (스크롤, 자주 변함) ===
@@ -80,7 +90,7 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
   const [scrollPositions, setScrollPositions] = useState<Record<TabKey, number>>({});
   const [selectionStates, setSelectionStates] = useState<Record<TabKey, SelectionState>>({});
   const [tabOrder, setTabOrder] = useState<TabKey[]>([]);
-  const [tabDisplayStates, setTabDisplayStates] = useState<Record<TabKey, TabDisplayState>>({});
+  const [addressCache, setAddressCache] = useState<AddressCache>({});
 
   const { deleteWorkerCache } = useWorker();
 
@@ -88,11 +98,18 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
     setEncodingState(newEncoding);
   }, []);
 
-  const updateTabDisplayState = useCallback(
-    (tabKey: TabKey, state: Partial<TabDisplayState>) => {
-      setTabDisplayStates((prev) => ({
+  // 언어+좌표키별로 상태를 관리
+  const updateAddressCache = useCallback(
+    (lang: string, lat: string | number, lng: string | number, state: Partial<AddressCacheState>) => {
+      const latNum = typeof lat === 'string' ? parseFloat(lat) : lat;
+      const lngNum = typeof lng === 'string' ? parseFloat(lng) : lng;
+      const coordKey = `${latNum},${lngNum}`;
+      setAddressCache((prev) => ({
         ...prev,
-        [tabKey]: { ...prev[tabKey], ...state },
+        [lang]: {
+          ...prev[lang],
+          [coordKey]: { ...prev[lang]?.[coordKey], ...state },
+        },
       }));
     },
     []
@@ -129,11 +146,6 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
       });
 
       setSelectionStates((prev) => {
-        const { [key]: _, ...rest } = prev;
-        return rest;
-      });
-
-      setTabDisplayStates((prev) => {
         const { [key]: _, ...rest } = prev;
         return rest;
       });
@@ -181,8 +193,6 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
       tabOrder,
       setTabOrder,
       reorderTabs,
-      tabDisplayStates,
-      updateTabDisplayState,
     }),
     [
       tabData,
@@ -193,9 +203,16 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
       getNewKey,
       deleteTab,
       reorderTabs,
-      tabDisplayStates,
-      updateTabDisplayState,
     ]
+  );
+
+  // === AddressCache Context ===
+  const addressCacheContextValue = useMemo(
+    () => ({
+      addressCache,
+      updateAddressCache,
+    }),
+    [addressCache, updateAddressCache]
   );
 
   // === Scroll Context (자주 변함) ===
@@ -219,19 +236,22 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // === Legacy Context (하위 호환성) ===
   // 더 이상 생성되지 않음
-  
+
   return (
+
     <TabContext.Provider value={tabContextValue}>
-      <ScrollContext.Provider value={scrollContextValue}>
-        <SelectionContext.Provider value={selectionContextValue}>
-          {children}
-        </SelectionContext.Provider>
-      </ScrollContext.Provider>
+      <AddressCacheContext.Provider value={addressCacheContextValue}>
+        <ScrollContext.Provider value={scrollContextValue}>
+          <SelectionContext.Provider value={selectionContextValue}>
+            {children}
+          </SelectionContext.Provider>
+        </ScrollContext.Provider>
+      </AddressCacheContext.Provider>
     </TabContext.Provider>
   );
+
 };
 
-// === 새로운 Hook들 (권장) ===
 export const useTab = () => {
   const context = useContext(TabContext);
   if (!context) {
@@ -255,3 +275,11 @@ export const useSelection = () => {
   }
   return context;
 };
+
+export const useAddressCache = () => {
+  const context = useContext(AddressCacheContext);
+  if (!context) {
+    throw new Error('useAddressCache must be used within a TabDataProvider');
+  }
+  return context;
+}
