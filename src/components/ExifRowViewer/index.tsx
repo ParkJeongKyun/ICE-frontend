@@ -138,7 +138,7 @@ const ExifRowViewer: React.FC = () => {
               </ContentDiv>
               <ContentDiv>
                 <CellHeaderDiv>
-                  <Tooltip text={t('dataInspector.noSelection')}>
+                  <Tooltip text={t('exifViewer.mimeTypeMessage')}>
                     {t('exifViewer.mimeType')}
                   </Tooltip>
                 </CellHeaderDiv>
@@ -148,7 +148,7 @@ const ExifRowViewer: React.FC = () => {
               </ContentDiv>
               <ContentDiv>
                 <CellHeaderDiv>
-                  <Tooltip text={t('dataInspector.noSelection')}>
+                  <Tooltip text={t('exifViewer.appropriateExtensionMessage')}>
                     {t('exifViewer.appropriateExtension')}
                   </Tooltip>
                 </CellHeaderDiv>
