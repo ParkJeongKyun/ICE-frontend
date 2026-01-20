@@ -258,7 +258,7 @@ export const IceMobileBottom = styled.div`
   background-color: var(--main-bg-color);
   color: var(--main-color);
   overflow: auto;
-  height: 40%;
+  height: 70%;
   border-top: 1px solid var(--main-line-color);
 `;
 

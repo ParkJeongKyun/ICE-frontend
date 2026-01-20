@@ -4,7 +4,8 @@ export const NotSelectedDiv = styled.div`
   font-weight: 600;
   font-size: 0.8rem;
   color: var(--ice-main-color);
-  margin: 4px 0 2px 0;
+  padding: 4px 0 2px 0;
+  border-top: 1px solid var(--main-line-color);
 `;
 
 export const ContentDiv = styled.div`
