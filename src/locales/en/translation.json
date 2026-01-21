@@ -117,7 +117,7 @@
     "exifTags": "Exif Tags",
     "exifInfo": "Exif Info",
     "byteOrder": "Byte Order",
-    "baseOffset": "Base Offset",
+    "baseOffset": "TIFF Header Offset",
     "firstIfdOffset": "First IFD Offset",
     "ifdInfo": "IFD Info",
     "ifdName": "IFD Name",

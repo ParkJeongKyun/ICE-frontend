@@ -113,8 +113,8 @@ const ExifRowViewer: React.FC = () => {
   const handleJumpToIfdOffset = useCallback(
     async (ifdOffset?: number) => {
       if (!searcherRef?.current || ifdOffset === undefined || !activeData?.file) return;
-      const absolute = baseOffset + (ifdOffset || 0);
-      if (absolute < 0 || absolute >= activeData.file.size) return;
+      const absolute = Number(baseOffset ?? 0) + Number(ifdOffset || 0);
+      if (Number.isNaN(absolute) || absolute < 0 || absolute >= activeData.file.size) return;
 
       const hexStr = absolute.toString(16);
       try {
@@ -125,6 +125,39 @@ const ExifRowViewer: React.FC = () => {
     },
     [searcherRef, baseOffset, activeData]
   );
+
+  const handleJumpToBaseOffset = useCallback(async (isByteOrder: boolean = false) => {
+    if (!searcherRef?.current || !activeData?.file || baseOffset === undefined) return;
+    const absolute = Number(baseOffset);
+    const length = isByteOrder ? 2 : 1; // byte-order marker is 2 bytes
+    if (Number.isNaN(absolute) || absolute < 0 || absolute + length > activeData.file.size) return;
+
+    const hexStr = absolute.toString(16);
+    try {
+      await searcherRef.current.findByOffset(hexStr, length);
+    } catch (e) {
+      // ignore
+    }
+  }, [searcherRef, baseOffset, activeData]);
+
+  const handleJumpToFirstIfdOffset = useCallback(async () => {
+    if (!searcherRef?.current || !activeData?.file) return;
+    const rel = Number(activeData?.exifInfo?.firstIfdOffset ?? NaN);
+    const base = Number(baseOffset ?? NaN);
+    if (Number.isNaN(rel) || Number.isNaN(base)) return;
+
+    const absolute = base + rel;
+    if (absolute < 0 || absolute >= activeData.file.size) return;
+
+    const hexStr = absolute.toString(16);
+    try {
+      await searcherRef.current.findByOffset(hexStr, 0);
+    } catch (e) {
+      // ignore
+    }
+  }, [searcherRef, baseOffset, activeData]);
+
+
 
   return (
     <ViewerDiv>
@@ -203,22 +236,51 @@ const ExifRowViewer: React.FC = () => {
                 removePadding
               />
             )}
-
           <Collapse
             title={t('exifViewer.exifInfo')}
             children={
               <>
                 <ContentDiv>
-                  <CellHeaderDiv>{t('exifViewer.byteOrder')}</CellHeaderDiv>
-                  <CellBodyDiv>{activeData.exifInfo?.byteOrder || '-'}</CellBodyDiv>
+                  <CellHeaderDiv>{t('exifViewer.byteOrder')}
+                    {typeof activeData.exifInfo?.baseOffset === 'number' && (
+                      <Tooltip text={`${t('exifViewer.jumpToOffset')} 0x${Number(activeData.exifInfo?.baseOffset).toString(16).toUpperCase()} (2 bytes)`}>
+                        <JumpButton onClick={() => handleJumpToBaseOffset(true)}>
+                          <ChevronRightIcon />
+                        </JumpButton>
+                      </Tooltip>
+                    )}
+                  </CellHeaderDiv>
+                  <CellBodyDiv>
+                    {activeData.exifInfo?.byteOrder || '-'}
+                  </CellBodyDiv>
                 </ContentDiv>
                 <ContentDiv>
-                  <CellHeaderDiv>{t('exifViewer.baseOffset')}</CellHeaderDiv>
-                  <CellBodyDiv>{activeData.exifInfo?.baseOffset ?? '-'}</CellBodyDiv>
+                  <CellHeaderDiv>{t('exifViewer.baseOffset')}
+                    {typeof activeData.exifInfo?.baseOffset === 'number' && (
+                      <Tooltip text={`${t('exifViewer.jumpToOffset')} 0x${Number(activeData.exifInfo?.baseOffset).toString(16).toUpperCase()}`}>
+                        <JumpButton onClick={() => handleJumpToBaseOffset(false)}>
+                          <ChevronRightIcon />
+                        </JumpButton>
+                      </Tooltip>
+                    )}
+                  </CellHeaderDiv>
+                  <CellBodyDiv>
+                    {activeData.exifInfo?.baseOffset ?? '-'}
+                  </CellBodyDiv>
                 </ContentDiv>
                 <ContentDiv>
-                  <CellHeaderDiv>{t('exifViewer.firstIfdOffset')}</CellHeaderDiv>
-                  <CellBodyDiv>{activeData.exifInfo?.firstIfdOffset ?? '-'}</CellBodyDiv>
+                  <CellHeaderDiv>{t('exifViewer.firstIfdOffset')}
+                    {typeof activeData.exifInfo?.firstIfdOffset === 'number' && (
+                      <Tooltip text={`${t('exifViewer.jumpToOffset')} 0x${(Number(activeData.exifInfo?.baseOffset) + Number(activeData.exifInfo?.firstIfdOffset)).toString(16).toUpperCase()}`}>
+                        <JumpButton onClick={handleJumpToFirstIfdOffset}>
+                          <ChevronRightIcon />
+                        </JumpButton>
+                      </Tooltip>
+                    )}
+                  </CellHeaderDiv>
+                  <CellBodyDiv>
+                    {activeData.exifInfo?.firstIfdOffset ?? '-'}
+                  </CellBodyDiv>
                 </ContentDiv>
               </>
             }
@@ -238,9 +300,9 @@ const ExifRowViewer: React.FC = () => {
                         <>
                           <ContentDiv>
                             <CellHeaderDiv>{t('exifViewer.ifdOffset')}</CellHeaderDiv>
-                            <CellBodyDiv style={{ display: 'flex', alignItems: 'center' }}>
+                            <CellBodyDiv>
                               <span>{ifd.offset}</span>
-                              <JumpButton style={{ marginLeft: 8 }} onClick={() => handleJumpToIfdOffset(ifd.offset)}>
+                              <JumpButton onClick={() => handleJumpToIfdOffset(ifd.offset)}>
                                 <ChevronRightIcon />
                               </JumpButton>
                             </CellBodyDiv>
@@ -318,7 +380,6 @@ const ExifRowViewer: React.FC = () => {
                             return (
                               <Tooltip text={realTooltip}>
                                 <JumpButton
-                                  style={{ marginLeft: '8px', opacity: 0.7 }}
                                   onClick={() => handleJumpToRealDataOffset(item)}
                                 >
                                   <ChevronRightIcon />
