@@ -113,6 +113,13 @@
     "thumbnail": "썸네일",
     "map": "지도",
     "address": "주소",
-    "exifData": "Exif 데이터"
+    "exifData": "Exif 데이터",
+    "jumpToOffset": "다음으로 이동",
+    "jumpToTag": "태그 오프셋으로 이동",
+    "jumpUnavailable": "이동 불가",
+    "resolvePointer": "포인터 해석 위치",
+    "jumpToPointerTarget": "포인터가 가리키는 위치로 이동",
+    "jumpToData": "데이터 위치로 이동",
+    "jumpToRealData": "실제 데이터 위치로 이동"
   }
 }

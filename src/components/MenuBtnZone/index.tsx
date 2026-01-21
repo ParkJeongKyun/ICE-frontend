@@ -103,7 +103,7 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
           throw new Error(result.error);
         }
 
-        const { rows, thumbnail, location } = await parseExifData(
+        const { rows, thumbnail, location, baseOffset } = await parseExifData(
           result.exif_data || '[]',
           file,
           result.mime_type
@@ -126,6 +126,7 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
             location,
             thumbnail,
             rows,
+            baseOffset,
             file,
           },
         }));

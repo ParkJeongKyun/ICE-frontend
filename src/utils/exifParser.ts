@@ -51,6 +51,7 @@ export const parseExifData = async (
   let thumbnail = '';
   let lat = 'NaN';
   let lng = 'NaN';
+  let baseOffset = 0;
 
   try {
     const meta: ExifRow[] = JSON.parse(exifData);
@@ -58,6 +59,11 @@ export const parseExifData = async (
       const parsedGPS = parseGPSFromRows(meta);
       lat = parsedGPS.lat;
       lng = parsedGPS.lng;
+
+      const exifOffsetItem = meta.find((it) => it.tag === 'ExifOffset');
+      if (exifOffsetItem?.data) {
+        baseOffset = parseInt(String(exifOffsetItem.data), 10);
+      }
 
       const createFromTagBlob = (tagItem?: ExifRow, lenItem?: ExifRow): Blob | null => {
         if (!tagItem || !tagItem.data) return null;
@@ -103,6 +109,7 @@ export const parseExifData = async (
     rows,
     thumbnail,
     location: { lat, lng },
+    baseOffset: baseOffset,
   };
 };
 

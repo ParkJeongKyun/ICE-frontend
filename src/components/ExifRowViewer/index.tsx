@@ -17,6 +17,7 @@ import { getBytes, getDate } from '@/utils/exifParser';
 import { useTranslation } from 'react-i18next';
 import ChevronRightIcon from '../common/Icons/ChevronRightIcon';
 import { useRefs } from '@/contexts/RefContext';
+import { ExifRow } from '@/types';
 
 const ExifRowViewer: React.FC = () => {
   const { activeData } = useTab();
@@ -24,16 +25,7 @@ const ExifRowViewer: React.FC = () => {
   const { searcherRef } = useRefs();
   const fileSize = activeData?.file?.size ?? 0;
   const thumbnail = activeData?.thumbnail;
-
-  type ExifRow = {
-    tag: string;
-    data?: string;
-    offset?: number;
-    length?: number;
-    isFar?: boolean;
-  };
-
-  const rows: ExifRow[] = activeData?.rows ?? [];
+  const baseOffset = activeData?.baseOffset;
 
   const getExifTagLabel = useCallback((tagMeta: string): { name: string; description: string } => {
     const tagKey = `${tagMeta}`;
@@ -52,9 +44,6 @@ const ExifRowViewer: React.FC = () => {
     }
     return rawData;
   }, [t]);
-
-  const exifOffsetItem = useMemo(() => rows.find(r => r.tag === 'ExifOffset'), [rows]);
-  const baseOffset = useMemo(() => parseInt(exifOffsetItem?.data || '0', 10) || 0, [exifOffsetItem]);
 
 
   const handleJumpToAbsoluteOffset = useCallback(
@@ -199,9 +188,22 @@ const ExifRowViewer: React.FC = () => {
                       <Tooltip text={description}>
                         {name}
                       </Tooltip>
-                      <JumpButton onClick={() => handleJumpToAbsoluteOffset(item?.offset, item?.length, item.tag)}>
-                        <ChevronRightIcon />
-                      </JumpButton>
+                      {(() => {
+                        const abs = item.tag === 'ExifOffset' ? baseOffset : baseOffset + (item.offset || 0);
+                        const absValid = typeof abs === 'number' && abs >= 0 && abs < fileSize;
+                        const absHex = typeof abs === 'number' ? `0x${abs.toString(16).toUpperCase()}` : '-';
+                        const headerTooltip = absValid
+                          ? `${t('exifViewer.jumpToTag')} ${absHex} (${abs})`
+                          : t('exifViewer.jumpUnavailable');
+
+                        return (
+                          <Tooltip text={headerTooltip}>
+                            <JumpButton onClick={() => handleJumpToAbsoluteOffset(item?.offset, item?.length, item.tag)}>
+                              <ChevronRightIcon />
+                            </JumpButton>
+                          </Tooltip>
+                        );
+                      })()}
                     </CellHeaderDiv>
                     <CellBodyDiv>
 
@@ -217,14 +219,25 @@ const ExifRowViewer: React.FC = () => {
                         </Tooltip>
                       )
                       }
-                      {item.tag !== "ExifOffset" && (
-                        <JumpButton
-                          style={{ marginLeft: '8px', opacity: 0.7 }}
-                          onClick={() => handleJumpToRealDataOffset(item)}
-                        >
-                          <ChevronRightIcon />
-                        </JumpButton>
-                      )}
+                      {item.tag !== "ExifOffset" && (() => {
+                        const entryOffset = item.offset ?? 0;
+                        const entryAddr = baseOffset + entryOffset;
+                        const entryHex = `0x${entryAddr.toString(16).toUpperCase()}`;
+                        const realTooltip = item.isFar
+                          ? `${t('exifViewer.jumpToPointerTarget')} ${entryHex} (${entryAddr})`
+                          : `${t('exifViewer.jumpToData')} ${entryHex} (${entryAddr})`;
+
+                        return (
+                          <Tooltip text={realTooltip}>
+                            <JumpButton
+                              style={{ marginLeft: '8px', opacity: 0.7 }}
+                              onClick={() => handleJumpToRealDataOffset(item)}
+                            >
+                              <ChevronRightIcon />
+                            </JumpButton>
+                          </Tooltip>
+                        );
+                      })()}
                     </CellBodyDiv>
                   </ContentDiv>
                 );

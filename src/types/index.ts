@@ -21,6 +21,7 @@ export interface ParsedExifResult {
     lat: string;
     lng: string;
   };
+  baseOffset: number;
 }
 
 // 파일 정보
@@ -46,6 +47,7 @@ export interface TabData {
     thumbnail: string;
     location: { lat: string; lng: string };
     rows: ExifRow[] | null;
+    baseOffset: number;
     file: File;
   };
 }

@@ -113,6 +113,13 @@
     "thumbnail": "Thumbnail",
     "map": "Map",
     "address": "Address",
-    "exifData": "Exif Data"
+    "exifData": "Exif Data",
+    "jumpToOffset": "Jump to",
+    "jumpToTag": "Jump to tag offset",
+    "jumpUnavailable": "Jump (unavailable)",
+    "resolvePointer": "Resolve pointer at",
+    "jumpToPointerTarget": "Jump to pointer target",
+    "jumpToData": "Jump to data at",
+    "jumpToRealData": "Jump to"
   }
 }
