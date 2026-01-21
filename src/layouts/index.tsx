@@ -118,7 +118,7 @@ const MainLayout: React.FC = () => {
 
   return (
     <IceMainLayout $isResizing={isLeftSideDragging || isRightSideDragging}>
-      <IceHeader $isMobile={isMobile}>
+      <IceHeader $isMobile={isMobile} $isProcessing={isProcessing}>
         <IceHeaderLeftSider $isMobile={isMobile}>
           <Logo showText />
           <MenuBtnZone

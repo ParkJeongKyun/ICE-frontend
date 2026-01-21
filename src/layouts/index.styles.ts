@@ -17,6 +17,7 @@ export const IceMainLayout = styled.div<{ $isResizing: boolean }>`
 // 헤더
 export const IceHeader = styled.div<{
   $isMobile?: boolean;
+  $isProcessing?: boolean;
 }>`
   display: flex;
   align-items: center;
@@ -30,6 +31,31 @@ export const IceHeader = styled.div<{
   overflow: visible;
   position: relative;
   user-select: none;
+
+  /* Processing shimmer effect on bottom border (overlayed, keeping border visible) */
+  ${(props) =>
+    props.$isProcessing &&
+    `
+    &::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      height: 1.5px;
+      width: 100%;
+      background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.05) 20%, var(--ice-main-color) 50%, rgba(255,255,255,0.05) 80%, transparent 100%);
+      background-size: 200% 100%;
+      animation: shimmer 2.5s linear infinite;
+      pointer-events: none;
+      z-index: 802;
+      mix-blend-mode: screen; /* blend with existing border */
+    }
+
+    @keyframes shimmer {
+      from { background-position: 200% 0; }
+      to { background-position: -200% 0; }
+    }
+  `}
 
   /* 모바일 버전용 */
   ${(props) =>
