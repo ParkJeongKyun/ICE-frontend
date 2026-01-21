@@ -103,7 +103,7 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
           throw new Error(result.error);
         }
 
-        const { rows, thumbnail, location, baseOffset } = await parseExifData(
+        const { tagInfos, thumbnail, location, baseOffset, byteOrder, firstIfdOffset, ifdInfos } = await parseExifData(
           result.exif_data || '[]',
           file,
           result.mime_type
@@ -116,17 +116,22 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
               label: file.name,
               contents: <HexViewer ref={hexViewerRef} />,
             },
-            fileinfo: {
+            fileInfo: {
               name: file.name,
               lastModified: file.lastModified,
               size: file.size,
-              mime_type: result.mime_type,
+              mimeType: result.mime_type,
               extension: result.extension,
             },
-            location,
-            thumbnail,
-            rows,
-            baseOffset,
+            exifInfo: {
+              location,
+              thumbnail,
+              tagInfos,
+              byteOrder,
+              firstIfdOffset,
+              ifdInfos,
+              baseOffset,
+            },
             file,
           },
         }));

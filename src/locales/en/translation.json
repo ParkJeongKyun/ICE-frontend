@@ -114,12 +114,25 @@
     "map": "Map",
     "address": "Address",
     "exifData": "Exif Data",
+    "exifTags": "Exif Tags",
+    "exifInfo": "Exif Info",
+    "byteOrder": "Byte Order",
+    "baseOffset": "Base Offset",
+    "firstIfdOffset": "First IFD Offset",
+    "ifdInfo": "IFD Info",
+    "ifdName": "IFD Name",
+    "ifdOffset": "Offset",
+    "ifdTagCount": "Tag Count",
+    "ifdNextOffset": "Next IFD Offset",
     "jumpToOffset": "Jump to",
     "jumpToTag": "Jump to tag offset",
     "jumpUnavailable": "Jump (unavailable)",
     "resolvePointer": "Resolve pointer at",
     "jumpToPointerTarget": "Jump to pointer target",
     "jumpToData": "Jump to data at",
-    "jumpToRealData": "Jump to"
+    "jumpToRealData": "Jump to",
+    "allTags": "All tags",
+    "noTags": "No tags",
+    "noIfdSelected": "No IFD selected"
   }
 }

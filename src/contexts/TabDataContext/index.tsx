@@ -245,9 +245,10 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
   // helper to revoke any blob URLs associated with tab data
   const revokeUrlsForTab = (data?: TabData[TabKey]) => {
     if (!data) return;
-    if (data.thumbnail) {
+    const thumb = data.exifInfo?.thumbnail;
+    if (thumb) {
       try {
-        URL.revokeObjectURL(data.thumbnail);
+        URL.revokeObjectURL(thumb);
       } catch (e) {
         // ignore
       }

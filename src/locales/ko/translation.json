@@ -114,12 +114,25 @@
     "map": "지도",
     "address": "주소",
     "exifData": "Exif 데이터",
+    "exifTags": "Exif 태그",
+    "exifInfo": "Exif 정보",
+    "byteOrder": "바이트 오더",
+    "baseOffset": "기준 오프셋",
+    "firstIfdOffset": "첫 IFD 오프셋",
+    "ifdInfo": "IFD 정보",
+    "ifdName": "IFD 이름",
+    "ifdOffset": "오프셋",
+    "ifdTagCount": "태그 개수",
+    "ifdNextOffset": "다음 IFD 오프셋",
     "jumpToOffset": "다음으로 이동",
     "jumpToTag": "태그 오프셋으로 이동",
     "jumpUnavailable": "이동 불가",
     "resolvePointer": "포인터 해석 위치",
     "jumpToPointerTarget": "포인터가 가리키는 위치로 이동",
     "jumpToData": "데이터 위치로 이동",
-    "jumpToRealData": "실제 데이터 위치로 이동"
+    "jumpToRealData": "실제 데이터 위치로 이동",
+    "allTags": "모든 태그",
+    "noTags": "태그가 없습니다",
+    "noIfdSelected": "선택된 IFD가 없습니다"
   }
 }
