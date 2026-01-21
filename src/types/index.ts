@@ -53,6 +53,7 @@ export interface TabData {
     window: TabWindow;
     file: File;
     fileInfo: fileinfo;
+    hasExif: boolean;
     exifInfo: ExifInfo;
   };
 }

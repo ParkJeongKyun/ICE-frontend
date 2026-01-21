@@ -16,6 +16,8 @@ import { useTranslation } from 'react-i18next';
 import ChevronRightIcon from '../common/Icons/ChevronRightIcon';
 import { useRefs } from '@/contexts/RefContext';
 import { ExifRow } from '@/types';
+import { isValidLocation } from '@/utils/getAddress';
+import LeafletMap from '@/components/LeafletMap';
 
 const ExifRowViewer: React.FC = () => {
   const { activeData } = useTab();
@@ -183,137 +185,157 @@ const ExifRowViewer: React.FC = () => {
           open
         />
       )}
-      {activeData?.exifInfo && (
-        <Collapse
-          title={t('exifViewer.exifInfo')}
-          children={
-            <>
-              <ContentDiv>
-                <CellHeaderDiv>{t('exifViewer.byteOrder')}</CellHeaderDiv>
-                <CellBodyDiv>{activeData.exifInfo.byteOrder || '-'}</CellBodyDiv>
-              </ContentDiv>
-              <ContentDiv>
-                <CellHeaderDiv>{t('exifViewer.baseOffset')}</CellHeaderDiv>
-                <CellBodyDiv>{activeData.exifInfo.baseOffset ?? '-'}</CellBodyDiv>
-              </ContentDiv>
-              <ContentDiv>
-                <CellHeaderDiv>{t('exifViewer.firstIfdOffset')}</CellHeaderDiv>
-                <CellBodyDiv>{activeData.exifInfo.firstIfdOffset ?? '-'}</CellBodyDiv>
-              </ContentDiv>
-            </>
-          }
-          open
-        />
-      )}
-      {sortedIfdInfos && sortedIfdInfos.length > 0 && (
-        <Collapse
-          title={t('exifViewer.ifdInfo')}
-          children={
-            <>
-              {sortedIfdInfos.map((ifd, i) => (
-                <Collapse
-                  key={`${ifd.ifdName || 'ifd'}-${i}`}
-                  title={`${ifd.ifdName}${ifd.tagCount ? ` (${ifd.tagCount})` : ''}`}
-                  children={
-                    <>
-                      <ContentDiv>
-                        <CellHeaderDiv>{t('exifViewer.ifdOffset')}</CellHeaderDiv>
-                        <CellBodyDiv style={{ display: 'flex', alignItems: 'center' }}>
-                          <span>{ifd.offset}</span>
-                          <JumpButton style={{ marginLeft: 8 }} onClick={() => handleJumpToIfdOffset(ifd.offset)}>
-                            <ChevronRightIcon />
-                          </JumpButton>
+      {activeData?.hasExif && (
+        <>
+          {
+            isValidLocation(activeData?.exifInfo.location.lat, activeData?.exifInfo.location.lng) && (
+              <Collapse
+                title={t('exifViewer.map')}
+                children={
+                  <>
+                    <LeafletMap
+                      latitude={activeData?.exifInfo.location.lat || ''}
+                      longitude={activeData?.exifInfo.location.lng || ''}
+                    />
+                  </>
+                }
+                open
+                removePadding
+              />
+            )}
+
+          <Collapse
+            title={t('exifViewer.exifInfo')}
+            children={
+              <>
+                <ContentDiv>
+                  <CellHeaderDiv>{t('exifViewer.byteOrder')}</CellHeaderDiv>
+                  <CellBodyDiv>{activeData.exifInfo?.byteOrder || '-'}</CellBodyDiv>
+                </ContentDiv>
+                <ContentDiv>
+                  <CellHeaderDiv>{t('exifViewer.baseOffset')}</CellHeaderDiv>
+                  <CellBodyDiv>{activeData.exifInfo?.baseOffset ?? '-'}</CellBodyDiv>
+                </ContentDiv>
+                <ContentDiv>
+                  <CellHeaderDiv>{t('exifViewer.firstIfdOffset')}</CellHeaderDiv>
+                  <CellBodyDiv>{activeData.exifInfo?.firstIfdOffset ?? '-'}</CellBodyDiv>
+                </ContentDiv>
+              </>
+            }
+            open
+          />
+
+          {sortedIfdInfos && sortedIfdInfos.length > 0 && (
+            <Collapse
+              title={t('exifViewer.ifdInfo')}
+              children={
+                <>
+                  {sortedIfdInfos.map((ifd, i) => (
+                    <Collapse
+                      key={`${ifd.ifdName || 'ifd'}-${i}`}
+                      title={`${ifd.ifdName}${ifd.tagCount ? ` (${ifd.tagCount})` : ''}`}
+                      children={
+                        <>
+                          <ContentDiv>
+                            <CellHeaderDiv>{t('exifViewer.ifdOffset')}</CellHeaderDiv>
+                            <CellBodyDiv style={{ display: 'flex', alignItems: 'center' }}>
+                              <span>{ifd.offset}</span>
+                              <JumpButton style={{ marginLeft: 8 }} onClick={() => handleJumpToIfdOffset(ifd.offset)}>
+                                <ChevronRightIcon />
+                              </JumpButton>
+                            </CellBodyDiv>
+                          </ContentDiv>
+                          <ContentDiv>
+                            <CellHeaderDiv>{t('exifViewer.ifdTagCount')}</CellHeaderDiv>
+                            <CellBodyDiv>{ifd.tagCount ?? '-'}</CellBodyDiv>
+                          </ContentDiv>
+                          <ContentDiv>
+                            <CellHeaderDiv>{t('exifViewer.ifdNextOffset')}</CellHeaderDiv>
+                            <CellBodyDiv>{ifd.nextIfdOffset ?? '-'}</CellBodyDiv>
+                          </ContentDiv>
+                        </>
+                      }
+                    />
+                  ))}
+                </>
+              }
+            />
+          )}
+          {activeData?.exifInfo?.tagInfos && activeData.exifInfo.tagInfos.length > 0 && (
+            <Collapse
+              title={t('exifViewer.exifTags')}
+              children={
+                <>
+                  {activeData.exifInfo.tagInfos.map((item, index) => {
+                    const { name, description } = getExifTagLabel(item.tag);
+                    const displayData = getExifDataDisplay(item.tag, item.data);
+
+                    return (
+                      <ContentDiv key={`${index}-info`}>
+                        <CellHeaderDiv>
+                          <Tooltip text={description}>
+                            {name}
+                          </Tooltip>
+                          {(() => {
+                            const abs = baseOffset + (item.offset || 0);
+                            const absValid = typeof abs === 'number' && abs >= 0 && abs < fileSize;
+                            const absHex = typeof abs === 'number' ? `0x${abs.toString(16).toUpperCase()}` : '-';
+                            const headerTooltip = absValid
+                              ? `${t('exifViewer.jumpToTag')} ${absHex} (${abs})`
+                              : t('exifViewer.jumpUnavailable');
+
+                            return (
+                              <Tooltip text={headerTooltip}>
+                                <JumpButton onClick={() => handleJumpToAbsoluteOffset(item?.offset ?? 0, item?.length ?? 0, item.tag)}>
+                                  <ChevronRightIcon />
+                                </JumpButton>
+                              </Tooltip>
+                            );
+                          })()}
+                        </CellHeaderDiv>
+                        <CellBodyDiv>
+
+                          {thumbnail && (item.tag === 'JPEGInterchangeFormat' || item.tag === 'ThumbJPEGInterchangeFormat') ? (
+                            <ThumbDiv>
+                              <Thumbnail src={thumbnail} />
+                            </ThumbDiv>
+                          ) : (
+                            <Tooltip text={item.data}>
+                              <div>
+                                {displayData}
+                              </div>
+                            </Tooltip>
+                          )
+                          }
+                          {(() => {
+                            const entryOffset = item.offset ?? 0;
+                            const entryAddr = baseOffset + entryOffset;
+                            const entryHex = `0x${entryAddr.toString(16).toUpperCase()}`;
+                            const realTooltip = item.isFar
+                              ? `${t('exifViewer.jumpToPointerTarget')} ${entryHex} (${entryAddr})`
+                              : `${t('exifViewer.jumpToData')} ${entryHex} (${entryAddr})`;
+
+                            return (
+                              <Tooltip text={realTooltip}>
+                                <JumpButton
+                                  style={{ marginLeft: '8px', opacity: 0.7 }}
+                                  onClick={() => handleJumpToRealDataOffset(item)}
+                                >
+                                  <ChevronRightIcon />
+                                </JumpButton>
+                              </Tooltip>
+                            );
+                          })()}
                         </CellBodyDiv>
                       </ContentDiv>
-                      <ContentDiv>
-                        <CellHeaderDiv>{t('exifViewer.ifdTagCount')}</CellHeaderDiv>
-                        <CellBodyDiv>{ifd.tagCount ?? '-'}</CellBodyDiv>
-                      </ContentDiv>
-                      <ContentDiv>
-                        <CellHeaderDiv>{t('exifViewer.ifdNextOffset')}</CellHeaderDiv>
-                        <CellBodyDiv>{ifd.nextIfdOffset ?? '-'}</CellBodyDiv>
-                      </ContentDiv>
-                    </>
-                  }
-                />
-              ))}
-            </>
-          }
-        />
-      )}
-      {activeData?.exifInfo?.tagInfos && activeData.exifInfo.tagInfos.length > 0 && (
-        <Collapse
-          title={t('exifViewer.exifTags')}
-          children={
-            <>
-              {activeData.exifInfo.tagInfos.map((item, index) => {
-                const { name, description } = getExifTagLabel(item.tag);
-                const displayData = getExifDataDisplay(item.tag, item.data);
-
-                return (
-                  <ContentDiv key={`${index}-info`}>
-                    <CellHeaderDiv>
-                      <Tooltip text={description}>
-                        {name}
-                      </Tooltip>
-                      {(() => {
-                        const abs = baseOffset + (item.offset || 0);
-                        const absValid = typeof abs === 'number' && abs >= 0 && abs < fileSize;
-                        const absHex = typeof abs === 'number' ? `0x${abs.toString(16).toUpperCase()}` : '-';
-                        const headerTooltip = absValid
-                          ? `${t('exifViewer.jumpToTag')} ${absHex} (${abs})`
-                          : t('exifViewer.jumpUnavailable');
-
-                        return (
-                          <Tooltip text={headerTooltip}>
-                            <JumpButton onClick={() => handleJumpToAbsoluteOffset(item?.offset ?? 0, item?.length ?? 0, item.tag)}>
-                              <ChevronRightIcon />
-                            </JumpButton>
-                          </Tooltip>
-                        );
-                      })()}
-                    </CellHeaderDiv>
-                    <CellBodyDiv>
-
-                      {thumbnail && (item.tag === 'JPEGInterchangeFormat' || item.tag === 'ThumbJPEGInterchangeFormat') ? (
-                        <ThumbDiv>
-                          <Thumbnail src={thumbnail} />
-                        </ThumbDiv>
-                      ) : (
-                        <Tooltip text={item.data}>
-                          <div>
-                            {displayData}
-                          </div>
-                        </Tooltip>
-                      )
-                      }
-                      {(() => {
-                        const entryOffset = item.offset ?? 0;
-                        const entryAddr = baseOffset + entryOffset;
-                        const entryHex = `0x${entryAddr.toString(16).toUpperCase()}`;
-                        const realTooltip = item.isFar
-                          ? `${t('exifViewer.jumpToPointerTarget')} ${entryHex} (${entryAddr})`
-                          : `${t('exifViewer.jumpToData')} ${entryHex} (${entryAddr})`;
-
-                        return (
-                          <Tooltip text={realTooltip}>
-                            <JumpButton
-                              style={{ marginLeft: '8px', opacity: 0.7 }}
-                              onClick={() => handleJumpToRealDataOffset(item)}
-                            >
-                              <ChevronRightIcon />
-                            </JumpButton>
-                          </Tooltip>
-                        );
-                      })()}
-                    </CellBodyDiv>
-                  </ContentDiv>
-                );
-              })}
-            </>
-          }
-          open
-        />
+                    );
+                  })}
+                </>
+              }
+              open
+            />
+          )}
+        </>
       )}
     </ViewerDiv>
   );
