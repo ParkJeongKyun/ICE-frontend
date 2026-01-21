@@ -135,7 +135,9 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
     (key: TabKey) => {
       deleteWorkerCache(key);
 
+      // revoke and remove
       setTabData((prev) => {
+        revokeUrlsForTab(prev[key]);
         const { [key]: _, ...rest } = prev;
         return rest;
       });
@@ -234,8 +236,30 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
     [selectionStates, activeSelectionState]
   );
 
-  // === Legacy Context (하위 호환성) ===
-  // 더 이상 생성되지 않음
+  // ref to the latest tabData for cleanup on unmount
+  const tabDataRef = React.useRef<TabData>(tabData);
+  React.useEffect(() => {
+    tabDataRef.current = tabData;
+  }, [tabData]);
+
+  // helper to revoke any blob URLs associated with tab data
+  const revokeUrlsForTab = (data?: TabData[TabKey]) => {
+    if (!data) return;
+    if (data.thumbnail) {
+      try {
+        URL.revokeObjectURL(data.thumbnail);
+      } catch (e) {
+        // ignore
+      }
+    }
+  };
+
+  // on provider unmount, revoke any remaining blob URLs
+  React.useEffect(() => {
+    return () => {
+      Object.values(tabDataRef.current).forEach((d) => revokeUrlsForTab(d));
+    };
+  }, []);
 
   return (
 

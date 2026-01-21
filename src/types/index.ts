@@ -6,11 +6,11 @@ export interface ExifRow {
   // 타입
   type: string;
   // 단위
-  // offset 
+  // offset
   offset: number;
-  // length 
+  // length
   length: number;
-  // isFar 
+  // isFar
   isFar: boolean;
 }
 
@@ -44,7 +44,7 @@ export interface TabData {
     window: TabWindow;
     fileinfo: fileinfo;
     thumbnail: string;
-    location: { lat: string; lng: string;};
+    location: { lat: string; lng: string };
     rows: ExifRow[] | null;
     file: File;
   };

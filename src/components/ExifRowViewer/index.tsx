@@ -23,6 +23,7 @@ const ExifRowViewer: React.FC = () => {
   const { t } = useTranslation();
   const { searcherRef } = useRefs();
   const fileSize = activeData?.file?.size ?? 0;
+  const thumbnail = activeData?.thumbnail;
 
   type ExifRow = {
     tag: string;
@@ -55,33 +56,6 @@ const ExifRowViewer: React.FC = () => {
   const exifOffsetItem = useMemo(() => rows.find(r => r.tag === 'ExifOffset'), [rows]);
   const baseOffset = useMemo(() => parseInt(exifOffsetItem?.data || '0', 10) || 0, [exifOffsetItem]);
 
-  const [thumbnailUrls, setThumbnailUrls] = useState<Record<number, string>>({});
-  const prevThumbsRef = useRef<string[]>([]);
-
-  useEffect(() => {
-    const urls: Record<number, string> = {};
-    rows.forEach((item, idx) => {
-      if (item.tag === 'JPEGInterchangeFormat' && item.data) {
-        const cleanHex = item.data.replace(/[^0-9a-fA-F]/g, '');
-        const bytePairs = cleanHex.match(/.{1,2}/g) ?? [];
-        const bytes = bytePairs.map(b => parseInt(b, 16));
-        if (bytes.length) {
-          const byteArray = new Uint8Array(bytes);
-          const blob = new Blob([byteArray], { type: 'image/jpeg' });
-          urls[idx] = URL.createObjectURL(blob);
-        }
-      }
-    });
-
-    prevThumbsRef.current.forEach(u => URL.revokeObjectURL(u));
-    prevThumbsRef.current = Object.values(urls);
-    setThumbnailUrls(urls);
-
-    return () => {
-      Object.values(urls).forEach(u => URL.revokeObjectURL(u));
-      prevThumbsRef.current = [];
-    };
-  }, [rows]);
 
   const handleJumpToAbsoluteOffset = useCallback(
     async (relativeOffset: number, length: number, tag: string) => {
@@ -137,13 +111,13 @@ const ExifRowViewer: React.FC = () => {
 
   return (
     <ViewerDiv>
-      {activeData?.thumbnail && (
+      {thumbnail && (
         <Collapse
           title={t('exifViewer.thumbnail')}
           children={
             <>
               <ThumbDiv>
-                <Thumbnail src={activeData?.thumbnail} />
+                <Thumbnail src={thumbnail} />
               </ThumbDiv>
             </>
           }
@@ -219,7 +193,6 @@ const ExifRowViewer: React.FC = () => {
                 const { name, description } = getExifTagLabel(item.tag);
                 const displayData = getExifDataDisplay(item.tag, item.data);
 
-                const thumbnailUrl: string | null = thumbnailUrls[index] ?? null;
                 return (
                   <ContentDiv key={`${index}-info`}>
                     <CellHeaderDiv>
@@ -232,9 +205,9 @@ const ExifRowViewer: React.FC = () => {
                     </CellHeaderDiv>
                     <CellBodyDiv>
 
-                      {thumbnailUrl && item.tag === 'JPEGInterchangeFormat' ? (
+                      {thumbnail && (item.tag === 'JPEGInterchangeFormat' || item.tag === 'ThumbJPEGInterchangeFormat') ? (
                         <ThumbDiv>
-                          <Thumbnail src={thumbnailUrl} />
+                          <Thumbnail src={thumbnail} />
                         </ThumbDiv>
                       ) : (
                         <Tooltip text={item.data}>
