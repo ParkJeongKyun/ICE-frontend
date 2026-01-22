@@ -32,7 +32,7 @@ const BtnDiv = styled.div<{ disabled: boolean }>`
   align-items: center;
   justify-content: center;
 
-  padding: 2px 6px;
+  padding: 5px;
   border-radius: 4px;
 
   font-size: 0.75rem;

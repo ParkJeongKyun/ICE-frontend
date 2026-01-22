@@ -74,7 +74,7 @@ const MessageHistory: React.FC = () => {
         if (typeof message === 'string') {
             return message.split('\n')[0];
         }
-        return '메시지 내용';
+        return '';
     }, []);
 
     return (
@@ -93,13 +93,13 @@ const MessageHistory: React.FC = () => {
                         {messageHistory.length > 0 && (
                             <Tooltip text={t('notifications.clearAll')}>
                                 <HistoryClearBtn onClick={clearHistory}>
-                                    <TrashIcon width={12} height={12} />
+                                    <TrashIcon width={14} height={14} />
                                 </HistoryClearBtn>
                             </Tooltip>
                         )}
                         <Tooltip text={t('notifications.close')}>
                             <HistoryClearBtn onClick={handleClose}>
-                                <XIcon width={12} height={12} />
+                                <XIcon width={14} height={14} />
                             </HistoryClearBtn>
                         </Tooltip>
                     </HistoryActions>
