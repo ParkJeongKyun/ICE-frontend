@@ -111,15 +111,6 @@ export const HistoryList = styled.div`
   flex: 1;
   overflow-y: auto;
   padding: 6px;
-
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background-color: var(--main-line-color);
-    border-radius: 3px;
-  }
 `;
 
 export const HistoryItem = styled.div<{

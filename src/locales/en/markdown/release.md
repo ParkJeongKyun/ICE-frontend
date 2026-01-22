@@ -1,5 +1,11 @@
 ## Release Notes
 
+### v2026.01.23
+- Updated Go EXIF library
+- Improved EXIF analysis / Enhanced EXIF parsing
+- Added English language support
+- UI/UX improvements
+
 ### v2026.01.12
 - Changed map from KakaoMap to Leaflet (OpenStreetMap)
 - Global map and address

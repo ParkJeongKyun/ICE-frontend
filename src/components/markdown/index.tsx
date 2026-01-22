@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Markdown from 'react-markdown';
 import styled from 'styled-components';
 import BackArrowIcon from '@/components/common/Icons/BackArrowIcon';
+import { useTranslation } from 'react-i18next';
 
 export interface Props {
   defaultText: string;
@@ -21,6 +22,7 @@ interface ImageRendererProps {
 }
 
 const ICEMarkDown: React.FC<Props> = ({ defaultText, childTexts }) => {
+  const { t } = useTranslation();
   const [markdownText, setMarkdownText] = useState<string>(defaultText);
 
   // 기본 텍스트로 변경
@@ -69,21 +71,14 @@ const ICEMarkDown: React.FC<Props> = ({ defaultText, childTexts }) => {
 
   return (
     <MarkdownContainer>
-      {/* 기본 텍스트로 변경 */}
-      {markdownText != defaultText && (
-        <MarkdownHeader>
-          <SetDefaultBtn onClick={setDefaultText}>
-            <BackArrowIcon
-              width={22}
-              height={22}
-              color="var(--ice-main-color_3)"
-            />
-          </SetDefaultBtn>
-        </MarkdownHeader>
-      )}
       <MarkDownDiv>
         <Markdown components={components}>{markdownText}</Markdown>
       </MarkDownDiv>
+      {markdownText != defaultText && (
+        <FloatingBackBtn onClick={setDefaultText} aria-label={t('notifications.back')}>
+          <BackArrowIcon width={18} height={18} color="var(--ice-main-color_3)" />
+        </FloatingBackBtn>
+      )}
     </MarkdownContainer>
   );
 };
@@ -92,6 +87,7 @@ export default ICEMarkDown;
 
 // 메인 컨테이너
 const MarkdownContainer = styled.div`
+  position: relative; /* floating button 기준 */
   display: flex;
   flex-direction: column;
   overflow-y: hidden;
@@ -99,21 +95,30 @@ const MarkdownContainer = styled.div`
   height: 100%;
 `;
 
-const MarkdownHeader = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: end;
-  padding: 0px 5px;
-  border-bottom: 1.5px solid var(--main-line-color);
-`;
-
-// 기본 텍스트로 변경 버튼
-const SetDefaultBtn = styled.div`
-  cursor: pointer;
+// 떠 있는 뒤로가기 버튼 (우측 상단)
+const FloatingBackBtn = styled.button`
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 35px;
+  height: 35px;
   display: flex;
   align-items: center;
   justify-content: center;
+  background-color: var(--main-bg-color);
+  border: 1px solid var(--main-line-color);
+  color: var(--main-color);
+  border-radius: 3px;
+  cursor: pointer;
+  z-index: 30;
+  opacity: 0.8;
+  transition: opacity 0.12s ease;
+
+  &:hover {
+    opacity: 1;
+  }
 `;
+
 
 // 마크다운 링크
 const MarkDownLink = styled.span`

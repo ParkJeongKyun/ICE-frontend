@@ -5,8 +5,11 @@ import {
   ModalHeader,
   CloseBtn,
   ChildDiv,
+  ModalTitle,
 } from './index.styles';
 import XIcon from '@/components/common/Icons/XIcon';
+import Tooltip from '../Tooltip';
+import { useTranslation } from 'react-i18next';
 
 export interface ModalProps {
   title?: React.ReactNode;
@@ -25,6 +28,7 @@ const Modal: React.FC<ModalProps> = ({
   top = '50%',
   left = '50%',
 }) => {
+  const { t } = useTranslation();
   const handleContainerClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
       if (e.target === e.currentTarget && onClose) {
@@ -47,11 +51,13 @@ const Modal: React.FC<ModalProps> = ({
     <ModalContainer $isOpen={isOpen} onClick={handleContainerClick}>
       <ModalContent $top={top} $left={left} onClick={handleContentClick}>
         <ModalHeader>
-          <div>{title}</div>
+          <ModalTitle>{title}</ModalTitle>
           {onClose && (
-            <CloseBtn onClick={onClose} aria-label="닫기">
-              <XIcon height={20} width={20} />
-            </CloseBtn>
+            <Tooltip text={t('notifications.close')}>
+              <CloseBtn onClick={onClose}>
+                <XIcon width={14} height={14} />
+              </CloseBtn>
+            </Tooltip>
           )}
         </ModalHeader>
         <ChildDiv>{children}</ChildDiv>

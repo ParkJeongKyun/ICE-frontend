@@ -46,7 +46,8 @@
     "clearAll": "Clear all",
     "close": "Close",
     "noNotifications": "No notifications",
-    "delete": "Delete"
+    "delete": "Delete",
+    "back": "Back"
   },
   "dataInspector": {
     "title": "Data Inspector",

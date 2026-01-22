@@ -18,7 +18,6 @@ export const ModalContent = styled.div<{ $top: string; $left: string }>`
   left: ${({ $left }) => $left};
   transform: ${({ $top, $left }) => `translate(-${$top}, -${$left})`};
   background-color: var(--main-bg-color);
-  padding: 5px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   border-radius: 4px;
   border: 1px solid var(--main-line-color);
@@ -29,29 +28,38 @@ export const ModalContent = styled.div<{ $top: string; $left: string }>`
 export const ChildDiv = styled.div`
   height: 70vh;
   max-height: 800px;
-  border: 1px solid var(--main-line-color);
+  padding: 6px;
 `;
 
 export const ModalHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  height: 26px;
+  padding: 2px 8px;
   border-bottom: 1px solid var(--main-line-color);
-  padding-bottom: 10px;
-  margin-bottom: 10px;
+`;
+
+export const ModalTitle = styled.h3`
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--ice-main-color);
 `;
 
 export const CloseBtn = styled.div`
-  margin-left: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--main-color);
+  padding: 4px;
+  transition: all 0.2s;
   display: flex;
   align-items: center;
-  cursor: pointer;
-  svg {
-    stroke: var(--main-line-color);
-  }
+  border-radius: 3px;
+
   &:hover {
-    svg {
-      stroke: var(--ice-main-color); // 호버 시 아이콘 컬러 변경
-    }
+    color: var(--ice-main-color);
+    background-color: var(--main-hover-color);
   }
 `;

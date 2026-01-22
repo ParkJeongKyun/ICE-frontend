@@ -46,7 +46,8 @@
     "clearAll": "모두 지우기",
     "close": "닫기",
     "noNotifications": "알림이 없습니다",
-    "delete": "삭제"
+    "delete": "삭제",
+    "back": "뒤로가기"
   },
   "dataInspector": {
     "title": "데이터 검사",

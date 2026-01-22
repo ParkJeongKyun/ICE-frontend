@@ -1,5 +1,11 @@
 ## 릴리즈 노트
 
+### v2026.01.23
+- GO EIXF 라이브러리 변경
+- EXIF 분석 기능 개선
+- 영어 지원
+- UI/UX 개선
+
 ### v2026.01.12
 - 지도 변경 KakaoMap → Leaflet(OpenStreetMap)
 - 전 세계 지도 및 주소
