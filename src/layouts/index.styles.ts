@@ -343,7 +343,10 @@ export const IceMobileTabButton = styled.button<{ $active?: boolean }>`
   }
 `;
 
-export const IceMobileTabPanel = styled.div`
+export const IceMobileTabPanel = styled.div.attrs<{ $active?: boolean }>((props) => ({
+  'aria-hidden': !props.$active,
+}))<{ $active?: boolean }>`
+  display: ${({ $active }) => ($active ? 'block' : 'none')};
   height: 65%;
   overflow: auto;
   border-top: 1px solid var(--main-line-color);

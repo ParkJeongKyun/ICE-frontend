@@ -62,6 +62,7 @@ const MessageHistory: React.FC = () => {
             next.has(id) ? next.delete(id) : next.add(id);
             return next;
         });
+        markAsRead(id);
     }, []);
 
     const getIcon = useCallback((type: MessageItem['type']) => {

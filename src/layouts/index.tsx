@@ -168,22 +168,21 @@ const MainLayout: React.FC = () => {
                 </IceMobileTabButton>
               </IceMobileTabBar>
 
-              {mobileTab === 'info' ? (
-                <IceMobileTabPanel>
-                  <div>
-                    <ExifRowViewer />
-                  </div>
-                </IceMobileTabPanel>
-              ) : (
-                <IceMobileTabPanel>
-                  <div>
-                    <Searcher ref={searcherRef} />
-                  </div>
-                  <div>
-                    <DataInspector />
-                  </div>
-                </IceMobileTabPanel>
-              )}
+              {/* 항상 마운트되게 변경: 검색(OffsetNavigator) 동작을 위해 Searcher의 ref가 필요합니다 */}
+              <IceMobileTabPanel $active={mobileTab === 'info'}>
+                <div>
+                  <ExifRowViewer />
+                </div>
+              </IceMobileTabPanel>
+
+              <IceMobileTabPanel $active={mobileTab === 'tools'}>
+                <div>
+                  <Searcher ref={searcherRef} />
+                </div>
+                <div>
+                  <DataInspector />
+                </div>
+              </IceMobileTabPanel>
             </>
           )}
         </IceMobileLayout>

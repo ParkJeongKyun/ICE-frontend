@@ -13,7 +13,7 @@ const fadeIn = keyframes`
 
 export const MessageModalContainer = styled.div<{ $isMobile: boolean }>`
   position: fixed;
-  top: 30px;
+  top: 35px;
   right: 40px;
   z-index: 10000;
   display: flex;
@@ -25,7 +25,6 @@ export const MessageModalContainer = styled.div<{ $isMobile: boolean }>`
   ${(props) =>
     props.$isMobile &&
     `
-      top: 30px;
       bottom: auto;
       right: 10px;
       left: 10px;
