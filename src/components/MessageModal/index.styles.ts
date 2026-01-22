@@ -11,25 +11,28 @@ const fadeIn = keyframes`
   }
 `;
 
-export const MessageModalContainer = styled.div`
+export const MessageModalContainer = styled.div<{ $isMobile: boolean }>`
   position: fixed;
-  bottom: 30px;
-  right: 30px;
+  top: 30px;
+  right: 40px;
   z-index: 10000;
   display: flex;
   flex-direction: column;
   gap: 12px;
   pointer-events: none;
 
-  @media (max-width: 768px) {
-    top: 30px;
-    bottom: auto;
-    right: 10px;
-    left: 10px;
-  }
+  /* 모바일 버전용 */
+  ${(props) =>
+    props.$isMobile &&
+    `
+      top: 30px;
+      bottom: auto;
+      right: 10px;
+      left: 10px;
+    `}
 `;
 
-export const MessageBox = styled.div<{ $type: MessageType }>`
+export const MessageBox = styled.div<{ $isMobile: boolean; $type: MessageType }>`
   position: relative;
   background-color: var(--main-bg-color);
   border: 1px solid ${({ $type }) => getMessageTypeColor($type)};
@@ -45,11 +48,14 @@ export const MessageBox = styled.div<{ $type: MessageType }>`
   pointer-events: auto;
   animation: ${fadeIn} 0.15s ease-out;
 
-  @media (max-width: 768px) {
-    min-width: auto;
-    max-width: none;
-    padding: 12px;
-  }
+   /* 모바일 버전용 */
+  ${(props) =>
+    props.$isMobile &&
+    `
+      min-width: auto;
+      max-width: none;
+      padding: 12px;
+    `}
 `;
 
 export const MessageIcon = styled.div<{ $type: MessageType }>`
@@ -64,6 +70,7 @@ export const MessageContent = styled.div`
   flex: 1;
   display: flex;
   flex-direction: column;
+  text-align: left;
   gap: 4px;
   min-width: 0;
 `;

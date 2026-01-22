@@ -88,7 +88,7 @@ export const HorizontalScrollbar = styled.div`
   position: absolute;
   bottom: 0;
   left: 0;
-  z-index: 100;
+  z-index: 300;
   pointer-events: all;
 `;
 
@@ -129,7 +129,7 @@ export const VirtualScrollbar = styled.div`
   position: absolute;
   right: 0;
   top: 0;
-  z-index: 100;
+  z-index: 300;
   pointer-events: all;
 `;
 

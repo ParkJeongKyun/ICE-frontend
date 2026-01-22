@@ -35,6 +35,7 @@ import ErrorIcon from '@/components/common/Icons/ErrorIcon';
 import TrashIcon from '@/components/common/Icons/TrashIcon';
 import ChevronDownIcon from '@/components/common/Icons/ChevronDownIcon';
 import { isMobile } from 'react-device-detect';
+import { getDate } from '@/utils/exifParser';
 
 const ICON_MAP = {
     error: ErrorIcon,
@@ -60,17 +61,6 @@ const MessageHistory: React.FC = () => {
             const next = new Set(prev);
             next.has(id) ? next.delete(id) : next.add(id);
             return next;
-        });
-    }, []);
-
-    const formatFullTime = useCallback((timestamp: number) => {
-        return new Date(timestamp).toLocaleString('ko-KR', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
         });
     }, []);
 
@@ -151,7 +141,7 @@ const MessageHistory: React.FC = () => {
                                     {isExpanded && (
                                         <HistoryItemExpanded>
                                             <HistoryItemMessage>{msg.message}</HistoryItemMessage>
-                                            <HistoryItemTime>{formatFullTime(msg.timestamp)}</HistoryItemTime>
+                                            <HistoryItemTime>{getDate(msg.timestamp)}</HistoryItemTime>
                                         </HistoryItemExpanded>
                                     )}
                                 </HistoryItem>

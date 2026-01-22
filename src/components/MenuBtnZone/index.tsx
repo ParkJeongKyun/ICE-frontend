@@ -255,7 +255,7 @@ const ToolsDropdownMenu = styled.div`
   background-color: var(--main-bg-color);
   border: 1px solid var(--main-line-color);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  z-index: 900;
+  z-index: 1100;
   min-width: 120px;
   border-radius: 4px;
   padding: 0;

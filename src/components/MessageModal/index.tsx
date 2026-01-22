@@ -14,6 +14,7 @@ import InfoIcon from '@/components/common/Icons/InfoIcon';
 import AlertIcon from '@/components/common/Icons/AlertIcon';
 import CheckIcon from '@/components/common/Icons/CheckIcon';
 import ErrorIcon from '@/components/common/Icons/ErrorIcon';
+import { isMobile } from 'react-device-detect';
 
 const ICON_MAP = {
   error: ErrorIcon,
@@ -36,11 +37,11 @@ const MessageModal: React.FC = () => {
   if (currentMessages.length === 0) return null;
 
   return (
-    <MessageModalContainer>
+    <MessageModalContainer $isMobile={isMobile}>
       {currentMessages.map((message) => {
         const Icon = ICON_MAP[message.type];
         return (
-          <MessageBox key={message.id} $type={message.type}>
+          <MessageBox key={message.id} $isMobile={isMobile} $type={message.type}>
             <MessageIcon $type={message.type}>
               <Icon width={20} height={20} />
             </MessageIcon>

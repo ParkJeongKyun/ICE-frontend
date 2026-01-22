@@ -47,7 +47,7 @@ export const IceHeader = styled.div<{
       background-size: 200% 100%;
       animation: shimmer 2.5s linear infinite;
       pointer-events: none;
-      z-index: 802;
+      z-index: 1002;
       mix-blend-mode: screen; /* blend with existing border */
     }
 
@@ -89,7 +89,7 @@ export const IceHeaderProgressBar = styled.div<{ $progress: number; $isProcessin
   width: 100%;
   height: 1.5px;
   background: transparent;
-  z-index: 800;
+  z-index: 1000;
   pointer-events: none;
   opacity: ${({ $isProcessing }) => ($isProcessing ? 1 : 0)};
   transition: opacity 0.2s ease;

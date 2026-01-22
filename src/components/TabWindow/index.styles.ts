@@ -124,7 +124,7 @@ export const TabWrapper = styled.div<{ $isDragging?: boolean; $dropPosition?: 'l
       width: 3px;
       height: 100%;
       background-color: var(--main-line-color);
-      z-index: 1000;
+      z-index: 1200;
     }
   `}
 `;
