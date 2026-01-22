@@ -4,7 +4,7 @@ export const NotSelectedDiv = styled.div`
   font-weight: 600;
   font-size: 0.8rem;
   color: var(--ice-main-color);
-  padding: 4px 0 2px 0;
+  padding: 10px 0;
   border-top: 1px solid var(--main-line-color);
 `;
 
@@ -28,7 +28,7 @@ export const CellHeaderDiv = styled.div`
   align-items: center;
   justify-content: space-between;
   gap: 0px;
-  line-height: 1;
+  line-height: 1.3;
   &:hover {
     background-color: var(--main-hover-color);
   }
@@ -48,7 +48,7 @@ export const CellBodyDiv = styled.div`
   align-items: center;
   justify-content: space-between;
   gap: 0px;
-  line-height: 1;
+  line-height: 1.3;
   &:hover {
     background-color: var(--main-hover-color);
   }

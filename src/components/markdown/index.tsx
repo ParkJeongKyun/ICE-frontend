@@ -129,7 +129,7 @@ export const MarkDownDiv = styled.div`
   padding-right: 15px;
   padding-bottom: 15px;
   font-size: 0.75rem;
-  line-height: 1.6;
+  line-height: 1.5;
 
   /* Styling for headings */
   h1 {
