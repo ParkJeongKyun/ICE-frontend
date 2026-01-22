@@ -290,14 +290,62 @@ export const IceMobileContent = styled.div`
   color: var(--main-color);
 `;
 
-// 모바일
-export const IceMobileBottom = styled.div`
+export const IceMobileTabBar = styled.div`
   display: flex;
-  flex-direction: column;
+  gap: 0;
+  padding: 0;
+  height: 25px;
   background-color: var(--main-bg-color);
-  color: var(--main-color);
+  border-top: 1px solid var(--main-line-color);
+  align-items: stretch;
+  justify-content: stretch;
+`;
+
+export const IceMobileTabButton = styled.button<{ $active?: boolean }>`
+  position: relative;
+  flex: 1;
+  padding: 0 15px;
+  min-width: 0;
+  border-radius: 0;
+  border: none;
+  background: transparent;
+  color: ${({ $active }) => ($active ? 'var(--ice-main-color)' : 'var(--main-color)')};
+  font-size: 0.70rem;
+  font-weight: 700;
+  cursor: pointer;
+  opacity: 1;
+  transition: color 0.12s ease, background 0.12s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  /* 가운데 선 (우측에만) */
+  &:not(:last-child) {
+    border-right: 1px solid var(--main-line-color);
+  }
+
+  &:hover {
+    color: var(--ice-main-color);
+    background-color: var(--main-hover-color);
+  }
+
+  &::after {
+    content: '';
+    display: ${(props) => (props.$active ? 'block' : 'none')};
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 2px;
+    background: var(--ice-main-color);
+    pointer-events: none;
+    z-index: 2;
+  }
+`;
+
+export const IceMobileTabPanel = styled.div`
+  height: 65%;
   overflow: auto;
-  height: 70%;
   border-top: 1px solid var(--main-line-color);
 `;
 

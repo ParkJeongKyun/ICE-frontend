@@ -10,7 +10,6 @@ import {
   IceLayout,
   IceLeftSider,
   IceMainLayout,
-  IceMobileBottom,
   IceMobileContent,
   IceMobileLayout,
   IceRightSider,
@@ -21,6 +20,9 @@ import {
   Separator,
   IceFooterRight,
   IceHeaderLeftSider,
+  IceMobileTabBar,
+  IceMobileTabButton,
+  IceMobileTabPanel,
 } from './index.styles';
 import MenuBtnZone from '@/components/MenuBtnZone';
 import TabWindow from '@/components/TabWindow';
@@ -60,6 +62,7 @@ const MainLayout: React.FC = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalContentKey, setModalContentKey] = useState<string | null>(null);
+  const [mobileTab, setMobileTab] = useState<'info' | 'tools'>('info');
 
   const {
     isDragging: isLeftSideDragging,
@@ -149,17 +152,39 @@ const MainLayout: React.FC = () => {
             {isEmpty ? <Home /> : <TabWindow />}
           </IceMobileContent>
           {!isEmpty && (
-            <IceMobileBottom>
-              <div>
-                <ExifRowViewer />
-              </div>
-              <div>
-                <Searcher ref={searcherRef} />
-              </div>
-              <div>
-                <DataInspector />
-              </div>
-            </IceMobileBottom>
+            <>
+              <IceMobileTabBar>
+                <IceMobileTabButton
+                  $active={mobileTab === 'info'}
+                  onClick={() => setMobileTab('info')}
+                >
+                  {t('mobile.tabs.info', '정보')}
+                </IceMobileTabButton>
+                <IceMobileTabButton
+                  $active={mobileTab === 'tools'}
+                  onClick={() => setMobileTab('tools')}
+                >
+                  {t('mobile.tabs.tools', '도구')}
+                </IceMobileTabButton>
+              </IceMobileTabBar>
+
+              {mobileTab === 'info' ? (
+                <IceMobileTabPanel>
+                  <div>
+                    <ExifRowViewer />
+                  </div>
+                </IceMobileTabPanel>
+              ) : (
+                <IceMobileTabPanel>
+                  <div>
+                    <Searcher ref={searcherRef} />
+                  </div>
+                  <div>
+                    <DataInspector />
+                  </div>
+                </IceMobileTabPanel>
+              )}
+            </>
           )}
         </IceMobileLayout>
       ) : (

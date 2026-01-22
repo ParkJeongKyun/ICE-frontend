@@ -22,6 +22,12 @@
     "linknote": "LinkNote",
     "fileProcessing": "Processing file..."
   },
+  "mobile": {
+    "tabs": {
+      "info": "Info",
+      "tools": "Tools"
+    }
+  },
   "footer": {
     "selection": "Selection",
     "offset": "Offset",

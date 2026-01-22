@@ -22,6 +22,12 @@
     "linknote": "LinkNote",
     "fileProcessing": "파일 처리 중입니다"
   },
+  "mobile": {
+    "tabs": {
+      "info": "정보",
+      "tools": "도구"
+    }
+  },
   "footer": {
     "selection": "선택",
     "offset": "오프셋",
