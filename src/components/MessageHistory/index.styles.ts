@@ -72,7 +72,8 @@ export const HistoryHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 10px;
+  height: 26px;
+  padding: 2px 8px;
   border-bottom: 1px solid var(--main-line-color);
 `;
 
@@ -121,9 +122,14 @@ export const HistoryList = styled.div`
   }
 `;
 
-export const HistoryItem = styled.div<{ $type: MessageType; $read: boolean; $isOpen: boolean }>`
+export const HistoryItem = styled.div<{
+  $type: MessageType;
+  $read: boolean;
+  $isOpen: boolean;
+}>`
   display: flex;
   flex-direction: column;
+  text-align: left;
   margin-bottom: 6px;
   background-color: ${({ $read }) =>
     $read ? 'transparent' : 'var(--main-hover-color)'};
@@ -159,30 +165,13 @@ export const HistoryItemIcon = styled.div<{ $type: MessageType }>`
   align-items: center;
 `;
 
-export const HistoryItemPreview = styled.div`
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-`;
-
 export const HistoryItemTitle = styled.div`
   font-size: 0.75rem;
   font-weight: 600;
   color: var(--ice-main-color);
 `;
 
-export const HistoryItemMessagePreview = styled.div`
-  font-size: 0.7rem;
-  color: var(--main-color);
-  opacity: 0.8;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-`;
-
-export const HistoryItemExpanded = styled.div`
+export const HistoryItemBody = styled.div`
   padding: 0 8px 8px 8px;
   display: flex;
   flex-direction: column;
@@ -193,12 +182,22 @@ export const HistoryItemExpanded = styled.div`
   }
 `;
 
+export const HistoryItemMessagePreview = styled.div`
+  font-size: 0.75rem;
+  color: var(--main-color);
+  opacity: 0.8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
 export const HistoryItemMessage = styled.div`
   font-size: 0.75rem;
   color: var(--main-color);
   line-height: 1.3;
   word-break: break-word;
   white-space: pre-wrap;
+  user-select: text;
 `;
 
 export const HistoryItemTime = styled.div`

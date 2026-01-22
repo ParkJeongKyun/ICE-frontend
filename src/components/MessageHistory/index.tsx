@@ -14,10 +14,9 @@ import {
     HistoryItem,
     HistoryItemHeader,
     HistoryItemIcon,
-    HistoryItemPreview,
     HistoryItemTitle,
     HistoryItemMessagePreview,
-    HistoryItemExpanded,
+    HistoryItemBody,
     HistoryItemMessage,
     HistoryItemTime,
     HistoryItemActions,
@@ -67,7 +66,7 @@ const MessageHistory: React.FC = () => {
 
     const getIcon = useCallback((type: MessageItem['type']) => {
         const Icon = ICON_MAP[type] || InfoIcon;
-        return <Icon width={12} height={12} />;
+        return <Icon width={14} height={14} />;
     }, []);
 
     const getMessagePreview = useCallback((message: React.ReactNode) => {
@@ -122,29 +121,31 @@ const MessageHistory: React.FC = () => {
                                         <HistoryItemIcon $type={msg.type}>
                                             {getIcon(msg.type)}
                                         </HistoryItemIcon>
-                                        <HistoryItemPreview>
-                                            {msg.title && <HistoryItemTitle>{msg.title}</HistoryItemTitle>}
-                                            <HistoryItemMessagePreview>
-                                                {getMessagePreview(msg.message)}
-                                            </HistoryItemMessagePreview>
-                                        </HistoryItemPreview>
+                                        {msg.title && <HistoryItemTitle>{msg.title}</HistoryItemTitle>}
                                         <HistoryItemActions onClick={(e) => e.stopPropagation()}>
                                             <Tooltip text={t('notifications.delete')}>
                                                 <HistoryItemDelete onClick={() => deleteMessage(msg.id)}>
-                                                    <XIcon width={10} height={10} />
+                                                    <XIcon width={14} height={14} />
                                                 </HistoryItemDelete>
                                             </Tooltip>
                                         </HistoryItemActions>
                                         <ExpandIcon $isOpen={isExpanded}>
-                                            <ChevronDownIcon width={12} height={12} />
+                                            <ChevronDownIcon width={14} height={14} />
                                         </ExpandIcon>
                                     </HistoryItemHeader>
-                                    {isExpanded && (
-                                        <HistoryItemExpanded>
-                                            <HistoryItemMessage>{msg.message}</HistoryItemMessage>
-                                            <HistoryItemTime>{getDate(msg.timestamp)}</HistoryItemTime>
-                                        </HistoryItemExpanded>
-                                    )}
+                                    {isExpanded ?
+                                        (
+                                            <HistoryItemBody>
+                                                <HistoryItemMessage>{msg.message}</HistoryItemMessage>
+                                                <HistoryItemTime>{getDate(msg.timestamp)}</HistoryItemTime>
+                                            </HistoryItemBody>
+                                        ) : (
+                                            <HistoryItemBody>
+                                                <HistoryItemMessagePreview>
+                                                    {getMessagePreview(msg.message)}
+                                                </HistoryItemMessagePreview>
+                                            </HistoryItemBody>
+                                        )}
                                 </HistoryItem>
                             );
                         })

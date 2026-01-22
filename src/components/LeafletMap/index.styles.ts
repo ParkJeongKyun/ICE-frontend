@@ -9,15 +9,14 @@ export const IceMapContainer = styled.div`
 `;
 
 export const IceMap = styled.div`
+  user-select: none;
   width: 100%;
   height: 150px;
 `;
 
-
 export const AddressInfo = styled.div`
   padding: 5px 10px;
 `;
-
 
 export const ContentDiv = styled.div`
   display: flex;
