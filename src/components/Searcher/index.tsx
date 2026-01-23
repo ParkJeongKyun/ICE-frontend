@@ -6,8 +6,6 @@ import React, {
   useReducer,
   useRef,
   useState,
-  forwardRef,
-  useImperativeHandle,
 } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -103,9 +101,9 @@ const reducer = (
   }
 };
 
-const Searcher: React.ForwardRefRenderFunction<SearcherRef> = (_, ref) => {
+const Searcher: React.FC = () => {
   const { t } = useTranslation();
-  const { hexViewerRef } = useRefs();
+  const { hexViewerRef, setSearcherRef } = useRefs();
   const { activeKey } = useTab();
   const { showMessage } = useMessage();
   const [searchResults, dispatch] = useReducer(reducer, initialState);
@@ -115,6 +113,31 @@ const Searcher: React.ForwardRefRenderFunction<SearcherRef> = (_, ref) => {
   const searchTabKeyRef = useRef<TabKey>(activeKey);
 
   const { findByOffset, findAllByHex, findAllByAsciiText, cleanup: cleanupSearch, filterInput } = useSearch();
+
+  // Exposed imperative methods (extracted so they can be registered into context)
+  const findByOffsetLocal = React.useCallback(async (offset: string, length: number = 1, shouldScroll = true) => {
+    if (!offset.trim()) {
+      showMessage('SEARCH_NO_INPUT');
+      return null;
+    }
+
+    const result = await findByOffset(offset, length);
+
+    if (result === null) {
+      const byteOffset = parseInt(offset, 16);
+      if (isNaN(byteOffset)) {
+        showMessage('SEARCH_INVALID_HEX');
+      } else {
+        showMessage('SEARCH_OFFSET_OUT_OF_RANGE');
+      }
+      return null;
+    }
+
+    if (shouldScroll && hexViewerRef.current) {
+      hexViewerRef.current.scrollToIndex(result.index, result.offset);
+    }
+    return result;
+  }, [findByOffset, showMessage, hexViewerRef]);
 
   const getCacheKey = useCallback(
     (tabKey: TabKey, type: SearchType, value: string): SearchCacheKey => {
@@ -152,7 +175,6 @@ const Searcher: React.ForwardRefRenderFunction<SearcherRef> = (_, ref) => {
           showMessage('SEARCH_NO_RESULTS');
         }
         
-        // shouldScroll=true면 첫 번째 결과로 직접 스크롤
         if (shouldScroll && cachedResults.length > 0 && hexViewerRef.current) {
           hexViewerRef.current.scrollToIndex(cachedResults[0].index, cachedResults[0].offset);
         }
@@ -186,7 +208,6 @@ const Searcher: React.ForwardRefRenderFunction<SearcherRef> = (_, ref) => {
           results,
         });
 
-        // shouldScroll=true면 첫 번째 결과로 직접 스크롤
         if (shouldScroll && results.length > 0 && hexViewerRef.current) {
           hexViewerRef.current.scrollToIndex(results[0].index, results[0].offset);
         }
@@ -194,6 +215,37 @@ const Searcher: React.ForwardRefRenderFunction<SearcherRef> = (_, ref) => {
     },
     [activeKey, ignoreCase, getCacheKey, searchResults.__cache__, findAllByHex, findAllByAsciiText, showMessage, hexViewerRef]
   );
+
+  const getResultsForActiveKey = () => {
+    const result = searchResults[activeKey];
+    return result && !(result instanceof Map) ? result.results : null;
+  };
+
+  const findAllByHexLocal = React.useCallback(async (hex: string, shouldScroll = true) => {
+    await search(hex, 'hex', shouldScroll);
+    return getResultsForActiveKey();
+  }, [search, activeKey, searchResults]);
+
+  const findAllByAsciiTextLocal = React.useCallback(async (text: string, ignoreCaseParam: boolean, shouldScroll = true) => {
+    setIgnoreCase(ignoreCaseParam);
+    await search(text, 'ascii', shouldScroll);
+    return getResultsForActiveKey();
+  }, [search, activeKey, searchResults]);
+
+  // Register into context for other components to use
+  React.useEffect(() => {
+    if (setSearcherRef) {
+      setSearcherRef({
+        findByOffset: findByOffsetLocal,
+        findAllByHex: findAllByHexLocal,
+        findAllByAsciiText: findAllByAsciiTextLocal,
+      });
+      return () => setSearcherRef(null);
+    }
+    return undefined;
+  }, [setSearcherRef, findByOffsetLocal, findAllByHexLocal, findAllByAsciiTextLocal]);
+
+
 
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -284,52 +336,7 @@ const Searcher: React.ForwardRefRenderFunction<SearcherRef> = (_, ref) => {
     };
   }, [cleanupSearch]);
 
-  useImperativeHandle(
-    ref,
-    () => ({
-      // shouldScroll=true면 직접 스크롤, false면 상태 업데이트만 (useEffect에서 처리)
-      findByOffset: async (offset: string, length: number = 1, shouldScroll = true) => {
-        if (!offset.trim()) {
-          showMessage('SEARCH_NO_INPUT');
-          return null;
-        }
 
-        const result = await findByOffset(offset, length);
-        
-        if (result === null) {
-          // findByOffset는 내부적으로 유효성 검사 후 null 반환
-          // 범위 외 또는 잘못된 입력
-          const byteOffset = parseInt(offset, 16);
-          if (isNaN(byteOffset)) {
-            showMessage('SEARCH_INVALID_HEX');
-          } else {
-            showMessage('SEARCH_OFFSET_OUT_OF_RANGE');
-          }
-          return null;
-        }
-
-        if (shouldScroll && hexViewerRef.current) {
-          hexViewerRef.current.scrollToIndex(result.index, result.offset);
-        }
-        return result;
-      },
-      // search 함수를 활용해서 캐시, dispatch, 메시지까지 처리
-      findAllByHex: async (hex: string, shouldScroll = true) => {
-        await search(hex, 'hex', shouldScroll);
-        const result = searchResults[activeKey];
-        return result && !(result instanceof Map) ? result.results : null;
-      },
-      // search 함수를 활용해서 캐시, dispatch, 메시지까지 처리
-      findAllByAsciiText: async (text: string, ignoreCase: boolean, shouldScroll = true) => {
-        // ignoreCase 변경이 필요하면 state 업데이트
-        setIgnoreCase(ignoreCase);
-        await search(text, 'ascii', shouldScroll);
-        const result = searchResults[activeKey];
-        return result && !(result instanceof Map) ? result.results : null;
-      },
-    }),
-    [findByOffset, search, searchResults, activeKey, hexViewerRef, showMessage]
-  );
 
   return (
     <Collapse title={t('searcher.title')} open>
@@ -445,4 +452,4 @@ const Searcher: React.ForwardRefRenderFunction<SearcherRef> = (_, ref) => {
   );
 };
 
-export default React.memo(forwardRef<SearcherRef>(Searcher));
+export default React.memo(Searcher);

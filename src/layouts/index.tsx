@@ -26,12 +26,10 @@ import {
 } from './index.styles';
 import MenuBtnZone from '@/components/MenuBtnZone';
 import TabWindow from '@/components/TabWindow';
-import ExifRowViewer from '@/components/ExifRowViewer';
 import Modal from '@/components/common/Modal';
 import AboutMD from '@/components/markdown/AboutMD';
 import HelpMD from '@/components/markdown/HelpMD';
 import { useResizable } from 'react-resizable-layout';
-import Searcher from '@/components/Searcher';
 import { useProcess } from '@/contexts/ProcessContext';
 import Home from '@/components/Home';
 import { isMobile } from 'react-device-detect';
@@ -43,13 +41,14 @@ import {
 } from '@/contexts/TabDataContext';
 import { useRefs } from '@/contexts/RefContext';
 import Logo from '@/components/common/Icons/Logo';
-import DataInspector from '@/components/DataInspector';
 import MessageModal from '@/components/MessageModal';
 import MessageHistory from '@/components/MessageHistory';
 import Spinner from '@/components/common/Spinner';
 import Select from '@/components/common/Select';
 import OffsetNavigator from '@/components/OffsetNavigator';
 import LanguageSwitcher from '@/components/common/LanguageSwitcher';
+import InfoPanel from './SidePanels/InfoPanel';
+import ToolsPanel from './SidePanels/ToolsPanel';
 
 const MIN_SIDER_WIDTH = 100;
 
@@ -58,10 +57,6 @@ const MainLayout: React.FC = () => {
   const { isEmpty, encoding, setEncoding } = useTab();
   const { activeSelectionState } = useSelection();
   const { isProcessing, progress } = useProcess();
-  const { menuBtnZoneRef, searcherRef } = useRefs();
-
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalContentKey, setModalContentKey] = useState<string | null>(null);
   const [mobileTab, setMobileTab] = useState<'info' | 'tools'>('info');
 
   const {
@@ -98,16 +93,20 @@ const MainLayout: React.FC = () => {
     };
   })();
 
-  const [modalTitle, modalContent] = useMemo(() => {
-    const modalData = {
-      about: [t('menu.about'), <AboutMD key="about" />],
-      help: [t('menu.help'), <HelpMD key="help" />],
-    };
-    const data = modalContentKey
-      ? modalData[modalContentKey as keyof typeof modalData]
-      : null;
-    return data ? [<b key="title">{data[0]}</b>, data[1]] : [null, null];
-  }, [modalContentKey, t]);
+  const modalData = useMemo(() => ({
+    about: [t('menu.about'), <AboutMD key="about" />],
+    help: [t('menu.help'), <HelpMD key="help" />],
+  }), [t]);
+
+  const { modalRef } = useRefs();
+
+  const openModal = (key: string) => {
+    const data = modalData[key as keyof typeof modalData];
+    if (!data) return;
+    const titleNode = <b key="title">{data[0]}</b>;
+    const contentNode = data[1];
+    modalRef.current?.open(titleNode, contentNode);
+  };
 
 
   const showHex = (decimal: number) => (
@@ -125,11 +124,8 @@ const MainLayout: React.FC = () => {
         <IceHeaderLeftSider $isMobile={isMobile}>
           <Logo showText />
           <MenuBtnZone
-            ref={menuBtnZoneRef}
-            openModal={(key) => {
-              setModalContentKey(key);
-              setIsModalOpen(true);
-            }}
+
+            openModal={openModal}
           />
           {!isMobile && <LanguageSwitcher />}
         </IceHeaderLeftSider>
@@ -170,18 +166,11 @@ const MainLayout: React.FC = () => {
 
               {/* 항상 마운트되게 변경: 검색(OffsetNavigator) 동작을 위해 Searcher의 ref가 필요합니다 */}
               <IceMobileTabPanel $active={mobileTab === 'info'}>
-                <div>
-                  <ExifRowViewer />
-                </div>
+                <InfoPanel />
               </IceMobileTabPanel>
 
               <IceMobileTabPanel $active={mobileTab === 'tools'}>
-                <div>
-                  <Searcher ref={searcherRef} />
-                </div>
-                <div>
-                  <DataInspector />
-                </div>
+                <ToolsPanel />
               </IceMobileTabPanel>
             </>
           )}
@@ -197,7 +186,7 @@ const MainLayout: React.FC = () => {
                   : 'block',
             }}
           >
-            <ExifRowViewer />
+            <InfoPanel />
           </IceLeftSider>
           <Separator
             {...leftSideSepProps}
@@ -228,8 +217,7 @@ const MainLayout: React.FC = () => {
                     : 'block',
               }}
             >
-              <Searcher ref={searcherRef} />
-              <DataInspector />
+              <ToolsPanel />
             </IceRightSider>
           </FlexGrow>
         </IceLayout>
@@ -284,17 +272,7 @@ const MainLayout: React.FC = () => {
           <MessageHistory />
         </IceFooterRight>
       </IceFooter>
-
-      <Modal
-        title={modalTitle}
-        isOpen={isModalOpen}
-        onClose={() => {
-          setIsModalOpen(false);
-          setModalContentKey(null);
-        }}
-      >
-        {modalContent}
-      </Modal>
+      <Modal onClose={() => { }} />
       <MessageModal />
     </IceMainLayout>
   );

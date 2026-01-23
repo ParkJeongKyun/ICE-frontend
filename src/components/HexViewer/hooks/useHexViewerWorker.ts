@@ -73,12 +73,15 @@ export const useHexViewerWorker = ({
         if (chunkCacheRef.current) chunkCacheRef.current = cache;
 
         const handleWorkerMessage = (e: MessageEvent) => {
-          const { type, offset, data } = e.data;
+          const { type, offset, buffer, data } = e.data;
           if (type === 'CHUNK_DATA') {
-            cache.set(offset, data);
-            if (chunkCacheRef.current) chunkCacheRef.current = cache;
-            checkCacheSize();
-            onChunkLoaded();
+            const u8 = buffer ? new Uint8Array(buffer) : data ? data : null;
+            if (u8) {
+              cache.set(offset, u8);
+              if (chunkCacheRef.current) chunkCacheRef.current = cache;
+              checkCacheSize();
+              onChunkLoaded();
+            }
           }
         };
 
@@ -122,12 +125,15 @@ export const useHexViewerWorker = ({
         requestedChunksRef.current?.add(chunkOffset);
 
         const handleWorkerMessage = (e: MessageEvent) => {
-          const { type, offset, data } = e.data;
+          const { type, offset, buffer, data } = e.data;
           if (type === 'CHUNK_DATA') {
-            cache.set(offset, data);
-            if (chunkCacheRef.current) chunkCacheRef.current = cache;
-            checkCacheSize();
-            onChunkLoaded();
+            const u8 = buffer ? new Uint8Array(buffer) : data ? data : null;
+            if (u8) {
+              cache.set(offset, u8);
+              if (chunkCacheRef.current) chunkCacheRef.current = cache;
+              checkCacheSize();
+              onChunkLoaded();
+            }
           }
         };
 

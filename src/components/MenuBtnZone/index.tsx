@@ -1,5 +1,5 @@
-import React, { useEffect, useCallback } from 'react';
-import { ChangeEvent, useImperativeHandle, useRef, useState } from 'react';
+import React, { useEffect, useCallback, useMemo } from 'react';
+import { ChangeEvent, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import MenuBtn from '@/components/common/MenuBtn';
@@ -23,12 +23,9 @@ export interface MenuBtnZoneRef {
 
 const EXIF_TIMEOUT = 30000;
 
-const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
-  { openModal },
-  ref
-) => {
+const MenuBtnZone: React.FC<Props> = ({ openModal }) => {
   const { t } = useTranslation();
-  const { hexViewerRef } = useRefs();
+  const { hexViewerRef, setMenuBtnZoneRef } = useRefs();
   const { showMessage } = useMessage();
   const { setTabData, setActiveKey, getNewKey } = useTab();
   const { fileWorker, isWasmReady } = useWorker();
@@ -172,8 +169,8 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
     ]
   );
 
-  useImperativeHandle(
-    ref,
+  // Register methods into RefContext so parents can use without passing ref
+  const menuMethods = useMemo(
     () => ({
       openBtnClick: handleOpenClick,
       helpBtnClick: () => openModal('help'),
@@ -181,6 +178,14 @@ const MenuBtnZone: React.ForwardRefRenderFunction<MenuBtnZoneRef, Props> = (
     }),
     [handleOpenClick, openModal]
   );
+
+  useEffect(() => {
+    if (setMenuBtnZoneRef) {
+      setMenuBtnZoneRef(menuMethods);
+      return () => setMenuBtnZoneRef(null);
+    }
+    return undefined;
+  }, [setMenuBtnZoneRef, menuMethods]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -285,4 +290,4 @@ const ToolsMenuItem = styled.li`
   }
 `;
 
-export default React.memo(React.forwardRef(MenuBtnZone));
+export default React.memo(MenuBtnZone);

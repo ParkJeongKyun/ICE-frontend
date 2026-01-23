@@ -128,13 +128,15 @@ async function processQueue() {
     try {
       const blob = task.file.slice(task.offset, task.offset + task.length);
       const arrayBuffer = await blob.arrayBuffer();
-      const data = new Uint8Array(arrayBuffer);
-
-      self.postMessage({
-        type: 'CHUNK_DATA',
-        offset: task.offset,
-        data,
-      });
+      // Transfer ArrayBuffer to avoid structured-clone copy (zero-copy)
+      self.postMessage(
+        {
+          type: 'CHUNK_DATA',
+          offset: task.offset,
+          buffer: arrayBuffer,
+        },
+        [arrayBuffer]
+      );
     } catch (error: any) {
       self.postMessage({
         type: 'ERROR',
