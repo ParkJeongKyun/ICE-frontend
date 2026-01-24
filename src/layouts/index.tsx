@@ -27,8 +27,6 @@ import {
 import MenuBtnZone from '@/components/MenuBtnZone';
 import TabWindow from '@/components/TabWindow';
 import Modal from '@/components/common/Modal';
-import AboutMD from '@/components/markdown/AboutMD';
-import HelpMD from '@/components/markdown/HelpMD';
 import { useResizable } from 'react-resizable-layout';
 import { useProcess } from '@/contexts/ProcessContext';
 import Home from '@/components/Home';
@@ -39,7 +37,6 @@ import {
   useSelection,
   EncodingType,
 } from '@/contexts/TabDataContext';
-import { useRefs } from '@/contexts/RefContext';
 import Logo from '@/components/common/Icons/Logo';
 import MessageModal from '@/components/MessageModal';
 import MessageHistory from '@/components/MessageHistory';
@@ -81,10 +78,23 @@ const MainLayout: React.FC = () => {
   });
 
   const selectionInfo = (() => {
-    if (!activeSelectionState || activeSelectionState.start === null || activeSelectionState.start < 0 || activeSelectionState.end === null || activeSelectionState.end < 0) return null;
+    if (
+      !activeSelectionState ||
+      activeSelectionState.start === null ||
+      activeSelectionState.start < 0 ||
+      activeSelectionState.end === null ||
+      activeSelectionState.end < 0
+    )
+      return null;
 
-    const minOffset = Math.min(activeSelectionState.start, activeSelectionState.end);
-    const maxOffset = Math.max(activeSelectionState.start, activeSelectionState.end);
+    const minOffset = Math.min(
+      activeSelectionState.start,
+      activeSelectionState.end
+    );
+    const maxOffset = Math.max(
+      activeSelectionState.start,
+      activeSelectionState.end
+    );
 
     return {
       minOffset,
@@ -92,22 +102,6 @@ const MainLayout: React.FC = () => {
       length: maxOffset - minOffset + 1,
     };
   })();
-
-  const modalData = useMemo(() => ({
-    about: [t('menu.about'), <AboutMD key="about" />],
-    help: [t('menu.help'), <HelpMD key="help" />],
-  }), [t]);
-
-  const { modalRef } = useRefs();
-
-  const openModal = (key: string) => {
-    const data = modalData[key as keyof typeof modalData];
-    if (!data) return;
-    const titleNode = <b key="title">{data[0]}</b>;
-    const contentNode = data[1];
-    modalRef.current?.open(titleNode, contentNode);
-  };
-
 
   const showHex = (decimal: number) => (
     <SelectValue>
@@ -123,10 +117,7 @@ const MainLayout: React.FC = () => {
       <IceHeader $isMobile={isMobile} $isProcessing={isProcessing}>
         <IceHeaderLeftSider $isMobile={isMobile}>
           <Logo showText />
-          <MenuBtnZone
-
-            openModal={openModal}
-          />
+          <MenuBtnZone />
           {!isMobile && <LanguageSwitcher />}
         </IceHeaderLeftSider>
         <OffsetNavigator />
@@ -195,13 +186,7 @@ const MainLayout: React.FC = () => {
           />
 
           <FlexGrow>
-            <IceContent>
-              {isEmpty ? (
-                <Home />
-              ) : (
-                <TabWindow />
-              )}
-            </IceContent>
+            <IceContent>{isEmpty ? <Home /> : <TabWindow />}</IceContent>
             <Separator
               {...rightSideSepProps}
               $reverse={true}
@@ -272,7 +257,7 @@ const MainLayout: React.FC = () => {
           <MessageHistory />
         </IceFooterRight>
       </IceFooter>
-      <Modal onClose={() => { }} />
+      <Modal />
       <MessageModal />
     </IceMainLayout>
   );

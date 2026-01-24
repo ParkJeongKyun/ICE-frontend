@@ -11,10 +11,6 @@ import { parseExifData, readFileForExif } from '@/utils/exifParser';
 import { useWorker } from '@/contexts/WorkerContext';
 import { useMessage } from '@/contexts/MessageContext';
 
-interface Props {
-  openModal: (key: string) => void;
-}
-
 export interface MenuBtnZoneRef {
   openBtnClick: () => void;
   helpBtnClick: () => void;
@@ -23,9 +19,9 @@ export interface MenuBtnZoneRef {
 
 const EXIF_TIMEOUT = 30000;
 
-const MenuBtnZone: React.FC<Props> = ({ openModal }) => {
+const MenuBtnZone: React.FC = () => {
   const { t } = useTranslation();
-  const { hexViewerRef, setMenuBtnZoneRef } = useRefs();
+  const { hexViewerRef, setMenuBtnZoneRef, openModal } = useRefs();
   const { showMessage } = useMessage();
   const { setTabData, setActiveKey, getNewKey } = useTab();
   const { fileWorker, isWasmReady } = useWorker();
@@ -100,11 +96,15 @@ const MenuBtnZone: React.FC<Props> = ({ openModal }) => {
           throw new Error(result.error);
         }
 
-        const { tagInfos, thumbnail, location, baseOffset, byteOrder, firstIfdOffset, ifdInfos } = await parseExifData(
-          result.exifData || '[]',
-          file,
-          result.mimeType
-        );
+        const {
+          tagInfos,
+          thumbnail,
+          location,
+          baseOffset,
+          byteOrder,
+          firstIfdOffset,
+          ifdInfos,
+        } = await parseExifData(result.exifData || '[]', file, result.mimeType);
 
         setTabData((prevDatas) => ({
           ...prevDatas,
