@@ -1,7 +1,10 @@
 import dayjs from 'dayjs';
 import { ExifRow, ExifInfo, IfdInfo } from '@/types';
 import { parseGPSFromRows } from './gps';
-import { createThumbnailBlobFromTag } from './thumbnail';
+import {
+  createThumbnailBlobFromTag,
+  createThumbnailFromImage,
+} from './thumbnail';
 
 const HEAD_SIZE = 512 * 1024; // 앞부분 512KB (거대한 MakerNote 대응)
 const TAIL_SIZE = 128 * 1024; // 뒷부분 128KB (푸터 분석용)
@@ -57,13 +60,22 @@ export const parseExifData = async (
   let ifdInfos: IfdInfo[] | undefined;
 
   try {
-    const parsed: any = typeof exifData === 'string' ? JSON.parse(exifData) : (exifData as any);
+    const parsed: any =
+      typeof exifData === 'string' ? JSON.parse(exifData) : (exifData as any);
 
     if (!parsed || !Array.isArray(parsed.tags)) {
-      // 태그 배열이 없으면 기본 결과 반환
+      // 태그 배열이 없어도 이미지면 썸네일 생성
+      if (file && mimeType && mimeType.startsWith('image')) {
+        try {
+          const thumbBlob = await createThumbnailFromImage(file);
+          thumbnail = URL.createObjectURL(thumbBlob);
+        } catch (err) {
+          thumbnail = URL.createObjectURL(file);
+        }
+      }
       return {
         tagInfos: null,
-        thumbnail: '',
+        thumbnail,
         location: { lat, lng },
         byteOrder,
         firstIfdOffset,
@@ -77,8 +89,13 @@ export const parseExifData = async (
     // GO에서 제공되는 필드 안정적으로 읽기
     baseOffset = Number(parsed.baseOffset) || 0;
     byteOrder = parsed.byteOrder ? String(parsed.byteOrder) : undefined;
-    firstIfdOffset = parsed.firstIfdOffset !== undefined && parsed.firstIfdOffset !== null ? Number(parsed.firstIfdOffset) : undefined;
-    ifdInfos = Array.isArray(parsed.ifdInfo) ? (parsed.ifdInfo as IfdInfo[]) : undefined;
+    firstIfdOffset =
+      parsed.firstIfdOffset !== undefined && parsed.firstIfdOffset !== null
+        ? Number(parsed.firstIfdOffset)
+        : undefined;
+    ifdInfos = Array.isArray(parsed.ifdInfo)
+      ? (parsed.ifdInfo as IfdInfo[])
+      : undefined;
 
     // GPS 파싱
     const parsedGPS = parseGPSFromRows(metaRows);
@@ -90,15 +107,26 @@ export const parseExifData = async (
       tag: String(item.tag ?? ''),
       data: item.data,
       type: item.type,
-      offset: Number.isFinite(Number(item.offset)) ? Number(item.offset) : undefined,
-      length: Number.isFinite(Number(item.length)) ? Number(item.length) : undefined,
+      offset: Number.isFinite(Number(item.offset))
+        ? Number(item.offset)
+        : undefined,
+      length: Number.isFinite(Number(item.length))
+        ? Number(item.length)
+        : undefined,
       isFar: Boolean(item.isFar),
     })) as ExifRow[];
 
     // 썸네일 추출 (우선 EXIF thumb tags, 없으면 image 파일로 폴백)
-    const findTag = (names: string[]) => metaRows.find((it: any) => names.includes(it.tag));
-    const thumbTag = findTag(['JPEGInterchangeFormat', 'ThumbJPEGInterchangeFormat']);
-    const thumbLenTag = findTag(['JPEGInterchangeFormatLength', 'ThumbJPEGInterchangeFormatLength']);
+    const findTag = (names: string[]) =>
+      metaRows.find((it: any) => names.includes(it.tag));
+    const thumbTag = findTag([
+      'JPEGInterchangeFormat',
+      'ThumbJPEGInterchangeFormat',
+    ]);
+    const thumbLenTag = findTag([
+      'JPEGInterchangeFormatLength',
+      'ThumbJPEGInterchangeFormatLength',
+    ]);
 
     const createFromTagBlob = (tagItem?: any, lenItem?: any): Blob | null => {
       if (!tagItem || !tagItem.data) return null;
@@ -109,7 +137,13 @@ export const parseExifData = async (
     if (topBlob) {
       thumbnail = URL.createObjectURL(topBlob);
     } else if (file && mimeType && mimeType.startsWith('image')) {
-      thumbnail = URL.createObjectURL(file);
+      // EXIF 썸네일이 없으면 Canvas로 리사이징
+      try {
+        const thumbBlob = await createThumbnailFromImage(file);
+        thumbnail = URL.createObjectURL(thumbBlob);
+      } catch (err) {
+        thumbnail = URL.createObjectURL(file);
+      }
     }
   } catch (err) {
     console.error('parseExifData error:', err);
