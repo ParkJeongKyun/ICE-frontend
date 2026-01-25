@@ -21,6 +21,23 @@ const ExifInfoCollapse: React.FC = () => {
   const baseOffset = activeData?.exifInfo?.baseOffset;
   const fileSize = activeData?.file?.size ?? 0;
 
+  const getByteOrderLabel = useCallback(
+    (byteOrder?: string): string => {
+      if (!byteOrder) return '-';
+      switch (byteOrder) {
+        case 'LittleEndian':
+          return t('exifViewer.littleEndian');
+        case 'BigEndian':
+          return t('exifViewer.bigEndian');
+        case 'NativeEndian':
+          return t('exifViewer.nativeEndian');
+        default:
+          return byteOrder;
+      }
+    },
+    [t]
+  );
+
   const onJumpToBaseOffset = useCallback(
     async (isByteOrder: boolean = false) => {
       if (
@@ -85,7 +102,7 @@ const ExifInfoCollapse: React.FC = () => {
                   </Tooltip>
                 )}
               </CellHeaderDiv>
-              <CellBodyDiv>{exifInfo.byteOrder || '-'}</CellBodyDiv>
+              <CellBodyDiv>{getByteOrderLabel(exifInfo.byteOrder)}</CellBodyDiv>
             </ContentDiv>
             <ContentDiv>
               <CellHeaderDiv>

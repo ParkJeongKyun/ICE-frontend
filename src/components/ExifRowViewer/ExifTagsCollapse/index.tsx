@@ -93,7 +93,10 @@ const ExifTagsCollapse: React.FC = () => {
         const blob = file.slice(entryValueAddress, entryValueAddress + 4);
         const buffer = await blob.arrayBuffer();
         const dataView = new DataView(buffer);
-        const pointerValue = dataView.getUint32(0, true);
+        const isLittleEndian =
+          activeData?.exifInfo?.byteOrder === 'LittleEndian' ||
+          activeData?.exifInfo?.byteOrder === 'NativeEndian';
+        const pointerValue = dataView.getUint32(0, isLittleEndian);
         const realDataAddress = baseOffset + pointerValue;
 
         if (realDataAddress < 0 || realDataAddress >= file.size) return;

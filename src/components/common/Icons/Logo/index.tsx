@@ -1,5 +1,11 @@
 import React from 'react';
-import { LogoContainer, LogoWrapper, LogoInner, LogoText, Star } from './index.styles';
+import {
+  LogoContainer,
+  LogoWrapper,
+  LogoInner,
+  LogoText,
+  Star,
+} from './index.styles';
 
 interface LogoProps {
   size?: number | string;
@@ -30,9 +36,11 @@ const Logo: React.FC<LogoProps> = ({
 }) => {
   const sizeValue = typeof size === 'number' ? `${size}px` : size;
   const cornerValue = typeof corner === 'number' ? `${corner}%` : corner;
-  const textSizeValue = typeof textSize === 'number' ? `${textSize}px` : textSize;
+  const textSizeValue =
+    typeof textSize === 'number' ? `${textSize}px` : textSize;
   const textGapValue = typeof textGap === 'number' ? `${textGap}px` : textGap;
-  const letterSpacingValue = typeof letterSpacing === 'number' ? `${letterSpacing}px` : letterSpacing;
+  const letterSpacingValue =
+    typeof letterSpacing === 'number' ? `${letterSpacing}px` : letterSpacing;
 
   // RGB 추출 함수
   const hexToRgba = (hex: string, alpha: number) => {
