@@ -1,4 +1,7 @@
 {
+  "common": {
+    "noData": "데이터 없음"
+  },
   "welcome": "ICE에 오신 것을 환영합니다!",
   "description": "웹 기반 헥스 뷰어 및 이미지 메타데이터(Exif) 분석 도구입니다.",
   "home": {

@@ -71,9 +71,15 @@ export const JumpButton = styled.div`
   opacity: 0.5;
   transition: opacity 0.2s ease;
   flex-shrink: 0;
-  
+
   &:hover {
     opacity: 1;
     color: var(--ice-main-color);
   }
+`;
+
+export const NoDataMessage = styled.div`
+  color: var(--main-color);
+  opacity: 0.6;
+  font-size: 0.75rem;
 `;

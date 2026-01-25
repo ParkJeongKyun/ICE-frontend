@@ -1,4 +1,7 @@
 {
+  "common": {
+    "noData": "No Data"
+  },
   "welcome": "Welcome to ICE!",
   "description": "A web-based hex viewer and image metadata (Exif) analysis tool.",
   "home": {
