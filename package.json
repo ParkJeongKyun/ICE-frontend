@@ -16,22 +16,25 @@
     "leaflet": "^1.9.4",
     "lz-string": "^1.5.0",
     "meshline": "^3.3.1",
-    "react": "^19.0.0",
+    "next": "^15.0.0",
+    "react": "^19.2.3",
     "react-device-detect": "^2.2.3",
-    "react-dom": "^19.0.0",
+    "react-dom": "^19.2.3",
     "react-i18next": "^16.5.2",
     "react-markdown": "^9.0.1",
     "react-resizable-layout": "^0.7.2",
-    "react-router-dom": "^6.23.1",
     "styled-components": "^6.1.13",
     "three": "^0.167.1"
   },
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "serve": "vite preview",
-    "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "format": "prettier --write \"src/**/*.{ts,tsx,json,css,scss}\""
+    "dev": "next dev",
+    "build": "next build",
+    "export": "next export",
+    "start": "next start",
+    "deploy:gh": "npm run build && npm run export && npx gh-pages -d out",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "format": "prettier --write \"src/**/*.{ts,tsx,json,css,scss}\"",
+    "typecheck": "tsc --noEmit"
   },
   "browserslist": {
     "production": [
@@ -49,14 +52,14 @@
     "@types/node": "^20.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
-    "@vitejs/plugin-react": "^4.3.2",
+    "@types/styled-components": "^5.1.26",
+    "@types/three": "^0.182.0",
     "autoprefixer": "^10.4.20",
     "eslint": "^8.57.0",
+    "eslint-config-next": "^14.0.0",
     "eslint-plugin-prettier": "^5.1.3",
     "prettier": "^3.2.5",
     "sass": "^1.63.6",
-    "typescript": "^5.6.3",
-    "vite": "^5.4.8",
-    "vite-plugin-svgr": "^4.2.0"
+    "typescript": "^5.6.3"
   }
 }
