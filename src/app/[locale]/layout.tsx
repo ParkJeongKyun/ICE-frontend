@@ -81,7 +81,7 @@ export default async function LocaleLayout({
         <NextIntlClientProvider locale={locale} messages={messages}>
           <MessageProvider>
             <ToastListener />
-            <StyledComponentsRegistry>{children}</StyledComponentsRegistry>
+            {children}
           </MessageProvider>
         </NextIntlClientProvider>
       </body>

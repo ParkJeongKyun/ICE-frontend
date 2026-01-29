@@ -4,6 +4,7 @@ import { ProcessProvider } from '@/contexts/ProcessContext';
 import { RefProvider } from '@/contexts/RefContext';
 import { TabDataProvider } from '@/contexts/TabDataContext';
 import { WorkerProvider } from '@/contexts/WorkerContext';
+import StyledComponentsRegistry from './[locale]/StyledComponentsRegistry';
 
 export default function RootLayout({
   children,
@@ -15,7 +16,9 @@ export default function RootLayout({
       <WorkerProvider>
         <TabDataProvider>
           <RefProvider>
-            <HexViewerCacheProvider>{children}</HexViewerCacheProvider>
+            <HexViewerCacheProvider>
+              <StyledComponentsRegistry>{children}</StyledComponentsRegistry>
+            </HexViewerCacheProvider>
           </RefProvider>
         </TabDataProvider>
       </WorkerProvider>

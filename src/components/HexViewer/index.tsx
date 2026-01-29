@@ -26,14 +26,20 @@ import {
   ContextMenuItem,
 } from './index.styles';
 import { isMobile } from 'react-device-detect';
-import { CHUNK_REQUEST_DEBOUNCE, LAYOUT, MIN_HEX_WIDTH, COLOR_KEYS, DEFAULT_COLORS } from '@/constants/hexViewer';
+import {
+  CHUNK_REQUEST_DEBOUNCE,
+  LAYOUT,
+  MIN_HEX_WIDTH,
+  COLOR_KEYS,
+  DEFAULT_COLORS,
+} from '@/constants/hexViewer';
 import { getDevicePixelRatio } from '@/utils/hexViewer';
-import { useHexViewerCache } from './hooks/useHexViewerCache';
 import { useHexViewerSelection } from './hooks/useHexViewerSelection';
 import { useHexViewerRender } from './hooks/useHexViewerRender';
 import { useHexViewerWorker } from './hooks/useHexViewerWorker';
 import { useHexViewerXScroll } from './hooks/useHexViewerXScroll';
 import { useHexViewerYScroll } from './hooks/useHexViewerYScroll';
+import { useHexViewerCacheContext } from '@/contexts/HexViewerCacheContext';
 
 export interface IndexInfo {
   index: number;
@@ -46,12 +52,11 @@ export interface HexViewerRef {
 
 const { bytesPerRow, rowHeight } = LAYOUT;
 
-const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (props, ref) => {
-  const {
-    activeData,
-    encoding,
-    activeKey,
-  } = useTab();
+const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
+  props,
+  ref
+) => {
+  const { activeData, encoding, activeKey } = useTab();
   const { scrollPositions, setScrollPositions } = useScroll();
   const { activeSelectionState } = useSelection();
   const { fileWorker, getWorkerCache } = useWorker();
@@ -89,11 +94,14 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (props, ref) => 
   } | null>(null);
 
   // ===== Calculated Values =====
-  const visibleRows = Math.floor((canvasSize.height - LAYOUT.headerHeight) / rowHeight);
+  const visibleRows = Math.floor(
+    (canvasSize.height - LAYOUT.headerHeight) / rowHeight
+  );
   const maxFirstRow = Math.max(0, rowCount - visibleRows);
 
   // ===== Custom Hooks =====
-  const { chunkCacheRef, requestedChunksRef, getByte, checkCacheSize } = useHexViewerCache();
+  const { chunkCacheRef, requestedChunksRef, getByte, checkCacheSize } =
+    useHexViewerCacheContext();
 
   const firstRowRef = useRef(0);
 
@@ -184,13 +192,27 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (props, ref) => 
     const updateColors = () => {
       const style = getComputedStyle(document.documentElement);
       colorsRef.current = {
-        HEX_EVEN: style.getPropertyValue(COLOR_KEYS.HEX_EVEN).trim() || DEFAULT_COLORS.HEX_EVEN,
-        HEX_ODD: style.getPropertyValue(COLOR_KEYS.HEX_ODD).trim() || DEFAULT_COLORS.HEX_ODD,
-        ASCII: style.getPropertyValue(COLOR_KEYS.ASCII).trim() || DEFAULT_COLORS.ASCII,
-        ASCII_DISABLED: style.getPropertyValue(COLOR_KEYS.ASCII_DISABLED).trim() || DEFAULT_COLORS.ASCII_DISABLED,
-        SELECTED_BG: style.getPropertyValue(COLOR_KEYS.SELECTED_BG).trim() || DEFAULT_COLORS.SELECTED_BG,
-        SELECTED_TEXT: style.getPropertyValue(COLOR_KEYS.SELECTED_TEXT).trim() || DEFAULT_COLORS.SELECTED_TEXT,
-        OFFSET: style.getPropertyValue(COLOR_KEYS.OFFSET).trim() || DEFAULT_COLORS.OFFSET,
+        HEX_EVEN:
+          style.getPropertyValue(COLOR_KEYS.HEX_EVEN).trim() ||
+          DEFAULT_COLORS.HEX_EVEN,
+        HEX_ODD:
+          style.getPropertyValue(COLOR_KEYS.HEX_ODD).trim() ||
+          DEFAULT_COLORS.HEX_ODD,
+        ASCII:
+          style.getPropertyValue(COLOR_KEYS.ASCII).trim() ||
+          DEFAULT_COLORS.ASCII,
+        ASCII_DISABLED:
+          style.getPropertyValue(COLOR_KEYS.ASCII_DISABLED).trim() ||
+          DEFAULT_COLORS.ASCII_DISABLED,
+        SELECTED_BG:
+          style.getPropertyValue(COLOR_KEYS.SELECTED_BG).trim() ||
+          DEFAULT_COLORS.SELECTED_BG,
+        SELECTED_TEXT:
+          style.getPropertyValue(COLOR_KEYS.SELECTED_TEXT).trim() ||
+          DEFAULT_COLORS.SELECTED_TEXT,
+        OFFSET:
+          style.getPropertyValue(COLOR_KEYS.OFFSET).trim() ||
+          DEFAULT_COLORS.OFFSET,
         BG: style.getPropertyValue(COLOR_KEYS.BG).trim() || DEFAULT_COLORS.BG,
       };
     };
@@ -216,9 +238,15 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (props, ref) => 
     const dpr = getDevicePixelRatio();
     const observer = new window.ResizeObserver((entries) => {
       for (const entry of entries) {
-        const width = isMobile ? MIN_HEX_WIDTH * dpr : Math.max(entry.contentRect.width, MIN_HEX_WIDTH) * dpr;
+        const width = isMobile
+          ? MIN_HEX_WIDTH * dpr
+          : Math.max(entry.contentRect.width, MIN_HEX_WIDTH) * dpr;
         const height = Math.floor(entry.contentRect.height);
-        setCanvasSize((prev) => (prev.width !== width || prev.height !== height ? { width, height } : prev));
+        setCanvasSize((prev) =>
+          prev.width !== width || prev.height !== height
+            ? { width, height }
+            : prev
+        );
       }
     });
     observer.observe(containerRef.current);
@@ -233,14 +261,22 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (props, ref) => 
       if (existingCache) {
         const savedPosition = scrollPositions[activeKey] ?? 0;
         requestedChunksRef.current.clear();
-        existingCache.cache.forEach((_, offset) => requestedChunksRef.current.add(offset));
+        existingCache.cache.forEach((_, offset) =>
+          requestedChunksRef.current.add(offset)
+        );
         chunkCacheRef.current = existingCache.cache;
         firstRowRef.current = savedPosition;
 
         if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
         forceRender();
         if (savedPosition > 0 || visibleRows > 0) {
-          requestChunks(savedPosition, fileWorker, file, fileSize, visibleRows + 20);
+          requestChunks(
+            savedPosition,
+            fileWorker,
+            file,
+            fileSize,
+            visibleRows + 20
+          );
         }
       }
       return;
@@ -265,12 +301,28 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (props, ref) => 
             directRenderRef.current();
           });
         } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류';
-          showMessage('FILE_PROCESSING_FAILED', `워커 초기화 실패: ${errorMessage}`);
+          const errorMessage =
+            error instanceof Error ? error.message : '알 수 없는 오류';
+          showMessage(
+            'FILE_PROCESSING_FAILED',
+            `워커 초기화 실패: ${errorMessage}`
+          );
         }
       })();
     }
-  }, [file, activeKey, getWorkerCache, scrollPositions, requestChunks, visibleRows, fileSize, fileWorker, setScrollPositions, initializeWorker, showMessage]);
+  }, [
+    file,
+    activeKey,
+    getWorkerCache,
+    scrollPositions,
+    requestChunks,
+    visibleRows,
+    fileSize,
+    fileWorker,
+    setScrollPositions,
+    initializeWorker,
+    showMessage,
+  ]);
 
   useEffect(() => {
     canvasSizeRef.current = canvasSize;
@@ -298,7 +350,13 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (props, ref) => 
   useEffect(() => {
     if (!file || !fileWorker || isDraggingRef.current) return;
     const timer = setTimeout(() => {
-      requestChunks(firstRowRef.current, fileWorker, file, fileSize, visibleRows + 30);
+      requestChunks(
+        firstRowRef.current,
+        fileWorker,
+        file,
+        fileSize,
+        visibleRows + 30
+      );
     }, CHUNK_REQUEST_DEBOUNCE);
     return () => clearTimeout(timer);
   }, [file, visibleRows, fileSize, requestChunks, fileWorker]);
@@ -306,7 +364,10 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (props, ref) => 
   useEffect(() => {
     if (!contextMenu) return;
     const handleClickOutside = (event: MouseEvent) => {
-      if (contextMenuRef.current && !contextMenuRef.current.contains(event.target as Node)) {
+      if (
+        contextMenuRef.current &&
+        !contextMenuRef.current.contains(event.target as Node)
+      ) {
         closeContextMenu();
       }
     };
@@ -343,7 +404,13 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (props, ref) => 
         [activeKey]: Math.max(0, cursorRow - visibleRows + 1),
       }));
     }
-  }, [activeKey, activeSelectionState?.cursor, bytesPerRow, visibleRows, setScrollPositions]);
+  }, [
+    activeKey,
+    activeSelectionState?.cursor,
+    bytesPerRow,
+    visibleRows,
+    setScrollPositions,
+  ]);
 
   useImperativeHandle(
     ref,
@@ -352,7 +419,8 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (props, ref) => 
         const targetRow = Math.floor(index / bytesPerRow);
         updateScrollPosition(targetRow);
 
-        const endIndex = offset > 0 ? Math.min(index + offset - 1, fileSize - 1) : index;
+        const endIndex =
+          offset > 0 ? Math.min(index + offset - 1, fileSize - 1) : index;
         setSelection(index, endIndex);
       },
     }),
@@ -433,16 +501,26 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (props, ref) => 
         <ContextMenu
           ref={contextMenuRef}
           style={{
-            top: contextMenu.y - (containerRef.current?.getBoundingClientRect().top || 0),
-            left: contextMenu.x - (containerRef.current?.getBoundingClientRect().left || 0),
+            top:
+              contextMenu.y -
+              (containerRef.current?.getBoundingClientRect().top || 0),
+            left:
+              contextMenu.x -
+              (containerRef.current?.getBoundingClientRect().left || 0),
           }}
           onClick={closeContextMenu}
           onBlur={closeContextMenu}
         >
           <ContextMenuList>
-            <ContextMenuItem onClick={handleCopyOffset}>Copy Offset (Hex)</ContextMenuItem>
-            <ContextMenuItem onClick={handleCopyHex}>Copy (Hex String)</ContextMenuItem>
-            <ContextMenuItem onClick={handleCopyText}>Copy (ASCII Text)</ContextMenuItem>
+            <ContextMenuItem onClick={handleCopyOffset}>
+              Copy Offset (Hex)
+            </ContextMenuItem>
+            <ContextMenuItem onClick={handleCopyHex}>
+              Copy (Hex String)
+            </ContextMenuItem>
+            <ContextMenuItem onClick={handleCopyText}>
+              Copy (ASCII Text)
+            </ContextMenuItem>
           </ContextMenuList>
         </ContextMenu>
       )}

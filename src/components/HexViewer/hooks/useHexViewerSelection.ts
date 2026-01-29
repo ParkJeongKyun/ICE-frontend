@@ -1,7 +1,7 @@
 import { RefObject, useCallback, useRef, useEffect, useState } from 'react';
 import { useTab } from '@/contexts/TabDataContext';
 import { useSelection } from '@/contexts/TabDataContext';
-import { useMessage } from '@/contexts/MessageContext';
+import eventBus from '@/utils/eventBus';
 import {
   LAYOUT,
   HEX_START_X,
@@ -29,7 +29,6 @@ export const useHexViewerSelection = ({
 }: UseHexViewerSelectionProps) => {
   const { activeKey, activeData } = useTab();
   const { selectionStates, setSelectionStates } = useSelection();
-  const { showMessage } = useMessage();
 
   const file = activeData?.file;
 
@@ -243,15 +242,15 @@ export const useHexViewerSelection = ({
         await navigator.clipboard.writeText(
           format === 'hex' ? result.trim() : result
         );
-        showMessage('COPY_SUCCESS');
+        eventBus.emit('toast', { code: 'COPY_SUCCESS' });
       } catch (error) {
         console.error(`${format.toUpperCase()} copy failed:`, error);
-        showMessage('COPY_FAILED');
+        eventBus.emit('toast', { code: 'COPY_FAILED' });
       }
 
       contextMenuRef.current = null;
     },
-    [selection.start, selection.end, file, showMessage]
+    [selection.start, selection.end, file]
   );
 
   const handleCopyHex = useCallback(() => handleCopy('hex'), [handleCopy]);
@@ -262,13 +261,13 @@ export const useHexViewerSelection = ({
     const offset = Math.min(selection.start, selection.end);
     try {
       await navigator.clipboard.writeText(offset.toString(16).toUpperCase());
-      showMessage('COPY_SUCCESS');
+      eventBus.emit('toast', { code: 'COPY_SUCCESS' });
     } catch (error) {
       console.error('Failed to copy offset:', error);
-      showMessage('COPY_FAILED');
+      eventBus.emit('toast', { code: 'COPY_FAILED' });
     }
     contextMenuRef.current = null;
-  }, [selection.start, selection.end, showMessage]);
+  }, [selection.start, selection.end]);
 
   // ===== Keyboard Navigation =====
   const handleKeyDown = useCallback(
