@@ -8,13 +8,13 @@ import {
   ContentDiv,
   CellHeaderDiv,
   CellBodyDiv,
-} from './index.styles';
+} from './LeafletMap.styles';
 import { isValidLocation, getAddress } from '@/utils/getAddress';
 import eventBus from '@/utils/eventBus';
 import 'leaflet/dist/leaflet.css';
 
 import { useTranslations, useLocale } from 'next-intl';
-import { useAddressCache } from '@/contexts/TabDataContext';
+import { useAddressCache } from '@/contexts/TabDataContext/TabDataContext';
 
 interface Props {
   latitude: string;

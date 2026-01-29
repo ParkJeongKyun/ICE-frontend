@@ -1,10 +1,10 @@
 'use client';
 import React, { createContext, useContext, useRef, ReactNode } from 'react';
 
-import { HexViewerRef } from '@/components/HexViewer';
-import { SearcherRef } from '@/components/Searcher';
-import { MenuBtnZoneRef } from '@/components/MenuBtnZone';
-import type { ModalRef } from '@/components/common/Modal';
+import { HexViewerRef } from '@/components/HexViewer/HexViewer';
+import { SearcherRef } from '@/components/Searcher/Searcher';
+import { MenuBtnZoneRef } from '@/components/MenuBtnZone/MenuBtnZone';
+import type { ModalRef } from '@/components/common/Modal/Modal';
 
 interface RefContextType {
   hexViewerRef: React.RefObject<HexViewerRef | null>;

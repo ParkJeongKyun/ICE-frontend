@@ -4,13 +4,13 @@ import React, { useEffect, useCallback, useMemo } from 'react';
 import { ChangeEvent, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { useTranslations } from 'next-intl';
-import MenuBtn from '@/components/common/MenuBtn';
-import HexViewer from '@/components/HexViewer';
-import { useProcess } from '@/contexts/ProcessContext';
-import { useTab } from '@/contexts/TabDataContext';
-import { useRefs } from '@/contexts/RefContext';
+import MenuBtn from '@/components/common/MenuBtn/MenuBtn';
+import HexViewer from '@/components/HexViewer/HexViewer';
+import { useProcess } from '@/contexts/ProcessContext/ProcessContext';
+import { useTab } from '@/contexts/TabDataContext/TabDataContext';
+import { useRefs } from '@/contexts/RefContext/RefContext';
 import { parseExifData, readFileForExif } from '@/utils/exifParser';
-import { useWorker } from '@/contexts/WorkerContext';
+import { useWorker } from '@/contexts/WorkerContext/WorkerContext';
 import eventBus from '@/utils/eventBus';
 
 export interface MenuBtnZoneRef {

@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { useMessage } from '@/contexts/MessageContext';
+import { useMessage } from '@/contexts/MessageContext/MessageContext';
 import {
   MessageModalContainer,
   MessageBox,
@@ -8,7 +8,7 @@ import {
   MessageTitle,
   MessageText,
   CloseButton,
-} from './index.styles';
+} from './MessageModal.styles';
 import XIcon from '@/components/common/Icons/XIcon';
 import InfoIcon from '@/components/common/Icons/InfoIcon';
 import AlertIcon from '@/components/common/Icons/AlertIcon';
@@ -41,7 +41,11 @@ const MessageModal: React.FC = () => {
       {currentMessages.map((message) => {
         const Icon = ICON_MAP[message.type];
         return (
-          <MessageBox key={message.id} $isMobile={isMobile} $type={message.type}>
+          <MessageBox
+            key={message.id}
+            $isMobile={isMobile}
+            $type={message.type}
+          >
             <MessageIcon $type={message.type}>
               <Icon width={20} height={20} />
             </MessageIcon>

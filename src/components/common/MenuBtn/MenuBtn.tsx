@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import Tooltip from '@/components/common/Tooltip';
+import Tooltip from '@/components/common/Tooltip/Tooltip';
 
 interface Props {
   onClick: () => void;

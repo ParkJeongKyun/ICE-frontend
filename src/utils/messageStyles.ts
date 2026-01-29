@@ -1,4 +1,4 @@
-import { MessageType } from '@/contexts/MessageContext';
+import { MessageType } from '@/contexts/MessageContext/MessageContext';
 
 export function getMessageTypeColor(type: MessageType): string {
   switch (type) {

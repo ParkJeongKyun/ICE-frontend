@@ -1,13 +1,19 @@
-import React, { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {
   CloseBtn,
   Tab,
   TabContentContainer,
   TabWindowContainer,
   TabsContainer,
-} from './index.styles';
+} from './TabWindow.styles';
 import XIcon from '@/components/common/Icons/XIcon';
-import { useTab } from '@/contexts/TabDataContext';
+import { useTab } from '@/contexts/TabDataContext/TabDataContext';
 import { TabKey } from '@/types';
 
 const TabWindow: React.FC = () => {
@@ -168,7 +174,9 @@ const TabWindow: React.FC = () => {
       return (
         <div
           key={tabKey}
-          ref={(el) => { tabRefs.current[index] = el; }}
+          ref={(el) => {
+            tabRefs.current[index] = el;
+          }}
           draggable
           onDragStart={(e) => handleDragStart(e, index, tabKey)}
           onDragOver={(e) => handleDragOver(e, index)}
@@ -247,15 +255,16 @@ const TabWindow: React.FC = () => {
     const tabEl = tabRefs.current[idx];
     if (idx !== -1 && tabEl) {
       tabEl.focus();
-      tabEl.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+      tabEl.scrollIntoView({
+        behavior: 'smooth',
+        inline: 'center',
+        block: 'nearest',
+      });
     }
   }, [activeKey, tabOrder]);
 
   return (
-    <TabWindowContainer
-      onDragOver={handleGlobalDragOver}
-      onDrop={handleDrop}
-    >
+    <TabWindowContainer onDragOver={handleGlobalDragOver} onDrop={handleDrop}>
       <TabsContainer ref={tabsContainerRef} $empty={isEmpty}>
         {tabContents}
       </TabsContainer>

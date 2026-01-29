@@ -1,6 +1,6 @@
 'use client';
 import { useEffect } from 'react';
-import { useMessage } from '@/contexts/MessageContext';
+import { useMessage } from '@/contexts/MessageContext/MessageContext';
 import eventBus from '@/utils/eventBus';
 
 export default function ToastListener() {

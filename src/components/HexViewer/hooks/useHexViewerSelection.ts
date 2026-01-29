@@ -1,6 +1,6 @@
 import { RefObject, useCallback, useRef, useEffect, useState } from 'react';
-import { useTab } from '@/contexts/TabDataContext';
-import { useSelection } from '@/contexts/TabDataContext';
+import { useTab } from '@/contexts/TabDataContext/TabDataContext';
+import { useSelection } from '@/contexts/TabDataContext/TabDataContext';
 import eventBus from '@/utils/eventBus';
 import {
   LAYOUT,

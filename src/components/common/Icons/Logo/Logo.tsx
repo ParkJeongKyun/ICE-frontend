@@ -5,7 +5,7 @@ import {
   LogoInner,
   LogoText,
   Star,
-} from './index.styles';
+} from './Logo.styles';
 
 interface LogoProps {
   size?: number | string;

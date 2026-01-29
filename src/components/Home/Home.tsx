@@ -1,6 +1,6 @@
 'use client';
 
-import { useRefs } from '@/contexts/RefContext';
+import { useRefs } from '@/contexts/RefContext/RefContext';
 import {
   Btn,
   HomeDiv,
@@ -12,8 +12,8 @@ import {
   Title,
   Version,
   SubTitleDiv,
-} from './index.styles';
-import Logo from '../common/Icons/Logo';
+} from './Home.styles';
+import Logo from '../common/Icons/Logo/Logo';
 import { useTranslations } from 'next-intl';
 import { useIsMobile } from '@/layouts/useIsMobile';
 

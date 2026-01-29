@@ -1,9 +1,9 @@
 // src/app/layout.tsx (최상위)
-import { HexViewerCacheProvider } from '@/contexts/HexViewerCacheContext';
-import { ProcessProvider } from '@/contexts/ProcessContext';
-import { RefProvider } from '@/contexts/RefContext';
-import { TabDataProvider } from '@/contexts/TabDataContext';
-import { WorkerProvider } from '@/contexts/WorkerContext';
+import { HexViewerCacheProvider } from '@/contexts/HexViewerCacheContext/HexViewerCacheContext';
+import { ProcessProvider } from '@/contexts/ProcessContext/ProcessContext';
+import { RefProvider } from '@/contexts/RefContext/RefContext';
+import { TabDataProvider } from '@/contexts/TabDataContext/TabDataContext';
+import { WorkerProvider } from '@/contexts/WorkerContext/WorkerContext';
 import StyledComponentsRegistry from './[locale]/StyledComponentsRegistry';
 
 export default function RootLayout({

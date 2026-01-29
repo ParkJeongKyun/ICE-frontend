@@ -11,7 +11,7 @@ import React, {
 } from 'react';
 import { TabKey } from '@/types';
 import type { WorkerMessage } from '@/types/fileReader.worker';
-import { useProcess } from '@/contexts/ProcessContext';
+import { useProcess } from '@/contexts/ProcessContext/ProcessContext';
 import eventBus from '@/utils/eventBus';
 
 interface WorkerCacheData {

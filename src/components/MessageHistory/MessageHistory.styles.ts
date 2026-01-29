@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { MessageType } from '@/contexts/MessageContext';
+import { MessageType } from '@/contexts/MessageContext/MessageContext';
 import { getMessageTypeColor } from '@/utils/messageStyles';
 
 export const HistoryButton = styled.button<{ $hasUnread: boolean }>`

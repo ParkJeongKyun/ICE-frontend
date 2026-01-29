@@ -1,4 +1,4 @@
-import Collapse from '@/components/common/Collapse';
+import Collapse from '@/components/common/Collapse/Collapse';
 import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import {
@@ -10,11 +10,11 @@ import {
   SectionDiv,
   NotSelectedDiv,
   JumpButton,
-} from './index.styles';
-import { useTab } from '@/contexts/TabDataContext';
-import { useSelection } from '@/contexts/TabDataContext';
-import { useRefs } from '@/contexts/RefContext';
-import Tooltip from '@/components/common/Tooltip';
+} from './DataInspector.styles';
+import { useTab } from '@/contexts/TabDataContext/TabDataContext';
+import { useSelection } from '@/contexts/TabDataContext/TabDataContext';
+import { useRefs } from '@/contexts/RefContext/RefContext';
+import Tooltip from '@/components/common/Tooltip/Tooltip';
 import ChevronRightIcon from '@/components/common/Icons/ChevronRightIcon';
 import DoubleChevronsRightIcon from '@/components/common/Icons/DoubleChevronsRightIcon';
 import {

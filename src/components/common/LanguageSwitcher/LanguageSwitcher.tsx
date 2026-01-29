@@ -6,7 +6,7 @@ import { useRouter, usePathname } from '@/locales/routing';
 import styled from 'styled-components';
 import USFlagIcon from '../Icons/USFlagIcon';
 import KRFlagIcon from '../Icons/KRFlagIcon';
-import Tooltip from '../Tooltip';
+import Tooltip from '../Tooltip/Tooltip';
 
 const LanguageSwitcher: React.FC = () => {
   const locale = useLocale();

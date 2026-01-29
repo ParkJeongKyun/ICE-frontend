@@ -1,5 +1,5 @@
 import React from 'react';
-import { SpinnerWrapper } from './index.styles';
+import { SpinnerWrapper } from './Spinner.styles';
 
 interface SpinnerProps {
     size?: number;

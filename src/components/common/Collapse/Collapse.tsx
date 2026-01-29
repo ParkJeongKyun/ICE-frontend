@@ -5,7 +5,7 @@ import {
   CollapseContent,
   CollapseHeader,
   Title,
-} from './index.styles';
+} from './Collapse.styles';
 import MinusIcon from '@/components/common/Icons/MinusIcon';
 import PlusIcon from '@/components/common/Icons/PlusIcon';
 

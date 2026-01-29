@@ -2,14 +2,14 @@
 
 import React from 'react';
 import { useTranslations } from 'next-intl';
-import { useTab } from '@/contexts/TabDataContext';
-import Collapse from '@/components/common/Collapse';
+import { useTab } from '@/contexts/TabDataContext/TabDataContext';
+import Collapse from '@/components/common/Collapse/Collapse';
 import { isValidLocation } from '@/utils/getAddress';
-import { NoDataMessage } from '../index.styles';
+import { NoDataMessage } from '../ExifRowViewer.styles';
 
 import dynamic from 'next/dynamic';
 
-const LeafletMap = dynamic(() => import('@/components/LeafletMap'), {
+const LeafletMap = dynamic(() => import('@/components/LeafletMap/LeafletMap'), {
   ssr: false,
   loading: () => <div style={{ height: '300px' }}>Loading Map...</div>,
 });

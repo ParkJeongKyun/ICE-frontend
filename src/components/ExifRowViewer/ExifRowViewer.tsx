@@ -1,11 +1,11 @@
 import React from 'react';
-import { ViewerDiv } from './index.styles';
-import ExifThumbnailCollapse from './ExifThumbnailCollapse';
-import FileInfoCollapse from './FileInfoCollapse';
+import { ViewerDiv } from './ExifRowViewer.styles';
+import ExifThumbnailCollapse from './ExifThumbnailCollapse/ExifThumbnailCollapse';
+import FileInfoCollapse from './FileInfoCollapse/FileInfoCollapse';
 import MapCollapse from './MapCollapse';
-import ExifInfoCollapse from './ExifInfoCollapse';
-import IfdInfoCollapse from './IfdInfoCollapse';
-import ExifTagsCollapse from './ExifTagsCollapse';
+import ExifInfoCollapse from './ExifInfoCollapse/ExifInfoCollapse';
+import IfdInfoCollapse from './IfdInfoCollapse/IfdInfoCollapse';
+import ExifTagsCollapse from './ExifTagsCollapse/ExifTagsCollapse';
 
 const ExifRowViewer: React.FC = () => {
   return (

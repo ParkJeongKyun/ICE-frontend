@@ -2,9 +2,9 @@
 
 import React from 'react';
 import { useTranslations } from 'next-intl';
-import { useTab } from '@/contexts/TabDataContext';
-import Collapse from '@/components/common/Collapse';
-import { ThumbDiv, Thumbnail, NoDataMessage } from '../index.styles';
+import { useTab } from '@/contexts/TabDataContext/TabDataContext';
+import Collapse from '@/components/common/Collapse/Collapse';
+import { ThumbDiv, Thumbnail, NoDataMessage } from '../ExifRowViewer.styles';
 
 const ExifThumbnailCollapse: React.FC = () => {
   const t = useTranslations();

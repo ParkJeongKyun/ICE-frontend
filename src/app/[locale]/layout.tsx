@@ -1,9 +1,8 @@
 import { NextIntlClientProvider } from 'next-intl';
 import { routing } from '@/locales/routing';
 import '@/app/index.scss';
-import StyledComponentsRegistry from './StyledComponentsRegistry';
 import { getMessages } from 'next-intl/server';
-import { MessageProvider } from '@/contexts/MessageContext';
+import { MessageProvider } from '@/contexts/MessageContext/MessageContext';
 import ToastListener from '@/components/common/ToastListener/ToastListener';
 
 export function generateStaticParams() {

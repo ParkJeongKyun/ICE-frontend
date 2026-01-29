@@ -6,11 +6,11 @@ import React, {
   forwardRef,
   useReducer,
 } from 'react';
-import { useTab } from '@/contexts/TabDataContext';
-import { useScroll } from '@/contexts/TabDataContext';
-import { useSelection } from '@/contexts/TabDataContext';
-import { useWorker } from '@/contexts/WorkerContext';
-import { useMessage } from '@/contexts/MessageContext';
+import { useTab } from '@/contexts/TabDataContext/TabDataContext';
+import { useScroll } from '@/contexts/TabDataContext/TabDataContext';
+import { useSelection } from '@/contexts/TabDataContext/TabDataContext';
+import { useWorker } from '@/contexts/WorkerContext/WorkerContext';
+import { useMessage } from '@/contexts/MessageContext/MessageContext';
 import {
   HexViewerContainer,
   CanvasContainer,
@@ -24,7 +24,7 @@ import {
   ContextMenu,
   ContextMenuList,
   ContextMenuItem,
-} from './index.styles';
+} from './HexViewer.styles';
 import { isMobile } from 'react-device-detect';
 import {
   CHUNK_REQUEST_DEBOUNCE,
@@ -39,7 +39,7 @@ import { useHexViewerRender } from './hooks/useHexViewerRender';
 import { useHexViewerWorker } from './hooks/useHexViewerWorker';
 import { useHexViewerXScroll } from './hooks/useHexViewerXScroll';
 import { useHexViewerYScroll } from './hooks/useHexViewerYScroll';
-import { useHexViewerCacheContext } from '@/contexts/HexViewerCacheContext';
+import { useHexViewerCacheContext } from '@/contexts/HexViewerCacheContext/HexViewerCacheContext';
 
 export interface IndexInfo {
   index: number;

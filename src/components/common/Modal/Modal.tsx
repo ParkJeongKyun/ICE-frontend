@@ -8,12 +8,12 @@ import {
   CloseBtn,
   ChildDiv,
   ModalTitle,
-} from './index.styles';
+} from './Modal.styles';
 import XIcon from '@/components/common/Icons/XIcon';
-import Tooltip from '../Tooltip';
 import { useTranslations, useLocale } from 'next-intl';
-import { useRefs } from '@/contexts/RefContext';
+import { useRefs } from '@/contexts/RefContext/RefContext';
 import ICEMarkDown from '@/components/markdown';
+import Tooltip from '../Tooltip/Tooltip';
 
 export interface ModalProps {
   top?: string;

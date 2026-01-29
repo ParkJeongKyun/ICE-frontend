@@ -1,5 +1,5 @@
 import styled, { keyframes } from 'styled-components';
-import { MessageType } from '@/contexts/MessageContext';
+import { MessageType } from '@/contexts/MessageContext/MessageContext';
 import { getMessageTypeColor } from '@/utils/messageStyles';
 
 const fadeIn = keyframes`
@@ -31,7 +31,10 @@ export const MessageModalContainer = styled.div<{ $isMobile: boolean }>`
     `}
 `;
 
-export const MessageBox = styled.div<{ $isMobile: boolean; $type: MessageType }>`
+export const MessageBox = styled.div<{
+  $isMobile: boolean;
+  $type: MessageType;
+}>`
   position: relative;
   background-color: var(--main-bg-color);
   border: 1px solid ${({ $type }) => getMessageTypeColor($type)};
@@ -47,7 +50,7 @@ export const MessageBox = styled.div<{ $isMobile: boolean; $type: MessageType }>
   pointer-events: auto;
   animation: ${fadeIn} 0.15s ease-out;
 
-   /* 모바일 버전용 */
+  /* 모바일 버전용 */
   ${(props) =>
     props.$isMobile &&
     `

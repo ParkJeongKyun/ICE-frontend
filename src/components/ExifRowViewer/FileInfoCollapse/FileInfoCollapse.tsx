@@ -2,15 +2,15 @@
 
 import React from 'react';
 import { useTranslations } from 'next-intl';
-import { useTab } from '@/contexts/TabDataContext';
-import Collapse from '@/components/common/Collapse';
-import Tooltip from '@/components/common/Tooltip';
+import { useTab } from '@/contexts/TabDataContext/TabDataContext';
+import Collapse from '@/components/common/Collapse/Collapse';
+import Tooltip from '@/components/common/Tooltip/Tooltip';
 import {
   CellBodyDiv,
   CellHeaderDiv,
   ContentDiv,
   NoDataMessage,
-} from '../index.styles';
+} from '../ExifRowViewer.styles';
 import { getBytes, getDate } from '@/utils/exifParser';
 
 const FileInfoCollapse: React.FC = () => {

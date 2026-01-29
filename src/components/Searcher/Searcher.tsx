@@ -1,5 +1,5 @@
 'use client';
-import Collapse from '@/components/common/Collapse';
+import Collapse from '@/components/common/Collapse/Collapse';
 import React, {
   useCallback,
   useEffect,
@@ -20,18 +20,18 @@ import {
   SearchSelect,
   SearchResultBar,
   NavigationButtons,
-} from './index.styles';
-import { IndexInfo } from '@/components/HexViewer';
+} from './Searcher.styles';
+import { IndexInfo } from '@/components/HexViewer/HexViewer';
 import { TabKey } from '@/types';
 import XIcon from '@/components/common/Icons/XIcon';
 import ChevronLeftIcon from '@/components/common/Icons/ChevronLeftIcon';
 import ChevronRightIcon from '@/components/common/Icons/ChevronRightIcon';
 import SearchIcon from '@/components/common/Icons/SearchIcon';
-import { useTab } from '@/contexts/TabDataContext';
-import { useRefs } from '@/contexts/RefContext';
-import { useMessage } from '@/contexts/MessageContext';
+import { useTab } from '@/contexts/TabDataContext/TabDataContext';
+import { useRefs } from '@/contexts/RefContext/RefContext';
+import { useMessage } from '@/contexts/MessageContext/MessageContext';
 import { useSearch } from './hooks/useSearch';
-import Tooltip from '@/components/common/Tooltip';
+import Tooltip from '@/components/common/Tooltip/Tooltip';
 import type {
   SearchType,
   SearchCacheKey,

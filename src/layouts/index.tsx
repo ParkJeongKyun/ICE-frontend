@@ -26,26 +26,26 @@ import {
   IceMobileTabButton,
   IceMobileTabPanel,
 } from './index.styles';
-import MenuBtnZone from '@/components/MenuBtnZone';
-import TabWindow from '@/components/TabWindow';
-import Modal from '@/components/common/Modal';
+import MenuBtnZone from '@/components/MenuBtnZone/MenuBtnZone';
+import TabWindow from '@/components/TabWindow/TabWindow';
+import Modal from '@/components/common/Modal/Modal';
 
 import { useResizable } from 'react-resizable-layout';
-import { useProcess } from '@/contexts/ProcessContext';
-import Home from '@/components/Home';
+import { useProcess } from '@/contexts/ProcessContext/ProcessContext';
+import Home from '@/components/Home/Home';
 import {
   encodingOptions,
   useTab,
   useSelection,
   EncodingType,
-} from '@/contexts/TabDataContext';
-import Logo from '@/components/common/Icons/Logo';
-import MessageModal from '@/components/MessageModal';
-import MessageHistory from '@/components/MessageHistory';
-import Spinner from '@/components/common/Spinner';
-import Select from '@/components/common/Select';
-import OffsetNavigator from '@/components/OffsetNavigator';
-import LanguageSwitcher from '@/components/common/LanguageSwitcher';
+} from '@/contexts/TabDataContext/TabDataContext';
+import Logo from '@/components/common/Icons/Logo/Logo';
+import MessageModal from '@/components/MessageModal/MessageModal';
+import MessageHistory from '@/components/MessageHistory/MessageHistory';
+import Spinner from '@/components/common/Spinner/Spinner';
+import Select from '@/components/common/Select/Select';
+import OffsetNavigator from '@/components/OffsetNavigator/OffsetNavigator';
+import LanguageSwitcher from '@/components/common/LanguageSwitcher/LanguageSwitcher';
 import InfoPanel from './SidePanels/InfoPanel';
 import ToolsPanel from './SidePanels/ToolsPanel';
 import { useIsMobile } from './useIsMobile';

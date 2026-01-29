@@ -2,9 +2,9 @@
 
 import React, { useMemo, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
-import { useTab } from '@/contexts/TabDataContext';
-import { useRefs } from '@/contexts/RefContext';
-import Collapse from '@/components/common/Collapse';
+import { useTab } from '@/contexts/TabDataContext/TabDataContext';
+import { useRefs } from '@/contexts/RefContext/RefContext';
+import Collapse from '@/components/common/Collapse/Collapse';
 import ChevronRightIcon from '@/components/common/Icons/ChevronRightIcon';
 import {
   CellBodyDiv,
@@ -12,7 +12,7 @@ import {
   ContentDiv,
   JumpButton,
   NoDataMessage,
-} from '../index.styles';
+} from '../ExifRowViewer.styles';
 
 const IfdInfoCollapse: React.FC = () => {
   const t = useTranslations();

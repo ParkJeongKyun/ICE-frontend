@@ -1,6 +1,6 @@
 import { useRef, useCallback, RefObject } from 'react';
-import { useTab } from '@/contexts/TabDataContext';
-import { useSelection } from '@/contexts/TabDataContext';
+import { useTab } from '@/contexts/TabDataContext/TabDataContext';
+import { useSelection } from '@/contexts/TabDataContext/TabDataContext';
 import { getDevicePixelRatio } from '@/utils/hexViewer';
 import { byteToHex, byteToChar } from '@/utils/encoding';
 import {

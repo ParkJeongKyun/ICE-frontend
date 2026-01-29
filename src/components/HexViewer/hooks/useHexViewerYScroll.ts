@@ -1,7 +1,7 @@
 import { useCallback, useRef, useState, useMemo, RefObject } from 'react';
-import { useTab } from '@/contexts/TabDataContext';
-import { useScroll } from '@/contexts/TabDataContext';
-import { useWorker } from '@/contexts/WorkerContext';
+import { useTab } from '@/contexts/TabDataContext/TabDataContext';
+import { useScroll } from '@/contexts/TabDataContext/TabDataContext';
+import { useWorker } from '@/contexts/WorkerContext/WorkerContext';
 import { UPDATE_INTERVAL, LAYOUT } from '@/constants/hexViewer';
 import { calculateScrollbarTop } from '@/utils/hexViewer';
 
@@ -39,7 +39,7 @@ export const useHexViewerYScroll = ({
   const [scrollbarDragging, setScrollbarDragging] = useState(false);
   const [scrollbarStartY, setScrollbarStartY] = useState(0);
   const [scrollbarStartRow, setScrollbarStartRow] = useState(0);
-  
+
   const touchStartYRef = useRef<number | null>(null);
   const touchStartRowRef = useRef<number | null>(null);
 
@@ -47,7 +47,13 @@ export const useHexViewerYScroll = ({
   const shouldShowScrollbar = rowCount > visibleRows && fileSize > 0;
   const scrollbarHeight = Math.max(30, (visibleRows / rowCount) * canvasHeight);
   const scrollbarTop = useMemo(
-    () => calculateScrollbarTop(scrollPositions[activeKey] ?? 0, maxFirstRow, canvasHeight, scrollbarHeight),
+    () =>
+      calculateScrollbarTop(
+        scrollPositions[activeKey] ?? 0,
+        maxFirstRow,
+        canvasHeight,
+        scrollbarHeight
+      ),
     [scrollPositions, activeKey, maxFirstRow, canvasHeight, scrollbarHeight]
   );
 
@@ -96,7 +102,10 @@ export const useHexViewerYScroll = ({
       ) {
         const deltaY = e.touches[0].clientY - touchStartYRef.current;
         const rowDelta = -Math.round(deltaY / LAYOUT.rowHeight);
-        const nextRow = Math.max(0, Math.min(touchStartRowRef.current + rowDelta, maxFirstRow));
+        const nextRow = Math.max(
+          0,
+          Math.min(touchStartRowRef.current + rowDelta, maxFirstRow)
+        );
         if (nextRow !== firstRowRef.current) {
           updateScrollPosition(nextRow);
         }
@@ -146,7 +155,13 @@ export const useHexViewerYScroll = ({
   const scrollbarDragEffect = useCallback(() => {
     if (!scrollbarDragging || !fileWorker || !file) return;
 
-    requestChunks(firstRowRef.current, fileWorker, file, fileSize, visibleRows + 100);
+    requestChunks(
+      firstRowRef.current,
+      fileWorker,
+      file,
+      fileSize,
+      visibleRows + 100
+    );
 
     let animationFrameId: number | null = null;
     let lastUpdateTime = 0;
@@ -161,7 +176,9 @@ export const useHexViewerYScroll = ({
         const deltaY = e.clientY - scrollbarStartY;
         const totalScrollable = canvasHeight - scrollbarHeight;
         if (totalScrollable <= 0) return;
-        const rowDelta = Math.round((deltaY / totalScrollable) * (rowCount - visibleRows));
+        const rowDelta = Math.round(
+          (deltaY / totalScrollable) * (rowCount - visibleRows)
+        );
         let nextRow = scrollbarStartRow + rowDelta;
         nextRow = Math.max(0, Math.min(nextRow, maxFirstRow));
 
@@ -186,7 +203,9 @@ export const useHexViewerYScroll = ({
         const deltaY = e.touches[0].clientY - scrollbarStartY;
         const totalScrollable = canvasHeight - scrollbarHeight;
         if (totalScrollable <= 0) return;
-        const rowDelta = Math.round((deltaY / totalScrollable) * (rowCount - visibleRows));
+        const rowDelta = Math.round(
+          (deltaY / totalScrollable) * (rowCount - visibleRows)
+        );
         let nextRow = scrollbarStartRow + rowDelta;
         nextRow = Math.max(0, Math.min(nextRow, maxFirstRow));
 

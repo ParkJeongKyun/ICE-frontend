@@ -2,16 +2,16 @@
 
 import React, { useCallback, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { useTab } from '@/contexts/TabDataContext';
-import { useRefs } from '@/contexts/RefContext';
+import { useTab } from '@/contexts/TabDataContext/TabDataContext';
+import { useRefs } from '@/contexts/RefContext/RefContext';
 import {
   NavigatorContainer,
   NavigatorInput,
   NavigatorButton,
   RadixButton,
-} from './index.styles';
+} from './OffsetNavigator.styles';
 import SearchIcon from '@/components/common/Icons/SearchIcon';
-import Tooltip from '@/components/common/Tooltip';
+import Tooltip from '@/components/common/Tooltip/Tooltip';
 
 type Radix = 16 | 10 | 8;
 
@@ -45,7 +45,7 @@ const OffsetNavigator: React.FC = () => {
       // 진법에 따라 10진수로 변환 후 16진수 문자열로 변환
       const decimalValue = parseInt(offsetStr, radix);
       if (isNaN(decimalValue)) return;
-      
+
       const hexStr = decimalValue.toString(16);
       await searcherRef.current.findByOffset(hexStr);
     },
@@ -79,17 +79,17 @@ const OffsetNavigator: React.FC = () => {
   if (isEmpty) return null;
 
   const radixLabel = radix === 16 ? '0x' : radix === 10 ? 'De' : '0o';
-  const placeholder = 
-    radix === 16 ? t('offsetNavigator.hexPlaceholder') : 
-    radix === 10 ? t('offsetNavigator.decPlaceholder') : 
-    t('offsetNavigator.octPlaceholder');
+  const placeholder =
+    radix === 16
+      ? t('offsetNavigator.hexPlaceholder')
+      : radix === 10
+        ? t('offsetNavigator.decPlaceholder')
+        : t('offsetNavigator.octPlaceholder');
 
   return (
     <NavigatorContainer>
       <Tooltip text={t('offsetNavigator.radixTooltip')}>
-        <RadixButton onClick={handleRadixChange}>
-          {radixLabel}
-        </RadixButton>
+        <RadixButton onClick={handleRadixChange}>{radixLabel}</RadixButton>
       </Tooltip>
       <NavigatorInput
         value={inputValue}

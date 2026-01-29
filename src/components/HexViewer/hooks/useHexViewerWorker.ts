@@ -1,6 +1,6 @@
 import { RefObject, useCallback, useRef } from 'react';
-import { useTab } from '@/contexts/TabDataContext';
-import { useWorker } from '@/contexts/WorkerContext';
+import { useTab } from '@/contexts/TabDataContext/TabDataContext';
+import { useWorker } from '@/contexts/WorkerContext/WorkerContext';
 import { CHUNK_SIZE, LAYOUT } from '@/constants/hexViewer';
 
 interface UseHexViewerWorkerProps {
@@ -22,7 +22,7 @@ export const useHexViewerWorker = ({
 }: UseHexViewerWorkerProps) => {
   const { activeKey, activeData } = useTab();
   const { fileWorker, setWorkerCache } = useWorker();
-  
+
   const file = activeData?.file;
   const fileSize = file?.size || 0;
   const workerMessageHandlerRef = useRef<((e: MessageEvent) => void) | null>(

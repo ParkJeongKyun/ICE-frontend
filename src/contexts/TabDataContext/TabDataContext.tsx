@@ -9,7 +9,7 @@ import React, {
   useCallback,
   useEffect,
 } from 'react';
-import { useWorker } from '@/contexts/WorkerContext';
+import { useWorker } from '@/contexts/WorkerContext/WorkerContext';
 
 export type EncodingType = 'ansi' | 'oem' | 'ascii' | 'mac' | 'ebcdic';
 

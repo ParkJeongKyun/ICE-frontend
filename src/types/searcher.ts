@@ -1,5 +1,5 @@
 import { TabKey } from '@/types';
-import { IndexInfo } from '@/components/HexViewer';
+import { IndexInfo } from '@/components/HexViewer/HexViewer';
 
 export type SearchType = 'hex' | 'ascii';
 export type SearchCacheKey = string;
