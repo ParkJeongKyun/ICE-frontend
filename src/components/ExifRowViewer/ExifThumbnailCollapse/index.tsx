@@ -1,11 +1,13 @@
+'use client';
+
 import React from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import { useTab } from '@/contexts/TabDataContext';
 import Collapse from '@/components/common/Collapse';
 import { ThumbDiv, Thumbnail, NoDataMessage } from '../index.styles';
 
 const ExifThumbnailCollapse: React.FC = () => {
-  const { t } = useTranslation();
+  const t = useTranslations();
   const { activeData } = useTab();
   const thumbnail = activeData?.exifInfo?.thumbnail;
 

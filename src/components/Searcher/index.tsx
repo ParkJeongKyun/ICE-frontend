@@ -1,3 +1,4 @@
+'use client';
 import Collapse from '@/components/common/Collapse';
 import React, {
   useCallback,
@@ -7,7 +8,8 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { useTranslation } from 'react-i18next';
+
+import { useTranslations } from 'next-intl';
 import {
   ButtonDiv,
   Result,
@@ -39,9 +41,20 @@ import type {
 } from '@/types/searcher';
 
 export interface SearcherRef {
-  findByOffset: (offset: string, length?: number, shouldScroll?: boolean) => Promise<IndexInfo | null>;
-  findAllByHex: (hex: string, shouldScroll?: boolean) => Promise<IndexInfo[] | null>;
-  findAllByAsciiText: (text: string, ignoreCase: boolean, shouldScroll?: boolean) => Promise<IndexInfo[] | null>;
+  findByOffset: (
+    offset: string,
+    length?: number,
+    shouldScroll?: boolean
+  ) => Promise<IndexInfo | null>;
+  findAllByHex: (
+    hex: string,
+    shouldScroll?: boolean
+  ) => Promise<IndexInfo[] | null>;
+  findAllByAsciiText: (
+    text: string,
+    ignoreCase: boolean,
+    shouldScroll?: boolean
+  ) => Promise<IndexInfo[] | null>;
 }
 
 const initialState: SearchStateWithCache = {
@@ -102,7 +115,7 @@ const reducer = (
 };
 
 const Searcher: React.FC = () => {
-  const { t } = useTranslation();
+  const t = useTranslations();
   const { hexViewerRef, setSearcherRef } = useRefs();
   const { activeKey } = useTab();
   const { showMessage } = useMessage();
@@ -112,32 +125,41 @@ const Searcher: React.FC = () => {
   const [ignoreCase, setIgnoreCase] = useState(true);
   const searchTabKeyRef = useRef<TabKey>(activeKey);
 
-  const { findByOffset, findAllByHex, findAllByAsciiText, cleanup: cleanupSearch, filterInput } = useSearch();
+  const {
+    findByOffset,
+    findAllByHex,
+    findAllByAsciiText,
+    cleanup: cleanupSearch,
+    filterInput,
+  } = useSearch();
 
   // Exposed imperative methods (extracted so they can be registered into context)
-  const findByOffsetLocal = React.useCallback(async (offset: string, length: number = 1, shouldScroll = true) => {
-    if (!offset.trim()) {
-      showMessage('SEARCH_NO_INPUT');
-      return null;
-    }
-
-    const result = await findByOffset(offset, length);
-
-    if (result === null) {
-      const byteOffset = parseInt(offset, 16);
-      if (isNaN(byteOffset)) {
-        showMessage('SEARCH_INVALID_HEX');
-      } else {
-        showMessage('SEARCH_OFFSET_OUT_OF_RANGE');
+  const findByOffsetLocal = React.useCallback(
+    async (offset: string, length: number = 1, shouldScroll = true) => {
+      if (!offset.trim()) {
+        showMessage('SEARCH_NO_INPUT');
+        return null;
       }
-      return null;
-    }
 
-    if (shouldScroll && hexViewerRef.current) {
-      hexViewerRef.current.scrollToIndex(result.index, result.offset);
-    }
-    return result;
-  }, [findByOffset, showMessage, hexViewerRef]);
+      const result = await findByOffset(offset, length);
+
+      if (result === null) {
+        const byteOffset = parseInt(offset, 16);
+        if (isNaN(byteOffset)) {
+          showMessage('SEARCH_INVALID_HEX');
+        } else {
+          showMessage('SEARCH_OFFSET_OUT_OF_RANGE');
+        }
+        return null;
+      }
+
+      if (shouldScroll && hexViewerRef.current) {
+        hexViewerRef.current.scrollToIndex(result.index, result.offset);
+      }
+      return result;
+    },
+    [findByOffset, showMessage, hexViewerRef]
+  );
 
   const getCacheKey = useCallback(
     (tabKey: TabKey, type: SearchType, value: string): SearchCacheKey => {
@@ -157,7 +179,7 @@ const Searcher: React.FC = () => {
       const cachedResults = searchResults.__cache__.get(cacheKey);
 
       if (cachedResults) {
-        if (import.meta.env.DEV) {
+        if (process.env.NODE_ENV === 'development') {
           console.log('[Searcher] 캐시 HIT:', cacheKey);
         }
         dispatch({
@@ -168,20 +190,26 @@ const Searcher: React.FC = () => {
           searchType: type,
           tabKey: activeKey,
         });
-        
+
         if (cachedResults.length > 0) {
-          showMessage('SEARCH_SUCCESS', t('searcher.success', { count: cachedResults.length }));
+          showMessage(
+            'SEARCH_SUCCESS',
+            t('searcher.success', { count: cachedResults.length })
+          );
         } else {
           showMessage('SEARCH_NO_RESULTS');
         }
-        
+
         if (shouldScroll && cachedResults.length > 0 && hexViewerRef.current) {
-          hexViewerRef.current.scrollToIndex(cachedResults[0].index, cachedResults[0].offset);
+          hexViewerRef.current.scrollToIndex(
+            cachedResults[0].index,
+            cachedResults[0].offset
+          );
         }
         return;
       }
 
-      if (import.meta.env.DEV) {
+      if (process.env.NODE_ENV === 'development') {
         console.log('[Searcher] 캐시 MISS:', cacheKey);
       }
 
@@ -209,11 +237,23 @@ const Searcher: React.FC = () => {
         });
 
         if (shouldScroll && results.length > 0 && hexViewerRef.current) {
-          hexViewerRef.current.scrollToIndex(results[0].index, results[0].offset);
+          hexViewerRef.current.scrollToIndex(
+            results[0].index,
+            results[0].offset
+          );
         }
       }
     },
-    [activeKey, ignoreCase, getCacheKey, searchResults.__cache__, findAllByHex, findAllByAsciiText, showMessage, hexViewerRef]
+    [
+      activeKey,
+      ignoreCase,
+      getCacheKey,
+      searchResults.__cache__,
+      findAllByHex,
+      findAllByAsciiText,
+      showMessage,
+      hexViewerRef,
+    ]
   );
 
   const getResultsForActiveKey = () => {
@@ -221,16 +261,22 @@ const Searcher: React.FC = () => {
     return result && !(result instanceof Map) ? result.results : null;
   };
 
-  const findAllByHexLocal = React.useCallback(async (hex: string, shouldScroll = true) => {
-    await search(hex, 'hex', shouldScroll);
-    return getResultsForActiveKey();
-  }, [search, activeKey, searchResults]);
+  const findAllByHexLocal = React.useCallback(
+    async (hex: string, shouldScroll = true) => {
+      await search(hex, 'hex', shouldScroll);
+      return getResultsForActiveKey();
+    },
+    [search, activeKey, searchResults]
+  );
 
-  const findAllByAsciiTextLocal = React.useCallback(async (text: string, ignoreCaseParam: boolean, shouldScroll = true) => {
-    setIgnoreCase(ignoreCaseParam);
-    await search(text, 'ascii', shouldScroll);
-    return getResultsForActiveKey();
-  }, [search, activeKey, searchResults]);
+  const findAllByAsciiTextLocal = React.useCallback(
+    async (text: string, ignoreCaseParam: boolean, shouldScroll = true) => {
+      setIgnoreCase(ignoreCaseParam);
+      await search(text, 'ascii', shouldScroll);
+      return getResultsForActiveKey();
+    },
+    [search, activeKey, searchResults]
+  );
 
   // Register into context for other components to use
   React.useEffect(() => {
@@ -243,9 +289,12 @@ const Searcher: React.FC = () => {
       return () => setSearcherRef(null);
     }
     return undefined;
-  }, [setSearcherRef, findByOffsetLocal, findAllByHexLocal, findAllByAsciiTextLocal]);
-
-
+  }, [
+    setSearcherRef,
+    findByOffsetLocal,
+    findAllByHexLocal,
+    findAllByAsciiTextLocal,
+  ]);
 
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -336,8 +385,6 @@ const Searcher: React.FC = () => {
     };
   }, [cleanupSearch]);
 
-
-
   return (
     <Collapse title={t('searcher.title')} open>
       <SearchDiv>
@@ -357,10 +404,18 @@ const Searcher: React.FC = () => {
             onChange={handleInputChange}
             onKeyDown={handleInputKeyPress}
             maxLength={50}
-            placeholder={t('searcher.placeholder', { type: searchType.toUpperCase() })}
+            placeholder={t('searcher.placeholder', {
+              type: searchType.toUpperCase(),
+            })}
           />
           {searchType === 'ascii' && (
-            <Tooltip text={ignoreCase ? t('searcher.caseInsensitiveTooltip') : t('searcher.caseSensitiveTooltip')}>
+            <Tooltip
+              text={
+                ignoreCase
+                  ? t('searcher.caseInsensitiveTooltip')
+                  : t('searcher.caseSensitiveTooltip')
+              }
+            >
               <ButtonDiv
                 onClick={() => setIgnoreCase((prev) => !prev)}
                 style={{
@@ -383,8 +438,8 @@ const Searcher: React.FC = () => {
       </SearchDiv>
       <SearchResultBar>
         {searchResults[activeKey] &&
-          !(searchResults[activeKey] instanceof Map) &&
-          (searchResults[activeKey] as SearchResult).results.length > 0 ? (
+        !(searchResults[activeKey] instanceof Map) &&
+        (searchResults[activeKey] as SearchResult).results.length > 0 ? (
           <>
             <Result>
               {(searchResults[activeKey] as SearchResult).results.length > 1 ? (
@@ -401,18 +456,18 @@ const Searcher: React.FC = () => {
                   </span>
                   {(searchResults[activeKey] as SearchResult).results.length >=
                     1000 && (
-                      <Tooltip text={t('searcher.maxResultsTooltip')}>
-                        <span
-                          style={{
-                            opacity: 0.6,
-                            fontSize: '0.6rem',
-                            marginLeft: '2px',
-                          }}
-                        >
-                          {t('searcher.maxResults')}
-                        </span>
-                      </Tooltip>
-                    )}
+                    <Tooltip text={t('searcher.maxResultsTooltip')}>
+                      <span
+                        style={{
+                          opacity: 0.6,
+                          fontSize: '0.6rem',
+                          marginLeft: '2px',
+                        }}
+                      >
+                        {t('searcher.maxResults')}
+                      </span>
+                    </Tooltip>
+                  )}
                 </>
               ) : (
                 <span>{t('searcher.foundOne')}</span>
@@ -423,7 +478,8 @@ const Searcher: React.FC = () => {
                 <ButtonDiv
                   onClick={handlePrevButtonClick}
                   $disabled={
-                    (searchResults[activeKey] as SearchResult).results.length <= 1
+                    (searchResults[activeKey] as SearchResult).results.length <=
+                    1
                   }
                 >
                   <ChevronLeftIcon width={16} height={16} />
@@ -433,7 +489,8 @@ const Searcher: React.FC = () => {
                 <ButtonDiv
                   onClick={handleNextButtonClick}
                   $disabled={
-                    (searchResults[activeKey] as SearchResult).results.length <= 1
+                    (searchResults[activeKey] as SearchResult).results.length <=
+                    1
                   }
                 >
                   <ChevronRightIcon width={16} height={16} />

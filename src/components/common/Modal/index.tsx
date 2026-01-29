@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useCallback, useState, useEffect, useMemo } from 'react';
 import {
   ModalContainer,
@@ -9,7 +11,7 @@ import {
 } from './index.styles';
 import XIcon from '@/components/common/Icons/XIcon';
 import Tooltip from '../Tooltip';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import { useRefs } from '@/contexts/RefContext';
 
 export interface ModalProps {
@@ -27,7 +29,7 @@ export interface ModalRef {
 }
 
 const Modal: React.FC<ModalProps> = ({ title: propTitle, isOpen: propIsOpen, onClose, children: propChildren, top = '50%', left = '50%' }) => {
-    const { t } = useTranslation();
+    const t = useTranslations();
     const { setModalRef } = useRefs();
 
     const [isOpen, setIsOpen] = useState<boolean>(propIsOpen ?? false);

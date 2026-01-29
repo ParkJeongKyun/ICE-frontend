@@ -1,7 +1,9 @@
+'use client';
+
 import React, { useEffect, useCallback, useMemo } from 'react';
 import { ChangeEvent, useRef, useState } from 'react';
 import styled from 'styled-components';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import MenuBtn from '@/components/common/MenuBtn';
 import HexViewer from '@/components/HexViewer';
 import { useProcess } from '@/contexts/ProcessContext';
@@ -20,7 +22,7 @@ export interface MenuBtnZoneRef {
 const EXIF_TIMEOUT = 30000;
 
 const MenuBtnZone: React.FC = () => {
-  const { t } = useTranslation();
+  const t = useTranslations();
   const { hexViewerRef, setMenuBtnZoneRef, openModal } = useRefs();
   const { showMessage } = useMessage();
   const { setTabData, setActiveKey, getNewKey } = useTab();

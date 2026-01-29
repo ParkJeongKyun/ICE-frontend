@@ -59,8 +59,8 @@
     "bigEndian": "Big Endian",
     "littleEndianTooltip": "Switch to Little Endian",
     "bigEndianTooltip": "Switch to Big Endian",
-    "relativeJumpTooltip": "Relative offset jump: Current(0x{{current}} / {{currentDec}}) {{operator}}{{value}} → 0x{{target}} / {{targetDec}}",
-    "absoluteJumpTooltip": "Absolute offset jump: 0x{{target}} / {{targetDec}}",
+    "relativeJumpTooltip": "Relative offset jump: Current(0x{current} / {currentDec}) {operator}{value} → 0x{target} / {targetDec}",
+    "absoluteJumpTooltip": "Absolute offset jump: 0x{target} / {targetDec}",
     "dataTypes": {
       "uint8": "UInt8",
       "int8": "Int8",
@@ -100,7 +100,7 @@
     "caseSensitiveToggle": "Aa",
     "caseSensitiveTooltip": "Case sensitive",
     "caseInsensitiveTooltip": "Case insensitive",
-    "placeholder": "Enter {{type}} value",
+    "placeholder": "Enter {type} value",
     "searchTooltip": "Search",
     "prevTooltip": "Previous",
     "nextTooltip": "Next",
@@ -108,7 +108,7 @@
     "maxResults": "(max)",
     "maxResultsTooltip": "Maximum 1000 results displayed",
     "foundOne": "1 found",
-    "success": "{{count}} result(s) found"
+    "success": "{count} result(s) found"
   },
   "exifViewer": {
     "title": "Exif Data",

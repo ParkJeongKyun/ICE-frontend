@@ -1,3 +1,5 @@
+'use client';
+
 import { useRefs } from '@/contexts/RefContext';
 import {
   Btn,
@@ -13,11 +15,11 @@ import {
 } from './index.styles';
 import { isMobile } from 'react-device-detect';
 import Logo from '../common/Icons/Logo';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 
 const Home: React.FC = () => {
   const { menuBtnZoneRef } = useRefs();
-  const { t } = useTranslation();
+  const t = useTranslations();
 
   return (
     <HomeDiv>
@@ -27,7 +29,7 @@ const Home: React.FC = () => {
             <Logo showText size={36} textSize={36} />
             <Version>
               <span>
-                {import.meta.env.VITE_APP_VERSION}
+                {process.env.NEXT_PUBLIC_APP_VERSION}
                 {isMobile && '_Mobile'}
               </span>
             </Version>
@@ -66,7 +68,7 @@ const Home: React.FC = () => {
           <div>{t('home.browserBased')}</div>
           <div>{t('home.noPersonalData')}</div>
           <div>{t('home.noServerUpload')}</div>
-          <div>{import.meta.env.VITE_APP_COPYRIGHT}</div>
+          <div>{process.env.NEXT_PUBLIC_APP_COPYRIGHT}</div>
         </InfoDiv>
       </ContientDiv>
     </HomeDiv>

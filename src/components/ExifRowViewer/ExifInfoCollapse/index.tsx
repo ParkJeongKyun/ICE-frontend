@@ -1,5 +1,7 @@
+'use client';
+
 import React, { useCallback } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import { useTab } from '@/contexts/TabDataContext';
 import { useRefs } from '@/contexts/RefContext';
 import Collapse from '@/components/common/Collapse';
@@ -14,7 +16,7 @@ import {
 } from '../index.styles';
 
 const ExifInfoCollapse: React.FC = () => {
-  const { t } = useTranslation();
+  const t = useTranslations();
   const { activeData } = useTab();
   const { searcherRef } = useRefs();
   const exifInfo = activeData?.hasExif ? activeData?.exifInfo : null;

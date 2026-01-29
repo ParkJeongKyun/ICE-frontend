@@ -1,5 +1,7 @@
+'use client';
+
 import React, { useCallback } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import { useTab } from '@/contexts/TabDataContext';
 import { useRefs } from '@/contexts/RefContext';
 import Collapse from '@/components/common/Collapse';
@@ -17,7 +19,7 @@ import {
 import type { ExifRow } from '@/types';
 
 const ExifTagsCollapse: React.FC = () => {
-  const { t } = useTranslation();
+  const t = useTranslations();
   const { activeData } = useTab();
   const { searcherRef } = useRefs();
 
@@ -28,16 +30,17 @@ const ExifTagsCollapse: React.FC = () => {
 
   const getExifTagLabel = useCallback(
     (tagMeta: string): { name: string; description: string } => {
-      const tagKey = `${tagMeta}`;
-      const translation = t(tagKey, { ns: 'exifTags', returnObjects: true });
-      if (
-        translation &&
-        typeof translation === 'object' &&
-        'name' in translation
-      ) {
-        return translation as { name: string; description: string };
+      const tagKey = `exifTags.${tagMeta}`;
+      if (t.has(tagKey)) {
+        const translation = t.raw(tagKey);
+        if (
+          translation &&
+          typeof translation === 'object' &&
+          'name' in translation
+        ) {
+          return translation as { name: string; description: string };
+        }
       }
-
       return { name: tagMeta, description: '' };
     },
     [t]
@@ -45,9 +48,12 @@ const ExifTagsCollapse: React.FC = () => {
 
   const getExifDataDisplay = useCallback(
     (tag: string, rawData: string): string => {
-      const examples = t(tag, { ns: 'exifExamples', returnObjects: true });
-      if (examples && typeof examples === 'object' && rawData in examples) {
-        return (examples as Record<string, string>)[rawData];
+      const tagKey = `exifExamples.${tag}`;
+      if (t.has(tagKey)) {
+        const examples = t.raw(tagKey);
+        if (examples && typeof examples === 'object' && rawData in examples) {
+          return (examples as Record<string, string>)[rawData];
+        }
       }
       return rawData;
     },

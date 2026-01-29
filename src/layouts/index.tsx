@@ -1,5 +1,7 @@
+'use client';
+
 import React, { useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import {
   FlexGrow,
   IceContent,
@@ -50,7 +52,7 @@ import ToolsPanel from './SidePanels/ToolsPanel';
 const MIN_SIDER_WIDTH = 100;
 
 const MainLayout: React.FC = () => {
-  const { t } = useTranslation();
+  const t = useTranslations();
   const { isEmpty, encoding, setEncoding } = useTab();
   const { activeSelectionState } = useSelection();
   const { isProcessing, progress } = useProcess();
@@ -145,13 +147,13 @@ const MainLayout: React.FC = () => {
                   $active={mobileTab === 'info'}
                   onClick={() => setMobileTab('info')}
                 >
-                  {t('mobile.tabs.info', '정보')}
+                  {t('mobile.tabs.info')}
                 </IceMobileTabButton>
                 <IceMobileTabButton
                   $active={mobileTab === 'tools'}
                   onClick={() => setMobileTab('tools')}
                 >
-                  {t('mobile.tabs.tools', '도구')}
+                  {t('mobile.tabs.tools')}
                 </IceMobileTabButton>
               </IceMobileTabBar>
 
@@ -234,7 +236,7 @@ const MainLayout: React.FC = () => {
               </>
             )
           ) : (
-            <IceCopyRight>{import.meta.env.VITE_APP_COPYRIGHT}</IceCopyRight>
+            <IceCopyRight>{process.env.NEXT_PUBLIC_APP_COPYRIGHT}</IceCopyRight>
           )}
         </SelectInfo>
         <IceFooterRight>

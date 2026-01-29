@@ -1,6 +1,6 @@
 import Collapse from '@/components/common/Collapse';
 import React, { useCallback, useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import {
   CellBodyDiv,
   CellHeaderDiv,
@@ -42,7 +42,7 @@ import {
 import { byteToChar } from '@/utils/encoding';
 
 const DataInspector: React.FC = () => {
-  const { t } = useTranslation();
+  const t = useTranslations();
   const { searcherRef } = useRefs();
   const { activeData } = useTab();
   const { activeSelectionState } = useSelection();

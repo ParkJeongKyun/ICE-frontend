@@ -19,7 +19,6 @@ interface NominatimResponse {
   display_name?: string;
 }
 
-
 /**
  * Nominatim API를 이용한 좌표 → 주소 변환 (역지오코딩)
  * 캐싱은 컨텍스트에서 처리
@@ -31,7 +30,7 @@ export const getAddress = async (
   lat: string | number,
   lng: string | number,
   acceptLanguage: string = 'en',
-  timeout: number = 5000,
+  timeout: number = 5000
 ): Promise<string> => {
   const latNum = typeof lat === 'string' ? parseFloat(lat) : lat;
   const lngNum = typeof lng === 'string' ? parseFloat(lng) : lng;

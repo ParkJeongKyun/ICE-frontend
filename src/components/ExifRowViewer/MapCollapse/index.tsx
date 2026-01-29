@@ -1,5 +1,7 @@
+'use client';
+
 import React from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import { useTab } from '@/contexts/TabDataContext';
 import Collapse from '@/components/common/Collapse';
 import LeafletMap from '@/components/LeafletMap';
@@ -7,7 +9,7 @@ import { isValidLocation } from '@/utils/getAddress';
 import { NoDataMessage } from '../index.styles';
 
 const MapCollapse: React.FC = () => {
-  const { t } = useTranslation();
+  const t = useTranslations();
   const { activeData } = useTab();
   const lat = activeData?.exifInfo?.location?.lat;
   const lng = activeData?.exifInfo?.location?.lng;

@@ -1,8 +1,10 @@
+'use client';
+
 import React, { useState } from 'react';
 import Markdown from 'react-markdown';
 import styled from 'styled-components';
 import BackArrowIcon from '@/components/common/Icons/BackArrowIcon';
-import { useTranslation } from 'react-i18next';
+import { useTranslations, useLocale } from 'next-intl';
 
 export interface Props {
   defaultText: string;
@@ -22,7 +24,8 @@ interface ImageRendererProps {
 }
 
 const ICEMarkDown: React.FC<Props> = ({ defaultText, childTexts }) => {
-  const { t } = useTranslation();
+  const t = useTranslations();
+  const locale = useLocale();
   const [markdownText, setMarkdownText] = useState<string>(defaultText);
 
   // 기본 텍스트로 변경

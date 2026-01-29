@@ -1,5 +1,7 @@
+'use client';
+
 import React, { useState, useCallback, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import { useMessage, MessageItem } from '@/contexts/MessageContext';
 import Tooltip from '@/components/common/Tooltip';
 import {
@@ -44,7 +46,7 @@ const ICON_MAP = {
 };
 
 const MessageHistory: React.FC = () => {
-    const { t } = useTranslation();
+    const t = useTranslations();
     const [isOpen, setIsOpen] = useState(false);
     const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
     const { messageHistory, unreadCount, clearHistory, markAsRead, deleteMessage } = useMessage();

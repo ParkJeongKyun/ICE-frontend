@@ -48,7 +48,8 @@ export const useSearch = () => {
     async (offset: string, length: number = 1): Promise<IndexInfo | null> => {
       if (!offset.trim()) return null;
       const byteOffset = parseInt(offset, 16);
-      if (isNaN(byteOffset) || byteOffset < 0 || byteOffset >= fileSize) return null;
+      if (isNaN(byteOffset) || byteOffset < 0 || byteOffset >= fileSize)
+        return null;
       return { index: byteOffset, offset: length };
     },
     [fileSize]
@@ -90,7 +91,7 @@ export const useSearch = () => {
 
       const searchTimeout = getSearchTimeout();
 
-      if (import.meta.env.DEV) {
+      if (process.env.NODE_ENV === 'development') {
         console.log(
           `[Search] Timeout: ${searchTimeout / 1000}s, Size: ${(fileSize / 1024 / 1024 / 1024).toFixed(2)}GB`
         );
@@ -115,7 +116,7 @@ export const useSearch = () => {
           ) {
             const now = Date.now();
             if (now - lastProgressUpdate > 1000) {
-              if (import.meta.env.DEV) {
+              if (process.env.NODE_ENV === 'development') {
                 console.log(`[Search] Progress: ${e.data.progress}%`);
               }
               updateProgress(e.data.progress);
@@ -210,7 +211,7 @@ export const useSearch = () => {
 
       const searchTimeout = getSearchTimeout();
 
-      if (import.meta.env.DEV) {
+      if (process.env.NODE_ENV === 'development') {
         console.log(
           `[Search] Timeout: ${searchTimeout / 1000}s, Size: ${(fileSize / 1024 / 1024 / 1024).toFixed(2)}GB`
         );
@@ -235,7 +236,7 @@ export const useSearch = () => {
           ) {
             const now = Date.now();
             if (now - lastProgressUpdate > 1000) {
-              if (import.meta.env.DEV) {
+              if (process.env.NODE_ENV === 'development') {
                 console.log(`[Search] Progress: ${e.data.progress}%`);
               }
               updateProgress(e.data.progress);

@@ -1,0 +1,9 @@
+<svg width="48" height="16" viewBox="0 0 48 16" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="f" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="4" result="b"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.5 0"/>
+    </filter>
+  </defs>
+  <ellipse cx="24" cy="8" rx="18" ry="6" fill="#000" filter="url(#f)" />
+</svg>

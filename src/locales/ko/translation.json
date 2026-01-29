@@ -59,8 +59,8 @@
     "bigEndian": "빅 엔디안",
     "littleEndianTooltip": "리틀엔디안으로 변경",
     "bigEndianTooltip": "빅엔디안으로 변경",
-    "relativeJumpTooltip": "상대 오프셋 이동: 현재(0x{{current}} / {{currentDec}}) {{operator}}{{value}} → 0x{{target}} / {{targetDec}}",
-    "absoluteJumpTooltip": "절대 오프셋 이동: 0x{{target}} / {{targetDec}}",
+    "relativeJumpTooltip": "상대 오프셋 이동: 현재(0x{current} / {currentDec}) {operator}{value} → 0x{target} / {targetDec}",
+    "absoluteJumpTooltip": "절대 오프셋 이동: 0x{target} / {targetDec}",
     "dataTypes": {
       "uint8": "UInt8",
       "int8": "Int8",
@@ -100,7 +100,7 @@
     "caseSensitiveToggle": "Aa",
     "caseSensitiveTooltip": "대소문자 구분",
     "caseInsensitiveTooltip": "대소문자 구분 안함",
-    "placeholder": "{{type}} 값을 입력하세요.",
+    "placeholder": "{type} 값을 입력하세요.",
     "searchTooltip": "검색",
     "prevTooltip": "이전",
     "nextTooltip": "다음",
@@ -108,7 +108,7 @@
     "maxResults": "(최대)",
     "maxResultsTooltip": "최대 1000개까지만 표시됩니다",
     "foundOne": "1개 찾음",
-    "success": "{{count}}개의 결과를 찾았습니다."
+    "success": "{count}개의 결과를 찾았습니다."
   },
   "exifViewer": {
     "title": "Exif 데이터",

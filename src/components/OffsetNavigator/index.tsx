@@ -1,5 +1,7 @@
+'use client';
+
 import React, { useCallback, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import { useTab } from '@/contexts/TabDataContext';
 import { useRefs } from '@/contexts/RefContext';
 import {
@@ -14,7 +16,7 @@ import Tooltip from '@/components/common/Tooltip';
 type Radix = 16 | 10 | 8;
 
 const OffsetNavigator: React.FC = () => {
-  const { t } = useTranslation();
+  const t = useTranslations();
   const { searcherRef } = useRefs();
   const { isEmpty } = useTab();
   const [inputValue, setInputValue] = useState('');

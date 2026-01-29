@@ -1,13 +1,22 @@
+'use client';
 import { useLayoutEffect, useRef, useState } from 'react';
 import L from 'leaflet';
-import { IceMap, IceMapContainer, AddressInfo, ContentDiv, CellHeaderDiv, CellBodyDiv } from './index.styles';
+import {
+  IceMap,
+  IceMapContainer,
+  AddressInfo,
+  ContentDiv,
+  CellHeaderDiv,
+  CellBodyDiv,
+} from './index.styles';
 import { isValidLocation, getAddress } from '@/utils/getAddress';
 import { useMessage } from '@/contexts/MessageContext';
 import 'leaflet/dist/leaflet.css';
-import { useTranslation } from 'react-i18next';
+
+import { useTranslations, useLocale } from 'next-intl';
 import { useAddressCache } from '@/contexts/TabDataContext';
-import markerIcon from '@/assets/marker/marker-camera.svg'
-import shadowIcon from 'leaflet/dist/images/marker-shadow.png';
+const markerIcon = '/marker/marker-camera.svg';
+const shadowIcon = '/marker/marker-shadow.svg';
 
 const MarkerIcon = L.icon({
   iconUrl: markerIcon,
@@ -26,7 +35,8 @@ interface Props {
 }
 
 const LeafletMap: React.FC<Props> = ({ latitude, longitude }) => {
-  const { t, i18n } = useTranslation();
+  const t = useTranslations();
+  const locale = useLocale();
   const { showMessage } = useMessage();
   const { updateAddressCache, addressCache } = useAddressCache();
   const mapRef = useRef<L.Map | null>(null);
@@ -38,9 +48,11 @@ const LeafletMap: React.FC<Props> = ({ latitude, longitude }) => {
       return;
     }
 
-    const lang = i18n.language || 'en';
-    const latNum = typeof latitude === 'string' ? parseFloat(latitude) : latitude;
-    const lngNum = typeof longitude === 'string' ? parseFloat(longitude) : longitude;
+    const lang = locale || 'en';
+    const latNum =
+      typeof latitude === 'string' ? parseFloat(latitude) : latitude;
+    const lngNum =
+      typeof longitude === 'string' ? parseFloat(longitude) : longitude;
     const coordKey = `${latNum},${lngNum}`;
 
     const langCoordState = addressCache?.[lang]?.[coordKey];
@@ -52,14 +64,18 @@ const LeafletMap: React.FC<Props> = ({ latitude, longitude }) => {
     (async () => {
       try {
         const resolvedAddress = await getAddress(latitude, longitude, lang);
-        updateAddressCache(lang, latitude, longitude, { address: resolvedAddress, latitude, longitude });
+        updateAddressCache(lang, latitude, longitude, {
+          address: resolvedAddress,
+          latitude,
+          longitude,
+        });
         setAddress(resolvedAddress);
       } catch (error) {
         console.error('[LeafletMap] 주소 조회 실패:', error);
         showMessage('ADDRESS_FETCH_ERROR');
       }
     })();
-  }, [latitude, longitude, i18n.language]);
+  }, [latitude, longitude, locale]);
 
   // 지도 초기화 및 렌더링
   useLayoutEffect(() => {

@@ -1,20 +1,28 @@
-import React from 'react';
-import { useTranslation } from 'react-i18next';
+'use client';
+
+import React, { useTransition } from 'react';
+import { useLocale } from 'next-intl';
+import { useRouter, usePathname } from '@/i18n/routing';
 import styled from 'styled-components';
 import USFlagIcon from '../Icons/USFlagIcon';
 import KRFlagIcon from '../Icons/KRFlagIcon';
 import Tooltip from '../Tooltip';
 
 const LanguageSwitcher: React.FC = () => {
-  const { i18n } = useTranslation();
+  const locale = useLocale();
+  const router = useRouter();
+  const pathname = usePathname();
+  const [isPending, startTransition] = useTransition();
 
   const handleLanguageToggle = () => {
-    const nextLang = i18n.language === 'en' ? 'ko' : 'en';
-    i18n.changeLanguage(nextLang);
+    const nextLocale = locale === 'en' ? 'ko' : 'en';
+    startTransition(() => {
+      router.replace(pathname, { locale: nextLocale });
+    });
   };
 
-  const currentLangName = i18n.language === 'en' ? 'English' : '한국어';
-  const isEnglish = i18n.language === 'en';
+  const currentLangName = locale === 'en' ? 'English' : '한국어';
+  const isEnglish = locale === 'en';
 
   return (
     <Tooltip text={`Current: ${currentLangName} (Click to switch)`}>

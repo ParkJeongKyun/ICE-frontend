@@ -1,5 +1,7 @@
+'use client';
+
 import React from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import { useTab } from '@/contexts/TabDataContext';
 import Collapse from '@/components/common/Collapse';
 import Tooltip from '@/components/common/Tooltip';
@@ -12,7 +14,7 @@ import {
 import { getBytes, getDate } from '@/utils/exifParser';
 
 const FileInfoCollapse: React.FC = () => {
-  const { t } = useTranslation();
+  const t = useTranslations();
   const { activeData } = useTab();
   const fileInfo = activeData?.fileInfo;
 
