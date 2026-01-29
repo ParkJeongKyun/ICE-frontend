@@ -1,9 +1,10 @@
 import { NextIntlClientProvider } from 'next-intl';
-import { routing } from '@/i18n/routing';
+import { routing } from '@/locales/routing';
 import '@/app/index.scss';
 import StyledComponentsRegistry from './StyledComponentsRegistry';
 import { getMessages } from 'next-intl/server';
 import { MessageProvider } from '@/contexts/MessageContext';
+import ToastListener from '@/components/common/ToastListener/ToastListener';
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -79,6 +80,7 @@ export default async function LocaleLayout({
       <body>
         <NextIntlClientProvider locale={locale} messages={messages}>
           <MessageProvider>
+            <ToastListener />
             <StyledComponentsRegistry>{children}</StyledComponentsRegistry>
           </MessageProvider>
         </NextIntlClientProvider>

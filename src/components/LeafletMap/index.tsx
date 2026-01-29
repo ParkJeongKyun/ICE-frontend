@@ -10,24 +10,11 @@ import {
   CellBodyDiv,
 } from './index.styles';
 import { isValidLocation, getAddress } from '@/utils/getAddress';
-import { useMessage } from '@/contexts/MessageContext';
+import eventBus from '@/utils/eventBus';
 import 'leaflet/dist/leaflet.css';
 
 import { useTranslations, useLocale } from 'next-intl';
 import { useAddressCache } from '@/contexts/TabDataContext';
-const markerIcon = '/marker/marker-camera.svg';
-const shadowIcon = '/marker/marker-shadow.svg';
-
-const MarkerIcon = L.icon({
-  iconUrl: markerIcon,
-  shadowUrl: shadowIcon,
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41],
-});
-
-L.Marker.prototype.options.icon = MarkerIcon;
 
 interface Props {
   latitude: string;
@@ -37,7 +24,6 @@ interface Props {
 const LeafletMap: React.FC<Props> = ({ latitude, longitude }) => {
   const t = useTranslations();
   const locale = useLocale();
-  const { showMessage } = useMessage();
   const { updateAddressCache, addressCache } = useAddressCache();
   const mapRef = useRef<L.Map | null>(null);
   const markerRef = useRef<L.Marker | null>(null);
@@ -72,15 +58,28 @@ const LeafletMap: React.FC<Props> = ({ latitude, longitude }) => {
         setAddress(resolvedAddress);
       } catch (error) {
         console.error('[LeafletMap] 주소 조회 실패:', error);
-        showMessage('ADDRESS_FETCH_ERROR');
+        eventBus.emit('toast', { code: 'ADDRESS_FETCH_ERROR' });
       }
     })();
   }, [latitude, longitude, locale]);
 
   // 지도 초기화 및 렌더링
   useLayoutEffect(() => {
+    const markerIcon = '/marker/marker-camera.svg';
+    const shadowIcon = '/marker/marker-shadow.svg';
+
+    const MarkerIcon = L.icon({
+      iconUrl: markerIcon,
+      shadowUrl: shadowIcon,
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      shadowSize: [41, 41],
+    });
+
+    L.Marker.prototype.options.icon = MarkerIcon;
     if (!isValidLocation(latitude, longitude)) {
-      showMessage('LEAFLET_MAP_INVALID_LOCATION');
+      eventBus.emit('toast', { code: 'LEAFLET_MAP_INVALID_LOCATION' });
       return;
     }
 
@@ -117,9 +116,9 @@ const LeafletMap: React.FC<Props> = ({ latitude, longitude }) => {
         }
       };
     } catch (error) {
-      showMessage('LEAFLET_MAP_LOAD_ERROR');
+      eventBus.emit('toast', { code: 'LEAFLET_MAP_LOAD_ERROR' });
     }
-  }, [latitude, longitude, showMessage]);
+  }, [latitude, longitude]);
 
   return (
     <IceMapContainer>

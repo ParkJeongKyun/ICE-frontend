@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import {
   FlexGrow,
@@ -29,10 +29,10 @@ import {
 import MenuBtnZone from '@/components/MenuBtnZone';
 import TabWindow from '@/components/TabWindow';
 import Modal from '@/components/common/Modal';
+
 import { useResizable } from 'react-resizable-layout';
 import { useProcess } from '@/contexts/ProcessContext';
 import Home from '@/components/Home';
-import { isMobile } from 'react-device-detect';
 import {
   encodingOptions,
   useTab,
@@ -48,6 +48,7 @@ import OffsetNavigator from '@/components/OffsetNavigator';
 import LanguageSwitcher from '@/components/common/LanguageSwitcher';
 import InfoPanel from './SidePanels/InfoPanel';
 import ToolsPanel from './SidePanels/ToolsPanel';
+import { useIsMobile } from './useIsMobile';
 
 const MIN_SIDER_WIDTH = 100;
 
@@ -57,6 +58,7 @@ const MainLayout: React.FC = () => {
   const { activeSelectionState } = useSelection();
   const { isProcessing, progress } = useProcess();
   const [mobileTab, setMobileTab] = useState<'info' | 'tools'>('info');
+  const isMobileView = useIsMobile();
 
   const {
     isDragging: isLeftSideDragging,
@@ -116,11 +118,11 @@ const MainLayout: React.FC = () => {
 
   return (
     <IceMainLayout $isResizing={isLeftSideDragging || isRightSideDragging}>
-      <IceHeader $isMobile={isMobile} $isProcessing={isProcessing}>
-        <IceHeaderLeftSider $isMobile={isMobile}>
+      <IceHeader $isMobile={isMobileView} $isProcessing={isProcessing}>
+        <IceHeaderLeftSider $isMobile={isMobileView}>
           <Logo showText />
           <MenuBtnZone />
-          {!isMobile && <LanguageSwitcher />}
+          {!isMobileView && <LanguageSwitcher />}
         </IceHeaderLeftSider>
         <OffsetNavigator />
         {isProcessing && (
@@ -135,7 +137,7 @@ const MainLayout: React.FC = () => {
         )}
       </IceHeader>
 
-      {isMobile ? (
+      {isMobileView ? (
         <IceMobileLayout>
           <IceMobileContent>
             {isEmpty ? <Home /> : <TabWindow />}
@@ -210,10 +212,10 @@ const MainLayout: React.FC = () => {
         </IceLayout>
       )}
 
-      <IceFooter $isMobile={isMobile}>
+      <IceFooter $isMobile={isMobileView}>
         <SelectInfo>
           {selectionInfo ? (
-            isMobile ? (
+            isMobileView ? (
               <div>
                 <SelectLabel>{t('footer.offset')}:</SelectLabel>
                 {showHex(selectionInfo.minOffset)}
@@ -255,7 +257,7 @@ const MainLayout: React.FC = () => {
               tooltip={t('footer.encoding')}
             />
           )}
-          {isMobile && <LanguageSwitcher />}
+          {isMobileView && <LanguageSwitcher />}
           <MessageHistory />
         </IceFooterRight>
       </IceFooter>

@@ -1,3 +1,5 @@
+'use client';
+
 import React, {
   createContext,
   useContext,
@@ -10,7 +12,7 @@ import React, {
 import { TabKey } from '@/types';
 import type { WorkerMessage } from '@/types/fileReader.worker';
 import { useProcess } from '@/contexts/ProcessContext';
-import { useMessage } from '@/contexts/MessageContext';
+import eventBus from '@/utils/eventBus';
 
 interface WorkerCacheData {
   cache: Map<number, Uint8Array>;
@@ -34,7 +36,6 @@ export const WorkerProvider: React.FC<{ children: React.ReactNode }> = ({
   const [fileWorker, setFileWorker] = useState<Worker | null>(null);
   const [isWasmReady, setIsWasmReady] = useState(false);
   const { startProcessing, stopProcessing } = useProcess();
-  const { showMessage } = useMessage();
 
   useEffect(() => {
     startProcessing();
@@ -49,13 +50,19 @@ export const WorkerProvider: React.FC<{ children: React.ReactNode }> = ({
         if (type === 'WASM_READY') {
           setIsWasmReady(true);
           stopProcessing();
-          showMessage('WASM_LOADED_SUCCESS');
+          eventBus.emit('toast', { code: 'WASM_LOADED_SUCCESS' });
         } else if (type === 'WASM_ERROR') {
           setIsWasmReady(false);
           stopProcessing();
-          showMessage('WASM_LOAD_FAILED', e.data.error);
+          eventBus.emit('toast', {
+            code: 'WASM_LOAD_FAILED',
+            customMessage: e.data.error,
+          });
         } else if (type === 'ERROR' && e.data.errorCode) {
-          showMessage(e.data.errorCode, e.data.error);
+          eventBus.emit('toast', {
+            code: e.data.errorCode,
+            customMessage: e.data.error,
+          });
         }
       };
 
@@ -63,7 +70,10 @@ export const WorkerProvider: React.FC<{ children: React.ReactNode }> = ({
         console.error('[WorkerContext] ❌ Worker error:', error.message);
         setIsWasmReady(false);
         stopProcessing();
-        showMessage('WORKER_ERROR', error.message);
+        eventBus.emit('toast', {
+          code: 'WORKER_ERROR',
+          customMessage: error.message,
+        });
       };
 
       setFileWorker(newFileWorker);
@@ -75,9 +85,12 @@ export const WorkerProvider: React.FC<{ children: React.ReactNode }> = ({
     } catch (error) {
       console.error('[WorkerContext] ❌ Failed to create worker:', error);
       stopProcessing();
-      showMessage('WORKER_INIT_FAILED', (error as Error).message);
+      eventBus.emit('toast', {
+        code: 'WORKER_INIT_FAILED',
+        customMessage: (error as Error).message,
+      });
     }
-  }, [startProcessing, stopProcessing, showMessage]);
+  }, [startProcessing, stopProcessing]);
 
   const getWorkerCache = useCallback(
     (key: TabKey) => cacheRef.current.get(key),

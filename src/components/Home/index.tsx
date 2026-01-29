@@ -13,13 +13,14 @@ import {
   Version,
   SubTitleDiv,
 } from './index.styles';
-import { isMobile } from 'react-device-detect';
 import Logo from '../common/Icons/Logo';
 import { useTranslations } from 'next-intl';
+import { useIsMobile } from '@/layouts/useIsMobile';
 
 const Home: React.FC = () => {
   const { menuBtnZoneRef } = useRefs();
   const t = useTranslations();
+  const isMobileView = useIsMobile();
 
   return (
     <HomeDiv>
@@ -30,7 +31,7 @@ const Home: React.FC = () => {
             <Version>
               <span>
                 {process.env.NEXT_PUBLIC_APP_VERSION}
-                {isMobile && '_Mobile'}
+                {isMobileView && '_Mobile'}
               </span>
             </Version>
           </Title>

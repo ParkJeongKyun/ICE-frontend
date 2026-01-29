@@ -4,28 +4,15 @@ import React, { useState } from 'react';
 import Markdown from 'react-markdown';
 import styled from 'styled-components';
 import BackArrowIcon from '@/components/common/Icons/BackArrowIcon';
-import { useTranslations, useLocale } from 'next-intl';
+import { useTranslations } from 'next-intl';
 
 export interface Props {
   defaultText: string;
   childTexts?: { [key: string]: string };
 }
 
-// 링크 랜더링 커스텀
-interface LinkRendererProps {
-  href?: string;
-  children?: React.ReactNode;
-}
-
-// 이미지 랜더링 커스텀
-interface ImageRendererProps {
-  src?: string;
-  alt?: string;
-}
-
 const ICEMarkDown: React.FC<Props> = ({ defaultText, childTexts }) => {
   const t = useTranslations();
-  const locale = useLocale();
   const [markdownText, setMarkdownText] = useState<string>(defaultText);
 
   // 기본 텍스트로 변경
@@ -40,14 +27,14 @@ const ICEMarkDown: React.FC<Props> = ({ defaultText, childTexts }) => {
     }
   };
 
-  // 이미지 태그 커스텀 랜더링
-  const ImageRenderer: React.FC<ImageRendererProps> = ({ src, alt }) => {
-    return <img src={src} alt={alt} />;
+  // 이미지 태그 커스텀 랜더링 (react-markdown v7+ 호환)
+  const ImageRenderer: React.FC<React.ComponentProps<'img'>> = (props) => {
+    return <img {...props} />;
   };
 
-  // 링크 태그 커스텀 랜더링
-  const LinkRenderer: React.FC<LinkRendererProps> = ({ href, children }) => {
-    // 마크다운 링크
+  // 링크 태그 커스텀 랜더링 (react-markdown v7+ 호환)
+  const LinkRenderer: React.FC<React.ComponentProps<'a'>> = (props) => {
+    const { href, children, ...rest } = props;
     return href?.startsWith('/markdown/') ? (
       <MarkDownLink
         onClick={() => {
@@ -57,8 +44,7 @@ const ICEMarkDown: React.FC<Props> = ({ defaultText, childTexts }) => {
         {children}
       </MarkDownLink>
     ) : (
-      // 실제 링크
-      <a href={href} target="_blank" rel="noopener noreferrer">
+      <a href={href} target="_blank" rel="noopener noreferrer" {...rest}>
         {children}
       </a>
     );
@@ -66,10 +52,8 @@ const ICEMarkDown: React.FC<Props> = ({ defaultText, childTexts }) => {
 
   // 커스텀 컴포넌트
   const components = {
-    // 링크
-    a: (props: LinkRendererProps) => <LinkRenderer {...props} />,
-    // 이미지
-    img: (props: ImageRendererProps) => <ImageRenderer {...props} />,
+    a: LinkRenderer,
+    img: ImageRenderer,
   };
 
   return (
@@ -78,8 +62,15 @@ const ICEMarkDown: React.FC<Props> = ({ defaultText, childTexts }) => {
         <Markdown components={components}>{markdownText}</Markdown>
       </MarkDownDiv>
       {markdownText != defaultText && (
-        <FloatingBackBtn onClick={setDefaultText} aria-label={t('notifications.back')}>
-          <BackArrowIcon width={18} height={18} color="var(--ice-main-color_3)" />
+        <FloatingBackBtn
+          onClick={setDefaultText}
+          aria-label={t('notifications.back')}
+        >
+          <BackArrowIcon
+            width={18}
+            height={18}
+            color="var(--ice-main-color_3)"
+          />
         </FloatingBackBtn>
       )}
     </MarkdownContainer>
@@ -121,7 +112,6 @@ const FloatingBackBtn = styled.button`
     opacity: 1;
   }
 `;
-
 
 // 마크다운 링크
 const MarkDownLink = styled.span`

@@ -18,37 +18,40 @@ that **does not upload files or personal information to the server**.
 I hope it can be a small help to someone.
 Stay healthy and happy :)
 
-## 👨‍💻 [Developer](/About)
+## 👨‍💻 [Developer](/about)
+
 **Park Jeong-Kyun**
+
 - 🗓️ Feb 23, 2001
 - 🇺🇸 Republic of Korea
 - 📧 dbzoseh84@gmail.com
 - 🔒 Digital Forensics, Information Security, Incident Response, Full-stack Development
 - For more information about the developer, click the "Developer" link above.
 
-
 ## 📝 [Release Notes](/markdown/relase)
+
 You can check the release notes at the "Release Notes" link above.
 
-
 ## 🛠️ Tech Stack
+
 - Typescript
 - Javascript
 - Go
 - React
 - WebAssembly
 
-
 ## 🚀 [Upcoming Updates](/markdown/update)
+
 Click the "Upcoming Updates" link above to see what's coming.
 
-
 ## 💻 Source Code
+
 - [Github](https://github.com/ParkJeongKyun/ICE-frontend)
 
-
 ## 📒 Helpful Sites
+
 Sites and libraries that helped with site development. Thank you!
+
 - [SVG REPO - Free Icons](https://www.svgrepo.com/)
 - [Pixabay - Free Photos](https://pixabay.com/)
 - [React Bits - Interactive Web UI](https://github.com/DavidHDev/react-bits)

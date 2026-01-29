@@ -1,3 +1,5 @@
+'use client';
+
 import React, {
   createContext,
   useContext,
@@ -6,7 +8,11 @@ import React, {
   useMemo,
   useRef,
 } from 'react';
-import { MessageCode, getMessage, isValidMessageCode } from '@/constants/messages';
+import {
+  MessageCode,
+  useMessageTemplate,
+  isValidMessageCode,
+} from '@/constants/messages';
 
 export type MessageType = 'info' | 'success' | 'warning' | 'error';
 
@@ -48,55 +54,62 @@ export const MessageProvider: React.FC<{ children: React.ReactNode }> = ({
   const [currentMessages, setCurrentMessages] = useState<MessageItem[]>([]);
   const [messageHistory, setMessageHistory] = useState<MessageItem[]>([]);
   const timeoutsRef = useRef<Map<string, NodeJS.Timeout>>(new Map());
+  const getMessage = useMessageTemplate();
 
-  const hideMessage = useCallback((id: string, removeFromHistory: boolean = false) => {
-    const timeout = timeoutsRef.current.get(id);
-    if (timeout) {
-      clearTimeout(timeout);
-      timeoutsRef.current.delete(id);
-    }
-    setCurrentMessages((prev) => prev.filter((msg) => msg.id !== id));
-
-    if (removeFromHistory) {
-      setMessageHistory((prev) => prev.filter((msg) => msg.id !== id));
-    }
-  }, []);
-
-  const onMessage = useCallback((options: MessageOptions | string) => {
-    const opts: MessageOptions =
-      typeof options === 'string'
-        ? { message: options, type: 'info', duration: 6000 }
-        : { duration: 6000, type: 'info', ...options };
-
-    const newMessage: MessageItem = {
-      id: crypto.randomUUID(),
-      title: opts.title,
-      message: opts.message,
-      type: opts.type!,
-      timestamp: Date.now(),
-      read: false,
-    };
-
-    setCurrentMessages((prev) => {
-      const updated = [...prev, newMessage];
-      if (updated.length > MAX_TOAST_COUNT) {
-        const removed = updated.shift();
-        if (removed) {
-          setTimeout(() => hideMessage(removed.id), 0);
-        }
+  const hideMessage = useCallback(
+    (id: string, removeFromHistory: boolean = false) => {
+      const timeout = timeoutsRef.current.get(id);
+      if (timeout) {
+        clearTimeout(timeout);
+        timeoutsRef.current.delete(id);
       }
-      return updated;
-    });
+      setCurrentMessages((prev) => prev.filter((msg) => msg.id !== id));
 
-    setMessageHistory((prev) => [newMessage, ...prev.slice(0, 99)]);
+      if (removeFromHistory) {
+        setMessageHistory((prev) => prev.filter((msg) => msg.id !== id));
+      }
+    },
+    []
+  );
 
-    if (opts.duration && opts.duration > 0) {
-      const timeoutId = setTimeout(() => {
-        hideMessage(newMessage.id, false);
-      }, opts.duration);
-      timeoutsRef.current.set(newMessage.id, timeoutId);
-    }
-  }, [hideMessage]);
+  const onMessage = useCallback(
+    (options: MessageOptions | string) => {
+      const opts: MessageOptions =
+        typeof options === 'string'
+          ? { message: options, type: 'info', duration: 6000 }
+          : { duration: 6000, type: 'info', ...options };
+
+      const newMessage: MessageItem = {
+        id: crypto.randomUUID(),
+        title: opts.title,
+        message: opts.message,
+        type: opts.type!,
+        timestamp: Date.now(),
+        read: false,
+      };
+
+      setCurrentMessages((prev) => {
+        const updated = [...prev, newMessage];
+        if (updated.length > MAX_TOAST_COUNT) {
+          const removed = updated.shift();
+          if (removed) {
+            setTimeout(() => hideMessage(removed.id), 0);
+          }
+        }
+        return updated;
+      });
+
+      setMessageHistory((prev) => [newMessage, ...prev.slice(0, 99)]);
+
+      if (opts.duration && opts.duration > 0) {
+        const timeoutId = setTimeout(() => {
+          hideMessage(newMessage.id, false);
+        }, opts.duration);
+        timeoutsRef.current.set(newMessage.id, timeoutId);
+      }
+    },
+    [hideMessage]
+  );
 
   const showMessage = useCallback(
     (code: MessageCode | string, customMessage?: string) => {
@@ -106,7 +119,6 @@ export const MessageProvider: React.FC<{ children: React.ReactNode }> = ({
         onMessage(template);
         return;
       }
-
       const template = getMessage(code, customMessage);
       onMessage(template);
     },
@@ -156,9 +168,7 @@ export const MessageProvider: React.FC<{ children: React.ReactNode }> = ({
   );
 
   return (
-    <MessageContext.Provider value={value}>
-      {children}
-    </MessageContext.Provider>
+    <MessageContext.Provider value={value}>{children}</MessageContext.Provider>
   );
 };
 

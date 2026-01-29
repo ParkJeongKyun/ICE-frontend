@@ -2,7 +2,7 @@
 
 import React, { useTransition } from 'react';
 import { useLocale } from 'next-intl';
-import { useRouter, usePathname } from '@/i18n/routing';
+import { useRouter, usePathname } from '@/locales/routing';
 import styled from 'styled-components';
 import USFlagIcon from '../Icons/USFlagIcon';
 import KRFlagIcon from '../Icons/KRFlagIcon';
@@ -59,7 +59,9 @@ const FlagButton = styled.button`
   align-items: center;
   justify-content: center;
   color: var(--main-color);
-  transition: color 0.18s ease, background 0.18s ease;
+  transition:
+    color 0.18s ease,
+    background 0.18s ease;
   border-radius: 0;
 
   /* 기본 current flag */
@@ -84,7 +86,9 @@ const FlagButton = styled.button`
     justify-content: center;
     pointer-events: none;
     opacity: 0;
-    transition: opacity 0.12s ease, transform 0.12s ease;
+    transition:
+      opacity 0.12s ease,
+      transform 0.12s ease;
     z-index: 1;
   }
 
@@ -93,7 +97,11 @@ const FlagButton = styled.button`
   }
 
   .overlay.right {
-    clip-path: polygon(100% 0, 100% 100%, 0 100%); /* 대각선 분할 - 오른쪽/아래 삼각형 */
+    clip-path: polygon(
+      100% 0,
+      100% 100%,
+      0 100%
+    ); /* 대각선 분할 - 오른쪽/아래 삼각형 */
   }
 
   &:hover {

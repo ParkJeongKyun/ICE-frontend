@@ -11,7 +11,7 @@ import { useTab } from '@/contexts/TabDataContext';
 import { useRefs } from '@/contexts/RefContext';
 import { parseExifData, readFileForExif } from '@/utils/exifParser';
 import { useWorker } from '@/contexts/WorkerContext';
-import { useMessage } from '@/contexts/MessageContext';
+import eventBus from '@/utils/eventBus';
 
 export interface MenuBtnZoneRef {
   openBtnClick: () => void;
@@ -24,7 +24,6 @@ const EXIF_TIMEOUT = 30000;
 const MenuBtnZone: React.FC = () => {
   const t = useTranslations();
   const { hexViewerRef, setMenuBtnZoneRef, openModal } = useRefs();
-  const { showMessage } = useMessage();
   const { setTabData, setActiveKey, getNewKey } = useTab();
   const { fileWorker, isWasmReady } = useWorker();
   const { startProcessing, stopProcessing, isProcessing } = useProcess();
@@ -49,17 +48,20 @@ const MenuBtnZone: React.FC = () => {
       if (!file) return;
 
       if (!fileWorker) {
-        showMessage('WORKER_NOT_INITIALIZED');
+        eventBus.emit('toast', { code: 'WORKER_NOT_INITIALIZED' });
         return;
       }
 
       if (!isWasmReady) {
-        showMessage('WASM_LOADING');
+        eventBus.emit('toast', { code: 'WASM_LOADING' });
         return;
       }
 
       if (isProcessing) {
-        showMessage('FILE_PROCESSING_FAILED', t('home.processing'));
+        eventBus.emit('toast', {
+          code: 'FILE_PROCESSING_FAILED',
+          customMessage: t('home.processing'),
+        });
         return;
       }
 
@@ -146,9 +148,12 @@ const MenuBtnZone: React.FC = () => {
           error instanceof Error &&
           error.message === 'EXIF_PROCESSING_TIMEOUT'
         ) {
-          showMessage('EXIF_PROCESSING_TIMEOUT');
+          eventBus.emit('toast', { code: 'EXIF_PROCESSING_TIMEOUT' });
         } else {
-          showMessage('FILE_PROCESSING_FAILED', errorMessage);
+          eventBus.emit('toast', {
+            code: 'FILE_PROCESSING_FAILED',
+            customMessage: errorMessage,
+          });
         }
       } finally {
         stopProcessing();
@@ -161,7 +166,7 @@ const MenuBtnZone: React.FC = () => {
       fileWorker,
       isWasmReady,
       isProcessing,
-      showMessage,
+      // showMessage,
       startProcessing,
       stopProcessing,
       getNewKey,

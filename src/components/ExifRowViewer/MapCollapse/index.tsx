@@ -4,9 +4,15 @@ import React from 'react';
 import { useTranslations } from 'next-intl';
 import { useTab } from '@/contexts/TabDataContext';
 import Collapse from '@/components/common/Collapse';
-import LeafletMap from '@/components/LeafletMap';
 import { isValidLocation } from '@/utils/getAddress';
 import { NoDataMessage } from '../index.styles';
+
+import dynamic from 'next/dynamic';
+
+const LeafletMap = dynamic(() => import('@/components/LeafletMap'), {
+  ssr: false,
+  loading: () => <div style={{ height: '300px' }}>Loading Map...</div>,
+});
 
 const MapCollapse: React.FC = () => {
   const t = useTranslations();

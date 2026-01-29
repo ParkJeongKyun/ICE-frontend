@@ -1,3 +1,5 @@
+'use client';
+
 import { TabData, TabKey } from '@/types';
 import React, {
   createContext,
@@ -34,10 +36,17 @@ export type AddressCache = Record<string, Record<string, AddressCacheState>>;
 // === AddressCache Context (주소 캐시만 별도 관리) ===
 interface AddressCacheContextType {
   addressCache: AddressCache;
-  updateAddressCache: (lang: string, lat: string | number, lng: string | number, state: Partial<AddressCacheState>) => void;
+  updateAddressCache: (
+    lang: string,
+    lat: string | number,
+    lng: string | number,
+    state: Partial<AddressCacheState>
+  ) => void;
 }
 
-const AddressCacheContext = createContext<AddressCacheContextType | undefined>(undefined);
+const AddressCacheContext = createContext<AddressCacheContextType | undefined>(
+  undefined
+);
 
 // === Tab Data Context (탭 데이터, 거의 변하지 않음) ===
 interface TabContextType {
@@ -59,19 +68,25 @@ interface TabContextType {
 // === Scroll Context (스크롤, 자주 변함) ===
 interface ScrollContextType {
   scrollPositions: Record<TabKey, number>;
-  setScrollPositions: React.Dispatch<React.SetStateAction<Record<TabKey, number>>>;
+  setScrollPositions: React.Dispatch<
+    React.SetStateAction<Record<TabKey, number>>
+  >;
 }
 
 // === Selection Context (선택, 자주 변함) ===
 interface SelectionContextType {
   selectionStates: Record<TabKey, SelectionState>;
-  setSelectionStates: React.Dispatch<React.SetStateAction<Record<TabKey, SelectionState>>>;
+  setSelectionStates: React.Dispatch<
+    React.SetStateAction<Record<TabKey, SelectionState>>
+  >;
   activeSelectionState: SelectionState;
 }
 
 const TabContext = createContext<TabContextType | undefined>(undefined);
 const ScrollContext = createContext<ScrollContextType | undefined>(undefined);
-const SelectionContext = createContext<SelectionContextType | undefined>(undefined);
+const SelectionContext = createContext<SelectionContextType | undefined>(
+  undefined
+);
 
 export const encodingOptions = [
   { value: 'ascii', label: 'ASCII' },
@@ -87,8 +102,12 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
   const [tabData, setTabData] = useState<TabData>({});
   const [activeKey, setActiveKey] = useState<TabKey>('');
   const [encodingState, setEncodingState] = useState<EncodingType>('ansi');
-  const [scrollPositions, setScrollPositions] = useState<Record<TabKey, number>>({});
-  const [selectionStates, setSelectionStates] = useState<Record<TabKey, SelectionState>>({});
+  const [scrollPositions, setScrollPositions] = useState<
+    Record<TabKey, number>
+  >({});
+  const [selectionStates, setSelectionStates] = useState<
+    Record<TabKey, SelectionState>
+  >({});
   const [tabOrder, setTabOrder] = useState<TabKey[]>([]);
   const [addressCache, setAddressCache] = useState<AddressCache>({});
 
@@ -100,7 +119,12 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // 언어+좌표키별로 상태를 관리
   const updateAddressCache = useCallback(
-    (lang: string, lat: string | number, lng: string | number, state: Partial<AddressCacheState>) => {
+    (
+      lang: string,
+      lat: string | number,
+      lng: string | number,
+      state: Partial<AddressCacheState>
+    ) => {
       const latNum = typeof lat === 'string' ? parseFloat(lat) : lat;
       const lngNum = typeof lng === 'string' ? parseFloat(lng) : lng;
       const coordKey = `${latNum},${lngNum}`;
@@ -158,13 +182,24 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
   );
 
   useEffect(() => {
-    const currentKeys = Object.keys(tabData) as TabKey[];
+    const currentKeys = Object.keys(tabData);
+
+    const isSame =
+      tabOrder.length === currentKeys.length &&
+      tabOrder.every((key) => currentKeys.includes(key));
+
+    if (isSame) return;
+
     setTabOrder((prev) => {
-      const newKeys = currentKeys.filter((key) => !prev.includes(key));
-      const validKeys = prev.filter((key) => currentKeys.includes(key));
+      const validKeys = prev.filter((key) =>
+        currentKeys.includes(key as TabKey)
+      );
+      const newKeys = currentKeys.filter(
+        (key) => !prev.includes(key as TabKey)
+      ) as TabKey[];
       return [...validKeys, ...newKeys];
     });
-  }, [tabData]);
+  }, [tabData, tabOrder]);
 
   const activeSelectionState = useMemo(
     () =>
@@ -263,7 +298,6 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   return (
-
     <TabContext.Provider value={tabContextValue}>
       <AddressCacheContext.Provider value={addressCacheContextValue}>
         <ScrollContext.Provider value={scrollContextValue}>
@@ -274,7 +308,6 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
       </AddressCacheContext.Provider>
     </TabContext.Provider>
   );
-
 };
 
 export const useTab = () => {
@@ -307,4 +340,4 @@ export const useAddressCache = () => {
     throw new Error('useAddressCache must be used within a TabDataProvider');
   }
   return context;
-}
+};
