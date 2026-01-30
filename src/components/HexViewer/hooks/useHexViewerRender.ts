@@ -1,5 +1,8 @@
 import { useRef, useCallback, RefObject } from 'react';
-import { useTab } from '@/contexts/TabDataContext/TabDataContext';
+import {
+  useTab,
+  SelectionState,
+} from '@/contexts/TabDataContext/TabDataContext';
 import { useSelection } from '@/contexts/TabDataContext/TabDataContext';
 import { getDevicePixelRatio } from '@/utils/hexViewer';
 import { byteToHex, byteToChar } from '@/utils/encoding';
@@ -28,6 +31,8 @@ interface UseHexViewerRenderProps {
   canvasSizeRef: RefObject<{ width: number; height: number }>;
   isInitialLoadingRef: RefObject<boolean>;
   hasValidDataRef: RefObject<boolean>;
+  // Optional preview selection for high-frequency drags (Ref + RAF)
+  selectionPreviewRef?: RefObject<SelectionState | null>;
 }
 
 export const useHexViewerRender = ({
@@ -39,6 +44,7 @@ export const useHexViewerRender = ({
   canvasSizeRef,
   isInitialLoadingRef,
   hasValidDataRef,
+  selectionPreviewRef,
 }: UseHexViewerRenderProps) => {
   const { encoding, activeData } = useTab();
   const { activeSelectionState } = useSelection();
@@ -157,7 +163,13 @@ export const useHexViewerRender = ({
 
     const renderRows = Math.ceil(renderHeight / LAYOUT.rowHeight) + 1;
     const currentFirstRow = firstRowRef.current;
-    const currentSelectionRange = activeSelectionState;
+    // If a preview selection exists (during dragging), prefer it for rendering
+    const currentSelectionRange =
+      selectionPreviewRef &&
+      selectionPreviewRef.current &&
+      selectionPreviewRef.current.isDragging
+        ? selectionPreviewRef.current
+        : activeSelectionState;
     let validByteCount = 0;
 
     for (

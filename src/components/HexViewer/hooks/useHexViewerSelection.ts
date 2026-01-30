@@ -1,6 +1,9 @@
-import { RefObject, useCallback, useRef, useEffect, useState } from 'react';
-import { useTab } from '@/contexts/TabDataContext/TabDataContext';
-import { useSelection } from '@/contexts/TabDataContext/TabDataContext';
+import { RefObject, useCallback, useRef, useEffect } from 'react';
+import {
+  useTab,
+  useSelection,
+  SelectionState,
+} from '@/contexts/TabDataContext/TabDataContext';
 import eventBus from '@/utils/eventBus';
 import {
   LAYOUT,
@@ -10,7 +13,6 @@ import {
   COPY_CHUNK_SIZE,
 } from '@/constants/hexViewer';
 
-// ===== Type Definitions =====
 interface ContextMenuState {
   x: number;
   y: number;
@@ -20,22 +22,23 @@ interface UseHexViewerSelectionProps {
   firstRowRef: RefObject<number>;
   fileSize: number;
   rowCount: number;
+  selectionPreviewRef?: RefObject<SelectionState | null>;
+  onPreviewChange?: () => void;
 }
 
 export const useHexViewerSelection = ({
   firstRowRef,
   fileSize,
   rowCount,
+  selectionPreviewRef,
+  onPreviewChange,
 }: UseHexViewerSelectionProps) => {
   const { activeKey, activeData } = useTab();
   const { selectionStates, setSelectionStates } = useSelection();
-
   const file = activeData?.file;
-
-  // ===== Local UI State =====
   const contextMenuRef = useRef<ContextMenuState | null>(null);
 
-  // Context에서 현재 선택 상태 가져오기
+  // Get current state from context
   const selection = selectionStates[activeKey] || {
     cursor: null,
     start: null,
@@ -45,24 +48,25 @@ export const useHexViewerSelection = ({
     selectedBytes: undefined,
   };
 
-  // ===== Selection State Update =====
+  // --- State Updater (Optimized) ---
   const updateSelectionState = useCallback(
-    (updates: Partial<typeof selection>) => {
+    (updates: Partial<SelectionState>) => {
       setSelectionStates((prev) => {
-        const current = prev[activeKey];
-        if (!current) {
-          return {
-            ...prev,
-            [activeKey]: { ...selection, ...updates },
-          };
-        }
+        const defaultState: SelectionState = {
+          cursor: null,
+          start: null,
+          end: null,
+          isDragging: false,
+          dragStart: null,
+        };
+        const current = prev[activeKey] ?? defaultState;
 
-        // 변경 감지: 실제 변경이 있을 때만 업데이트
-        const hasChanged = Object.entries(updates).some(
-          ([key, value]) => current[key as keyof typeof current] !== value
-        );
+        // Check if values actually changed to avoid unnecessary renders
+        const hasChanged = Object.entries(updates).some(([key, value]) => {
+          return current[key as keyof SelectionState] !== value;
+        });
 
-        if (!hasChanged) return prev;
+        if (!hasChanged) return prev; // Return same object reference
 
         return {
           ...prev,
@@ -70,10 +74,10 @@ export const useHexViewerSelection = ({
         };
       });
     },
-    [activeKey, selection, setSelectionStates]
+    [activeKey, setSelectionStates]
   );
 
-  // ===== Byte Index from Mouse Position =====
+  // --- Helper: Mouse to Index ---
   const getByteIndexFromMouse = useCallback(
     (x: number, y: number): number | null => {
       const row = firstRowRef.current + Math.floor(y / LAYOUT.rowHeight);
@@ -86,9 +90,8 @@ export const useHexViewerSelection = ({
       ) {
         const col = Math.floor((x - HEX_START_X) / LAYOUT.hexByteWidth);
         if (col < 0 || col >= LAYOUT.bytesPerRow) return null;
-        return row * LAYOUT.bytesPerRow + col < fileSize
-          ? row * LAYOUT.bytesPerRow + col
-          : null;
+        const idx = row * LAYOUT.bytesPerRow + col;
+        return idx < fileSize ? idx : null;
       }
 
       // Check ASCII region
@@ -98,9 +101,8 @@ export const useHexViewerSelection = ({
       ) {
         const col = Math.floor((x - ASCII_START_X) / LAYOUT.asciiCharWidth);
         if (col < 0 || col >= LAYOUT.bytesPerRow) return null;
-        return row * LAYOUT.bytesPerRow + col < fileSize
-          ? row * LAYOUT.bytesPerRow + col
-          : null;
+        const idx = row * LAYOUT.bytesPerRow + col;
+        return idx < fileSize ? idx : null;
       }
 
       return null;
@@ -108,12 +110,10 @@ export const useHexViewerSelection = ({
     [fileSize, rowCount, firstRowRef]
   );
 
+  // --- Effect: Read Selected Bytes ---
   useEffect(() => {
     const readBytes = async () => {
-      if (selection.start === null || selection.end === null || !file) {
-        return;
-      }
-
+      if (selection.start === null || selection.end === null || !file) return;
       try {
         const s = Math.max(0, Math.min(selection.start, selection.end));
         const length = Math.min(16, fileSize - s);
@@ -122,18 +122,17 @@ export const useHexViewerSelection = ({
           updateSelectionState({ selectedBytes: new Uint8Array(buf) });
         }
       } catch (error) {
-        console.error('Failed to read selected bytes:', error);
+        console.error('Failed to read bytes:', error);
       }
     };
-
     readBytes();
   }, [selection.start, selection.end, file, fileSize, updateSelectionState]);
 
-  // ===== Mouse Events =====
+  // --- Event Handlers ---
+
   const handleMouseDown = useCallback(
     (e: React.MouseEvent<HTMLCanvasElement>) => {
       if (e.button !== 0) return;
-
       const rect = e.currentTarget.getBoundingClientRect();
       const idx = getByteIndexFromMouse(
         e.clientX - rect.left,
@@ -151,7 +150,9 @@ export const useHexViewerSelection = ({
           isDragging: false,
           dragStart: null,
         });
+        if (selectionPreviewRef) selectionPreviewRef.current = null;
       } else {
+        // Start Dragging
         updateSelectionState({
           cursor: idx,
           start: idx,
@@ -159,60 +160,94 @@ export const useHexViewerSelection = ({
           isDragging: true,
           dragStart: idx,
         });
+
+        // Init Preview Ref for fast updates
+        if (selectionPreviewRef) {
+          selectionPreviewRef.current = {
+            cursor: idx,
+            start: idx,
+            end: idx,
+            isDragging: true,
+            dragStart: idx,
+            selectedBytes: undefined,
+          };
+        }
+        onPreviewChange?.();
       }
     },
-    [getByteIndexFromMouse, selection.start, updateSelectionState]
+    [
+      getByteIndexFromMouse,
+      selection.start,
+      updateSelectionState,
+      selectionPreviewRef,
+      onPreviewChange,
+    ]
   );
 
   const handleMouseMove = useCallback(
     (e: React.MouseEvent<HTMLCanvasElement>) => {
-      if (!selection.isDragging) return;
-
       const rect = e.currentTarget.getBoundingClientRect();
       const idx = getByteIndexFromMouse(
         e.clientX - rect.left,
         e.clientY - rect.top
       );
 
-      if (idx !== null) {
+      if (idx === null) return;
+
+      // Fast Path: Update Preview Ref
+      if (selectionPreviewRef && selectionPreviewRef.current?.isDragging) {
+        selectionPreviewRef.current.cursor = idx;
+        selectionPreviewRef.current.end = idx;
+        onPreviewChange?.(); // Immediate Repaint
+      }
+      // Slow Path: Update Context
+      else if (selection.isDragging) {
         updateSelectionState({ cursor: idx, end: idx });
       }
     },
-    [selection.isDragging, getByteIndexFromMouse, updateSelectionState]
+    [
+      getByteIndexFromMouse,
+      selection.isDragging,
+      updateSelectionState,
+      selectionPreviewRef,
+      onPreviewChange,
+    ]
   );
 
   const handleMouseUp = useCallback(() => {
-    if (
-      selection.isDragging &&
-      selection.start !== null &&
-      selection.end !== null
-    ) {
+    // Commit Preview to Context
+    if (selectionPreviewRef && selectionPreviewRef.current?.isDragging) {
+      const { start, end } = selectionPreviewRef.current;
+      if (start !== null && end !== null) {
+        updateSelectionState({
+          start,
+          end,
+          cursor: end,
+          isDragging: false,
+          dragStart: null,
+        });
+      } else {
+        updateSelectionState({ isDragging: false, dragStart: null });
+      }
+      selectionPreviewRef.current = null;
+      onPreviewChange?.();
+      return;
+    }
+
+    if (selection.isDragging) {
       updateSelectionState({ isDragging: false, dragStart: null });
     }
   }, [
     selection.isDragging,
-    selection.start,
-    selection.end,
     updateSelectionState,
+    selectionPreviewRef,
+    onPreviewChange,
   ]);
 
-  // ===== Context Menu =====
-  const handleContextMenu = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
-    let y = e.clientY;
-    if (y + 100 > window.innerHeight) y = window.innerHeight - 100;
-    contextMenuRef.current = { x: e.clientX, y };
-  }, []);
-
-  const closeContextMenu = useCallback(() => {
-    contextMenuRef.current = null;
-  }, []);
-
-  // ===== Copy Operations =====
+  // --- Copy Logic ---
   const handleCopy = useCallback(
     async (format: 'hex' | 'text') => {
       if (selection.start === null || selection.end === null || !file) return;
-
       const start = Math.min(selection.start, selection.end);
       const end = Math.max(selection.start, selection.end) + 1;
       const actualEnd = start + Math.min(end - start, MAX_COPY_SIZE);
@@ -238,16 +273,14 @@ export const useHexViewerSelection = ({
                   )
                   .join('');
         }
-
         await navigator.clipboard.writeText(
           format === 'hex' ? result.trim() : result
         );
         eventBus.emit('toast', { code: 'COPY_SUCCESS' });
       } catch (error) {
-        console.error(`${format.toUpperCase()} copy failed:`, error);
+        console.error('Copy failed:', error);
         eventBus.emit('toast', { code: 'COPY_FAILED' });
       }
-
       contextMenuRef.current = null;
     },
     [selection.start, selection.end, file]
@@ -256,20 +289,32 @@ export const useHexViewerSelection = ({
   const handleCopyHex = useCallback(() => handleCopy('hex'), [handleCopy]);
   const handleCopyText = useCallback(() => handleCopy('text'), [handleCopy]);
   const handleCopyOffset = useCallback(async () => {
-    if (selection.start === null || selection.end === null) return;
-
-    const offset = Math.min(selection.start, selection.end);
+    if (selection.start === null) return;
     try {
-      await navigator.clipboard.writeText(offset.toString(16).toUpperCase());
+      await navigator.clipboard.writeText(
+        Math.min(selection.start, selection.end ?? selection.start)
+          .toString(16)
+          .toUpperCase()
+      );
       eventBus.emit('toast', { code: 'COPY_SUCCESS' });
-    } catch (error) {
-      console.error('Failed to copy offset:', error);
+    } catch {
       eventBus.emit('toast', { code: 'COPY_FAILED' });
     }
     contextMenuRef.current = null;
   }, [selection.start, selection.end]);
 
-  // ===== Keyboard Navigation =====
+  // --- Context Menu ---
+  const handleContextMenu = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    let y = e.clientY;
+    if (y + 100 > window.innerHeight) y = window.innerHeight - 100;
+    contextMenuRef.current = { x: e.clientX, y };
+  }, []);
+  const closeContextMenu = useCallback(() => {
+    contextMenuRef.current = null;
+  }, []);
+
+  // --- Keyboard ---
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
       const { key } = e;
@@ -284,12 +329,10 @@ export const useHexViewerSelection = ({
         ].includes(key)
       )
         return;
-
       e.preventDefault();
 
       const cursor = selection.cursor ?? 0;
       let newCursor = cursor;
-
       const keyActions: Record<string, () => void> = {
         ArrowUp: () => (newCursor = Math.max(0, cursor - LAYOUT.bytesPerRow)),
         ArrowDown: () =>
@@ -304,7 +347,6 @@ export const useHexViewerSelection = ({
             cursor + (LAYOUT.bytesPerRow - 1 - (cursor % LAYOUT.bytesPerRow))
           )),
       };
-
       keyActions[key]?.();
 
       if (e.shiftKey) {
@@ -323,15 +365,7 @@ export const useHexViewerSelection = ({
     [fileSize, selection, updateSelectionState]
   );
 
-  // ===== Cleanup =====
-  useEffect(
-    () => () => {
-      contextMenuRef.current = null;
-    },
-    []
-  );
-
-  // ===== Set Selection (for external API) =====
+  // API Wrapper
   const setSelection = useCallback(
     (index: number, endIndex: number, isDragging = false) => {
       setSelectionStates((prev) => ({

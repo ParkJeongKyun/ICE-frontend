@@ -25,11 +25,6 @@ export const HexViewerCacheProvider: React.FC<{ children: ReactNode }> = ({
   const chunkCacheRef = useRef<Map<number, Uint8Array>>(new Map());
   const requestedChunksRef = useRef<Set<number>>(new Set());
 
-  console.log('HexViewerCacheProvider rendered', {
-    chunkCacheRef,
-    requestedChunksRef,
-  });
-
   const getByte = useCallback((index: number): number | null => {
     const chunkOffset = Math.floor(index / CHUNK_SIZE) * CHUNK_SIZE;
     const chunk = chunkCacheRef.current.get(chunkOffset);
@@ -57,10 +52,14 @@ export const HexViewerCacheProvider: React.FC<{ children: ReactNode }> = ({
     }
   }, []);
 
+  // Memoize the context value to avoid recreating the object on every render
+  const contextValue = React.useMemo(
+    () => ({ chunkCacheRef, requestedChunksRef, getByte, checkCacheSize }),
+    [getByte, checkCacheSize]
+  );
+
   return (
-    <HexViewerCacheContext.Provider
-      value={{ chunkCacheRef, requestedChunksRef, getByte, checkCacheSize }}
-    >
+    <HexViewerCacheContext.Provider value={contextValue}>
       {children}
     </HexViewerCacheContext.Provider>
   );
