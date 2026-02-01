@@ -39,6 +39,7 @@ const Home: React.FC = () => {
             <SubTitle>{t('home.subtitle1')}</SubTitle>
             <SubTitle>{t('home.subtitle2')}</SubTitle>
             <SubTitle>{t('home.subtitle3')}</SubTitle>
+            <SubTitle>{t('home.subtitle4')}</SubTitle>
           </SubTitleDiv>
         </TitleDiv>
         <StartDiv>

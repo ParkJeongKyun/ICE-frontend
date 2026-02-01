@@ -3,11 +3,12 @@
     "noData": "No Data"
   },
   "welcome": "Welcome to ICE!",
-  "description": "A web-based hex viewer and image metadata (Exif) analysis tool.",
+  "description": "A web-based hex viewer and image metadata (EXIF) analysis tool.",
   "home": {
     "subtitle1": "Image Metadata Analysis",
     "subtitle2": "File HEX Viewer",
-    "subtitle3": "Web Application",
+    "subtitle3": "EXIF Viewer",
+    "subtitle4": "Web Application",
     "startGuide": "Getting Started",
     "openFile": "Open File...",
     "help": "Help...",
