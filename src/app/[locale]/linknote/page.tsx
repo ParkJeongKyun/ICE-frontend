@@ -1,5 +1,6 @@
 'use client';
 
+import { routing } from '@/locales/routing';
 import { Crepe } from '@milkdown/crepe';
 import { Milkdown, MilkdownProvider, useEditor } from '@milkdown/react';
 import '@milkdown/crepe/theme/common/style.css';
@@ -19,6 +20,7 @@ import {
   GuideBox,
 } from './index.styles';
 import FlopyIcon from '@/components/common/Icons/FlopyIcon';
+import { createNoteUrl } from './utils';
 
 // 데이터 구조 인터페이스
 interface NoteData {
@@ -30,6 +32,9 @@ const MAX_URL_LENGTH = 8000; // 크로스 브라우저 호환성을 위한 안�
 
 const CrepeEditor: React.FC = () => {
   const [isReadOnly, setIsReadOnly] = useState(true);
+  const [initialContent, setInitialContent] = useState('');
+  const [initialLastModified, setInitialLastModified] = useState('');
+  const [isHydrated, setIsHydrated] = useState(false);
   const editorRef = useRef<Crepe | null>(null);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -50,6 +55,43 @@ const CrepeEditor: React.FC = () => {
     if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
     toastTimeoutRef.current = setTimeout(() => setToastMsg(null), duration);
   };
+
+  // URL에서 노트 데이터 추출 함수
+  const getNoteDataFromUrl = () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const compressedData = urlParams.get('data');
+
+    if (!compressedData) return { content: '', lastModified: '' };
+
+    try {
+      const decompressed =
+        LZString.decompressFromEncodedURIComponent(compressedData);
+      if (!decompressed) return { content: '', lastModified: '' };
+
+      const data: NoteData = JSON.parse(decompressed);
+      return {
+        content: data.c || '',
+        lastModified: data.lm || '',
+      };
+    } catch {
+      showToast('유효하지 않은 노트 데이터입니다');
+      return { content: '', lastModified: '' };
+    }
+  };
+
+  // 초기 하이드레이션
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
+
+  // URL 데이터 로드 (하이드레이션 후 한 번만)
+  useEffect(() => {
+    if (!isHydrated) return;
+
+    const { content, lastModified: lm } = getNoteDataFromUrl();
+    setInitialContent(content);
+    setInitialLastModified(lm);
+  }, [isHydrated]);
 
   const handleShare = () => {
     const url = window.location.href;
@@ -84,33 +126,6 @@ const CrepeEditor: React.FC = () => {
       .catch(() => showToast('링크 복사 실패'));
   };
 
-  // URL에서 노트 데이터 추출
-  const getNoteDataFromUrl = () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const compressedData = urlParams.get('data');
-
-    if (!compressedData) return { content: '', lastModified: '' };
-
-    try {
-      const decompressed =
-        LZString.decompressFromEncodedURIComponent(compressedData);
-      if (!decompressed) return { content: '', lastModified: '' };
-
-      const data: NoteData = JSON.parse(decompressed);
-      return {
-        content: data.c || '',
-        lastModified: data.lm || '',
-      };
-    } catch {
-      showToast('유효하지 않은 노트 데이터입니다');
-      return { content: '', lastModified: '' };
-    }
-  };
-
-  // URL에서 초기 내용 가져오기
-  const { content: initialContent, lastModified: initialLastModified } =
-    getNoteDataFromUrl();
-
   useEffect(() => {
     if (initialLastModified) setLastModified(initialLastModified);
     return () => {
@@ -121,62 +136,67 @@ const CrepeEditor: React.FC = () => {
     };
   }, [initialLastModified]);
 
-  const { get } = useEditor((root) => {
-    const editor = new Crepe({
-      root,
-      defaultValue: initialContent,
-      featureConfigs: {
-        [Crepe.Feature.LinkTooltip]: {
-          inputPlaceholder: 'URL을 입력하세요',
+  const { get } = useEditor(
+    (root) => {
+      const editor = new Crepe({
+        root,
+        defaultValue: initialContent,
+        featureConfigs: {
+          [Crepe.Feature.LinkTooltip]: {
+            inputPlaceholder: 'URL을 입력하세요',
+          },
+          [Crepe.Feature.Placeholder]: {
+            text: '입력하세요...',
+          },
         },
-        [Crepe.Feature.Placeholder]: {
-          text: '입력하세요...',
-        },
-      },
-    });
-
-    // 초기 상태 설정
-    editor.setReadonly(isReadOnly);
-    editorRef.current = editor;
-
-    // 이벤트 리스너 등록
-    editor.on((listener) => {
-      listener.updated(() => {
-        if (!isReadOnlyRef.current) {
-          if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
-          if (hideStatusTimeoutRef.current)
-            clearTimeout(hideStatusTimeoutRef.current);
-          setIsSaving(true);
-          saveTimeoutRef.current = setTimeout(() => {
-            try {
-              // 에디터에서 직접 마크다운 가져오기
-              const markdown = editor.getMarkdown();
-
-              const newUrl = createNoteUrl(markdown);
-
-              if (newUrl.length > MAX_URL_LENGTH) {
-                showToast('내용이 너무 깁니다. URL 최대 길이를 초과했습니다.');
-                setIsSaving(false);
-                return;
-              }
-
-              window.history.replaceState({}, '', newUrl);
-              setLastModified(new Date().toISOString());
-              hideStatusTimeoutRef.current = setTimeout(
-                () => setIsSaving(false),
-                1000
-              );
-            } catch {
-              showToast('변경사항 저장 실패');
-              setIsSaving(false);
-            }
-          }, 500);
-        }
       });
-    });
 
-    return editor;
-  });
+      // 초기 상태 설정
+      editor.setReadonly(isReadOnly);
+      editorRef.current = editor;
+
+      // 이벤트 리스너 등록
+      editor.on((listener) => {
+        listener.updated(() => {
+          if (!isReadOnlyRef.current) {
+            if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+            if (hideStatusTimeoutRef.current)
+              clearTimeout(hideStatusTimeoutRef.current);
+            setIsSaving(true);
+            saveTimeoutRef.current = setTimeout(() => {
+              try {
+                // 에디터에서 직접 마크다운 가져오기
+                const markdown = editor.getMarkdown();
+
+                const newUrl = createNoteUrl(markdown);
+
+                if (newUrl.length > MAX_URL_LENGTH) {
+                  showToast(
+                    '내용이 너무 깁니다. URL 최대 길이를 초과했습니다.'
+                  );
+                  setIsSaving(false);
+                  return;
+                }
+
+                window.history.replaceState({}, '', newUrl);
+                setLastModified(new Date().toISOString());
+                hideStatusTimeoutRef.current = setTimeout(
+                  () => setIsSaving(false),
+                  1000
+                );
+              } catch {
+                showToast('변경사항 저장 실패');
+                setIsSaving(false);
+              }
+            }, 500);
+          }
+        });
+      });
+
+      return editor;
+    },
+    [initialContent]
+  );
 
   // 읽기 모드 상태가 변경될 때마다 에디터 업데이트
   useEffect(() => {
@@ -197,6 +217,17 @@ const CrepeEditor: React.FC = () => {
       })
     );
   };
+
+  // 하이드레이션 전까지 기본 UI만 표시
+  if (!isHydrated) {
+    return (
+      <MainContainer>
+        <GuideBox>
+          <b>📝 링크노트 로딩중...</b>
+        </GuideBox>
+      </MainContainer>
+    );
+  }
 
   return (
     <MainContainer>
@@ -270,17 +301,3 @@ export default function LinkNotePage() {
     </MilkdownProvider>
   );
 }
-
-// 압축된 URL 데이터 생성 유틸리티 함수
-export const createNoteUrl = (content: string): string => {
-  const data: NoteData = {
-    c: content, // 단축 키 사용
-    lm: new Date().toISOString(), // 현재 날짜를 마지막 수정 시간으로 추가
-  };
-
-  const jsonString = JSON.stringify(data);
-  const compressed = LZString.compressToEncodedURIComponent(jsonString);
-
-  const baseUrl = window.location.origin + window.location.pathname;
-  return `${baseUrl}?data=${compressed}`;
-};
