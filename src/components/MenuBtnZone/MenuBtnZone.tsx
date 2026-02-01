@@ -4,6 +4,7 @@ import React, { useEffect, useCallback, useMemo } from 'react';
 import { ChangeEvent, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { useTranslations } from 'next-intl';
+import { usePathname } from 'next/navigation';
 import MenuBtn from '@/components/common/MenuBtn/MenuBtn';
 import HexViewer from '@/components/HexViewer/HexViewer';
 import { useProcess } from '@/contexts/ProcessContext/ProcessContext';
@@ -23,6 +24,7 @@ const EXIF_TIMEOUT = 30000;
 
 const MenuBtnZone: React.FC = () => {
   const t = useTranslations();
+  const pathname = usePathname();
   const { hexViewerRef, setMenuBtnZoneRef, openModal } = useRefs();
   const { setTabData, setActiveKey, getNewKey } = useTab();
   const { fileWorker, isWasmReady } = useWorker();
@@ -35,12 +37,17 @@ const MenuBtnZone: React.FC = () => {
     fileInputRef.current?.click();
   }, []);
 
-  const handleToolsMenuItemClick = useCallback((action: string) => {
-    setShowToolsMenu(false);
-    if (action === 'linknote') {
-      window.open('/linknote', '_blank');
-    }
-  }, []);
+  const handleToolsMenuItemClick = useCallback(
+    (action: string) => {
+      setShowToolsMenu(false);
+      if (action === 'linknote') {
+        // 현재 로케일 추출 (예: /ko/home → 'ko', /en/home → 'en')
+        const locale = pathname.split('/')[1] || 'en';
+        window.open(`/${locale}/linknote`, '_blank');
+      }
+    },
+    [pathname]
+  );
 
   const handleFileChange = useCallback(
     async (e: ChangeEvent<HTMLInputElement>) => {

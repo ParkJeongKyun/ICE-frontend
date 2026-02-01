@@ -18,7 +18,7 @@ that **does not upload files or personal information to the server**.
 I hope it can be a small help to someone.
 Stay healthy and happy :)
 
-## 👨‍💻 [Developer](/about)
+## 👨‍💻 [Developer](/en/about)
 
 **Park Jeong-Kyun**
 
