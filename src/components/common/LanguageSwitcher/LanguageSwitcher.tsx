@@ -16,6 +16,8 @@ const LanguageSwitcher: React.FC = () => {
 
   const handleLanguageToggle = () => {
     const nextLocale = locale === 'en' ? 'ko' : 'en';
+    localStorage.setItem('user-locale', nextLocale);
+
     startTransition(() => {
       router.replace(pathname, { locale: nextLocale });
     });
