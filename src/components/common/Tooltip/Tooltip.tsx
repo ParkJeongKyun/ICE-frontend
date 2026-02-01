@@ -22,7 +22,12 @@ interface TooltipProps {
   duration?: number; // 자동 닫힘 시간 (ms)
 }
 
-const Tooltip: React.FC<TooltipProps> = ({ text, children, placement = 'bottom', duration = 0 }) => {
+const Tooltip: React.FC<TooltipProps> = ({
+  text,
+  children,
+  placement = 'bottom',
+  duration = 0,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const hasText = Boolean(text && text.trim() !== '');
@@ -37,15 +42,15 @@ const Tooltip: React.FC<TooltipProps> = ({ text, children, placement = 'bottom',
   });
 
   // 상호작용 정의
-  const hover = useHover(context, { 
-    move: false, 
+  const hover = useHover(context, {
+    move: false,
     enabled: !isMobile, // PC에서만 호버 작동
     delay: { open: 200 },
   });
 
-  const click = useClick(context, { 
+  const click = useClick(context, {
     enabled: isMobile, // 모바일에서만 클릭(토글) 작동
-    toggle: true,      // 다시 누르면 닫힘 (기본값)
+    toggle: true, // 다시 누르면 닫힘 (기본값)
   });
   const dismiss = useDismiss(context); // 바깥 누르면 닫힘
   const role = useRole(context, { role: 'tooltip' });
@@ -83,7 +88,9 @@ const Tooltip: React.FC<TooltipProps> = ({ text, children, placement = 'bottom',
               padding: '4px 8px',
               borderRadius: '3px',
               fontSize: '0.7rem',
-              whiteSpace: 'nowrap',
+              maxWidth: '300px',
+              whiteSpace: 'pre-wrap',
+              wordBreak: 'break-word',
               zIndex: 1202,
               pointerEvents: 'none',
               boxShadow: '0 1px 4px rgba(0, 0, 0, 0.12)',

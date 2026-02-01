@@ -130,7 +130,9 @@ const ExifTagsCollapse: React.FC = () => {
               return (
                 <ContentDiv key={`${index}-info`}>
                   <CellHeaderDiv>
-                    <Tooltip text={description}>{name}</Tooltip>
+                    <Tooltip text={`${item.tag}\n${description}`}>
+                      {name}
+                    </Tooltip>
                     {(() => {
                       const abs = baseOffset + (item.offset || 0);
                       const absValid =
