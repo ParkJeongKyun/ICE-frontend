@@ -63,6 +63,10 @@ export const parseExifData = async (
     const parsed: any =
       typeof exifData === 'string' ? JSON.parse(exifData) : (exifData as any);
 
+    if (process.env.NODE_ENV === 'development') {
+      console.log('parseExifData input:', parsed);
+    }
+
     if (!parsed || !Array.isArray(parsed.tags)) {
       // 태그 배열이 없어도 이미지면 썸네일 생성
       if (file && mimeType && mimeType.startsWith('image')) {
