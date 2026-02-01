@@ -26,6 +26,16 @@
           }
         }
       ]
+    },
+    {
+      "label": "build-and-serve",
+      "type": "shell",
+      "command": "npm run build && npx serve out",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "isBackground": true,
+      "problemMatcher": []
     }
   ]
 }

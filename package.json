@@ -12,6 +12,7 @@
     "@react-three/rapier": "^2.2.0",
     "@types/leaflet": "^1.9.21",
     "dayjs": "^1.11.8",
+    "heic2any": "^0.0.4",
     "leaflet": "^1.9.4",
     "lz-string": "^1.5.0",
     "meshline": "^3.3.1",
@@ -24,7 +25,8 @@
     "react-markdown": "^9.0.1",
     "react-resizable-layout": "^0.7.2",
     "styled-components": "^6.1.13",
-    "three": "^0.167.1"
+    "three": "^0.167.1",
+    "utif": "^3.1.0"
   },
   "scripts": {
     "dev": "next dev",
@@ -54,6 +56,7 @@
     "@types/react-dom": "^19.0.0",
     "@types/styled-components": "^5.1.26",
     "@types/three": "^0.182.0",
+    "@types/utif": "^3.0.6",
     "autoprefixer": "^10.4.20",
     "eslint": "^8.57.0",
     "eslint-config-next": "^14.0.0",
