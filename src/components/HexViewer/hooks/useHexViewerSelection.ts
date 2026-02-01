@@ -1,4 +1,4 @@
-import { RefObject, useCallback, useRef, useEffect } from 'react';
+import { RefObject, useCallback, useEffect, useState } from 'react';
 import {
   useTab,
   useSelection,
@@ -36,7 +36,9 @@ export const useHexViewerSelection = ({
   const { activeKey, activeData } = useTab();
   const { selectionStates, setSelectionStates } = useSelection();
   const file = activeData?.file;
-  const contextMenuRef = useRef<ContextMenuState | null>(null);
+
+  // [Fix] useRef 대신 useState 사용 (UI 렌더링 트리거)
+  const [contextMenu, setContextMenu] = useState<ContextMenuState | null>(null);
 
   // Get current state from context
   const selection = selectionStates[activeKey] || {
@@ -61,12 +63,11 @@ export const useHexViewerSelection = ({
         };
         const current = prev[activeKey] ?? defaultState;
 
-        // Check if values actually changed to avoid unnecessary renders
         const hasChanged = Object.entries(updates).some(([key, value]) => {
           return current[key as keyof SelectionState] !== value;
         });
 
-        if (!hasChanged) return prev; // Return same object reference
+        if (!hasChanged) return prev;
 
         return {
           ...prev,
@@ -83,7 +84,6 @@ export const useHexViewerSelection = ({
       const row = firstRowRef.current + Math.floor(y / LAYOUT.rowHeight);
       if (row < 0 || row >= rowCount) return null;
 
-      // Check HEX region
       if (
         x >= HEX_START_X &&
         x < HEX_START_X + LAYOUT.bytesPerRow * LAYOUT.hexByteWidth
@@ -94,7 +94,6 @@ export const useHexViewerSelection = ({
         return idx < fileSize ? idx : null;
       }
 
-      // Check ASCII region
       if (
         x >= ASCII_START_X &&
         x < ASCII_START_X + LAYOUT.bytesPerRow * LAYOUT.asciiCharWidth
@@ -132,7 +131,11 @@ export const useHexViewerSelection = ({
 
   const handleMouseDown = useCallback(
     (e: React.MouseEvent<HTMLCanvasElement>) => {
-      if (e.button !== 0) return;
+      // 우클릭 시 컨텍스트 메뉴가 열려있으면 닫기
+      if (contextMenu) setContextMenu(null);
+
+      if (e.button !== 0) return; // 좌클릭만 처리
+
       const rect = e.currentTarget.getBoundingClientRect();
       const idx = getByteIndexFromMouse(
         e.clientX - rect.left,
@@ -152,7 +155,6 @@ export const useHexViewerSelection = ({
         });
         if (selectionPreviewRef) selectionPreviewRef.current = null;
       } else {
-        // Start Dragging
         updateSelectionState({
           cursor: idx,
           start: idx,
@@ -161,7 +163,6 @@ export const useHexViewerSelection = ({
           dragStart: idx,
         });
 
-        // Init Preview Ref for fast updates
         if (selectionPreviewRef) {
           selectionPreviewRef.current = {
             cursor: idx,
@@ -176,6 +177,7 @@ export const useHexViewerSelection = ({
       }
     },
     [
+      contextMenu, // 의존성 추가
       getByteIndexFromMouse,
       selection.start,
       updateSelectionState,
@@ -194,14 +196,11 @@ export const useHexViewerSelection = ({
 
       if (idx === null) return;
 
-      // Fast Path: Update Preview Ref
       if (selectionPreviewRef && selectionPreviewRef.current?.isDragging) {
         selectionPreviewRef.current.cursor = idx;
         selectionPreviewRef.current.end = idx;
-        onPreviewChange?.(); // Immediate Repaint
-      }
-      // Slow Path: Update Context
-      else if (selection.isDragging) {
+        onPreviewChange?.();
+      } else if (selection.isDragging) {
         updateSelectionState({ cursor: idx, end: idx });
       }
     },
@@ -215,7 +214,6 @@ export const useHexViewerSelection = ({
   );
 
   const handleMouseUp = useCallback(() => {
-    // Commit Preview to Context
     if (selectionPreviewRef && selectionPreviewRef.current?.isDragging) {
       const { start, end } = selectionPreviewRef.current;
       if (start !== null && end !== null) {
@@ -243,6 +241,21 @@ export const useHexViewerSelection = ({
     selectionPreviewRef,
     onPreviewChange,
   ]);
+
+  // --- Context Menu (Fixed) ---
+  const handleContextMenu = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    let y = e.clientY;
+    // 화면 아래쪽 잘림 방지
+    if (y + 100 > window.innerHeight) y = window.innerHeight - 100;
+
+    // [Fix] State 업데이트로 리렌더링 유발
+    setContextMenu({ x: e.clientX, y });
+  }, []);
+
+  const closeContextMenu = useCallback(() => {
+    setContextMenu(null);
+  }, []);
 
   // --- Copy Logic ---
   const handleCopy = useCallback(
@@ -281,7 +294,7 @@ export const useHexViewerSelection = ({
         console.error('Copy failed:', error);
         eventBus.emit('toast', { code: 'COPY_FAILED' });
       }
-      contextMenuRef.current = null;
+      setContextMenu(null); // 메뉴 닫기
     },
     [selection.start, selection.end, file]
   );
@@ -300,19 +313,8 @@ export const useHexViewerSelection = ({
     } catch {
       eventBus.emit('toast', { code: 'COPY_FAILED' });
     }
-    contextMenuRef.current = null;
+    setContextMenu(null); // 메뉴 닫기
   }, [selection.start, selection.end]);
-
-  // --- Context Menu ---
-  const handleContextMenu = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
-    let y = e.clientY;
-    if (y + 100 > window.innerHeight) y = window.innerHeight - 100;
-    contextMenuRef.current = { x: e.clientX, y };
-  }, []);
-  const closeContextMenu = useCallback(() => {
-    contextMenuRef.current = null;
-  }, []);
 
   // --- Keyboard ---
   const handleKeyDown = useCallback(
@@ -384,7 +386,7 @@ export const useHexViewerSelection = ({
   );
 
   return {
-    contextMenu: contextMenuRef.current,
+    contextMenu, // State 값을 반환
     closeContextMenu,
     handleMouseDown,
     handleMouseMove,
