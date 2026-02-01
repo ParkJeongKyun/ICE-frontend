@@ -1,12 +1,74 @@
 import { NextIntlClientProvider } from 'next-intl';
 import { routing } from '@/locales/routing';
-import '@/app/index.scss';
 import { getMessages } from 'next-intl/server';
 import { MessageProvider } from '@/contexts/MessageContext/MessageContext';
 import ToastListener from '@/components/common/ToastListener/ToastListener';
+import { redirect } from 'next/navigation';
+import type { Metadata, Viewport } from 'next';
+
+const DOMAIN = process.env.NEXT_PUBLIC_DOMAIN || 'https://www.ice-forensic.com';
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
+}
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  themeColor: '#000000',
+};
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale?: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const isKo = locale === 'ko';
+
+  const title = isKo
+    ? 'ICE Forensic - 온라인 헥스 뷰어 & EXIF 분석기'
+    : 'ICE Forensic - Online Hex Viewer & EXIF Analyzer';
+
+  const description = isKo
+    ? '설치 없이 웹에서 바로 사용하는 디지털 포렌식 도구. 헥스 뷰어, 파일 헤더 분석, 이미지 EXIF 메타데이터 분석을 지원합니다.'
+    : 'Web-based digital forensics tool without installation. Supports Hex Viewer, File Header Analysis, and Image EXIF Metadata Analysis.';
+
+  const keywords = isKo
+    ? [
+        '헥스 뷰어',
+        '디지털 포렌식',
+        'EXIF 분석기',
+        '무설치 헥스 에디터',
+        '파일 분석',
+      ]
+    : [
+        'Hex Viewer',
+        'Digital Forensics',
+        'EXIF Viewer',
+        'Online Hex Editor',
+        'File Analysis',
+      ];
+
+  return {
+    metadataBase: new URL(DOMAIN),
+    title: title,
+    description: description,
+    keywords: keywords,
+    alternates: {
+      canonical: `${DOMAIN}/${locale}`,
+      languages: {
+        en: `${DOMAIN}/en`,
+        ko: `${DOMAIN}/ko`,
+      },
+    },
+    openGraph: {
+      title: `${title} | ICE Forensic`,
+      description: description,
+      locale: isKo ? 'ko_KR' : 'en_US',
+      url: `${DOMAIN}/${locale}`,
+    },
+  };
 }
 
 export default async function LocaleLayout({
@@ -17,49 +79,23 @@ export default async function LocaleLayout({
   params: Promise<{ locale?: string }>;
 }) {
   const { locale } = await params;
+
+  // 유효하지 않은 locale이면 기본 언어로 리다이렉트
+  if (!routing.locales.includes(locale as any)) {
+    redirect('/en');
+  }
+
   const messages = await getMessages({ locale: locale || 'en' });
 
   return (
     <html lang={locale}>
       <head>
         <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="theme-color" content="#000000" />
-        <meta
-          name="description"
-          content="ICE Forensic - Digital Forensic Tools"
-        />
-        <meta
-          name="keywords"
-          content="hex viewer, exif, image metadata, digital forensics, forensic tool, 헥스 뷰어, 이미지 메타데이터, 디지털 포렌식"
-        />
-        <meta name="author" content="ParkJeongKyun" />
-        <meta name="robots" content="index,follow" />
-        <link rel="canonical" href="https://ice-forensic.com/" />
-        <meta property="og:url" content="https://ice-forensic.com/" />
-        <meta property="og:locale" content="ko_KR" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="ICE - Forensic Web Application" />
-        <meta
-          name="twitter:description"
-          content="A web-based hex viewer and image metadata (Exif) analysis tool for digital forensics. 디지털 포렌식을 위한 웹 기반 헥스 뷰어 및 이미지 메타데이터(Exif) 분석 도구입니다."
-        />
-        <meta name="twitter:image" content="/logo.png" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="mobile-web-app-capable" content="yes" />
         <meta name="msapplication-TileColor" content="#000000" />
         <meta name="msapplication-TileImage" content="/logo.png" />
-        <meta property="og:title" content="ICE - Forensic Web Application" />
-        <meta property="og:type" content="article" />
-        <meta
-          property="og:description"
-          content="A web-based hex viewer and image metadata (Exif) analysis tool for digital forensics. 디지털 포렌식을 위한 웹 기반 헥스 뷰어 및 이미지 메타데이터(Exif) 분석 도구입니다."
-        />
-        <meta property="og:image" content="/logo.png" />
-        <meta property="og:image:width" content="1200" />
-        <meta property="og:image:height" content="627" />
         <link rel="manifest" href="/manifest.json" />
         <link rel="apple-touch-icon" href="/logo.png" />
-        <title>ICE Forensic</title>
         <meta name="google-adsense-account" content="ca-pub-9099594574723250" />
         <script
           async
