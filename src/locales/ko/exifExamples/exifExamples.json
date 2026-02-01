@@ -346,5 +346,21 @@
   "GPSDifferential": {
     "0": "보정 없음",
     "1": "차분 보정됨"
+  },
+  "ExifVersion": {
+    "0220": "Exif 버전 2.2",
+    "0210": "Exif 버전 2.1",
+    "0200": "Exif 버전 2.0"
+  },
+  "FlashpixVersion": {
+    "0100": "Flashpix 버전 1.0"
+  },
+  "InteroperabilityIndex": {
+    "R98": "R98 - DCF 기본 호환",
+    "R03": "R03 - DCF 옵션 파일",
+    "THM": "THM - 썸네일 파일"
+  },
+  "InteroperabilityVersion": {
+    "0100": "상호 운용성 버전 1.0"
   }
 }

@@ -359,6 +359,26 @@
     "name": "썸네일 이미지 길이",
     "description": "썸네일 이미지의 길이"
   },
+  "JPEGInterchangeFormat": {
+    "name": "JPEG 이미지 오프셋",
+    "description": "파일 내 JPEG 이미지 데이터의 시작 위치"
+  },
+  "JPEGInterchangeFormatLength": {
+    "name": "JPEG 이미지 길이",
+    "description": "JPEG 이미지 데이터의 길이"
+  },
+  "ExifTag": {
+    "name": "Exif IFD 태그",
+    "description": "Exif IFD 오프셋을 가리키는 포인터"
+  },
+  "InteroperabilityTag": {
+    "name": "상호 운용성 IFD 태그",
+    "description": "상호 운용성 IFD 오프셋을 가리키는 포인터"
+  },
+  "InteroperabilityVersion": {
+    "name": "상호 운용성 버전",
+    "description": "상호 운용성 버전 정보"
+  },
   "GPSVersionID": {
     "name": "GPS 정보 버전",
     "description": "GPS 정보 버전"

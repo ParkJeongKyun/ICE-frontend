@@ -359,6 +359,26 @@
     "name": "Thumbnail Length",
     "description": "Thumbnail image length"
   },
+  "JPEGInterchangeFormat": {
+    "name": "JPEG Image Offset",
+    "description": "JPEG image data offset in the file"
+  },
+  "JPEGInterchangeFormatLength": {
+    "name": "JPEG Image Length",
+    "description": "JPEG image data length"
+  },
+  "ExifTag": {
+    "name": "Exif IFD Tag",
+    "description": "Pointer to Exif IFD offset"
+  },
+  "InteroperabilityTag": {
+    "name": "Interoperability IFD Tag",
+    "description": "Pointer to Interoperability IFD offset"
+  },
+  "InteroperabilityVersion": {
+    "name": "Interoperability Version",
+    "description": "Interoperability version information"
+  },
   "GPSVersionID": {
     "name": "GPS Version ID",
     "description": "GPS version information"
