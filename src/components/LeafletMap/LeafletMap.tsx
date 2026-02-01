@@ -15,6 +15,7 @@ import 'leaflet/dist/leaflet.css';
 
 import { useTranslations, useLocale } from 'next-intl';
 import { useAddressCache } from '@/contexts/TabDataContext/TabDataContext';
+import Tooltip from '@/components/common/Tooltip/Tooltip';
 
 interface Props {
   latitude: string;
@@ -126,7 +127,13 @@ const LeafletMap: React.FC<Props> = ({ latitude, longitude }) => {
       <AddressInfo>
         <ContentDiv>
           <CellHeaderDiv>{t('exifViewer.address')}</CellHeaderDiv>
-          <CellBodyDiv>{address || `${latitude}, ${longitude}`}</CellBodyDiv>
+          <CellBodyDiv>
+            {address ? (
+              <Tooltip text={`${latitude}, ${longitude}`}>{address}</Tooltip>
+            ) : (
+              `${latitude}, ${longitude}`
+            )}
+          </CellBodyDiv>
         </ContentDiv>
       </AddressInfo>
     </IceMapContainer>
