@@ -67,7 +67,9 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
   props,
   ref
 ) => {
-  // --- Contexts ---
+  // ==================================================================================
+  // 1. Contexts & Hooks
+  // ==================================================================================
   const { activeData, encoding, activeKey } = useTab();
   const { scrollPositions, setScrollPositions } = useScroll();
   const { activeSelectionState } = useSelection();
@@ -76,22 +78,24 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
   const { chunkCacheRef, requestedChunksRef, getByte, checkCacheSize } =
     useHexViewerCacheContext();
 
-  // --- Derived State ---
+  // Derived States
   const file = activeData?.file;
   const fileSize = file?.size || 0;
   const rowCount = Math.ceil(fileSize / bytesPerRow);
 
-  // --- Local State ---
+  // ==================================================================================
+  // 2. Refs & Local States
+  // ==================================================================================
   const [canvasSize, setCanvasSize] = useState({ width: 800, height: 400 });
 
-  // --- Refs (Mutable State) ---
+  // DOM Refs
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const headerCanvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const contextMenuRef = useRef<HTMLDivElement>(null);
   const scrollbarRef = useRef<HTMLDivElement>(null);
 
-  // Logic Flags & Caches
+  // Logic Control Refs
   const firstRowRef = useRef(0);
   const isInitialLoadingRef = useRef(false);
   const isDraggingRef = useRef(false);
@@ -99,12 +103,13 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
   const tabInitialized = useRef(new Set<string>());
   const initializedTabKeyRef = useRef<string | null>(null);
 
-  // Rendering & Animation
+  // Animation & Rendering Refs
   const rafRef = useRef<number | null>(null);
   const renderRequestRef = useRef<number | null>(null);
   const canvasSizeRef = useRef(canvasSize);
+  const directRenderRef = useRef<() => void>(() => {});
 
-  // Guard Refs (Prevent Infinite Loops)
+  // Guard Refs (Infinite Loop Prevention)
   const isManualScrollRef = useRef(false);
   const manualScrollTimeoutRef = useRef<number | null>(null);
   const lastAutoScrollCursorRef = useRef<number | null>(null);
@@ -115,25 +120,28 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
   } | null>(null);
   const prevVisibleRowsRef = useRef<number>(0);
 
-  // Stable Access Refs (For Effects)
+  // Stable References for Effect Dependencies
   const fileRef = useRef(file);
   const fileWorkerRef = useRef(fileWorker);
-
-  // Colors Cache
   const colorsRef = useRef<any>(null);
 
-  // Preview Selection (High-performance Dragging)
+  // Preview Selection (High-Performance Dragging)
   const selectionPreviewRef = useRef<
     import('@/contexts/TabDataContext/TabDataContext').SelectionState | null
   >(null);
 
-  // --- Calculated Values ---
+  // Calculated Values
   const visibleRows = Math.floor(
     (canvasSize.height - LAYOUT.headerHeight) / rowHeight
   );
   const maxFirstRow = Math.max(0, rowCount - visibleRows);
 
-  // --- Helper: Throttled React Render ---
+  // ==================================================================================
+  // 3. Helper Functions
+  // ==================================================================================
+
+  // A. React Render Trigger (Throttled)
+  // Used to sync React state eventually (e.g. for loading spinners)
   const [, forceUpdate] = useReducer((x) => x + 1, 0);
   const throttledRender = useCallback(() => {
     if (renderRequestRef.current === null) {
@@ -144,8 +152,8 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
     }
   }, []);
 
-  // --- Helper: Immediate Direct Repaint (Bypasses React Render) ---
-  const directRenderRef = useRef<() => void>(() => {});
+  // B. Direct Canvas Repaint (Immediate)
+  // Bypasses React render cycle for high-performance updates (Scroll, Drag, Data Load)
   const handleDragRepaint = useCallback(() => {
     if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
     rafRef.current = requestAnimationFrame(() => {
@@ -154,9 +162,18 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
     });
   }, []);
 
-  // --- Custom Hooks Initialization ---
+  // [NEW] Combined Handler for Chunk Loading
+  // When data arrives, we want to paint IMMEDIATELY, then update React state later.
+  const handleChunkLoaded = useCallback(() => {
+    handleDragRepaint(); // 1. Paint immediately (Fixes blank screen on scroll)
+    throttledRender(); // 2. Update React state (clears loading flags etc.)
+  }, [handleDragRepaint, throttledRender]);
 
-  // 1. Rendering Logic
+  // ==================================================================================
+  // 4. Custom Hooks Initialization
+  // ==================================================================================
+
+  // Rendering
   const { directRender, renderHeader } = useHexViewerRender({
     canvasRef,
     headerCanvasRef,
@@ -173,11 +190,11 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
     directRenderRef.current = directRender;
   }, [directRender]);
 
-  // 2. Worker / Data Fetching
+  // Worker Data Fetching
   const { requestChunks, initializeWorker } = useHexViewerWorker({
     chunkCacheRef,
     requestedChunksRef,
-    onChunkLoaded: throttledRender,
+    onChunkLoaded: handleChunkLoaded, // [Updated] Use the combined handler
     isInitialLoadingRef,
     visibleRows,
     checkCacheSize,
@@ -188,7 +205,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
     requestChunksRef.current = requestChunks;
   }, [requestChunks]);
 
-  // 3. Selection Logic
+  // Selection Handling
   const {
     contextMenu,
     closeContextMenu,
@@ -206,10 +223,10 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
     fileSize,
     rowCount,
     selectionPreviewRef,
-    onPreviewChange: handleDragRepaint, // Pass the immediate repainter
+    onPreviewChange: handleDragRepaint,
   });
 
-  // 4. Scrolling Logic (Y-Axis)
+  // Vertical Scroll
   const {
     shouldShowScrollbar: shouldShowYScrollbar,
     scrollbarHeight,
@@ -232,7 +249,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
     firstRowRef,
   });
 
-  // 5. Scrolling Logic (X-Axis)
+  // Horizontal Scroll
   const {
     shouldShowScrollbar: shouldShowXScrollbar,
     scrollbarWidth: horizontalScrollbarWidth,
@@ -243,9 +260,11 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
     scrollbarDragEffect: horizontalScrollbarDragEffect,
   } = useHexViewerXScroll({ containerRef });
 
-  // --- Effects ---
+  // ==================================================================================
+  // 5. Effects (Lifecycle & Updates)
+  // ==================================================================================
 
-  // Update stable refs
+  // Update Stable Refs
   useEffect(() => {
     fileRef.current = file;
   }, [file]);
@@ -256,7 +275,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
     isDraggingRef.current = activeSelectionState?.isDragging ?? false;
   }, [activeSelectionState?.isDragging]);
 
-  // Initialize Colors (Theme support)
+  // Theme/Colors Update
   useEffect(() => {
     const updateColors = () => {
       const style = getComputedStyle(document.documentElement);
@@ -294,7 +313,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
     return () => observer.disconnect();
   }, []);
 
-  // Resize Observer
+  // Resize Observer (with forced repaint)
   useEffect(() => {
     if (!containerRef.current) return;
     const dpr = getDevicePixelRatio();
@@ -309,11 +328,12 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
             ? { width, height }
             : prev
         );
+        handleDragRepaint();
       }
     });
     observer.observe(containerRef.current);
     return () => observer.disconnect();
-  }, []);
+  }, [handleDragRepaint]);
 
   useEffect(() => scrollbarDragEffect(), [scrollbarDragEffect]);
   useEffect(
@@ -324,30 +344,39 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
   // --- Initialization & Restore Logic ---
   useEffect(() => {
     if (!file || !activeKey || !fileWorker) return;
-    if (initializedTabKeyRef.current === activeKey) return;
+
+    const isCacheEmpty =
+      !chunkCacheRef.current || chunkCacheRef.current.size === 0;
+
+    // [Case 1] Simple Re-render (Data exists, just repaint)
+    if (initializedTabKeyRef.current === activeKey && !isCacheEmpty) {
+      handleDragRepaint();
+      return;
+    }
 
     initializedTabKeyRef.current = activeKey;
     const existingCache = getWorkerCache(activeKey);
 
-    const triggerPaint = () => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-      rafRef.current = requestAnimationFrame(() => {
-        directRenderRef.current?.();
-        rafRef.current = null;
-      });
-    };
-
-    if (existingCache) {
+    // [Case 2] Restore from Global Cache
+    if (existingCache && existingCache.cache.size > 0) {
       const savedPosition = scrollPositions[activeKey] ?? 0;
+
       requestedChunksRef.current.clear();
       existingCache.cache.forEach((_, offset) =>
         requestedChunksRef.current.add(offset)
       );
-      chunkCacheRef.current = existingCache.cache;
-      firstRowRef.current = savedPosition;
 
-      throttledRender();
-      triggerPaint();
+      // Reference Swap (Fastest Restore)
+      if (chunkCacheRef.current !== existingCache.cache) {
+        chunkCacheRef.current = existingCache.cache;
+      }
+
+      firstRowRef.current = savedPosition;
+      hasValidDataRef.current = true;
+      isInitialLoadingRef.current = false;
+
+      // Force update immediately
+      handleChunkLoaded();
 
       if (savedPosition > 0 || visibleRows > 0) {
         requestChunks(
@@ -359,9 +388,11 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
         );
       }
     } else {
+      // [Case 3] New Initialization
       tabInitialized.current.add(activeKey);
       isInitialLoadingRef.current = true;
       hasValidDataRef.current = false;
+
       chunkCacheRef.current = new Map();
       requestedChunksRef.current.clear();
       firstRowRef.current = 0;
@@ -373,8 +404,8 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
       initializeWorker(0)
         .then(() => {
           isInitialLoadingRef.current = false;
-          throttledRender();
-          triggerPaint();
+          hasValidDataRef.current = true;
+          handleChunkLoaded();
         })
         .catch((error) => {
           showMessage(
@@ -383,23 +414,28 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
           );
         });
     }
-  }, [activeKey]);
+  }, [activeKey, file, fileWorker, activeData, handleChunkLoaded]); // Added handleChunkLoaded deps
 
+  // Sync Header & Canvas Size
   useEffect(() => {
     canvasSizeRef.current = canvasSize;
     renderHeader();
   }, [canvasSize, renderHeader]);
 
-  // Main Render Trigger
+  // Main Render Trigger (React State Updates)
   useEffect(() => {
     if (!isInitialLoadingRef.current && hasValidDataRef.current) {
-      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
-      rafRef.current = requestAnimationFrame(() => {
-        directRenderRef.current?.();
-        rafRef.current = null;
-      });
+      handleDragRepaint();
     }
-  }, [activeSelectionState, encoding, canvasSize, scrollPositions, activeKey]);
+  }, [
+    activeSelectionState,
+    encoding,
+    canvasSize,
+    scrollPositions,
+    activeKey,
+    activeData,
+    handleDragRepaint,
+  ]);
 
   // Data Fetching Logic (Guarded)
   useEffect(() => {
@@ -463,13 +499,10 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
     };
   }, []);
 
-  // --- Auto-Scroll Logic (Strictly Guarded) ---
+  // --- Auto-Scroll Logic ---
   const cursorIndex = activeSelectionState?.cursor ?? null;
   useEffect(() => {
-    // 1. Skip if manual scroll in progress or no cursor
     if (cursorIndex === null || isManualScrollRef.current) return;
-
-    // 2. Guard: Skip if cursor hasn't changed (prevents loop on context update)
     if (lastAutoScrollCursorRef.current === cursorIndex) return;
 
     const cursorRow = Math.floor(cursorIndex / bytesPerRow);
@@ -482,9 +515,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
       newRow = Math.max(0, cursorRow - visibleRows + 1);
 
     if (newRow !== -1) {
-      firstRowRef.current = newRow; // Sync ref immediately
-
-      // Use refs to request data without adding dependencies
+      firstRowRef.current = newRow;
       if (fileRef.current && fileWorkerRef.current) {
         requestChunksRef.current(
           newRow,
@@ -494,10 +525,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
           visibleRows + 20
         );
       }
-
       setScrollPositions((prev) => ({ ...prev, [activeKey]: newRow }));
-
-      // Immediate repaint
       handleDragRepaint();
     }
 
@@ -509,9 +537,10 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
     visibleRows,
     setScrollPositions,
     fileSize,
+    handleDragRepaint,
   ]);
 
-  // --- Public Methods (Ref) ---
+  // --- Exposed Methods ---
   useImperativeHandle(
     ref,
     () => ({
@@ -521,11 +550,10 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
           clearTimeout(manualScrollTimeoutRef.current);
 
         const targetRow = Math.floor(index / bytesPerRow);
-
         firstRowRef.current = targetRow;
 
-        if (file && fileWorker) {
-          requestChunks(
+        if (file && fileWorker && requestChunksRef.current) {
+          requestChunksRef.current(
             targetRow,
             fileWorker,
             file,
@@ -554,13 +582,11 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
       setSelection,
       file,
       fileWorker,
-      requestChunks,
       visibleRows,
       handleDragRepaint,
     ]
   );
 
-  // --- Render JSX ---
   return (
     <HexViewerContainer
       onWheel={handleWheel}
