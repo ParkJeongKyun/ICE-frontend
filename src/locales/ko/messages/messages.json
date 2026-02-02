@@ -118,5 +118,17 @@
   "LEAFLET_MAP_INVALID_LOCATION": {
     "title": "위치 정보 없음",
     "message": "유효한 GPS 정보가 없습니다."
+  },
+  "IP_FETCH_SUCCESS": {
+    "title": "IP 정보",
+    "message": ""
+  },
+  "IP_FETCH_FAILED": {
+    "title": "IP 조회 실패",
+    "message": "IP 주소를 불러오는데 실패했습니다."
+  },
+  "IP_COPIED": {
+    "title": "IP 복사 완료",
+    "message": "IP 주소를 클립보드에 복사했습니다."
   }
 }

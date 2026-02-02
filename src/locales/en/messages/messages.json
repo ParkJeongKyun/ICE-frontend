@@ -118,5 +118,17 @@
   "LEAFLET_MAP_INVALID_LOCATION": {
     "title": "No Location Info",
     "message": "No valid GPS information."
+  },
+  "IP_FETCH_SUCCESS": {
+    "title": "IP Information",
+    "message": ""
+  },
+  "IP_FETCH_FAILED": {
+    "title": "IP Fetch Failed",
+    "message": "Failed to retrieve your IP address."
+  },
+  "IP_COPIED": {
+    "title": "IP Copied",
+    "message": "IP address copied to clipboard."
   }
 }

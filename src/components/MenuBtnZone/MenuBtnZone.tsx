@@ -12,6 +12,7 @@ import { useTab } from '@/contexts/TabDataContext/TabDataContext';
 import { useRefs } from '@/contexts/RefContext/RefContext';
 import { parseExifData, readFileForExif } from '@/utils/exifParser';
 import { useWorker } from '@/contexts/WorkerContext/WorkerContext';
+import { getClientIp } from '@/utils/getClientIp';
 import eventBus from '@/utils/eventBus';
 
 export interface MenuBtnZoneRef {
@@ -44,10 +45,48 @@ const MenuBtnZone: React.FC = () => {
         // 현재 로케일 추출 (예: /ko/home → 'ko', /en/home → 'en')
         const locale = pathname.split('/')[1] || 'en';
         window.open(`/${locale}/linknote`, '_blank');
+      } else if (action === 'show-ip') {
+        handleShowIP();
       }
     },
     [pathname]
   );
+
+  const handleShowIP = useCallback(async () => {
+    try {
+      const ipInfo = await getClientIp();
+
+      // 정보 키와 값의 매핑
+      const infoMapping = [
+        { key: 'ipInfo.address', value: ipInfo.ip },
+        { key: 'ipInfo.hostname', value: ipInfo.hostname },
+        { key: 'ipInfo.city', value: ipInfo.city },
+        { key: 'ipInfo.region', value: ipInfo.region },
+        { key: 'ipInfo.country', value: ipInfo.country },
+        { key: 'ipInfo.location', value: ipInfo.loc },
+        { key: 'ipInfo.organization', value: ipInfo.org },
+        { key: 'ipInfo.timezone', value: ipInfo.timezone },
+      ];
+
+      // 값이 있는 것만 필터링하고 포맷팅
+      const infoText = infoMapping
+        .filter(({ value }) => value)
+        .map(({ key, value }) => `${t(key)}: ${value}`)
+        .join('\n');
+
+      eventBus.emit('toast', {
+        code: 'IP_FETCH_SUCCESS',
+        customMessage: infoText,
+      });
+
+      // IP만 클립보드에 복사
+      await navigator.clipboard.writeText(ipInfo.ip);
+      eventBus.emit('toast', { code: 'IP_COPIED' });
+    } catch (error) {
+      console.error('[MenuBtnZone] IP fetch failed:', error);
+      eventBus.emit('toast', { code: 'IP_FETCH_FAILED' });
+    }
+  }, [t]);
 
   const handleFileChange = useCallback(
     async (e: ChangeEvent<HTMLInputElement>) => {
@@ -173,7 +212,6 @@ const MenuBtnZone: React.FC = () => {
       fileWorker,
       isWasmReady,
       isProcessing,
-      // showMessage,
       startProcessing,
       stopProcessing,
       getNewKey,
@@ -239,6 +277,11 @@ const MenuBtnZone: React.FC = () => {
                 onClick={() => handleToolsMenuItemClick('linknote')}
               >
                 {t('menu.linknote')}
+              </ToolsMenuItem>
+              <ToolsMenuItem
+                onClick={() => handleToolsMenuItemClick('show-ip')}
+              >
+                {t('menu.showIp')}
               </ToolsMenuItem>
             </ToolsMenuList>
           </ToolsDropdownMenu>

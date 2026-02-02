@@ -24,7 +24,18 @@
     "help": "도움말",
     "about": "정보",
     "linknote": "LinkNote",
+    "showIp": "내 IP 보기",
     "fileProcessing": "파일 처리 중입니다"
+  },
+  "ipInfo": {
+    "address": "IP 주소",
+    "hostname": "호스트명",
+    "city": "도시",
+    "region": "지역",
+    "country": "국가",
+    "location": "위치",
+    "organization": "조직",
+    "timezone": "시간대"
   },
   "mobile": {
     "tabs": {

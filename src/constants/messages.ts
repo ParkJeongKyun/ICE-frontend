@@ -206,6 +206,26 @@ export const MESSAGES = {
     message: 'messages.LEAFLET_MAP_INVALID_LOCATION.message',
     duration: 6000,
   },
+
+  // IP 관련
+  IP_FETCH_SUCCESS: {
+    type: 'success' as MessageType,
+    title: 'messages.IP_FETCH_SUCCESS.title',
+    message: 'messages.IP_FETCH_SUCCESS.message',
+    duration: 10000,
+  },
+  IP_FETCH_FAILED: {
+    type: 'error' as MessageType,
+    title: 'messages.IP_FETCH_FAILED.title',
+    message: 'messages.IP_FETCH_FAILED.message',
+    duration: 8000,
+  },
+  IP_COPIED: {
+    type: 'success' as MessageType,
+    title: 'messages.IP_COPIED.title',
+    message: 'messages.IP_COPIED.message',
+    duration: 3000,
+  },
 } as const;
 
 export type MessageCode = keyof typeof MESSAGES;

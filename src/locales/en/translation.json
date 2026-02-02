@@ -24,7 +24,18 @@
     "help": "Help",
     "about": "About",
     "linknote": "LinkNote",
+    "showIp": "Show My IP",
     "fileProcessing": "Processing file..."
+  },
+  "ipInfo": {
+    "address": "IP",
+    "hostname": "Hostname",
+    "city": "City",
+    "region": "Region",
+    "country": "Country",
+    "location": "Location",
+    "organization": "Organization",
+    "timezone": "Timezone"
   },
   "mobile": {
     "tabs": {
