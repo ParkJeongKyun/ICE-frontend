@@ -1,0 +1,23 @@
+{
+  "personalInfo": "인적사항",
+  "name": "이름",
+  "dateOfBirth": "생년월일",
+  "age": "세",
+  "email": "이메일",
+  "residence": "거주지",
+  "birthplace": "출생지",
+  "certificates": "자격증",
+  "education": "학력",
+  "military": "병역",
+  "expertise": "전문분야",
+  "languages": "언어",
+  "career": "경력",
+  "projects": "프로젝트",
+  "status": "상태",
+  "year": "년도",
+  "period": "기간",
+  "company": "회사",
+  "position": "직위",
+  "client": "클라이언트",
+  "role": "역할"
+}

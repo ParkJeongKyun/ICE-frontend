@@ -1,0 +1,23 @@
+{
+  "personalInfo": "Personal Information",
+  "name": "Name",
+  "dateOfBirth": "Date of Birth",
+  "age": "age",
+  "email": "Email",
+  "residence": "Residence",
+  "birthplace": "Birthplace",
+  "certificates": "Certificates",
+  "education": "Education",
+  "military": "Military Service",
+  "expertise": "Expertise",
+  "languages": "Languages",
+  "career": "Career",
+  "projects": "Projects",
+  "status": "Status",
+  "year": "Year",
+  "period": "Period",
+  "company": "Company",
+  "position": "Position",
+  "client": "Client",
+  "role": "Role"
+}

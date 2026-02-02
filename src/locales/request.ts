@@ -22,6 +22,7 @@ export default getRequestConfig(async ({ locale }) => {
       ).default,
       linknote: (await import(`../locales/${locale}/linknote/linknote.json`))
         .default,
+      about: (await import(`../locales/${locale}/about/about.json`)).default,
     },
   };
 });
