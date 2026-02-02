@@ -1,10 +1,10 @@
 'use client';
 
-import { routing } from '@/locales/routing';
 import { Crepe } from '@milkdown/crepe';
 import { Milkdown, MilkdownProvider, useEditor } from '@milkdown/react';
 import '@milkdown/crepe/theme/common/style.css';
 import { useEffect, useRef, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import LZString from 'lz-string';
 import EditIcon from '@/components/common/Icons/EditIcon';
 import ReadIcon from '@/components/common/Icons/ReadIcon';
@@ -31,6 +31,7 @@ interface NoteData {
 const MAX_URL_LENGTH = 8000; // 크로스 브라우저 호환성을 위한 안전한 길이 (약 5-6페이지 분량)
 
 const CrepeEditor: React.FC = () => {
+  const t = useTranslations('linknote');
   const [isReadOnly, setIsReadOnly] = useState(true);
   const [initialContent, setInitialContent] = useState('');
   const [initialLastModified, setInitialLastModified] = useState('');
@@ -74,7 +75,7 @@ const CrepeEditor: React.FC = () => {
         lastModified: data.lm || '',
       };
     } catch {
-      showToast('유효하지 않은 노트 데이터입니다');
+      showToast(t('invalidData'));
       return { content: '', lastModified: '' };
     }
   };
@@ -97,18 +98,18 @@ const CrepeEditor: React.FC = () => {
     const url = window.location.href;
 
     if (url.length > MAX_URL_LENGTH) {
-      showToast('내용이 너무 길어 공유할 수 없습니다!');
+      showToast(t('contentTooLong'));
       return;
     }
 
     if (navigator.share) {
       navigator
         .share({
-          title: 'LinkNote',
-          text: '노트를 확인해보세요!',
+          title: t('shareTitle'),
+          text: t('shareText'),
           url: url,
         })
-        .then(() => showToast('공유 완료'))
+        .then(() => showToast(t('shareSuccess')))
         .catch((error) => {
           if (error.name !== 'AbortError') {
             copyToClipboard(url);
@@ -122,8 +123,8 @@ const CrepeEditor: React.FC = () => {
   const copyToClipboard = (url: string) => {
     navigator.clipboard
       .writeText(url)
-      .then(() => showToast('링크가 클립보드에 복사되었습니다!'))
-      .catch(() => showToast('링크 복사 실패'));
+      .then(() => showToast(t('copiedToClipboard')))
+      .catch(() => showToast(t('copyFailed')));
   };
 
   useEffect(() => {
@@ -143,10 +144,10 @@ const CrepeEditor: React.FC = () => {
         defaultValue: initialContent,
         featureConfigs: {
           [Crepe.Feature.LinkTooltip]: {
-            inputPlaceholder: 'URL을 입력하세요',
+            inputPlaceholder: t('urlPlaceholder'),
           },
           [Crepe.Feature.Placeholder]: {
-            text: '입력하세요...',
+            text: t('editorPlaceholder'),
           },
         },
       });
@@ -171,9 +172,7 @@ const CrepeEditor: React.FC = () => {
                 const newUrl = createNoteUrl(markdown);
 
                 if (newUrl.length > MAX_URL_LENGTH) {
-                  showToast(
-                    '내용이 너무 깁니다. URL 최대 길이를 초과했습니다.'
-                  );
+                  showToast(t('contentTooLongError'));
                   setIsSaving(false);
                   return;
                 }
@@ -185,7 +184,7 @@ const CrepeEditor: React.FC = () => {
                   1000
                 );
               } catch {
-                showToast('변경사항 저장 실패');
+                showToast(t('saveFailed'));
                 setIsSaving(false);
               }
             }, 500);
@@ -207,7 +206,8 @@ const CrepeEditor: React.FC = () => {
     if (!isoString) return '';
     const date = new Date(isoString);
     return (
-      '마지막수정: ' +
+      t('lastModified') +
+      ': ' +
       date.toLocaleString('ko-KR', {
         year: 'numeric',
         month: '2-digit',
@@ -223,7 +223,7 @@ const CrepeEditor: React.FC = () => {
     return (
       <MainContainer>
         <GuideBox>
-          <b>📝 링크노트 로딩중...</b>
+          <b>{t('loading')}</b>
         </GuideBox>
       </MainContainer>
     );
@@ -234,20 +234,44 @@ const CrepeEditor: React.FC = () => {
       {/* 가이드 메시지: 내용이 비어있을 때만 표시 */}
       {!initialContent && isReadOnly && (
         <GuideBox>
-          <b>📝 링크노트 시작하기</b>
+          <b>{t('guide.title')}</b>
           <ul>
-            <li>
-              우측하단에 <b>연필버튼</b>을 눌러 <b>수정모드</b>로 전환하세요.
-            </li>
-            <li>
-              <b>마크다운</b> 문법 작성을 지원합니다.
-            </li>
-            <li>
-              <b>공유버튼</b>으로 노트를 복사하거나 바로 공유할 수 있습니다.
-            </li>
-            <li>
-              작성한 내용은 <b>URL</b>에 <b>자동으로</b> 저장됩니다.
-            </li>
+            {t.rich('guide.steps.0', {
+              b: (chunks) => <b>{chunks}</b>,
+            }) && (
+              <li>
+                {t.rich('guide.steps.0', {
+                  b: (chunks) => <b>{chunks}</b>,
+                })}
+              </li>
+            )}
+            {t.rich('guide.steps.1', {
+              b: (chunks) => <b>{chunks}</b>,
+            }) && (
+              <li>
+                {t.rich('guide.steps.1', {
+                  b: (chunks) => <b>{chunks}</b>,
+                })}
+              </li>
+            )}
+            {t.rich('guide.steps.2', {
+              b: (chunks) => <b>{chunks}</b>,
+            }) && (
+              <li>
+                {t.rich('guide.steps.2', {
+                  b: (chunks) => <b>{chunks}</b>,
+                })}
+              </li>
+            )}
+            {t.rich('guide.steps.3', {
+              b: (chunks) => <b>{chunks}</b>,
+            }) && (
+              <li>
+                {t.rich('guide.steps.3', {
+                  b: (chunks) => <b>{chunks}</b>,
+                })}
+              </li>
+            )}
           </ul>
         </GuideBox>
       )}
@@ -262,12 +286,12 @@ const CrepeEditor: React.FC = () => {
             $isReadOnly={isReadOnly}
             $pulse={!initialContent && isReadOnly}
             onClick={() => setIsReadOnly(!isReadOnly)}
-            aria-label={isReadOnly ? '편집모드' : '읽기모드'}
+            aria-label={isReadOnly ? t('editMode') : t('readMode')}
             tabIndex={0}
           >
             {isReadOnly ? <EditIcon /> : <ReadIcon />}
             <span className="btn-tooltip">
-              {isReadOnly ? '편집모드' : '읽기모드'}
+              {isReadOnly ? t('editMode') : t('readMode')}
             </span>
           </ToggleButton>
         </div>
@@ -275,11 +299,11 @@ const CrepeEditor: React.FC = () => {
           <ShareButton
             $pulse={!initialContent && isReadOnly}
             onClick={handleShare}
-            aria-label="공유"
+            aria-label={t('share')}
             tabIndex={0}
           >
             <ShareIcon />
-            <span className="btn-tooltip">공유</span>
+            <span className="btn-tooltip">{t('share')}</span>
           </ShareButton>
         </div>
       </ButtonZone>
