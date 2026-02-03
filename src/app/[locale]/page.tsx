@@ -1,15 +1,11 @@
-import { routing } from '@/locales/routing';
 import MainLayout from '@/layouts/MainLayout/MainLayout';
-import JsonLd from '@/components/common/JsonLd';
-
-export function generateStaticParams() {
-  return routing.locales.map((locale) => ({ locale }));
-}
+import JsonLd from './JsonLd';
+import { type Locale } from '@/locales/routing';
 
 export default async function HomePage({
   params,
 }: {
-  params: Promise<{ locale?: string }>;
+  params: Promise<{ locale: Locale }>;
 }) {
   const { locale } = await params;
 

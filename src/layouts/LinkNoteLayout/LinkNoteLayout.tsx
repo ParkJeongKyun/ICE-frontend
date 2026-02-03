@@ -318,15 +318,10 @@ const CrepeEditor: React.FC = () => {
   );
 };
 
-export default function LinkNoteLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function LinkNoteLayout() {
   return (
     <MilkdownProvider>
       <CrepeEditor />
-      {children}
     </MilkdownProvider>
   );
 }

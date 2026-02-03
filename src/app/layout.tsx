@@ -12,7 +12,17 @@ export const metadata: Metadata = {
     default: 'ICE Forensic',
   },
 
-  description: 'Digital Forensic Web Application',
+  description:
+    'Web-based digital forensics tool without installation. Supports Hex Viewer, File Header Analysis, and Image EXIF Metadata Analysis.',
+
+  authors: [
+    {
+      name: 'Park Jeong Kyun',
+      url: 'https://www.ice-forensic.com',
+    },
+  ],
+
+  creator: 'Park Jeong Kyun',
 
   robots: {
     index: true,
@@ -25,13 +35,24 @@ export const metadata: Metadata = {
 
   openGraph: {
     type: 'website',
+    locale: 'en_US',
+    url: DOMAIN,
+    siteName: 'ICE Forensic',
     images: [
       {
-        url: '/pullLogo.png',
+        url: `${DOMAIN}/pullLogo.png`,
         width: 1200,
         height: 630,
+        alt: 'ICE Forensic Logo',
       },
     ],
+  },
+
+  twitter: {
+    card: 'summary_large_image',
+    title: 'ICE Forensic - Online Hex Viewer & EXIF Viewer',
+    description: 'Web-based digital forensics tool without installation.',
+    images: [`${DOMAIN}/pullLogo.png`],
   },
 };
 
