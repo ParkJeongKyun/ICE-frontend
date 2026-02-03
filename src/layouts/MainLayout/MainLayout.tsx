@@ -25,7 +25,7 @@ import {
   IceMobileTabBar,
   IceMobileTabButton,
   IceMobileTabPanel,
-} from './index.styles';
+} from './MainLayout.styles';
 import MenuBtnZone from '@/components/MenuBtnZone/MenuBtnZone';
 import TabWindow from '@/components/TabWindow/TabWindow';
 import Modal from '@/components/common/Modal/Modal';
@@ -48,7 +48,7 @@ import OffsetNavigator from '@/components/OffsetNavigator/OffsetNavigator';
 import LanguageSwitcher from '@/components/common/LanguageSwitcher/LanguageSwitcher';
 import InfoPanel from './SidePanels/InfoPanel';
 import ToolsPanel from './SidePanels/ToolsPanel';
-import { useIsMobile } from './useIsMobile';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 const MIN_SIDER_WIDTH = 100;
 

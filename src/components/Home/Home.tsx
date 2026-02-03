@@ -15,7 +15,7 @@ import {
 } from './Home.styles';
 import Logo from '../common/Icons/Logo/Logo';
 import { useTranslations } from 'next-intl';
-import { useIsMobile } from '@/layouts/useIsMobile';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 const Home: React.FC = () => {
   const { menuBtnZoneRef } = useRefs();

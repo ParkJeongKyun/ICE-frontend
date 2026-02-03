@@ -1,5 +1,5 @@
 import { routing } from '@/locales/routing';
-import MainLayout from '@/layouts';
+import MainLayout from '@/layouts/MainLayout/MainLayout';
 import JsonLd from '@/components/common/JsonLd';
 
 export function generateStaticParams() {
