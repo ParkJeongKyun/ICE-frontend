@@ -33,6 +33,10 @@ export async function generateMetadata({
         ],
     alternates: {
       canonical: `${DOMAIN}/${locale}/about`,
+      languages: {
+        en: `${DOMAIN}/en/about`,
+        ko: `${DOMAIN}/ko/about`,
+      },
     },
     openGraph: {
       title: title,

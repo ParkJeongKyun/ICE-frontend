@@ -38,6 +38,9 @@ export const metadata: Metadata = {
     locale: 'en_US',
     url: DOMAIN,
     siteName: 'ICE Forensic',
+    title: 'ICE Forensic - Online Hex Viewer & EXIF Viewer',
+    description:
+      'Web-based digital forensics tool without installation. Supports Hex Viewer, File Header Analysis, and Image EXIF Metadata Analysis.',
     images: [
       {
         url: `${DOMAIN}/pullLogo.png`,

@@ -40,6 +40,10 @@ export async function generateMetadata({
         ],
     alternates: {
       canonical: `${DOMAIN}/${locale}/linknote`,
+      languages: {
+        en: `${DOMAIN}/en/linknote`,
+        ko: `${DOMAIN}/ko/linknote`,
+      },
     },
     openGraph: {
       title: title,
