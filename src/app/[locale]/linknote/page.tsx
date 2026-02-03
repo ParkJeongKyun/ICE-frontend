@@ -1,3 +1,3 @@
-export default function LinkNotePage() {
-  return null;
-}
+import LinkNoteLayout from '@/layouts/LinkNoteLayout/LinkNoteLayout';
+
+export default LinkNoteLayout;
