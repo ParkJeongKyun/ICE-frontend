@@ -20,7 +20,7 @@ import {
 import { MeshLineGeometry, MeshLineMaterial } from 'meshline';
 import * as THREE from 'three';
 
-import { LanyardWrapper } from './index.styles';
+import { LanyardWrapper } from './Lanyard.styles';
 
 // Public 폴더에서 불러올 파일 경로
 const CARD_GLB = '/lanyard/card.glb';
