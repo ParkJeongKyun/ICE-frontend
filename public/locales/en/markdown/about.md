@@ -63,3 +63,4 @@ Sites and libraries that helped with site development. Thank you!
 - [Milkdown - Markdown Editor Framework](https://milkdown.dev/)
 - [React Markdown - Markdown Renderer](https://github.com/remarkjs/react-markdown)
 - [Google Analytics - Web Analytics Service](https://analytics.google.com/analytics/web/)
+- [ipinfo.io - IP Address Information Lookup API](https://ipinfo.io)

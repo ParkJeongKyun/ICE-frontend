@@ -64,3 +64,4 @@
 - [Milkdown - 마크다운 에디터 프레임워크](https://milkdown.dev/)
 - [React Markdown - 마크다운 렌더러](https://github.com/remarkjs/react-markdown)
 - [Google Analytics - 웹 로그 분석 서비스](https://analytics.google.com/analytics/web/)
+- [ipinfo.io - IP 주소 정보 조회 API](https://ipinfo.io)
