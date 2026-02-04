@@ -6,12 +6,12 @@ import {
   createThumbnailFromImage,
 } from './thumbnail';
 
-const HEAD_SIZE = 512 * 1024; // 앞부분 512KB (거대한 MakerNote 대응)
+const HEAD_SIZE = 1024 * 1024; // 앞부분 1MB (거대한 MakerNote 대응)
 const TAIL_SIZE = 128 * 1024; // 뒷부분 128KB (푸터 분석용)
 
 /**
  * EXIF 데이터 추출을 위한 파일 읽기
- * 파일이 512KB 이하면 전체, 초과하면 앞/뒤 256KB씩 읽어서 병합
+ * 파일이 1.125MB 이하면 전체, 초과하면 앞/뒤 1MB/128KB씩 읽어서 병합
  */
 export const readFileForExif = async (
   file: File

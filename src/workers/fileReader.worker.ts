@@ -40,6 +40,8 @@ let wasmInitializing = false;
 let wasmSearchFunc: WasmSearchFunction | null = null;
 let wasmExifFunc: WasmExifFunction | null = null;
 let goInstance: any = null;
+// Next.js 빌드 타임에 환경변수로 주입됨
+let wasmPath = process.env.NEXT_PUBLIC_WASM_PATH;
 
 // Worker 내부에서 WASM 초기화
 async function initWasm() {
@@ -79,8 +81,21 @@ async function initWasm() {
     const go = new (self as any).Go();
     goInstance = go;
 
+    if (!wasmPath) {
+      throw new Error(
+        'WASM_PATH_NOT_CONFIGURED: NEXT_PUBLIC_WASM_PATH environment variable is not set'
+      );
+    }
+
+    const response = await fetch(wasmPath);
+    if (!response.ok) {
+      throw new Error(
+        `WASM_LOAD_FAILED: Failed to load WASM from "${wasmPath}" (HTTP ${response.status} ${response.statusText})`
+      );
+    }
+
     const result = await WebAssembly.instantiateStreaming(
-      fetch('/wasm/ice_app.wasm'),
+      Promise.resolve(response),
       go.importObject
     );
 
@@ -213,37 +228,37 @@ async function processExif(imageData: Uint8Array) {
   // ✅ WASM 준비 대기 로직 통일
   const startTime = Date.now();
   const timeout = 3000;
-  
+
   while (!wasmReady && Date.now() - startTime < timeout) {
     await new Promise((resolve) => setTimeout(resolve, 100));
   }
 
   if (!wasmReady || !wasmExifFunc) {
-    self.postMessage({ 
-      type: 'EXIF_ERROR', 
+    self.postMessage({
+      type: 'EXIF_ERROR',
       errorCode: 'WASM_NOT_READY',
-      error: 'WASM module not ready' 
+      error: 'WASM module not ready',
     });
     return;
   }
 
   try {
     const result = wasmExifFunc(imageData);
-    
+
     if (result.error) {
-      self.postMessage({ 
-        type: 'EXIF_ERROR', 
+      self.postMessage({
+        type: 'EXIF_ERROR',
         errorCode: 'EXIF_PARSE_ERROR',
-        error: result.error 
+        error: result.error,
       });
     } else {
       self.postMessage({ type: 'EXIF_RESULT', result });
     }
   } catch (error) {
-    self.postMessage({ 
-      type: 'EXIF_ERROR', 
+    self.postMessage({
+      type: 'EXIF_ERROR',
       errorCode: 'EXIF_ERROR',
-      error: (error as Error).message 
+      error: (error as Error).message,
     });
   }
 }
@@ -269,7 +284,7 @@ async function searchInFile(
   // ✅ WASM 준비 대기 로직 통일
   const startTime = Date.now();
   const timeout = 3000;
-  
+
   while (!wasmReady && Date.now() - startTime < timeout) {
     await new Promise((resolve) => setTimeout(resolve, 100));
   }
@@ -330,7 +345,7 @@ async function searchInFile(
         maxResults: maxResults - totalFound,
       };
       const result = wasmSearchFunc(currentChunk, pattern, searchOptions);
-      
+
       if (result.error) {
         self.postMessage({
           type: type === 'HEX' ? 'SEARCH_RESULT_HEX' : 'SEARCH_RESULT_ASCII',
@@ -341,7 +356,7 @@ async function searchInFile(
         });
         return;
       }
-      
+
       chunkResults = result.indices || [];
     } catch (error) {
       self.postMessage({

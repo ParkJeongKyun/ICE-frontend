@@ -142,6 +142,10 @@ const MenuBtnZone: React.FC = () => {
           });
         });
 
+        if (process.env.NODE_ENV === 'development') {
+          console.log('EXIF processing result:', result);
+        }
+
         if (result.error) {
           throw new Error(result.error);
         }
