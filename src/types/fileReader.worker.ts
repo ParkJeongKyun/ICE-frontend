@@ -55,15 +55,15 @@ export interface WasmSearchFunction {
  * - exif_data: EXIF JSON 데이터 (없으면 null)
  */
 export interface ExifResult {
-  error?: string;            // 심각한 에러 (데이터 없음 등)
-  isEmpty?: boolean;        // 빈 파일 여부
-  typeDetected?: boolean;   // 파일 타입 감지 성공 여부
-  hasExif?: boolean;        // EXIF 데이터 존재 여부
-  mimeType?: string;        // MIME 타입 (알 수 없으면 "application/octet-stream")
-  extension?: string;        // 확장자 (알 수 없으면 빈 문자열)
+  error?: string; // 심각한 에러 (데이터 없음 등)
+  isEmpty?: boolean; // 빈 파일 여부
+  typeDetected?: boolean; // 파일 타입 감지 성공 여부
+  hasExif?: boolean; // EXIF 데이터 존재 여부
+  mimeType?: string; // MIME 타입 (알 수 없으면 "application/octet-stream")
+  extension?: string; // 확장자 (알 수 없으면 빈 문자열)
   exifData?: string | null; // EXIF JSON 데이터 (없으면 null)
 }
 
 export interface WasmExifFunction {
-  (data: Uint8Array): ExifResult;
+  (data: File): ExifResult;
 }

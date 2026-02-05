@@ -10,6 +10,43 @@ import type {
 
 declare const self: DedicatedWorkerGlobalScope;
 
+// ✅ FileReaderSync를 사용한 동기 파일 읽기
+const syncReader = new FileReaderSync();
+
+// 📊 간단한 청크 추적을 위한 전역 변수
+let readBlockCallCount = 0;
+let totalBytesRead = 0;
+const readBlockCalls: Array<{ offset: number; length: number }> = [];
+
+/**
+ * Go WASM에서 호출할 전역 동기 함수
+ * WASM의 Read 요청 시 호출되어 필요한 조각만 반환합니다.
+ * @param file - JavaScript File 객체
+ * @param offset - 읽을 시작 위치
+ * @param length - 읽을 바이트 수
+ * @returns 요청한 범위의 Uint8Array, 오류 시 null
+ */
+(self as any).readBlockSync = (
+  file: File,
+  offset: number,
+  length: number
+): Uint8Array | null => {
+  try {
+    // 📊 호출 횟수 기록
+    readBlockCallCount++;
+    totalBytesRead += length;
+    readBlockCalls.push({ offset, length });
+    // 필요한 부분만 잘라내어 메모리 효율 극대화
+    const blob = file.slice(offset, offset + length);
+    // 동기식으로 읽어 즉시 반환 (WASM의 동기적 Read와 일치)
+    const buffer = syncReader.readAsArrayBuffer(blob);
+    return new Uint8Array(buffer);
+  } catch (e) {
+    console.error('[Worker] readBlockSync error:', e);
+    return null;
+  }
+};
+
 // 전역 에러 핸들러
 self.addEventListener('error', (event) => {
   self.postMessage({
@@ -175,7 +212,6 @@ self.addEventListener('message', (e: MessageEvent<WorkerMessage>) => {
     pattern,
     ignoreCase,
     searchId,
-    imageData,
   } = e.data;
 
   switch (type) {
@@ -218,13 +254,13 @@ self.addEventListener('message', (e: MessageEvent<WorkerMessage>) => {
       break;
 
     case 'PROCESS_EXIF':
-      processExif(imageData);
+      processExif(file);
       break;
   }
 });
 
 // EXIF 처리 함수
-async function processExif(imageData: Uint8Array) {
+async function processExif(file: File) {
   // ✅ WASM 준비 대기 로직 통일
   const startTime = Date.now();
   const timeout = 3000;
@@ -243,7 +279,41 @@ async function processExif(imageData: Uint8Array) {
   }
 
   try {
-    const result = wasmExifFunc(imageData);
+    // 📊 EXIF 처리 전 통계 초기화
+    const statsBeforeCall = {
+      calls: readBlockCallCount,
+      bytes: totalBytesRead,
+    };
+
+    // ✅ WASM 함수에 File 객체 자체를 전달
+    // Go의 JsFileScanner가 필요한 데이터만 Pull 방식으로 가져옴
+    const result = wasmExifFunc(file);
+
+    // 📊 EXIF 처리 후 통계 계산
+    const chunksRequested = readBlockCallCount - statsBeforeCall.calls;
+    const bytesReadInCall = totalBytesRead - statsBeforeCall.bytes;
+    const callsInThisExif = readBlockCalls.slice(-chunksRequested);
+
+    // 🔍 처리 완료 후 상세 통계 로깅 (개발 모드에서만)
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[readBlockSync Stats]', {
+        file: file.name,
+        fileSize: file.size,
+        chunksRequested,
+        bytesReadInCall,
+        efficiency: `${((bytesReadInCall / file.size) * 100).toFixed(2)}% of file read`,
+        averageChunkSize:
+          chunksRequested > 0
+            ? Math.round(bytesReadInCall / chunksRequested)
+            : 0,
+        callDetails: callsInThisExif.map((c, i) => ({
+          call: i + 1,
+          offset: c.offset,
+          length: c.length,
+          range: `${c.offset}-${c.offset + c.length}`,
+        })),
+      });
+    }
 
     if (result.error) {
       self.postMessage({

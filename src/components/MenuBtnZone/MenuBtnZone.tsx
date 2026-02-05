@@ -10,7 +10,7 @@ import HexViewer from '@/components/HexViewer/HexViewer';
 import { useProcess } from '@/contexts/ProcessContext/ProcessContext';
 import { useTab } from '@/contexts/TabDataContext/TabDataContext';
 import { useRefs } from '@/contexts/RefContext/RefContext';
-import { parseExifData, readFileForExif } from '@/utils/exifParser';
+import { parseExifData } from '@/utils/exifParser';
 import { useWorker } from '@/contexts/WorkerContext/WorkerContext';
 import { getClientIp } from '@/utils/getClientIp';
 import eventBus from '@/utils/eventBus';
@@ -114,8 +114,6 @@ const MenuBtnZone: React.FC = () => {
       startProcessing();
 
       try {
-        const { buffer } = await readFileForExif(file);
-        const exifBuffer = new Uint8Array(buffer);
         const newActiveKey = getNewKey();
 
         const result = await new Promise<any>((resolve, reject) => {
@@ -138,7 +136,7 @@ const MenuBtnZone: React.FC = () => {
           fileWorker.addEventListener('message', handler);
           fileWorker.postMessage({
             type: 'PROCESS_EXIF',
-            imageData: exifBuffer,
+            file: file,
           });
         });
 

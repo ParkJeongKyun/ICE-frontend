@@ -6,40 +6,6 @@ import {
   createThumbnailFromImage,
 } from './thumbnail';
 
-const HEAD_SIZE = 1024 * 1024; // 앞부분 1MB (거대한 MakerNote 대응)
-const TAIL_SIZE = 128 * 1024; // 뒷부분 128KB (푸터 분석용)
-
-/**
- * EXIF 데이터 추출을 위한 파일 읽기
- * 파일이 1.125MB 이하면 전체, 초과하면 앞/뒤 1MB/128KB씩 읽어서 병합
- */
-export const readFileForExif = async (
-  file: File
-): Promise<{ buffer: ArrayBuffer; headSize: number; tailSize: number }> => {
-  // 1. 파일 전체 크기가 합친 것보다 작으면 그냥 전체 읽기
-  if (file.size <= HEAD_SIZE + TAIL_SIZE) {
-    const buffer = await file.arrayBuffer();
-    return { buffer, headSize: file.size, tailSize: 0 };
-  }
-
-  // 2. 앞부분과 뒷부분 조각내서 읽기
-  const [headBuffer, tailBuffer] = await Promise.all([
-    file.slice(0, HEAD_SIZE).arrayBuffer(),
-    file.slice(file.size - TAIL_SIZE).arrayBuffer(),
-  ]);
-
-  // 3. 병합 (메모리 효율을 위해 딱 필요한 크기만큼만 할당)
-  const combined = new Uint8Array(HEAD_SIZE + TAIL_SIZE);
-  combined.set(new Uint8Array(headBuffer), 0);
-  combined.set(new Uint8Array(tailBuffer), HEAD_SIZE);
-
-  return {
-    buffer: combined.buffer,
-    headSize: HEAD_SIZE,
-    tailSize: TAIL_SIZE,
-  };
-};
-
 /**
  * EXIF 데이터 파싱
  * - GO가 반환한 객체(또는 JSON 문자열)를 입력으로 허용
