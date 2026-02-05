@@ -149,13 +149,15 @@ const MenuBtnZone: React.FC = () => {
         }
 
         const {
-          tagInfos,
           thumbnail,
-          location,
           baseOffset,
+          dataSize,
+          endOffset,
           byteOrder,
           firstIfdOffset,
+          location,
           ifdInfos,
+          tagInfos,
         } = await parseExifData(result.exifData || '[]', file, result.mimeType);
 
         setTabData((prevDatas) => ({
@@ -175,13 +177,15 @@ const MenuBtnZone: React.FC = () => {
             },
             hasExif: result.hasExif || false,
             exifInfo: {
-              location,
               thumbnail,
-              tagInfos,
+              baseOffset,
+              dataSize,
+              endOffset,
               byteOrder,
               firstIfdOffset,
+              location,
               ifdInfos,
-              baseOffset,
+              tagInfos,
             },
           },
         }));

@@ -16,14 +16,16 @@ export const parseExifData = async (
   file?: File,
   mimeType?: string
 ): Promise<ExifInfo> => {
-  let tagInfos: ExifRow[] | null = null;
   let thumbnail = '';
-  let lat = 'NaN';
-  let lng = 'NaN';
   let baseOffset = 0;
+  let dataSize = 0;
+  let endOffset = 0;
   let byteOrder: string | undefined;
   let firstIfdOffset: number | undefined;
+  let lat = 'NaN';
+  let lng = 'NaN';
   let ifdInfos: IfdInfo[] | undefined;
+  let tagInfos: ExifRow[] | null = null;
 
   try {
     const parsed: any =
@@ -44,20 +46,24 @@ export const parseExifData = async (
         }
       }
       return {
-        tagInfos: null,
         thumbnail,
-        location: { lat, lng },
+        baseOffset,
+        dataSize,
+        endOffset,
         byteOrder,
         firstIfdOffset,
+        location: { lat, lng },
         ifdInfos,
-        baseOffset,
+        tagInfos: null,
       } as ExifInfo;
     }
 
     const metaRows = parsed.tags as any[];
 
     // GO에서 제공되는 필드 안정적으로 읽기
-    baseOffset = Number(parsed.baseOffset) || 0;
+    baseOffset = Number(parsed.baseOffset);
+    dataSize = Number(parsed.dataSize);
+    endOffset = Number(parsed.endOffset);
     byteOrder = parsed.byteOrder ? String(parsed.byteOrder) : undefined;
     firstIfdOffset =
       parsed.firstIfdOffset !== undefined && parsed.firstIfdOffset !== null
@@ -73,8 +79,9 @@ export const parseExifData = async (
     lng = parsedGPS.lng;
 
     // 태그 리스트 정규화
-    tagInfos = metaRows.map((item: any) => ({
-      tag: String(item.tag ?? ''),
+    tagInfos = metaRows.map((item: ExifRow) => ({
+      tag: item.tag,
+      ifd: item.ifd,
       data: item.data,
       type: item.type,
       offset: Number.isFinite(Number(item.offset))
@@ -120,13 +127,15 @@ export const parseExifData = async (
   }
 
   return {
-    tagInfos,
     thumbnail,
-    location: { lat, lng },
+    baseOffset,
+    dataSize,
+    endOffset,
     byteOrder,
     firstIfdOffset,
+    location: { lat, lng },
     ifdInfos,
-    baseOffset,
+    tagInfos,
   } as ExifInfo;
 };
 

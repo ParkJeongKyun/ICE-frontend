@@ -83,6 +83,25 @@ const ExifInfoCollapse: React.FC = () => {
       // ignore
     }
   }, [searcherRef, baseOffset, activeData]);
+
+  const onJumpToEndOffset = useCallback(async () => {
+    if (!searcherRef?.current || !activeData?.file) return;
+    const endOffset = Number(activeData?.exifInfo?.endOffset ?? NaN);
+    if (
+      Number.isNaN(endOffset) ||
+      endOffset < 0 ||
+      endOffset >= activeData.file.size
+    )
+      return;
+
+    const hexStr = endOffset.toString(16);
+    try {
+      await searcherRef.current.findByOffset(hexStr, 0);
+    } catch (e) {
+      // ignore
+    }
+  }, [searcherRef, activeData]);
+
   const hasData = !!exifInfo;
 
   return (
@@ -120,6 +139,25 @@ const ExifInfoCollapse: React.FC = () => {
                 )}
               </CellHeaderDiv>
               <CellBodyDiv>{exifInfo.baseOffset ?? '-'}</CellBodyDiv>
+            </ContentDiv>
+            <ContentDiv>
+              <CellHeaderDiv>
+                {t('exifViewer.endOffset')}
+                {typeof exifInfo.endOffset === 'number' && (
+                  <Tooltip
+                    text={`${t('exifViewer.jumpToOffset')} 0x${Number(exifInfo.endOffset).toString(16).toUpperCase()}`}
+                  >
+                    <JumpButton onClick={onJumpToEndOffset}>
+                      <ChevronRightIcon />
+                    </JumpButton>
+                  </Tooltip>
+                )}
+              </CellHeaderDiv>
+              <CellBodyDiv>{exifInfo.endOffset ?? '-'}</CellBodyDiv>
+            </ContentDiv>
+            <ContentDiv>
+              <CellHeaderDiv>{t('exifViewer.dataSize')}</CellHeaderDiv>
+              <CellBodyDiv>{exifInfo.dataSize ?? '-'}</CellBodyDiv>
             </ContentDiv>
             <ContentDiv>
               <CellHeaderDiv>
