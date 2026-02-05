@@ -15,8 +15,10 @@ import {
 import XIcon from '@/components/common/Icons/XIcon';
 import { useTab } from '@/contexts/TabDataContext/TabDataContext';
 import { TabKey } from '@/types';
+import { useProcess } from '@/contexts/ProcessContext/ProcessContext';
 
 const TabWindow: React.FC = () => {
+  const { isProcessing } = useProcess();
   const contentContainerRef = useRef<HTMLDivElement>(null);
   const tabsContainerRef = useRef<HTMLDivElement>(null);
   const {
@@ -224,7 +226,9 @@ const TabWindow: React.FC = () => {
             {item.window.label}
             <CloseBtn
               $active={tabKey === activeKey}
+              $disabled={isProcessing}
               onClick={(e) => {
+                if (isProcessing) return;
                 e.stopPropagation();
                 handleTabClose(tabKey);
               }}
@@ -247,6 +251,7 @@ const TabWindow: React.FC = () => {
     handleDragEnd,
     handleTabClick,
     handleTabClose,
+    isProcessing,
   ]);
 
   // 활성화된 탭에 포커스 적용

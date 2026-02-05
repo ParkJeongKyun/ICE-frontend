@@ -85,17 +85,24 @@ export const Tab = styled.div<{ $active: boolean }>`
   white-space: nowrap; /* 줄 바꿈 방지 */
 `;
 
-export const CloseBtn = styled.div<{ $active: boolean }>`
+export const CloseBtn = styled.div<{ $active: boolean; $disabled?: boolean }>`
   margin-left: 5px;
   display: flex;
   align-items: center;
+  cursor: ${(props) => (props.$disabled ? 'not-allowed' : 'pointer')};
+  opacity: ${(props) => (props.$disabled ? 0.5 : 1)};
   svg {
     stroke: ${(props) => (props.$active ? 'var(--main-line-color)' : 'none')};
   }
   &:hover {
-    svg {
-      stroke: var(--ice-main-color); // 호버 시 아이콘 컬러 변경
-    }
+    ${(props) =>
+      props.$disabled
+        ? ''
+        : `
+          svg {
+            stroke: var(--ice-main-color);
+          }
+        `}
   }
 `;
 
@@ -110,12 +117,17 @@ export const TabContentContainer = styled.div`
   }
 `;
 
-export const TabWrapper = styled.div<{ $isDragging?: boolean; $dropPosition?: 'left' | 'right' | null }>`
+export const TabWrapper = styled.div<{
+  $isDragging?: boolean;
+  $dropPosition?: 'left' | 'right' | null;
+}>`
   position: relative;
-  opacity: ${props => props.$isDragging ? 0.5 : 1};
+  opacity: ${(props) => (props.$isDragging ? 0.5 : 1)};
   cursor: move;
 
-  ${props => props.$dropPosition && `
+  ${(props) =>
+    props.$dropPosition &&
+    `
     &::${props.$dropPosition === 'left' ? 'before' : 'after'} {
       content: '';
       position: absolute;
