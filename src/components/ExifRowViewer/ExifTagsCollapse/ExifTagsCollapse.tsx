@@ -7,6 +7,7 @@ import { useRefs } from '@/contexts/RefContext/RefContext';
 import Collapse from '@/components/common/Collapse/Collapse';
 import Tooltip from '@/components/common/Tooltip/Tooltip';
 import ChevronRightIcon from '@/components/common/Icons/ChevronRightIcon';
+import DoubleChevronsRightIcon from '@/components/common/Icons/DoubleChevronsRightIcon';
 import {
   CellBodyDiv,
   CellHeaderDiv,
@@ -151,7 +152,7 @@ const ExifTagsCollapse: React.FC = () => {
                             onClick={() =>
                               onJumpToAbsoluteOffset(
                                 item?.offset ?? 0,
-                                item?.length ?? 0,
+                                item.isFar ? 4 : (item?.length ?? 0),
                                 item.tag
                               )
                             }
@@ -187,7 +188,11 @@ const ExifTagsCollapse: React.FC = () => {
                           <JumpButton
                             onClick={() => onJumpToRealDataOffset(item)}
                           >
-                            <ChevronRightIcon />
+                            {item.isFar ? (
+                              <DoubleChevronsRightIcon />
+                            ) : (
+                              <ChevronRightIcon />
+                            )}
                           </JumpButton>
                         </Tooltip>
                       );
