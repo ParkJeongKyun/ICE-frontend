@@ -7,16 +7,17 @@ import type {
   WasmSearchFunction,
   WasmExifFunction,
 } from '../types/fileReader.worker';
+import { createSHA256 } from 'hash-wasm';
 
 declare const self: DedicatedWorkerGlobalScope;
 
 // ✅ FileReaderSync를 사용한 동기 파일 읽기
 const syncReader = new FileReaderSync();
 
-// 📊 간단한 청크 추적을 위한 전역 변수
-let readBlockCallCount = 0;
-let totalBytesRead = 0;
-const readBlockCalls: Array<{ offset: number; length: number }> = [];
+// 📊 [최적화된 로깅] 배열 대신 '단순 숫자 변수'만 사용
+// 객체 생성(Allocation)이 없으므로 GC 부하가 0에 가깝습니다.
+let totalReadCount = 0;
+let totalReadBytes = 0;
 
 /**
  * Go WASM에서 호출할 전역 동기 함수
@@ -32,10 +33,10 @@ const readBlockCalls: Array<{ offset: number; length: number }> = [];
   length: number
 ): Uint8Array | null => {
   try {
-    // 📊 호출 횟수 기록
-    readBlockCallCount++;
-    totalBytesRead += length;
-    readBlockCalls.push({ offset, length });
+    // 📊 성능 저하 없는 초경량 로깅 (단순 덧셈)
+    totalReadCount++;
+    totalReadBytes += length;
+
     // 필요한 부분만 잘라내어 메모리 효율 극대화
     const blob = file.slice(offset, offset + length);
     // 동기식으로 읽어 즉시 반환 (WASM의 동기적 Read와 일치)
@@ -212,6 +213,7 @@ self.addEventListener('message', (e: MessageEvent<WorkerMessage>) => {
     pattern,
     ignoreCase,
     searchId,
+    hashId,
   } = e.data;
 
   switch (type) {
@@ -256,6 +258,19 @@ self.addEventListener('message', (e: MessageEvent<WorkerMessage>) => {
     case 'PROCESS_EXIF':
       processExif(file);
       break;
+
+    case 'PROCESS_HASH':
+      if (file && file instanceof File) {
+        processHash(file, hashId);
+      } else {
+        self.postMessage({
+          type: 'HASH_ERROR',
+          errorCode: 'INVALID_FILE',
+          error: 'File object is invalid or undefined',
+          hashId,
+        });
+      }
+      break;
   }
 });
 
@@ -279,40 +294,34 @@ async function processExif(file: File) {
   }
 
   try {
-    // 📊 EXIF 처리 전 통계 초기화
-    const statsBeforeCall = {
-      calls: readBlockCallCount,
-      bytes: totalBytesRead,
-    };
+    // 📊 [측정 시작] 현재 카운터 상태 저장
+    const startCount = totalReadCount;
+    const startBytes = totalReadBytes;
+    const perfStart = performance.now();
 
-    // ✅ WASM 함수에 File 객체 자체를 전달
-    // Go의 JsFileScanner가 필요한 데이터만 Pull 방식으로 가져옴
+    // --- WASM 실행 (핵심 작업) ---
     const result = wasmExifFunc(file);
+    // -------------------------
 
-    // 📊 EXIF 처리 후 통계 계산
-    const chunksRequested = readBlockCallCount - statsBeforeCall.calls;
-    const bytesReadInCall = totalBytesRead - statsBeforeCall.bytes;
-    const callsInThisExif = readBlockCalls.slice(-chunksRequested);
+    // 📊 [측정 종료] 차이값 계산
+    const perfEnd = performance.now();
+    const duration = perfEnd - perfStart;
+    const requestCount = totalReadCount - startCount;
+    const bytesRead = totalReadBytes - startBytes;
 
-    // 🔍 처리 완료 후 상세 통계 로깅 (개발 모드에서만)
+    // 📝 [최종 리포트] 작업이 끝난 후 딱 한 번만 로그 출력
     if (process.env.NODE_ENV === 'development') {
-      console.log('[readBlockSync Stats]', {
-        file: file.name,
-        fileSize: file.size,
-        chunksRequested,
-        bytesReadInCall,
-        efficiency: `${((bytesReadInCall / file.size) * 100).toFixed(2)}% of file read`,
-        averageChunkSize:
-          chunksRequested > 0
-            ? Math.round(bytesReadInCall / chunksRequested)
-            : 0,
-        callDetails: callsInThisExif.map((c, i) => ({
-          call: i + 1,
-          offset: c.offset,
-          length: c.length,
-          range: `${c.offset}-${c.offset + c.length}`,
-        })),
-      });
+      console.log(
+        `[EXIF Parse] File: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`
+      );
+      console.log(`- Time: ${(duration / 1000).toFixed(3)}s`);
+      console.log(
+        `- Speed: ${(bytesRead / 1024 / 1024 / (duration / 1000)).toFixed(2)} MB/s`
+      );
+      console.log(`- Read Calls: ${requestCount}`);
+      console.log(
+        `- Avg Chunk: ${(bytesRead / (requestCount || 1) / 1024).toFixed(2)} KB`
+      );
     }
 
     if (result.error) {
@@ -333,7 +342,7 @@ async function processExif(file: File) {
   }
 }
 
-// WASM 기반 검색 (청크 단위)
+// WASM 기반 검색 (스트리밍)
 async function searchInFile(
   file: File,
   pattern: Uint8Array,
@@ -341,16 +350,6 @@ async function searchInFile(
   ignoreCase: boolean = false,
   searchId?: number
 ) {
-  const CHUNK_SIZE = 16 * 1024 * 1024;
-  const OVERLAP = pattern.length - 1;
-  const fileSize = file.size;
-  const results: { index: number; offset: number }[] = [];
-  const foundIndices = new Set<number>();
-
-  let offset = 0;
-  let totalFound = 0;
-  const maxResults = 1000;
-
   // ✅ WASM 준비 대기 로직 통일
   const startTime = Date.now();
   const timeout = 3000;
@@ -370,109 +369,132 @@ async function searchInFile(
     return;
   }
 
-  let nextChunkPromise: Promise<Uint8Array> | null = null;
+  try {
+    // 📊 [측정 시작] 현재 카운터 상태 저장
+    const startCount = totalReadCount;
+    const startBytes = totalReadBytes;
+    const perfStart = performance.now();
 
-  const loadChunk = async (chunkOffset: number): Promise<Uint8Array> => {
-    const effectiveOffset = Math.max(0, chunkOffset - OVERLAP);
-    const length = Math.min(CHUNK_SIZE + OVERLAP, fileSize - effectiveOffset);
-    const blob = file.slice(effectiveOffset, effectiveOffset + length);
-    const arrayBuffer = await blob.arrayBuffer();
-    return new Uint8Array(arrayBuffer);
-  };
+    // ✅ File 객체와 pattern을 직접 전달
+    // Go에서 readBlockSync를 통해 필요한 데이터만 pull 방식으로 읽음
+    const searchOptions: SearchOptions = {
+      ignoreCase: type === 'ASCII' ? ignoreCase : false,
+      maxResults: 1000,
+    };
 
-  let currentChunk = await loadChunk(offset);
-  let lastProgressReport = 0;
+    // --- WASM 실행 (핵심 작업) ---
+    const result = wasmSearchFunc(file, pattern, searchOptions);
+    // -------------------------
 
-  while (offset < fileSize && totalFound < maxResults) {
-    if (
-      cancelSearch &&
-      searchId !== undefined &&
-      cancelledSearchIds.has(searchId)
-    ) {
-      return;
-    }
+    // 📊 [측정 종료] 차이값 계산
+    const perfEnd = performance.now();
+    const duration = perfEnd - perfStart;
+    const requestCount = totalReadCount - startCount;
+    const bytesRead = totalReadBytes - startBytes;
 
-    const progress = Math.floor((offset / fileSize) * 100);
-    if (progress > lastProgressReport) {
-      lastProgressReport = progress;
-      self.postMessage({
-        type: 'SEARCH_PROGRESS',
-        searchId,
-        progress,
-      });
-    }
-
-    const nextOffset = offset + CHUNK_SIZE;
-    if (nextOffset < fileSize && !nextChunkPromise) {
-      nextChunkPromise = loadChunk(nextOffset);
-    }
-
-    let chunkResults: number[] = [];
-
-    try {
-      const searchOptions: SearchOptions = {
-        ignoreCase: type === 'ASCII' ? ignoreCase : false,
-        maxResults: maxResults - totalFound,
-      };
-      const result = wasmSearchFunc(currentChunk, pattern, searchOptions);
-
-      if (result.error) {
-        self.postMessage({
-          type: type === 'HEX' ? 'SEARCH_RESULT_HEX' : 'SEARCH_RESULT_ASCII',
-          results: null,
-          searchId,
-          errorCode: 'SEARCH_WASM_ERROR',
-          error: result.error,
-        });
-        return;
+    // 📝 [최종 리포트] 작업이 끝난 후 딱 한 번만 로그 출력
+    if (process.env.NODE_ENV === 'development') {
+      console.log(
+        `[SEARCH ${type}] File: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB) | Pattern: ${pattern.length} bytes`
+      );
+      console.log(`- Time: ${(duration / 1000).toFixed(3)}s`);
+      if (bytesRead > 0) {
+        console.log(
+          `- Speed: ${(bytesRead / 1024 / 1024 / (duration / 1000)).toFixed(2)} MB/s`
+        );
       }
+      console.log(`- Read Calls: ${requestCount}`);
+      if (requestCount > 0) {
+        console.log(
+          `- Avg Chunk: ${(bytesRead / requestCount / 1024).toFixed(2)} KB`
+        );
+      }
+    }
 
-      chunkResults = result.indices || [];
-    } catch (error) {
+    if (result.error) {
       self.postMessage({
         type: type === 'HEX' ? 'SEARCH_RESULT_HEX' : 'SEARCH_RESULT_ASCII',
         results: null,
         searchId,
         errorCode: 'SEARCH_WASM_ERROR',
-        error: (error as Error).message || 'WASM search failed',
+        error: result.error,
       });
       return;
     }
 
-    const effectiveOffset = Math.max(0, offset - OVERLAP);
-    for (const idx of chunkResults) {
-      const absoluteIndex = effectiveOffset + idx;
-      if (!foundIndices.has(absoluteIndex)) {
-        foundIndices.add(absoluteIndex);
-        results.push({ index: absoluteIndex, offset: pattern.length });
-        totalFound++;
-        if (totalFound >= maxResults) break;
-      }
+    const results = (result.indices || []).map((idx: number) => ({
+      index: idx,
+      offset: pattern.length,
+    }));
+
+    if (searchId === undefined || !cancelledSearchIds.has(searchId)) {
+      self.postMessage({
+        type: type === 'HEX' ? 'SEARCH_RESULT_HEX' : 'SEARCH_RESULT_ASCII',
+        results,
+        searchId,
+        usedWasm: true,
+      });
     }
-
-    if (totalFound >= maxResults) break;
-
-    offset += CHUNK_SIZE;
-
-    if (nextChunkPromise) {
-      try {
-        currentChunk = await nextChunkPromise;
-      } catch (error) {
-        console.error('[Worker] Prefetch chunk error:', error);
-        break;
-      }
-      nextChunkPromise = null;
-    } else {
-      break;
-    }
-  }
-
-  if (searchId === undefined || !cancelledSearchIds.has(searchId)) {
+  } catch (error) {
     self.postMessage({
       type: type === 'HEX' ? 'SEARCH_RESULT_HEX' : 'SEARCH_RESULT_ASCII',
-      results,
+      results: null,
       searchId,
-      usedWasm: true,
+      errorCode: 'SEARCH_ERROR',
+      error: (error as Error).message || 'Search failed',
+    });
+  }
+}
+
+// ✅ [최종 최적화] Streams API를 사용한 물리적 한계 속도 해시 계산
+async function processHash(file: File, hashId?: number) {
+  try {
+    const startTime = performance.now();
+
+    // 1. WASM 해셔 생성
+    const hasher = await createSHA256();
+    hasher.init();
+
+    // ✅ [핵심 변경] FileReaderSync 대신 Streams API 사용
+    // 브라우저 엔진에게 "네가 가장 효율적인 방식으로 빨대를 꽂아줘"라고 요청하는 방식입니다.
+    const stream = file.stream();
+    const reader = stream.getReader();
+
+    let totalRead = 0;
+
+    while (true) {
+      // 브라우저가 알아서 적절한 크기(보통 64KB ~ 1MB)로 읽어옵니다.
+      // 64MB씩 강제로 읽는 것보다 GC 부하가 훨씬 적습니다.
+      const { done, value } = await reader.read();
+
+      if (done) break;
+
+      // value는 Uint8Array입니다. 바로 주입합니다.
+      hasher.update(value);
+
+      // 진행률 계산
+      totalRead += value.length;
+      // (선택) 진행률 보고 로직 추가...
+    }
+
+    const hashHex = hasher.digest();
+
+    // 결과 출력
+    const duration = (performance.now() - startTime) / 1000;
+    const speed = (file.size / 1024 / 1024 / duration).toFixed(2);
+
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`[Stream Hash] File: ${file.name}`);
+      console.log(`- Time: ${duration.toFixed(3)}s`);
+      console.log(`- Speed: ${speed} MB/s`);
+    }
+
+    self.postMessage({ type: 'HASH_RESULT', hash: hashHex, hashId });
+  } catch (error) {
+    self.postMessage({
+      type: 'HASH_ERROR',
+      error: (error as Error).message,
+      hashId,
     });
   }
 }

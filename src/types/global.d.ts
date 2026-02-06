@@ -1,6 +1,8 @@
 declare module '*.glb';
 declare module '*.png';
 
+import type { WasmSearchFunction, WasmExifFunction } from './fileReader.worker';
+
 declare global {
   class Go {
     constructor();
@@ -15,8 +17,8 @@ declare global {
   }
 
   interface WasmGlobal {
-    searchFunc: (data: Uint8Array, pattern: Uint8Array, options?: any) => any;
-    exifFunc: (data: Uint8Array) => any;
+    searchFunc: WasmSearchFunction;
+    exifFunc: WasmExifFunction;
     wasmReady: boolean;
   }
 }

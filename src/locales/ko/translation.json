@@ -25,6 +25,7 @@
     "about": "정보",
     "linknote": "링크노트",
     "showIp": "내 IP 보기",
+    "calculateHash": "해시 계산",
     "fileProcessing": "파일 처리 중입니다"
   },
   "ipInfo": {

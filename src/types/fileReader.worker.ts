@@ -5,11 +5,14 @@ export type WorkerMessageType =
   | 'SEARCH_ASCII'
   | 'READ_CHUNK'
   | 'PROCESS_EXIF'
+  | 'PROCESS_HASH'
   | 'CHUNK_DATA'
   | 'SEARCH_RESULT_HEX'
   | 'SEARCH_RESULT_ASCII'
   | 'EXIF_RESULT'
   | 'EXIF_ERROR'
+  | 'HASH_RESULT'
+  | 'HASH_ERROR'
   | 'WASM_READY'
   | 'WASM_ERROR'
   | 'ERROR';
@@ -37,11 +40,7 @@ export interface SearchResult {
 }
 
 export interface WasmSearchFunction {
-  (
-    data: Uint8Array,
-    pattern: Uint8Array,
-    options?: SearchOptions
-  ): SearchResult;
+  (file: File, pattern: Uint8Array, options?: SearchOptions): SearchResult;
 }
 
 /**
@@ -66,4 +65,14 @@ export interface ExifResult {
 
 export interface WasmExifFunction {
   (data: File): ExifResult;
+}
+
+/**
+ * 파일 무결성 검증용 SHA-256 해시 결과
+ * - hash: SHA-256 16진수 문자열 (64자, 예: "a591a6d40bf420404a011733cfb7b190d62c65bf0bcda32b57b277d9ad9f146e")
+ * - error: 에러 발생 시에만 설정
+ */
+export interface HashResult {
+  hash?: string | null; // SHA-256 해시값 (16진수 64자)
+  error?: string; // 에러 메시지
 }

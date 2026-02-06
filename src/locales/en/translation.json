@@ -25,6 +25,7 @@
     "about": "About",
     "linknote": "LinkNote",
     "showIp": "Show My IP",
+    "calculateHash": "Calculate Hash",
     "fileProcessing": "Processing file..."
   },
   "ipInfo": {

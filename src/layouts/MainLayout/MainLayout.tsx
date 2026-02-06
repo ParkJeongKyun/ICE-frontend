@@ -27,6 +27,7 @@ import {
   IceMobileTabPanel,
 } from './MainLayout.styles';
 import MenuBtnZone from '@/components/MenuBtnZone/MenuBtnZone';
+import HashCalculator from '@/components/Hash/HashCalculator';
 import TabWindow from '@/components/TabWindow/TabWindow';
 import Modal from '@/components/common/Modal/Modal';
 
@@ -122,6 +123,7 @@ const MainLayout: React.FC = () => {
         <IceHeaderLeftSider $isMobile={isMobileView}>
           <Logo showText />
           <MenuBtnZone />
+          <HashCalculator />
           {!isMobileView && <LanguageSwitcher />}
         </IceHeaderLeftSider>
         <OffsetNavigator />
