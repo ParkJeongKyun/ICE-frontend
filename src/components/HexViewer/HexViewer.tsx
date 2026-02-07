@@ -73,7 +73,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
   const { activeData, encoding, activeKey } = useTab();
   const { scrollPositions, setScrollPositions } = useScroll();
   const { activeSelectionState } = useSelection();
-  const { fileWorker, getWorkerCache } = useWorker();
+  const { chunkWorker, getWorkerCache } = useWorker();
   const { showMessage } = useMessage();
   const { chunkCacheRef, requestedChunksRef, getByte, checkCacheSize } =
     useHexViewerCacheContext();
@@ -122,7 +122,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
 
   // Stable References for Effect Dependencies
   const fileRef = useRef(file);
-  const fileWorkerRef = useRef(fileWorker);
+  const chunkWorkerRef = useRef(chunkWorker);
   const colorsRef = useRef<any>(null);
 
   // Preview Selection (High-Performance Dragging)
@@ -269,8 +269,8 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
     fileRef.current = file;
   }, [file]);
   useEffect(() => {
-    fileWorkerRef.current = fileWorker;
-  }, [fileWorker]);
+    chunkWorkerRef.current = chunkWorker;
+  }, [chunkWorker]);
   useEffect(() => {
     isDraggingRef.current = activeSelectionState?.isDragging ?? false;
   }, [activeSelectionState?.isDragging]);
@@ -343,7 +343,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
 
   // --- Initialization & Restore Logic ---
   useEffect(() => {
-    if (!file || !activeKey || !fileWorker) return;
+    if (!file || !activeKey || !chunkWorker) return;
 
     const isCacheEmpty =
       !chunkCacheRef.current || chunkCacheRef.current.size === 0;
@@ -379,13 +379,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
       handleChunkLoaded();
 
       if (savedPosition > 0 || visibleRows > 0) {
-        requestChunks(
-          savedPosition,
-          fileWorker,
-          file,
-          fileSize,
-          visibleRows + 20
-        );
+        requestChunks(savedPosition, file, fileSize, visibleRows + 20);
       }
     } else {
       // [Case 3] New Initialization
@@ -414,7 +408,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
           );
         });
     }
-  }, [activeKey, file, fileWorker, activeData, handleChunkLoaded]); // Added handleChunkLoaded deps
+  }, [activeKey, file, chunkWorker, activeData, handleChunkLoaded]); // Added handleChunkLoaded deps
 
   // Sync Header & Canvas Size
   useEffect(() => {
@@ -439,7 +433,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
 
   // Data Fetching Logic (Guarded)
   useEffect(() => {
-    if (!file || !fileWorker || isDraggingRef.current) return;
+    if (!file || !chunkWorker || isDraggingRef.current) return;
 
     const currentMeta = {
       name: file.name,
@@ -460,17 +454,11 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
     prevVisibleRowsRef.current = visibleRows;
 
     const timer = setTimeout(() => {
-      requestChunks(
-        firstRowRef.current,
-        fileWorker,
-        file,
-        fileSize,
-        visibleRows + 30
-      );
+      requestChunks(firstRowRef.current, file, fileSize, visibleRows + 30);
     }, CHUNK_REQUEST_DEBOUNCE);
 
     return () => clearTimeout(timer);
-  }, [file, visibleRows, fileSize, requestChunks, fileWorker]);
+  }, [file, visibleRows, fileSize, requestChunks, chunkWorker]);
 
   // Context Menu
   useEffect(() => {
@@ -516,10 +504,9 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
 
     if (newRow !== -1) {
       firstRowRef.current = newRow;
-      if (fileRef.current && fileWorkerRef.current) {
+      if (fileRef.current && chunkWorkerRef.current) {
         requestChunksRef.current(
           newRow,
-          fileWorkerRef.current,
           fileRef.current,
           fileSize,
           visibleRows + 20
@@ -552,14 +539,8 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
         const targetRow = Math.floor(index / bytesPerRow);
         firstRowRef.current = targetRow;
 
-        if (file && fileWorker && requestChunksRef.current) {
-          requestChunksRef.current(
-            targetRow,
-            fileWorker,
-            file,
-            fileSize,
-            visibleRows + 20
-          );
+        if (file && chunkWorker && requestChunksRef.current) {
+          requestChunksRef.current(targetRow, file, fileSize, visibleRows + 20);
         }
 
         updateScrollPosition(targetRow);
@@ -581,7 +562,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
       fileSize,
       setSelection,
       file,
-      fileWorker,
+      chunkWorker,
       visibleRows,
       handleDragRepaint,
     ]

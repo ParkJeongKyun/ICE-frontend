@@ -6,14 +6,13 @@ import React, {
   useState,
   useCallback,
   useMemo,
+  useEffect,
 } from 'react';
 
 interface ProcessContextType {
   isProcessing: boolean;
-  progress: number;
   startProcessing: () => void;
   stopProcessing: () => void;
-  updateProgress: (progress: number) => void;
 }
 
 const ProcessContext = createContext<ProcessContextType | undefined>(undefined);
@@ -21,32 +20,38 @@ const ProcessContext = createContext<ProcessContextType | undefined>(undefined);
 export const ProcessProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [progress, setProgress] = useState(0);
+  // count 기반으로 관리: 0이면 idle, 1 이상이면 작업중
+  const [count, setCount] = useState(0);
+
+  // 이탈 방지: 작업 중일 때 beforeunload 이벤트를 걸어둡니다
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (count > 0) {
+        e.preventDefault();
+        // Some browsers require returnValue to be set
+        e.returnValue = '';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [count]);
 
   const startProcessing = useCallback(() => {
-    setIsProcessing(true);
-    setProgress(0);
+    setCount((c) => c + 1);
   }, []);
 
   const stopProcessing = useCallback(() => {
-    setIsProcessing(false);
-    setProgress(0);
-  }, []);
-
-  const updateProgress = useCallback((newProgress: number) => {
-    setProgress(newProgress);
+    setCount((c) => Math.max(0, c - 1));
   }, []);
 
   const value = useMemo(
     () => ({
-      isProcessing,
-      progress,
+      isProcessing: count > 0,
       startProcessing,
       stopProcessing,
-      updateProgress,
     }),
-    [isProcessing, progress, startProcessing, stopProcessing, updateProgress]
+    [count, startProcessing, stopProcessing]
   );
 
   return (

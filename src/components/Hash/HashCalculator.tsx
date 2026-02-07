@@ -11,7 +11,7 @@ import eventBus from '@/utils/eventBus';
 
 const HashCalculator: React.FC = () => {
   const t = useTranslations();
-  const { fileWorker } = useWorker();
+  const { hashManager } = useWorker();
   const { startProcessing, stopProcessing } = useProcess();
   const { activeData } = useTab();
   const [showHashMenu, setShowHashMenu] = useState(false);
@@ -23,7 +23,7 @@ const HashCalculator: React.FC = () => {
       return;
     }
 
-    if (!fileWorker) {
+    if (!hashManager) {
       eventBus.emit('toast', { code: 'WORKER_NOT_INITIALIZED' });
       return;
     }
@@ -38,60 +38,25 @@ const HashCalculator: React.FC = () => {
     startProcessing();
 
     try {
-      // 워커에 메시지 전송
-      fileWorker.postMessage({
-        type: 'PROCESS_HASH',
+      // ✅ Promise 기반으로 변경
+      const result = await hashManager.execute('PROCESS_HASH', {
         file: activeData.file,
       });
 
-      // 워커 응답 대기 (최대 5분)
-      const hash = await new Promise<string | null>((resolve) => {
-        const timeout = setTimeout(
-          () => {
-            fileWorker.removeEventListener('message', handler);
-            eventBus.emit('toast', { code: 'HASH_CALCULATION_TIMEOUT' });
-            resolve(null);
-          },
-          5 * 60 * 1000
-        );
-
-        const handler = (e: MessageEvent) => {
-          console.log('[HashCalculator] Received message:', e.data);
-
-          if (e.data.type === 'HASH_RESULT') {
-            clearTimeout(timeout);
-            fileWorker.removeEventListener('message', handler);
-            const hash = e.data.hash;
-            if (hash) {
-              console.log('[HashCalculator] Hash received:', hash);
-              eventBus.emit('toast', {
-                code: 'HASH_CALCULATION_SUCCESS',
-                customMessage: hash,
-              });
-            } else {
-              const error = e.data.error || 'Failed to calculate hash';
-              console.log('[HashCalculator] No hash result:', error);
-              eventBus.emit('toast', {
-                code: 'COMMON_ERROR',
-                customMessage: error,
-              });
-            }
-            resolve(hash || null);
-          } else if (e.data.type === 'HASH_ERROR') {
-            clearTimeout(timeout);
-            fileWorker.removeEventListener('message', handler);
-            const errorMsg = e.data.error || 'Hash calculation error';
-            console.error('[HashCalculator] Hash error:', errorMsg);
-            eventBus.emit('toast', {
-              code: 'COMMON_ERROR',
-              customMessage: errorMsg,
-            });
-            resolve(null);
-          }
-        };
-
-        fileWorker.addEventListener('message', handler);
-      });
+      if (result.hash) {
+        console.log('[HashCalculator] Hash received:', result.hash);
+        eventBus.emit('toast', {
+          code: 'HASH_CALCULATION_SUCCESS',
+          customMessage: result.hash,
+        });
+      } else {
+        const error = result.error || 'Failed to calculate hash';
+        console.log('[HashCalculator] No hash result:', error);
+        eventBus.emit('toast', {
+          code: 'COMMON_ERROR',
+          customMessage: error,
+        });
+      }
     } catch (error) {
       console.error('[HashCalculator] Error:', error);
       const errorMsg = error instanceof Error ? error.message : 'Unknown error';
@@ -105,7 +70,7 @@ const HashCalculator: React.FC = () => {
     }
   }, [
     activeData?.file,
-    fileWorker,
+    hashManager,
     isCalculating,
     startProcessing,
     stopProcessing,

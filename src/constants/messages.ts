@@ -179,6 +179,14 @@ export const MESSAGES = {
     duration: 4000,
   },
 
+  // 해시 계산 성공
+  HASH_CALCULATION_SUCCESS: {
+    type: 'success' as MessageType,
+    title: 'messages.HASH_CALCULATION_SUCCESS.title',
+    message: 'messages.HASH_CALCULATION_SUCCESS.message',
+    duration: 5000,
+  },
+
   // 일반 오류
   UNKNOWN_ERROR: {
     type: 'error' as MessageType,

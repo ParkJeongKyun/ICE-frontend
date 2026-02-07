@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import {
   FlexGrow,
@@ -50,6 +50,7 @@ import LanguageSwitcher from '@/components/common/LanguageSwitcher/LanguageSwitc
 import InfoPanel from './SidePanels/InfoPanel';
 import ToolsPanel from './SidePanels/ToolsPanel';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import eventBus from '@/utils/eventBus';
 
 const MIN_SIDER_WIDTH = 100;
 
@@ -57,9 +58,32 @@ const MainLayout: React.FC = () => {
   const t = useTranslations();
   const { isEmpty, encoding, setEncoding } = useTab();
   const { activeSelectionState } = useSelection();
-  const { isProcessing, progress } = useProcess();
+  const { isProcessing } = useProcess();
   const [mobileTab, setMobileTab] = useState<'info' | 'tools'>('info');
+  const [progress, setProgress] = useState(0);
+  const progressRef = useRef(0);
   const isMobileView = useIsMobile();
+
+  // ✅ eventBus에서 진행률 수신 (RAF로 업데이트를 묶어 리렌더링 최소화)
+  useEffect(() => {
+    const rafRef = { id: 0 as any };
+
+    const handleProgress = (data: any) => {
+      progressRef.current = data.progress ?? 0;
+      if (!rafRef.id) {
+        rafRef.id = requestAnimationFrame(() => {
+          setProgress(progressRef.current);
+          rafRef.id = 0;
+        });
+      }
+    };
+
+    eventBus.on('progress', handleProgress);
+    return () => {
+      eventBus.off('progress', handleProgress);
+      if (rafRef.id) cancelAnimationFrame(rafRef.id);
+    };
+  }, []);
 
   const {
     isDragging: isLeftSideDragging,

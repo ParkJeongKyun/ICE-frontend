@@ -12,7 +12,6 @@ interface UseHexViewerYScrollProps {
   canvasHeight: number;
   requestChunks: (
     startRow: number,
-    worker: Worker,
     currentFile: File,
     currentFileSize: number,
     currentVisibleRows: number
@@ -30,7 +29,7 @@ export const useHexViewerYScroll = ({
 }: UseHexViewerYScrollProps) => {
   const { activeKey, activeData } = useTab();
   const { scrollPositions, setScrollPositions } = useScroll();
-  const { fileWorker } = useWorker();
+  const { chunkWorker } = useWorker();
 
   const file = activeData?.file;
   const fileSize = file?.size || 0;
@@ -153,15 +152,9 @@ export const useHexViewerYScroll = ({
   );
 
   const scrollbarDragEffect = useCallback(() => {
-    if (!scrollbarDragging || !fileWorker || !file) return;
+    if (!scrollbarDragging || !chunkWorker || !file) return;
 
-    requestChunks(
-      firstRowRef.current,
-      fileWorker,
-      file,
-      fileSize,
-      visibleRows + 100
-    );
+    requestChunks(firstRowRef.current, file, fileSize, visibleRows + 100);
 
     let animationFrameId: number | null = null;
     let lastUpdateTime = 0;
@@ -186,7 +179,7 @@ export const useHexViewerYScroll = ({
           updateScrollPosition(nextRow);
         }
         lastUpdateTime = currentTime;
-        requestChunks(nextRow, fileWorker, file, fileSize, visibleRows + 50);
+        requestChunks(nextRow, file, fileSize, visibleRows + 50);
       });
     };
 
@@ -213,7 +206,7 @@ export const useHexViewerYScroll = ({
           updateScrollPosition(nextRow);
         }
         lastUpdateTime = currentTime;
-        requestChunks(nextRow, fileWorker, file, fileSize, visibleRows + 50);
+        requestChunks(nextRow, file, fileSize, visibleRows + 50);
       });
     };
 
@@ -247,7 +240,7 @@ export const useHexViewerYScroll = ({
     fileSize,
     requestChunks,
     updateScrollPosition,
-    fileWorker,
+    chunkWorker,
     handleScrollbarEnd,
     firstRowRef,
   ]);

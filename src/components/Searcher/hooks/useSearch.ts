@@ -6,6 +6,7 @@ import { useMessage } from '@/contexts/MessageContext/MessageContext';
 import { asciiToBytes } from '@/utils/hexViewer';
 import { IndexInfo } from '@/components/HexViewer/HexViewer';
 import type { SearchType } from '@/types/searcher';
+import eventBus from '@/utils/eventBus';
 
 const filterInput = (inputValue: string, type: SearchType) => {
   switch (type) {
@@ -20,8 +21,8 @@ const filterInput = (inputValue: string, type: SearchType) => {
 
 export const useSearch = () => {
   const { activeKey, activeData } = useTab();
-  const { startProcessing, stopProcessing, updateProgress } = useProcess();
-  const { fileWorker } = useWorker();
+  const { startProcessing, stopProcessing } = useProcess();
+  const { analysisManager } = useWorker();
   const { showMessage } = useMessage();
 
   const file = activeData?.file;
@@ -57,7 +58,7 @@ export const useSearch = () => {
 
   const findAllByHex = useCallback(
     async (hex: string): Promise<IndexInfo[] | null> => {
-      if (!file || !hex.trim() || !fileWorker) return null;
+      if (!file || !hex.trim() || !analysisManager) return null;
 
       const searchStartTabKey = activeKey;
 
@@ -73,10 +74,6 @@ export const useSearch = () => {
 
       const prevSearchId = hexSearchIdRef.current;
       if (prevSearchId > 0) {
-        fileWorker.postMessage({
-          type: 'CANCEL_SEARCH',
-          searchId: prevSearchId,
-        });
         const prevCleanup = searchCleanupRef.current.get(prevSearchId);
         if (prevCleanup) {
           prevCleanup();
@@ -109,26 +106,31 @@ export const useSearch = () => {
         }, searchTimeout);
 
         let lastProgressUpdate = 0;
-        const handleMessage = (e: MessageEvent) => {
-          if (
-            e.data.type === 'SEARCH_PROGRESS' &&
-            e.data.searchId === searchId
-          ) {
+
+        // ✅ 이벤트 기반으로 진행률 구독
+        const handleProgress = (data: any) => {
+          if (data.id === searchId) {
             const now = Date.now();
             if (now - lastProgressUpdate > 1000) {
               if (process.env.NODE_ENV === 'development') {
-                console.log(`[Search] Progress: ${e.data.progress}%`);
+                console.log(`[Search] Progress: ${data.progress}%`);
               }
-              updateProgress(e.data.progress);
+              eventBus.emit('progress', { progress: data.progress });
               lastProgressUpdate = now;
             }
-            return;
           }
+        };
 
-          if (
-            e.data.type === 'SEARCH_RESULT_HEX' &&
-            e.data.searchId === searchId
-          ) {
+        analysisManager.events.on('PROGRESS', handleProgress);
+
+        // ✅ Promise 기반으로 검색 실행
+        analysisManager
+          .execute('SEARCH_HEX', {
+            file,
+            pattern: patternBytes,
+            searchId,
+          })
+          .then((result: any) => {
             cleanup();
             stopProcessing();
 
@@ -137,47 +139,45 @@ export const useSearch = () => {
               return;
             }
 
-            if (e.data.errorCode) {
-              showMessage(e.data.errorCode, e.data.error);
+            if (result.error) {
+              showMessage('SEARCH_ERROR', result.error);
               resolve(null);
               return;
             }
 
-            if (e.data.results && e.data.results.length > 0) {
+            if (result.indices && result.indices.length > 0) {
               showMessage(
                 'SEARCH_SUCCESS',
-                `${e.data.results.length}개의 결과를 찾았습니다.`
+                `${result.indices.length}개의 결과를 찾았습니다.`
               );
+              resolve(result.indices);
             } else {
               showMessage('SEARCH_NO_RESULTS');
+              resolve(result.indices || []);
             }
-            resolve(e.data.results);
-          }
-        };
+          })
+          .catch((error: Error) => {
+            cleanup();
+            stopProcessing();
+            showMessage('SEARCH_ERROR', error.message);
+            reject(error);
+          });
 
         const cleanup = () => {
           clearTimeout(timeoutId);
-          fileWorker.removeEventListener('message', handleMessage);
+          analysisManager.events.off('PROGRESS', handleProgress);
           searchCleanupRef.current.delete(searchId);
         };
 
         searchCleanupRef.current.set(searchId, cleanup);
-        fileWorker.addEventListener('message', handleMessage);
-        fileWorker.postMessage({
-          type: 'SEARCH_HEX',
-          file,
-          pattern: patternBytes,
-          searchId,
-        });
       });
     },
     [
       file,
-      fileWorker,
+      analysisManager,
       activeKey,
       startProcessing,
       stopProcessing,
-      updateProgress,
       showMessage,
       getSearchTimeout,
       fileSize,
@@ -186,17 +186,13 @@ export const useSearch = () => {
 
   const findAllByAsciiText = useCallback(
     async (text: string, ignoreCase: boolean): Promise<IndexInfo[] | null> => {
-      if (!file || !text.trim() || !fileWorker) return null;
+      if (!file || !text.trim() || !analysisManager) return null;
 
       const searchStartTabKey = activeKey;
       const patternBytes = asciiToBytes(text);
 
       const prevSearchId = asciiSearchIdRef.current;
       if (prevSearchId > 0) {
-        fileWorker.postMessage({
-          type: 'CANCEL_SEARCH',
-          searchId: prevSearchId,
-        });
         const prevCleanup = searchCleanupRef.current.get(prevSearchId);
         if (prevCleanup) {
           prevCleanup();
@@ -229,26 +225,32 @@ export const useSearch = () => {
         }, searchTimeout);
 
         let lastProgressUpdate = 0;
-        const handleMessage = (e: MessageEvent) => {
-          if (
-            e.data.type === 'SEARCH_PROGRESS' &&
-            e.data.searchId === searchId
-          ) {
+
+        // ✅ 이벤트 기반으로 진행률 구독
+        const handleProgress = (data: any) => {
+          if (data.id === searchId) {
             const now = Date.now();
             if (now - lastProgressUpdate > 1000) {
               if (process.env.NODE_ENV === 'development') {
-                console.log(`[Search] Progress: ${e.data.progress}%`);
+                console.log(`[Search] Progress: ${data.progress}%`);
               }
-              updateProgress(e.data.progress);
+              eventBus.emit('progress', { progress: data.progress });
               lastProgressUpdate = now;
             }
-            return;
           }
+        };
 
-          if (
-            e.data.type === 'SEARCH_RESULT_ASCII' &&
-            e.data.searchId === searchId
-          ) {
+        analysisManager.events.on('PROGRESS', handleProgress);
+
+        // ✅ Promise 기반으로 검색 실행
+        analysisManager
+          .execute('SEARCH_ASCII', {
+            file,
+            pattern: patternBytes,
+            ignoreCase,
+            searchId,
+          })
+          .then((result: any) => {
             cleanup();
             stopProcessing();
 
@@ -257,40 +259,36 @@ export const useSearch = () => {
               return;
             }
 
-            if (e.data.errorCode) {
-              showMessage(e.data.errorCode, e.data.error);
+            if (result.error) {
+              showMessage('SEARCH_ERROR', result.error);
               resolve(null);
               return;
             }
 
-            resolve(e.data.results);
-          }
-        };
+            resolve(result.indices || []);
+          })
+          .catch((error: Error) => {
+            cleanup();
+            stopProcessing();
+            showMessage('SEARCH_ERROR', error.message);
+            reject(error);
+          });
 
         const cleanup = () => {
           clearTimeout(timeoutId);
-          fileWorker.removeEventListener('message', handleMessage);
+          analysisManager.events.off('PROGRESS', handleProgress);
           searchCleanupRef.current.delete(searchId);
         };
 
         searchCleanupRef.current.set(searchId, cleanup);
-        fileWorker.addEventListener('message', handleMessage);
-        fileWorker.postMessage({
-          type: 'SEARCH_ASCII',
-          file,
-          pattern: patternBytes,
-          ignoreCase,
-          searchId,
-        });
       });
     },
     [
       file,
-      fileWorker,
+      analysisManager,
       activeKey,
       startProcessing,
       stopProcessing,
-      updateProgress,
       showMessage,
       getSearchTimeout,
       fileSize,

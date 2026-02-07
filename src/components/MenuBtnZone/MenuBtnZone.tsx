@@ -28,7 +28,7 @@ const MenuBtnZone: React.FC = () => {
   const pathname = usePathname();
   const { hexViewerRef, setMenuBtnZoneRef, openModal } = useRefs();
   const { setTabData, setActiveKey, getNewKey } = useTab();
-  const { fileWorker, isWasmReady } = useWorker();
+  const { analysisManager, isWasmReady } = useWorker();
   const { startProcessing, stopProcessing, isProcessing } = useProcess();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const toolsMenuRef = useRef<HTMLDivElement>(null);
@@ -93,7 +93,7 @@ const MenuBtnZone: React.FC = () => {
       const file = e.target.files?.[0];
       if (!file) return;
 
-      if (!fileWorker) {
+      if (!analysisManager) {
         eventBus.emit('toast', { code: 'WORKER_NOT_INITIALIZED' });
         return;
       }
@@ -116,28 +116,9 @@ const MenuBtnZone: React.FC = () => {
       try {
         const newActiveKey = getNewKey();
 
-        const result = await new Promise<any>((resolve, reject) => {
-          const timeoutId = setTimeout(() => {
-            reject(new Error('EXIF_PROCESSING_TIMEOUT'));
-          }, EXIF_TIMEOUT);
-
-          const handler = (e: MessageEvent) => {
-            if (e.data.type === 'EXIF_RESULT') {
-              clearTimeout(timeoutId);
-              fileWorker.removeEventListener('message', handler);
-              resolve(e.data.result);
-            } else if (e.data.type === 'EXIF_ERROR') {
-              clearTimeout(timeoutId);
-              fileWorker.removeEventListener('message', handler);
-              reject(new Error(e.data.error));
-            }
-          };
-
-          fileWorker.addEventListener('message', handler);
-          fileWorker.postMessage({
-            type: 'PROCESS_EXIF',
-            file: file,
-          });
+        // ✅ Promise 기반으로 변경 (await 사용)
+        const result = await analysisManager.execute('PROCESS_EXIF', {
+          file,
         });
 
         if (process.env.NODE_ENV === 'development') {
@@ -215,7 +196,7 @@ const MenuBtnZone: React.FC = () => {
       }
     },
     [
-      fileWorker,
+      analysisManager,
       isWasmReady,
       isProcessing,
       startProcessing,
