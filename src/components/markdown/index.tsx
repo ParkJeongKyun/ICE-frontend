@@ -62,10 +62,7 @@ const ICEMarkDown: React.FC<Props> = ({ defaultText, childTexts }) => {
         <Markdown components={components}>{markdownText}</Markdown>
       </MarkDownDiv>
       {markdownText != defaultText && (
-        <FloatingBackBtn
-          onClick={setDefaultText}
-          aria-label={t('notifications.back')}
-        >
+        <FloatingBackBtn onClick={setDefaultText} aria-label={t('common.back')}>
           <BackArrowIcon
             width={18}
             height={18}
