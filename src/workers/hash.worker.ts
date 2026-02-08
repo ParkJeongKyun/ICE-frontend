@@ -100,16 +100,6 @@ async function processHash(id: string, file: File) {
 
     const hashHex = hasher.digest();
 
-    // 결과 출력
-    const duration = (performance.now() - startTime) / 1000;
-    const speed = (file.size / 1024 / 1024 / duration).toFixed(2);
-
-    if (process.env.NODE_ENV === 'development') {
-      console.log(`[Stream Hash] File: ${file.name}`);
-      console.log(`- Time: ${duration.toFixed(3)}s`);
-      console.log(`- Speed: ${speed} MB/s`);
-    }
-
     // Final progress = 100%
     self.postMessage({
       type: 'HASH_PROGRESS',

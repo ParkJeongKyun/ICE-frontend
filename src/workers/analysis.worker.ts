@@ -221,10 +221,6 @@ async function initWasm() {
     wasmReady = true;
     wasmInitializing = false;
 
-    if (process.env.NODE_ENV === 'development') {
-      console.log('[Worker] WASM initialization completed successfully');
-    }
-
     self.postMessage({ type: 'WASM_READY' });
   } catch (error) {
     wasmReady = false;
@@ -239,21 +235,7 @@ async function initWasm() {
 }
 
 self.addEventListener('message', (e: MessageEvent<AnalysisWorkerRequest>) => {
-  const {
-    type,
-    id = '', // ✅ WorkerManager에서 보내는 id를 받음 (기본값 '')
-    file,
-    pattern,
-    ignoreCase,
-  } = e.data;
-
-  if (process.env.NODE_ENV === 'development') {
-    console.log('[Worker] Message received:', type, {
-      id,
-      hasFile: !!file,
-      fileSize: file?.size,
-    });
-  }
+  const { type, id, file, pattern, ignoreCase } = e.data;
 
   switch (type) {
     case 'CANCEL_SEARCH':
@@ -314,8 +296,6 @@ async function processExif(id: string, file: File) {
   }
 
   try {
-    // 📊 [측정 시작] 현재 카운터 상태 저장
-    const startCount = totalReadCount;
     const startBytes = totalReadBytes;
     const perfStart = performance.now();
 
@@ -326,23 +306,7 @@ async function processExif(id: string, file: File) {
     // 📊 [측정 종료] 차이값 계산
     const perfEnd = performance.now();
     const duration = perfEnd - perfStart;
-    const requestCount = totalReadCount - startCount;
     const bytesRead = totalReadBytes - startBytes;
-
-    // 📝 [최종 리포트] 작업이 끝난 후 딱 한 번만 로그 출력
-    if (process.env.NODE_ENV === 'development') {
-      console.log(
-        `[EXIF Parse] File: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`
-      );
-      console.log(`- Time: ${(duration / 1000).toFixed(3)}s`);
-      console.log(
-        `- Speed: ${(bytesRead / 1024 / 1024 / (duration / 1000)).toFixed(2)} MB/s`
-      );
-      console.log(`- Read Calls: ${requestCount}`);
-      console.log(
-        `- Avg Chunk: ${(bytesRead / (requestCount || 1) / 1024).toFixed(2)} KB`
-      );
-    }
 
     if (result.error) {
       self.postMessage({
@@ -441,27 +405,7 @@ async function searchInFile(
     // 📊 [측정 종료] 차이값 계산
     const perfEnd = performance.now();
     const duration = perfEnd - perfStart;
-    const requestCount = totalReadCount - startCount;
     const bytesRead = totalReadBytes - startBytes;
-
-    // 📝 [최종 리포트] 작업이 끝난 후 딱 한 번만 로그 출력
-    if (process.env.NODE_ENV === 'development') {
-      console.log(
-        `[SEARCH ${type}] File: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB) | Pattern: ${pattern.length} bytes`
-      );
-      console.log(`- Time: ${(duration / 1000).toFixed(3)}s`);
-      if (bytesRead > 0) {
-        console.log(
-          `- Speed: ${(bytesRead / 1024 / 1024 / (duration / 1000)).toFixed(2)} MB/s`
-        );
-      }
-      console.log(`- Read Calls: ${requestCount}`);
-      if (requestCount > 0) {
-        console.log(
-          `- Avg Chunk: ${(bytesRead / requestCount / 1024).toFixed(2)} KB`
-        );
-      }
-    }
 
     if (result.error) {
       self.postMessage({
@@ -488,13 +432,6 @@ async function searchInFile(
     }));
 
     if (!cancelledRequestIds.has(id)) {
-      if (process.env.NODE_ENV === 'development') {
-        console.log('[SEARCH] Sending result:', {
-          type: type === 'HEX' ? 'SEARCH_RESULT_HEX' : 'SEARCH_RESULT_ASCII',
-          id,
-          resultsLength: results.length,
-        });
-      }
       self.postMessage({
         type: type === 'HEX' ? 'SEARCH_RESULT_HEX' : 'SEARCH_RESULT_ASCII',
         stats: createStats(id, duration, bytesRead, currentFileSize, file.name),
@@ -502,10 +439,6 @@ async function searchInFile(
           indices: results,
         },
       });
-    } else {
-      if (process.env.NODE_ENV === 'development') {
-        console.log('[SEARCH] Search cancelled, not sending result');
-      }
     }
   } catch (error) {
     self.postMessage({
