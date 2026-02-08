@@ -160,6 +160,8 @@
   },
   "calculateHash": {
     "title": "Calculate Hash",
-    "calculating": "Calculating..."
+    "calculating": "Calculating...",
+    "success": "{type} Hash calculation completed successfully.",
+    "calculateTooltip": "Calculate {type} hash"
   }
 }

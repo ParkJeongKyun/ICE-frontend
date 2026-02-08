@@ -76,8 +76,7 @@
     "message": "An error occurred during search."
   },
   "HASH_CALCULATION_SUCCESS": {
-    "title": "Hash Calculated",
-    "message": "Hash calculation completed successfully."
+    "title": "Hash Calculated"
   },
   "SEARCH_NO_RESULTS": {
     "title": "No Results",

@@ -76,8 +76,7 @@
     "message": "검색 중 오류가 발생했습니다."
   },
   "HASH_CALCULATION_SUCCESS": {
-    "title": "해시 계산 완료",
-    "message": "해시 계산이 완료되었습니다."
+    "title": "해시 계산 완료"
   },
   "SEARCH_TIMEOUT": {
     "title": "검색 시간 초과",
