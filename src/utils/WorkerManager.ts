@@ -1,6 +1,6 @@
 import { ExifResult, SearchResult } from '@/types/worker/analysis.worker.types';
 import { HashResult } from '@/types/worker/hash.worker.types';
-import { ProgressPayload } from '@/types/worker/common.worker.types';
+import { ProgressPayload } from '@/types/worker/index.worker.types';
 import mitt, { Emitter } from 'mitt';
 
 // ============================================================================

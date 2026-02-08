@@ -4,20 +4,16 @@ import React, {
   createContext,
   useContext,
   useRef,
-  useCallback,
   useMemo,
   useState,
   useEffect,
 } from 'react';
 import { WorkerManager, type WorkerEvents } from '@/utils/WorkerManager';
-import type {
-  ProgressPayload,
-  SearchResult,
-  ExifResult,
-  HashResult,
-} from '@/types/worker';
 import { useProcess } from '@/contexts/ProcessContext/ProcessContext';
 import eventBus from '@/types/eventBus';
+import { HashResult } from '@/types/worker/hash.worker.types';
+import { ExifResult, SearchResult } from '@/types/worker/analysis.worker.types';
+import { ProgressPayload } from '@/types/worker/index.worker.types';
 
 interface WorkerContextType {
   // ✅ 제네릭으로 분리된 타입

@@ -3,7 +3,7 @@
  * Search (HEX/ASCII) + EXIF 처리를 하나의 WASM으로 통합
  */
 
-import { WorkerStats } from './common.worker.types';
+import { WorkerStats } from './index.worker.types';
 
 // ============================================================================
 // Request

@@ -1,5 +1,5 @@
 import mitt from 'mitt';
-import type { WorkerStats } from './worker';
+import { WorkerStats } from './worker/index.worker.types';
 
 export type ToastEvent = {
   code: string;

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { WorkerManager } from '@/utils/WorkerManager';
-import type { ProgressPayload } from '@/types/worker';
+import { ProgressPayload } from '@/types/worker/index.worker.types';
 
 export interface ProgressState {
   progress: number;

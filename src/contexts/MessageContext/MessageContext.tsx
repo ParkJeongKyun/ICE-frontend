@@ -12,7 +12,7 @@ import React, {
 import { useTranslations } from 'next-intl';
 import eventBus from '@/types/eventBus';
 import { getToastDefaults } from '@/utils/toastDefaults';
-import type { WorkerStats } from '@/types/worker';
+import type { WorkerStats } from '@/types/worker/index.worker.types';
 
 export type MessageType = 'info' | 'success' | 'warning' | 'error';
 

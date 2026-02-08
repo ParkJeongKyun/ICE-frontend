@@ -2,7 +2,7 @@
  * Hash Worker 타입
  */
 
-import { WorkerStats } from './common.worker.types';
+import { WorkerStats } from './index.worker.types';
 
 // Request
 export type HashWorkerRequestType = 'PROCESS_HASH';
