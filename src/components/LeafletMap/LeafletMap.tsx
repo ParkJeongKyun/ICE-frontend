@@ -10,7 +10,7 @@ import {
   CellBodyDiv,
 } from './LeafletMap.styles';
 import { isValidLocation, getAddress } from '@/utils/getAddress';
-import eventBus from '@/utils/eventBus';
+import eventBus from '@/types/eventBus';
 import 'leaflet/dist/leaflet.css';
 
 import { useTranslations, useLocale } from 'next-intl';

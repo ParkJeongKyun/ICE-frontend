@@ -1,52 +1,67 @@
+import { ExifResult, SearchResult } from '@/types/worker/analysis.worker.types';
+import { HashResult } from '@/types/worker/hash.worker.types';
+import { ProgressPayload } from '@/types/worker/common.worker.types';
 import mitt, { Emitter } from 'mitt';
 
-// 워커와 주고받을 이벤트 타입 정의
-export type WorkerEvents = {
-  // 진행률 이벤트 (구독용)
-  PROGRESS: {
-    id: number;
-    progress: number;
-    speed: string;
-    eta: number;
-    processedBytes: number;
+// ============================================================================
+// 이벤트 타입
+// ============================================================================
+export type WorkerEvents<T = HashResult | SearchResult | ExifResult> = {
+  PROGRESS: ProgressPayload;
+  DONE: {
+    type: string;
+    result: T;
   };
-  // WASM 로딩 상태
   WASM_READY: void;
-  // 에러
   ERROR: { code: string; message: string };
 };
 
-export class WorkerManager {
+// UUID v4 랜덤 생성 유틸
+function generateUUID(): string {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+    const r = (Math.random() * 16) | 0;
+    const v = c === 'x' ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
+
+export class WorkerManager<
+  T extends HashResult | SearchResult | ExifResult =
+    | HashResult
+    | SearchResult
+    | ExifResult,
+> {
   private worker: Worker;
   private pendingRequests = new Map<
-    number,
-    { resolve: Function; reject: Function }
+    string,
+    {
+      resolve: (value: T) => void;
+      reject: (reason: Error) => void;
+    }
   >();
-  private sequence = 0;
 
-  // 외부에서 progress 등을 구독할 수 있는 Emitter
-  public events: Emitter<WorkerEvents>;
+  public events: Emitter<WorkerEvents<T>>;
 
   constructor(worker: Worker) {
     this.worker = worker;
-    this.events = mitt<WorkerEvents>();
+    this.events = mitt<WorkerEvents<T>>();
     this.setupListener();
   }
 
   private setupListener() {
-    this.worker.onmessage = (e) => {
-      const {
-        type,
-        id,
-        result,
-        error,
-        progress,
-        speed,
-        eta,
-        processedBytes,
-        hash,
-        errorCode,
-      } = e.data;
+    this.worker.onmessage = (
+      e: MessageEvent<{
+        type: string;
+        data?: any;
+        result?: HashResult | SearchResult | ExifResult;
+        error?: string;
+        stats?: any;
+        errorCode?: string;
+      }>
+    ) => {
+      const { type, result, data, error, stats, errorCode } = e.data;
+      // ✅ ID는 stats에서만 추출
+      const id = stats?.id;
 
       switch (type) {
         case 'WASM_READY':
@@ -55,24 +70,33 @@ export class WorkerManager {
 
         case 'HASH_PROGRESS':
         case 'SEARCH_PROGRESS':
-          // 진행률은 Promise 해결이 아니라 '이벤트 방송'으로 처리
+          // ✅ stats에서만 id 추출
+          const statsId = stats?.id;
           this.events.emit('PROGRESS', {
-            id,
-            progress,
-            speed,
-            eta,
-            processedBytes,
-          });
+            id: statsId,
+            progress: stats?.progress ?? 0,
+            speed:
+              typeof stats?.speed === 'number'
+                ? `${stats.speed.toFixed(2)} MB/s`
+                : (stats?.speed ?? ''),
+            eta: stats?.eta ?? 0,
+            processedBytes: stats?.processedBytes ?? 0,
+            totalBytes: stats?.totalBytes ?? 0,
+            fileName: stats?.fileName ?? '',
+          } as ProgressPayload);
           break;
 
         case 'HASH_RESULT':
-          // result 필드를 resolve
           const hashReq =
             this.pendingRequests.get(id) || this.getFirstPendingRequest();
           if (hashReq) {
-            hashReq.resolve(result);
-            if (id) this.pendingRequests.delete(id);
+            hashReq.resolve({ data, stats } as any);
+            this.pendingRequests.delete(id);
           }
+          this.events.emit('DONE', {
+            type: 'HASH_RESULT',
+            result: { data, stats } as any,
+          });
           break;
 
         case 'SEARCH_RESULT_HEX':
@@ -81,9 +105,13 @@ export class WorkerManager {
           const req =
             this.pendingRequests.get(id) || this.getFirstPendingRequest();
           if (req) {
-            req.resolve(result);
-            if (id) this.pendingRequests.delete(id);
+            req.resolve({ data, stats } as any);
+            this.pendingRequests.delete(id);
           }
+          this.events.emit('DONE', {
+            type,
+            result: { data, stats } as any,
+          });
           break;
 
         case 'HASH_ERROR':
@@ -94,7 +122,7 @@ export class WorkerManager {
             this.pendingRequests.get(id) || this.getFirstPendingRequest();
           if (errReq) {
             errReq.reject(new Error(error || errorCode));
-            if (id) this.pendingRequests.delete(id);
+            this.pendingRequests.delete(id);
           } else {
             // 요청 ID가 없는 전역 에러는 이벤트로 전파
             this.events.emit('ERROR', {
@@ -122,12 +150,28 @@ export class WorkerManager {
     return null;
   }
 
-  // ✅ 사용자가 호출할 메서드: Promise를 반환하여 await 가능하게 함
-  public execute(type: string, payload: any): Promise<any> {
-    const id = ++this.sequence;
+  // Overload signatures for type inference
+  public execute(
+    type: 'PROCESS_HASH',
+    payload: Record<string, any>
+  ): Promise<HashResult>;
+  public execute(
+    type: 'PROCESS_EXIF',
+    payload: Record<string, any>
+  ): Promise<ExifResult>;
+  public execute(
+    type: 'SEARCH_HEX' | 'SEARCH_ASCII',
+    payload: Record<string, any>
+  ): Promise<SearchResult>;
+
+  // Implementation
+  public execute(
+    type: string,
+    payload: Record<string, any>
+  ): Promise<HashResult | SearchResult | ExifResult> {
+    const id = generateUUID();
     return new Promise((resolve, reject) => {
       this.pendingRequests.set(id, { resolve, reject });
-      // payload에 id와 type을 섞어서 전송
       this.worker.postMessage({ type, id, ...payload });
     });
   }

@@ -7,36 +7,30 @@ import React, {
   useCallback,
   useMemo,
   useRef,
+  useEffect,
 } from 'react';
-import {
-  MessageCode,
-  useMessageTemplate,
-  isValidMessageCode,
-} from '@/constants/messages';
+import { useTranslations } from 'next-intl';
+import eventBus from '@/types/eventBus';
+import { getToastDefaults } from '@/utils/toastDefaults';
+import type { WorkerStats } from '@/types/worker';
 
 export type MessageType = 'info' | 'success' | 'warning' | 'error';
 
 export interface MessageItem {
   id: string;
+  code?: string;
   title?: string;
   message: React.ReactNode;
   type: MessageType;
   timestamp: number;
   read: boolean;
-}
-
-interface MessageOptions {
-  title?: string;
-  message: React.ReactNode;
-  type?: MessageType;
-  duration?: number;
-  onClose?: () => void;
+  stats?: WorkerStats;
 }
 
 const MAX_TOAST_COUNT = 3;
 
 interface MessageContextType {
-  showMessage: (code: MessageCode | string, customMessage?: string) => void;
+  showMessage: (code: string, message?: string, stats?: WorkerStats) => void;
   hideMessage: (id: string, removeFromHistory?: boolean) => void;
   currentMessages: MessageItem[];
   messageHistory: MessageItem[];
@@ -54,7 +48,7 @@ export const MessageProvider: React.FC<{ children: React.ReactNode }> = ({
   const [currentMessages, setCurrentMessages] = useState<MessageItem[]>([]);
   const [messageHistory, setMessageHistory] = useState<MessageItem[]>([]);
   const timeoutsRef = useRef<Map<string, NodeJS.Timeout>>(new Map());
-  const getMessage = useMessageTemplate();
+  const t = useTranslations();
 
   const hideMessage = useCallback(
     (id: string, removeFromHistory: boolean = false) => {
@@ -72,20 +66,37 @@ export const MessageProvider: React.FC<{ children: React.ReactNode }> = ({
     []
   );
 
-  const onMessage = useCallback(
-    (options: MessageOptions | string) => {
-      const opts: MessageOptions =
-        typeof options === 'string'
-          ? { message: options, type: 'info', duration: 6000 }
-          : { duration: 6000, type: 'info', ...options };
+  const showMessage = useCallback(
+    (code: string, message?: string, stats?: WorkerStats) => {
+      // locale에서 title/msg 직접 로드
+      const titleKey = `messages.${code}.title`;
+      const messageKey = `messages.${code}.message`;
+
+      let title = '';
+      let msg: React.ReactNode = message || '';
+
+      try {
+        title = t(titleKey);
+        if (!message) {
+          msg = t(messageKey);
+        }
+      } catch (e) {
+        title = code;
+        msg = message || 'An error occurred';
+      }
+
+      // code별 타입과 duration 가져오기
+      const { type, duration } = getToastDefaults(code);
 
       const newMessage: MessageItem = {
         id: crypto.randomUUID(),
-        title: opts.title,
-        message: opts.message,
-        type: opts.type!,
+        code,
+        title,
+        message: msg,
+        type,
         timestamp: Date.now(),
         read: false,
+        stats,
       };
 
       setCurrentMessages((prev) => {
@@ -101,29 +112,24 @@ export const MessageProvider: React.FC<{ children: React.ReactNode }> = ({
 
       setMessageHistory((prev) => [newMessage, ...prev.slice(0, 99)]);
 
-      if (opts.duration && opts.duration > 0) {
+      if (duration > 0) {
         const timeoutId = setTimeout(() => {
           hideMessage(newMessage.id, false);
-        }, opts.duration);
+        }, duration);
         timeoutsRef.current.set(newMessage.id, timeoutId);
       }
     },
-    [hideMessage]
+    [t, hideMessage]
   );
 
-  const showMessage = useCallback(
-    (code: MessageCode | string, customMessage?: string) => {
-      if (!isValidMessageCode(code)) {
-        console.warn('[MessageContext] Invalid error code:', code);
-        const template = getMessage('UNKNOWN_ERROR', customMessage || code);
-        onMessage(template);
-        return;
-      }
-      const template = getMessage(code, customMessage);
-      onMessage(template);
-    },
-    [onMessage]
-  );
+  // Subscribe to eventBus for toast events
+  useEffect(() => {
+    const handler = (payload: any) => {
+      showMessage(payload.code, payload.message, payload.stats);
+    };
+    eventBus.on('toast', handler);
+    return () => eventBus.off('toast', handler);
+  }, [showMessage]);
 
   const clearHistory = useCallback(() => {
     setMessageHistory([]);

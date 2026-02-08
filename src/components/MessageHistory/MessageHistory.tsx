@@ -2,11 +2,9 @@
 
 import React, { useState, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
-import {
-  useMessage,
-  MessageItem,
-} from '@/contexts/MessageContext/MessageContext';
+import { useMessage } from '@/contexts/MessageContext/MessageContext';
 import Tooltip from '@/components/common/Tooltip/Tooltip';
+import { formatBytes, formatSpeed, formatTime } from '@/utils/formatters';
 import {
   HistoryButton,
   HistoryBadge,
@@ -49,7 +47,7 @@ const ICON_MAP = {
 };
 
 const MessageHistory: React.FC = () => {
-  const t = useTranslations();
+  const t = useTranslations('messages');
   const [isOpen, setIsOpen] = useState(false);
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
   const {
@@ -73,18 +71,6 @@ const MessageHistory: React.FC = () => {
       return next;
     });
     markAsRead(id);
-  }, []);
-
-  const getIcon = useCallback((type: MessageItem['type']) => {
-    const Icon = ICON_MAP[type] || InfoIcon;
-    return <Icon width={14} height={14} />;
-  }, []);
-
-  const getMessagePreview = useCallback((message: React.ReactNode) => {
-    if (typeof message === 'string') {
-      return message.split('\n')[0];
-    }
-    return '';
   }, []);
 
   return (
@@ -121,6 +107,8 @@ const MessageHistory: React.FC = () => {
           ) : (
             messageHistory.map((msg) => {
               const isExpanded = expandedItems.has(msg.id);
+              const { stats } = msg;
+
               return (
                 <HistoryItem
                   key={msg.id}
@@ -130,7 +118,10 @@ const MessageHistory: React.FC = () => {
                 >
                   <HistoryItemHeader onClick={() => toggleExpand(msg.id)}>
                     <HistoryItemIcon $type={msg.type}>
-                      {getIcon(msg.type)}
+                      {(() => {
+                        const Icon = ICON_MAP[msg.type] || InfoIcon;
+                        return <Icon width={14} height={14} />;
+                      })()}
                     </HistoryItemIcon>
                     {msg.title && (
                       <HistoryItemTitle>{msg.title}</HistoryItemTitle>
@@ -150,7 +141,25 @@ const MessageHistory: React.FC = () => {
                   </HistoryItemHeader>
                   {isExpanded ? (
                     <HistoryItemBody>
-                      <HistoryItemMessage>{msg.message}</HistoryItemMessage>
+                      <HistoryItemMessage>
+                        {msg.message}
+                        {stats?.fileName && (
+                          <>
+                            <br />
+                            <span
+                              style={{ fontSize: '0.75rem', opacity: 0.85 }}
+                            >
+                              {t('stats.fileName')}: {stats.fileName} •{' '}
+                              {t('stats.duration')}:{' '}
+                              {formatTime(stats.durationSec * 1000)} •{' '}
+                              {t('stats.speed')}: {formatSpeed(stats.speed)} •{' '}
+                              {t('stats.progress')}:{' '}
+                              {formatBytes(stats.processedBytes)} /{' '}
+                              {formatBytes(stats.totalBytes)}
+                            </span>
+                          </>
+                        )}
+                      </HistoryItemMessage>
                       <HistoryItemTime>
                         {getDate(msg.timestamp)}
                       </HistoryItemTime>
@@ -158,7 +167,11 @@ const MessageHistory: React.FC = () => {
                   ) : (
                     <HistoryItemBody>
                       <HistoryItemMessagePreview>
-                        {getMessagePreview(msg.message)}
+                        {stats?.fileName
+                          ? `${t('stats.fileName')}: ${stats.fileName} • ${t('stats.duration')}: ${formatTime(stats.durationSec * 1000)} • ${t('stats.speed')}: ${formatSpeed(stats.speed)} • ${t('stats.progress')}: ${formatBytes(stats.processedBytes)} / ${formatBytes(stats.totalBytes)}`
+                          : typeof msg.message === 'string'
+                            ? msg.message.split('\n')[0]
+                            : ''}
                       </HistoryItemMessagePreview>
                     </HistoryItemBody>
                   )}

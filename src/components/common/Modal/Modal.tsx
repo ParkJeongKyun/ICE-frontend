@@ -114,7 +114,7 @@ const Modal: React.FC<ModalProps> = ({ top = '50%', left = '50%' }) => {
       <ModalContent $top={top} $left={left} onClick={handleContentClick}>
         <ModalHeader>
           <ModalTitle>{title}</ModalTitle>
-          <Tooltip text={t('notifications.close')}>
+          <Tooltip text={t('common.close')}>
             <CloseBtn onClick={() => setIsOpen(false)}>
               <XIcon width={14} height={14} />
             </CloseBtn>

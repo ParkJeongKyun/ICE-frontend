@@ -27,7 +27,6 @@ import {
   IceMobileTabPanel,
 } from './MainLayout.styles';
 import MenuBtnZone from '@/components/MenuBtnZone/MenuBtnZone';
-import HashCalculator from '@/components/Hash/HashCalculator';
 import TabWindow from '@/components/TabWindow/TabWindow';
 import Modal from '@/components/common/Modal/Modal';
 
@@ -50,7 +49,7 @@ import LanguageSwitcher from '@/components/common/LanguageSwitcher/LanguageSwitc
 import InfoPanel from './SidePanels/InfoPanel';
 import ToolsPanel from './SidePanels/ToolsPanel';
 import { useIsMobile } from '@/hooks/useIsMobile';
-import eventBus from '@/utils/eventBus';
+import eventBus from '@/types/eventBus';
 
 const MIN_SIDER_WIDTH = 100;
 
@@ -147,7 +146,6 @@ const MainLayout: React.FC = () => {
         <IceHeaderLeftSider $isMobile={isMobileView}>
           <Logo showText />
           <MenuBtnZone />
-          <HashCalculator />
           {!isMobileView && <LanguageSwitcher />}
         </IceHeaderLeftSider>
         <OffsetNavigator />

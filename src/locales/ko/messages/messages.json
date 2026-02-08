@@ -1,4 +1,12 @@
 {
+  "notifications": {
+    "title": "알림",
+    "clearAll": "모두 지우기",
+    "close": "닫기",
+    "noNotifications": "알림이 없습니다",
+    "delete": "삭제",
+    "back": "뒤로가기"
+  },
   "WORKER_NOT_INITIALIZED": {
     "title": "워커 오류",
     "message": "워커가 초기화되지 않았습니다.\n페이지를 새로고침해주세요."
@@ -59,9 +67,17 @@
     "title": "EXIF 처리 시간 초과",
     "message": "EXIF 데이터 처리 시간이 초과되었습니다.\n다시 시도해주세요."
   },
+  "EXIF_SUCCESS": {
+    "title": "EXIF 처리 완료",
+    "message": "EXIF 데이터 처리가 완료되었습니다."
+  },
   "SEARCH_FAILED": {
     "title": "검색 실패",
     "message": "검색 중 오류가 발생했습니다."
+  },
+  "HASH_CALCULATION_SUCCESS": {
+    "title": "해시 계산 완료",
+    "message": "해시 계산이 완료되었습니다."
   },
   "SEARCH_TIMEOUT": {
     "title": "검색 시간 초과",
@@ -76,8 +92,7 @@
     "message": "검색 결과가 없습니다."
   },
   "SEARCH_SUCCESS": {
-    "title": "검색 완료",
-    "message": "검색이 완료되었습니다."
+    "title": "검색 완료"
   },
   "SEARCH_NO_INPUT": {
     "title": "입력 값 없음",
@@ -130,5 +145,11 @@
   "IP_COPIED": {
     "title": "IP 복사 완료",
     "message": "IP 주소를 클립보드에 복사했습니다."
+  },
+  "stats": {
+    "fileName": "파일명",
+    "duration": "소요시간",
+    "speed": "속도",
+    "progress": "스캔됨"
   }
 }

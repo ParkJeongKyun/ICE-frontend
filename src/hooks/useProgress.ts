@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { WorkerManager } from '@/utils/WorkerManager';
+import type { ProgressPayload } from '@/types/worker';
 
 export interface ProgressState {
   progress: number;
@@ -17,7 +18,7 @@ export const useProgress = (manager: WorkerManager | null) => {
 
   useEffect(() => {
     if (!manager) return;
-    const handler = (data: any) => {
+    const handler = (data: ProgressPayload) => {
       setState({
         progress: data.progress ?? 0,
         speed: data.speed ?? '0',

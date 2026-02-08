@@ -29,7 +29,7 @@ import ChevronRightIcon from '@/components/common/Icons/ChevronRightIcon';
 import SearchIcon from '@/components/common/Icons/SearchIcon';
 import { useTab } from '@/contexts/TabDataContext/TabDataContext';
 import { useRefs } from '@/contexts/RefContext/RefContext';
-import { useMessage } from '@/contexts/MessageContext/MessageContext';
+import eventBus from '@/types/eventBus';
 import { useSearch } from './hooks/useSearch';
 import Tooltip from '@/components/common/Tooltip/Tooltip';
 import type {
@@ -118,7 +118,6 @@ const Searcher: React.FC = () => {
   const t = useTranslations();
   const { hexViewerRef, setSearcherRef } = useRefs();
   const { activeKey } = useTab();
-  const { showMessage } = useMessage();
   const [searchResults, dispatch] = useReducer(reducer, initialState);
   const [searchType, setSearchType] = useState<SearchType>('hex');
   const [inputValue, setInputValue] = useState('');
@@ -137,7 +136,7 @@ const Searcher: React.FC = () => {
   const findByOffsetLocal = React.useCallback(
     async (offset: string, length: number = 1, shouldScroll = true) => {
       if (!offset.trim()) {
-        showMessage('SEARCH_NO_INPUT');
+        eventBus.emit('toast', { code: 'SEARCH_NO_INPUT' });
         return null;
       }
 
@@ -146,9 +145,9 @@ const Searcher: React.FC = () => {
       if (result === null) {
         const byteOffset = parseInt(offset, 16);
         if (isNaN(byteOffset)) {
-          showMessage('SEARCH_INVALID_HEX');
+          eventBus.emit('toast', { code: 'SEARCH_INVALID_HEX' });
         } else {
-          showMessage('SEARCH_OFFSET_OUT_OF_RANGE');
+          eventBus.emit('toast', { code: 'SEARCH_OFFSET_OUT_OF_RANGE' });
         }
         return null;
       }
@@ -158,7 +157,7 @@ const Searcher: React.FC = () => {
       }
       return result;
     },
-    [findByOffset, showMessage, hexViewerRef]
+    [findByOffset, hexViewerRef]
   );
 
   const getCacheKey = useCallback(
@@ -191,13 +190,16 @@ const Searcher: React.FC = () => {
           tabKey: activeKey,
         });
 
+        // 캐시 HIT 시에만 토스트 (WorkerContext에서는 이미 처리되었음)
         if (cachedResults.length > 0) {
-          showMessage(
-            'SEARCH_SUCCESS',
-            t('searcher.success', { count: cachedResults.length })
-          );
+          eventBus.emit('toast', {
+            code: 'SEARCH_SUCCESS',
+            message: t('searcher.success', {
+              count: cachedResults.length,
+            }),
+          });
         } else {
-          showMessage('SEARCH_NO_RESULTS');
+          eventBus.emit('toast', { code: 'SEARCH_NO_RESULTS' });
         }
 
         if (shouldScroll && cachedResults.length > 0 && hexViewerRef.current) {
@@ -213,12 +215,15 @@ const Searcher: React.FC = () => {
         console.log('[Searcher] 캐시 MISS:', cacheKey);
       }
 
-      let results: IndexInfo[] = [];
+      // 캐시 MISS: 컴포넌트에서 결과 처리 및 토스트 emit
+      let searchResult = null;
       if (type === 'hex') {
-        results = (await findAllByHex(inputValue)) || [];
+        searchResult = await findAllByHex(inputValue);
       } else if (type === 'ascii') {
-        results = (await findAllByAsciiText(inputValue, ignoreCase)) || [];
+        searchResult = await findAllByAsciiText(inputValue, ignoreCase);
       }
+
+      const results = searchResult?.data.indices || [];
 
       if (searchTabKeyRef.current === activeKey) {
         dispatch({
@@ -236,6 +241,22 @@ const Searcher: React.FC = () => {
           results,
         });
 
+        // 캐시 MISS 검색 결과 토스트 (stats 포함)
+        if (results.length > 0 && searchResult) {
+          eventBus.emit('toast', {
+            code: 'SEARCH_SUCCESS',
+            message: t('searcher.success', {
+              count: results.length,
+            }),
+            stats: searchResult.stats,
+          });
+        } else {
+          eventBus.emit('toast', {
+            code: 'SEARCH_NO_RESULTS',
+            stats: searchResult?.stats,
+          });
+        }
+
         if (shouldScroll && results.length > 0 && hexViewerRef.current) {
           hexViewerRef.current.scrollToIndex(
             results[0].index,
@@ -251,7 +272,6 @@ const Searcher: React.FC = () => {
       searchResults.__cache__,
       findAllByHex,
       findAllByAsciiText,
-      showMessage,
       hexViewerRef,
     ]
   );

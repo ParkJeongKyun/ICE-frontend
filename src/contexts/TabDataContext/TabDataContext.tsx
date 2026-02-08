@@ -111,8 +111,6 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
   const [tabOrder, setTabOrder] = useState<TabKey[]>([]);
   const [addressCache, setAddressCache] = useState<AddressCache>({});
 
-  const { deleteWorkerCache } = useWorker();
-
   const setEncoding = useCallback((newEncoding: EncodingType) => {
     setEncodingState(newEncoding);
   }, []);
@@ -155,31 +153,26 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
     });
   }, []);
 
-  const deleteTab = useCallback(
-    (key: TabKey) => {
-      deleteWorkerCache(key);
+  const deleteTab = useCallback((key: TabKey) => {
+    // revoke and remove
+    setTabData((prev) => {
+      revokeUrlsForTab(prev[key]);
+      const { [key]: _, ...rest } = prev;
+      return rest;
+    });
 
-      // revoke and remove
-      setTabData((prev) => {
-        revokeUrlsForTab(prev[key]);
-        const { [key]: _, ...rest } = prev;
-        return rest;
-      });
+    setScrollPositions((prev) => {
+      const { [key]: _, ...rest } = prev;
+      return rest;
+    });
 
-      setScrollPositions((prev) => {
-        const { [key]: _, ...rest } = prev;
-        return rest;
-      });
+    setSelectionStates((prev) => {
+      const { [key]: _, ...rest } = prev;
+      return rest;
+    });
 
-      setSelectionStates((prev) => {
-        const { [key]: _, ...rest } = prev;
-        return rest;
-      });
-
-      setTabOrder((prev) => prev.filter((k) => k !== key));
-    },
-    [deleteWorkerCache]
-  );
+    setTabOrder((prev) => prev.filter((k) => k !== key));
+  }, []);
 
   useEffect(() => {
     const currentKeys = Object.keys(tabData);

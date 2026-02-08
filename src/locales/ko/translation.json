@@ -1,6 +1,10 @@
 {
   "common": {
-    "noData": "데이터 없음"
+    "noData": "데이터 없음",
+    "copy": "복사",
+    "close": "닫기",
+    "delete": "삭제",
+    "back": "뒤로가기"
   },
   "welcome": "ICE에 오신 것을 환영합니다!",
   "description": "웹 기반 헥스 뷰어 및 이미지 메타데이터(EXIF) 분석 도구입니다.",
@@ -25,7 +29,6 @@
     "about": "정보",
     "linknote": "링크노트",
     "showIp": "내 IP 보기",
-    "calculateHash": "해시 계산",
     "fileProcessing": "파일 처리 중입니다"
   },
   "ipInfo": {
@@ -56,14 +59,6 @@
     "decPlaceholder": "오프셋 (10진수)",
     "octPlaceholder": "오프셋 (8진수)",
     "navigateTooltip": "오프셋으로 이동"
-  },
-  "notifications": {
-    "title": "알림",
-    "clearAll": "모두 지우기",
-    "close": "닫기",
-    "noNotifications": "알림이 없습니다",
-    "delete": "삭제",
-    "back": "뒤로가기"
   },
   "dataInspector": {
     "title": "데이터 검사",
@@ -162,5 +157,9 @@
     "allTags": "모든 태그",
     "noTags": "태그가 없습니다",
     "noIfdSelected": "선택된 IFD가 없습니다"
+  },
+  "calculateHash": {
+    "title": "해시 계산",
+    "calculating": "계산중..."
   }
 }

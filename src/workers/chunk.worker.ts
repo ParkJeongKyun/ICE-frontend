@@ -1,20 +1,10 @@
 /// <reference lib="webworker" />
 
-import { CHUNK_SIZE } from '@/constants/hexViewer';
+import { ChunkWorkerRequest } from '@/types/worker/chunk.worker.types';
 
 declare const self: DedicatedWorkerGlobalScope;
 
-const syncReader = new FileReaderSync();
-
-interface ChunkRequest {
-  file: File;
-  offset: number;
-  length: number;
-  priority: number;
-}
-
-const queue: ChunkRequest[] = [];
-let processing = false;
+const queue: ChunkWorkerRequest[] = [];
 const MAX_CONCURRENT = 4;
 let activeRequests = 0;
 
@@ -31,7 +21,7 @@ function processQueue() {
   }
 }
 
-async function processChunk(request: ChunkRequest) {
+async function processChunk(request: ChunkWorkerRequest) {
   try {
     const { file, offset, length } = request;
     const blob = file.slice(offset, offset + length);
@@ -74,17 +64,11 @@ self.addEventListener('unhandledrejection', (event) => {
 });
 
 // Message 핸들러
-self.addEventListener('message', (e) => {
+self.addEventListener('message', (e: MessageEvent<ChunkWorkerRequest>) => {
   const { type, file, offset, length, priority } = e.data;
 
-  switch (type) {
-    case 'READ_CHUNK':
-      queue.push({ file, offset, length, priority });
-      processQueue();
-      break;
-
-    case 'CLEAR_QUEUE':
-      queue.length = 0;
-      break;
+  if (type === 'READ_CHUNK') {
+    queue.push({ type, file, offset, length, priority });
+    processQueue();
   }
 });

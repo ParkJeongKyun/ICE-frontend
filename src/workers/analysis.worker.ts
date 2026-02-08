@@ -1,11 +1,10 @@
 /// <reference lib="webworker" />
-
-import type {
-  WorkerMessage,
+import {
+  AnalysisWorkerRequest,
   SearchOptions,
-  WasmSearchFunction,
   WasmExifFunction,
-} from '../types/fileReader.worker';
+  WasmSearchFunction,
+} from '@/types/worker/analysis.worker.types';
 
 declare const self: DedicatedWorkerGlobalScope;
 
@@ -19,10 +18,36 @@ let totalReadBytes = 0;
 
 // ✅ 진행률 추적 변수
 let currentFileSize = 0;
-let currentRequestId: number | undefined;
-let currentSearchRequestId: number | undefined; // user-provided searchId (search request identifier)
+let currentFileName = '';
+let currentRequestId: string | undefined;
 let lastProgressReportBytes = 0;
 const PROGRESS_REPORT_INTERVAL = 4 * 1024 * 1024; // 4MB마다 진행률 전송
+
+/**
+ * WorkerStats 생성 헬퍼 함수 - 중복 코드 최소화
+ */
+function createStats(
+  id: string,
+  duration: number,
+  bytesRead: number,
+  totalBytes: number,
+  fileName: string,
+  progress?: number,
+  eta?: number
+) {
+  const speedMBps = bytesRead ? bytesRead / 1024 / 1024 / (duration / 1000) : 0;
+  return {
+    id,
+    ...(progress !== undefined && { progress }),
+    ...(eta !== undefined && { eta }),
+    speed: speedMBps, // ✅ 숫자값만
+    durationMs: duration,
+    durationSec: duration / 1000,
+    processedBytes: bytesRead,
+    totalBytes,
+    fileName,
+  };
+}
 
 /**
  * Go WASM에서 호출할 전역 동기 함수
@@ -46,30 +71,30 @@ const PROGRESS_REPORT_INTERVAL = 4 * 1024 * 1024; // 4MB마다 진행률 전송
     if (currentFileSize > 0 && currentRequestId !== undefined) {
       const bytesProcessed = totalReadBytes - lastProgressReportBytes;
       if (bytesProcessed >= PROGRESS_REPORT_INTERVAL) {
+        const duration = performance.now();
         const progress = Math.min(
           100,
           Math.round((totalReadBytes / currentFileSize) * 100)
         );
-        const duration = performance.now() / 1000; // 대략적인 경과 시간
-        const speed = (totalReadBytes / 1024 / 1024 / duration).toFixed(2);
+        const speed = totalReadBytes / 1024 / 1024 / (duration / 1000);
         const eta =
           totalReadBytes < currentFileSize
             ? Math.round(
-                (currentFileSize - totalReadBytes) /
-                  1024 /
-                  1024 /
-                  parseFloat(speed)
+                (currentFileSize - totalReadBytes) / 1024 / 1024 / speed
               )
             : 0;
 
         self.postMessage({
           type: 'SEARCH_PROGRESS',
-          id: currentRequestId,
-          searchId: currentSearchRequestId,
-          progress,
-          speed: `${speed} MB/s`,
-          eta,
-          processedBytes: totalReadBytes,
+          stats: createStats(
+            currentRequestId,
+            duration,
+            totalReadBytes,
+            currentFileSize,
+            currentFileName,
+            progress,
+            eta
+          ),
         });
 
         lastProgressReportBytes = totalReadBytes;
@@ -104,11 +129,8 @@ self.addEventListener('unhandledrejection', (event) => {
   });
 });
 
-// ✅ 동시 처리 제한
-const MAX_CONCURRENT = 8;
-let processingCount = 0;
-let cancelSearch = false;
-let cancelledSearchIds = new Set<number>();
+// ✅ 동시 처리 제한 (요청 ID 기반)
+let cancelledRequestIds = new Set<string>();
 
 // WASM 관련 변수
 let wasmReady = false;
@@ -154,7 +176,7 @@ async function initWasm() {
       throw new Error('Go class not found after loading wasm_exec.js');
     }
 
-    const go = new (self as any).Go();
+    const go = new ((self as any).Go as typeof Go)();
     goInstance = go;
 
     if (!wasmPath) {
@@ -172,7 +194,7 @@ async function initWasm() {
 
     const result = await WebAssembly.instantiateStreaming(
       Promise.resolve(response),
-      go.importObject
+      go.importObject as any
     );
 
     const wasmReadyPromise = new Promise<void>((resolve) => {
@@ -193,11 +215,6 @@ async function initWasm() {
     wasmExifFunc = (self as any).exifFunc;
 
     if (!wasmSearchFunc || !wasmExifFunc) {
-      // 함수가 없으면 전역 스코프의 모든 함수를 나열
-      const allFuncs = Object.entries(self as any)
-        .filter(([k, v]) => typeof v === 'function')
-        .map(([k]) => k);
-      console.error('[Worker] Available functions:', allFuncs);
       throw new Error('WASM functions not registered');
     }
 
@@ -221,34 +238,26 @@ async function initWasm() {
   }
 }
 
-self.addEventListener('message', (e: MessageEvent<WorkerMessage>) => {
+self.addEventListener('message', (e: MessageEvent<AnalysisWorkerRequest>) => {
   const {
     type,
-    id, // ✅ WorkerManager에서 보내는 id를 받음
+    id = '', // ✅ WorkerManager에서 보내는 id를 받음 (기본값 '')
     file,
-    offset,
-    length,
-    priority = offset,
     pattern,
     ignoreCase,
-    searchId,
-    hashId,
   } = e.data;
 
   if (process.env.NODE_ENV === 'development') {
     console.log('[Worker] Message received:', type, {
       id,
       hasFile: !!file,
-      fileSize: (file as any)?.size,
+      fileSize: file?.size,
     });
   }
 
   switch (type) {
     case 'CANCEL_SEARCH':
-      cancelSearch = true;
-      if (searchId !== undefined) {
-        cancelledSearchIds.add(searchId);
-      }
+      cancelledRequestIds.add(id);
       break;
 
     case 'RELOAD_WASM':
@@ -260,30 +269,26 @@ self.addEventListener('message', (e: MessageEvent<WorkerMessage>) => {
 
     case 'SEARCH_HEX':
     case 'SEARCH_ASCII':
-      cancelSearch = false;
-      if (searchId !== undefined) {
-        cancelledSearchIds.forEach((id) => {
-          if (id < searchId - 10) {
-            cancelledSearchIds.delete(id);
-          }
-        });
+      // 이전 요청 취소 정보는 새 요청 시 유지 (필요시 명시적으로 cancel 호출)
+      if (file && pattern) {
+        searchInFile(
+          id,
+          file,
+          pattern,
+          type === 'SEARCH_HEX' ? 'HEX' : 'ASCII',
+          ignoreCase
+        );
       }
-      searchInFile(
-        id, // ✅ WorkerManager의 id 전달
-        file,
-        pattern,
-        type === 'SEARCH_HEX' ? 'HEX' : 'ASCII',
-        ignoreCase,
-        searchId
-      );
       break;
 
     case 'PROCESS_EXIF':
-      processExif(id, file);
+      if (file) {
+        processExif(id, file);
+      }
       break;
   }
 });
-async function processExif(id: number, file: File) {
+async function processExif(id: string, file: File) {
   // ✅ 진행률 추적 초기화
   currentFileSize = file.size;
   currentRequestId = id;
@@ -342,21 +347,28 @@ async function processExif(id: number, file: File) {
     if (result.error) {
       self.postMessage({
         type: 'EXIF_ERROR',
-        id, // ✅ id 포함
+        stats: {
+          id,
+        },
         errorCode: 'EXIF_PARSE_ERROR',
         error: result.error,
       });
     } else {
       self.postMessage({
         type: 'EXIF_RESULT',
-        id, // ✅ id 포함
-        result,
+        stats: createStats(id, duration, bytesRead, currentFileSize, file.name),
+        data: {
+          hasExif: result.hasExif,
+          mimeType: result.mimeType,
+          extension: result.extension,
+          exifData: result.exifData,
+        },
       });
     }
   } catch (error) {
     self.postMessage({
       type: 'EXIF_ERROR',
-      id, // ✅ id 포함
+      id,
       errorCode: 'EXIF_ERROR',
       error: (error as Error).message,
     });
@@ -365,20 +377,22 @@ async function processExif(id: number, file: File) {
 
 // WASM 기반 검색 (스트리밍)
 async function searchInFile(
-  id: number,
+  id: string,
   file: File,
-  pattern: Uint8Array,
+  pattern: string,
   type: 'HEX' | 'ASCII',
-  ignoreCase: boolean = false,
-  searchId?: number
+  ignoreCase: boolean = false
 ) {
   // ✅ 진행률 추적 초기화
   currentFileSize = file.size;
+  currentFileName = file.name;
   currentRequestId = id;
-  currentSearchRequestId = searchId;
   lastProgressReportBytes = 0;
   totalReadBytes = 0;
   totalReadCount = 0;
+
+  // pattern을 Uint8Array로 변환
+  const patternBytes = new TextEncoder().encode(pattern);
 
   // ✅ WASM 준비 대기 로직 통일
   const startTime = Date.now();
@@ -391,8 +405,16 @@ async function searchInFile(
   if (!wasmReady || !wasmSearchFunc) {
     self.postMessage({
       type: type === 'HEX' ? 'SEARCH_RESULT_HEX' : 'SEARCH_RESULT_ASCII',
-      results: null,
-      searchId,
+      id,
+      indices: null,
+      stats: {
+        id,
+        durationMs: 0,
+        durationSec: 0,
+        processedBytes: 0,
+        totalBytes: 0,
+        fileName: currentFileName,
+      },
       errorCode: 'WASM_NOT_READY',
       error: 'WASM module not ready',
     });
@@ -413,7 +435,7 @@ async function searchInFile(
     };
 
     // --- WASM 실행 (핵심 작업) ---
-    const result = wasmSearchFunc(file, pattern, searchOptions);
+    const result = wasmSearchFunc(file, patternBytes, searchOptions);
     // -------------------------
 
     // 📊 [측정 종료] 차이값 계산
@@ -444,8 +466,16 @@ async function searchInFile(
     if (result.error) {
       self.postMessage({
         type: type === 'HEX' ? 'SEARCH_RESULT_HEX' : 'SEARCH_RESULT_ASCII',
-        results: null,
-        searchId,
+        id,
+        indices: null,
+        stats: {
+          id,
+          durationMs: duration,
+          durationSec: duration / 1000,
+          processedBytes: bytesRead,
+          totalBytes: currentFileSize,
+          fileName: file.name,
+        },
         errorCode: 'SEARCH_WASM_ERROR',
         error: result.error,
       });
@@ -457,21 +487,20 @@ async function searchInFile(
       offset: pattern.length,
     }));
 
-    if (searchId === undefined || !cancelledSearchIds.has(searchId)) {
+    if (!cancelledRequestIds.has(id)) {
       if (process.env.NODE_ENV === 'development') {
         console.log('[SEARCH] Sending result:', {
           type: type === 'HEX' ? 'SEARCH_RESULT_HEX' : 'SEARCH_RESULT_ASCII',
           id,
           resultsLength: results.length,
-          searchId,
         });
       }
       self.postMessage({
         type: type === 'HEX' ? 'SEARCH_RESULT_HEX' : 'SEARCH_RESULT_ASCII',
-        id, // ✅ WorkerManager의 id를 응답에 포함
-        result: { indices: results },
-        searchId,
-        usedWasm: true,
+        stats: createStats(id, duration, bytesRead, currentFileSize, file.name),
+        data: {
+          indices: results,
+        },
       });
     } else {
       if (process.env.NODE_ENV === 'development') {
@@ -481,13 +510,11 @@ async function searchInFile(
   } catch (error) {
     self.postMessage({
       type: type === 'HEX' ? 'SEARCH_RESULT_HEX' : 'SEARCH_RESULT_ASCII',
-      id, // ✅ WorkerManager의 id를 에러 응답에도 포함
-      results: null,
-      searchId,
+      stats: {
+        id,
+      },
       errorCode: 'SEARCH_ERROR',
       error: (error as Error).message || 'Search failed',
     });
   }
 }
-
-import type {} from 'worker_threads';

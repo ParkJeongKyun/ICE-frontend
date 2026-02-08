@@ -21,7 +21,7 @@ export const useHexViewerWorker = ({
   checkCacheSize,
 }: UseHexViewerWorkerProps) => {
   const { activeKey, activeData } = useTab();
-  const { chunkWorker, setWorkerCache } = useWorker();
+  const { chunkWorker } = useWorker();
 
   const file = activeData?.file;
   const fileSize = file?.size || 0;
@@ -96,16 +96,6 @@ export const useHexViewerWorker = ({
         chunkWorker.addEventListener('message', handleWorkerMessage);
         workerMessageHandlerRef.current = handleWorkerMessage;
 
-        setWorkerCache(activeKey, {
-          cache,
-          cleanup: () => {
-            chunkWorker.removeEventListener('message', handleWorkerMessage);
-            if (workerMessageHandlerRef.current === handleWorkerMessage) {
-              workerMessageHandlerRef.current = null;
-            }
-          },
-        });
-
         isInitialLoadingRef.current = false;
         onChunkLoaded();
         return;
@@ -148,16 +138,6 @@ export const useHexViewerWorker = ({
         chunkWorker.addEventListener('message', handleWorkerMessage);
         workerMessageHandlerRef.current = handleWorkerMessage;
 
-        setWorkerCache(activeKey, {
-          cache,
-          cleanup: () => {
-            chunkWorker.removeEventListener('message', handleWorkerMessage);
-            if (workerMessageHandlerRef.current === handleWorkerMessage) {
-              workerMessageHandlerRef.current = null;
-            }
-          },
-        });
-
         requestChunks(initialPosition, file, fileSize, visibleRows + 20);
 
         isInitialLoadingRef.current = false;
@@ -173,7 +153,6 @@ export const useHexViewerWorker = ({
       activeKey,
       fileSize,
       visibleRows,
-      setWorkerCache,
       requestChunks,
       onChunkLoaded,
       checkCacheSize,

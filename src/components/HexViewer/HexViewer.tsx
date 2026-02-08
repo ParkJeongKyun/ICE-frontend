@@ -16,7 +16,7 @@ import {
   useSelection,
 } from '@/contexts/TabDataContext/TabDataContext';
 import { useWorker } from '@/contexts/WorkerContext/WorkerContext';
-import { useMessage } from '@/contexts/MessageContext/MessageContext';
+import eventBus from '@/types/eventBus';
 import { useHexViewerCacheContext } from '@/contexts/HexViewerCacheContext/HexViewerCacheContext';
 
 // Components & Styles
@@ -73,8 +73,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
   const { activeData, encoding, activeKey } = useTab();
   const { scrollPositions, setScrollPositions } = useScroll();
   const { activeSelectionState } = useSelection();
-  const { chunkWorker, getWorkerCache } = useWorker();
-  const { showMessage } = useMessage();
+  const { chunkWorker } = useWorker();
   const { chunkCacheRef, requestedChunksRef, getByte, checkCacheSize } =
     useHexViewerCacheContext();
 
@@ -267,7 +266,13 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
   // Update Stable Refs
   useEffect(() => {
     fileRef.current = file;
-  }, [file]);
+
+    // 파일 변경시 캐시 초기화 (탭 전환으로 인한 데이터 혼용 방지)
+    if (file) {
+      chunkCacheRef.current.clear();
+      requestedChunksRef.current.clear();
+    }
+  }, [file, chunkCacheRef, requestedChunksRef]);
   useEffect(() => {
     chunkWorkerRef.current = chunkWorker;
   }, [chunkWorker]);
@@ -355,60 +360,32 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
     }
 
     initializedTabKeyRef.current = activeKey;
-    const existingCache = getWorkerCache(activeKey);
 
-    // [Case 2] Restore from Global Cache
-    if (existingCache && existingCache.cache.size > 0) {
-      const savedPosition = scrollPositions[activeKey] ?? 0;
+    // [Case 2] New Initialization
+    tabInitialized.current.add(activeKey);
+    isInitialLoadingRef.current = true;
+    hasValidDataRef.current = false;
 
-      requestedChunksRef.current.clear();
-      existingCache.cache.forEach((_, offset) =>
-        requestedChunksRef.current.add(offset)
-      );
+    chunkCacheRef.current = new Map();
+    requestedChunksRef.current.clear();
 
-      // Reference Swap (Fastest Restore)
-      if (chunkCacheRef.current !== existingCache.cache) {
-        chunkCacheRef.current = existingCache.cache;
-      }
+    // 저장된 스크롤 위치 복원, 없으면 0
+    const savedPosition = scrollPositions[activeKey] ?? 0;
+    firstRowRef.current = savedPosition;
 
-      firstRowRef.current = savedPosition;
-      hasValidDataRef.current = true;
-      isInitialLoadingRef.current = false;
-
-      // Force update immediately
-      handleChunkLoaded();
-
-      if (savedPosition > 0 || visibleRows > 0) {
-        requestChunks(savedPosition, file, fileSize, visibleRows + 20);
-      }
-    } else {
-      // [Case 3] New Initialization
-      tabInitialized.current.add(activeKey);
-      isInitialLoadingRef.current = true;
-      hasValidDataRef.current = false;
-
-      chunkCacheRef.current = new Map();
-      requestedChunksRef.current.clear();
-      firstRowRef.current = 0;
-
-      if (scrollPositions[activeKey] !== 0) {
-        setScrollPositions((prev) => ({ ...prev, [activeKey]: 0 }));
-      }
-
-      initializeWorker(0)
-        .then(() => {
-          isInitialLoadingRef.current = false;
-          hasValidDataRef.current = true;
-          handleChunkLoaded();
-        })
-        .catch((error) => {
-          showMessage(
-            'FILE_PROCESSING_FAILED',
-            `Worker Init Failed: ${error.message}`
-          );
+    initializeWorker(savedPosition)
+      .then(() => {
+        isInitialLoadingRef.current = false;
+        hasValidDataRef.current = true;
+        handleChunkLoaded();
+      })
+      .catch((error) => {
+        eventBus.emit('toast', {
+          code: 'FILE_PROCESSING_FAILED',
+          message: `Worker Init Failed: ${error.message}`,
         });
-    }
-  }, [activeKey, file, chunkWorker, activeData, handleChunkLoaded]); // Added handleChunkLoaded deps
+      });
+  }, [activeKey, file, chunkWorker, activeData, handleChunkLoaded]);
 
   // Sync Header & Canvas Size
   useEffect(() => {

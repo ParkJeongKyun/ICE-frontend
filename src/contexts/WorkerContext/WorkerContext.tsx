@@ -9,25 +9,22 @@ import React, {
   useState,
   useEffect,
 } from 'react';
-import { TabKey } from '@/types';
-import { WorkerManager } from '@/utils/WorkerManager';
+import { WorkerManager, type WorkerEvents } from '@/utils/WorkerManager';
+import type {
+  ProgressPayload,
+  SearchResult,
+  ExifResult,
+  HashResult,
+} from '@/types/worker';
 import { useProcess } from '@/contexts/ProcessContext/ProcessContext';
-import eventBus from '@/utils/eventBus';
-
-interface WorkerCacheData {
-  cache: Map<number, Uint8Array>;
-  cleanup: () => void;
-}
+import eventBus from '@/types/eventBus';
 
 interface WorkerContextType {
-  // ✅ Manager를 노출
-  hashManager: WorkerManager | null;
-  analysisManager: WorkerManager | null;
+  // ✅ 제네릭으로 분리된 타입
+  hashManager: WorkerManager<HashResult> | null;
+  analysisManager: WorkerManager<SearchResult | ExifResult> | null;
   chunkWorker: Worker | null;
   isWasmReady: boolean;
-  getWorkerCache: (key: TabKey) => WorkerCacheData | undefined;
-  setWorkerCache: (key: TabKey, data: WorkerCacheData) => void;
-  deleteWorkerCache: (key: TabKey) => void;
 }
 
 const WorkerContext = createContext<WorkerContextType | undefined>(undefined);
@@ -35,9 +32,10 @@ const WorkerContext = createContext<WorkerContextType | undefined>(undefined);
 export const WorkerProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const cacheRef = useRef<Map<TabKey, WorkerCacheData>>(new Map());
-  const hashManagerRef = useRef<WorkerManager | null>(null);
-  const analysisManagerRef = useRef<WorkerManager | null>(null);
+  const hashManagerRef = useRef<WorkerManager<HashResult> | null>(null);
+  const analysisManagerRef = useRef<WorkerManager<
+    SearchResult | ExifResult
+  > | null>(null);
   const chunkWorkerRef = useRef<Worker | null>(null);
   const [isWasmReady, setIsWasmReady] = useState(false);
   const { startProcessing, stopProcessing } = useProcess();
@@ -56,28 +54,116 @@ export const WorkerProvider: React.FC<{ children: React.ReactNode }> = ({
         new URL('../../workers/chunk.worker.ts', import.meta.url)
       );
 
-      // 2️⃣ 생성된 워커를 Manager에게 "주입"
-      hashManagerRef.current = new WorkerManager(hashWorker);
-      analysisManagerRef.current = new WorkerManager(analysisWorker);
+      // 2️⃣ 생성된 워커를 Manager에게 "주입" (제너릭 타입 명시)
+      hashManagerRef.current = new WorkerManager<HashResult>(hashWorker);
+      analysisManagerRef.current = new WorkerManager<SearchResult | ExifResult>(
+        analysisWorker
+      );
       chunkWorkerRef.current = chunkWorker;
 
       // ✅ WASM 초기화 시작 (Worker 생성 직후)
       analysisWorker.postMessage({ type: 'RELOAD_WASM' });
 
       // WASM 준비 이벤트 구독
-      analysisManagerRef.current.events.on('WASM_READY', () => {
+      analysisManagerRef.current!.events.on('WASM_READY', () => {
         setIsWasmReady(true);
         stopProcessing();
         eventBus.emit('toast', { code: 'WASM_LOADED_SUCCESS' });
       });
 
-      // 전체 진행률을 전역으로도 전달 (헤더/글로벌 프로그레스 바)
-      hashManagerRef.current.events.on('PROGRESS', (data: any) => {
-        eventBus.emit('progress', data);
-      });
-      analysisManagerRef.current.events.on('PROGRESS', (data: any) => {
-        eventBus.emit('progress', data);
-      });
+      // Aggregate progress (MAX strategy)
+      const progressMap = new Map<
+        string,
+        {
+          progress: number;
+          processedBytes?: number;
+          speed?: string;
+          eta?: number;
+          lastSeen: number;
+        }
+      >();
+      let rafId: number | null = null;
+
+      const emitAggregated = () => {
+        // compute max progress
+        let max = 0;
+        let bestSpeed = '0';
+        let bestEta = 0;
+        for (const v of progressMap.values()) {
+          if (v.progress > max) {
+            max = v.progress;
+            bestSpeed = v.speed ?? bestSpeed;
+            bestEta = v.eta ?? bestEta;
+          }
+        }
+        eventBus.emit('progress', {
+          progress: max,
+          speed: bestSpeed,
+          eta: bestEta,
+        });
+        rafId = null;
+      };
+
+      const scheduleEmit = () => {
+        if (rafId == null) {
+          rafId = requestAnimationFrame(emitAggregated);
+        }
+      };
+
+      const makeKey = (source: string, id?: string | null) => {
+        const k = `${source}:${id ?? 'unknown'}`;
+        return k;
+      };
+
+      // hash progress listener
+      const hashProgressHandler = (data: ProgressPayload) => {
+        const key = makeKey('hash', data.id);
+        progressMap.set(key, {
+          progress: data.progress,
+          processedBytes: data.processedBytes,
+          speed: data.speed,
+          eta: data.eta,
+          lastSeen: Date.now(),
+        });
+        scheduleEmit();
+      };
+
+      const hashDoneHandler = (done: WorkerEvents['DONE']) => {
+        const key = makeKey('hash', done.result.stats.id);
+        progressMap.delete(key);
+        scheduleEmit();
+
+        // HashCalculator에서 결과를 직접 받아서 처리하므로 토스트는 여기서 emit하지 않음
+        // 에러는 HashCalculator에서 처리함
+      };
+
+      // analysis progress listener
+      const analysisProgressHandler = (data: ProgressPayload) => {
+        const key = makeKey('analysis', data.id);
+        progressMap.set(key, {
+          progress: data.progress,
+          processedBytes: data.processedBytes,
+          speed: data.speed,
+          eta: data.eta,
+          lastSeen: Date.now(),
+        });
+        scheduleEmit();
+      };
+
+      const analysisDoneHandler = (done: WorkerEvents['DONE']) => {
+        const key = makeKey('analysis', done.result.stats.id);
+        progressMap.delete(key);
+        scheduleEmit();
+        // 결과 처리는 각 컴포넌트에서 함 (Searcher, MenuBtnZone 등)
+      };
+
+      hashManagerRef.current!.events.on('PROGRESS', hashProgressHandler);
+      hashManagerRef.current!.events.on('DONE', hashDoneHandler);
+      analysisManagerRef.current!.events.on(
+        'PROGRESS',
+        analysisProgressHandler
+      );
+      analysisManagerRef.current!.events.on('DONE', analysisDoneHandler);
 
       // 전역 에러 구독 (Toast 연결)
       const handleError = (err: { code: string; message: string }) => {
@@ -87,18 +173,18 @@ export const WorkerProvider: React.FC<{ children: React.ReactNode }> = ({
         }
         eventBus.emit('toast', {
           code: err.code,
-          customMessage: err.message,
+          message: err.message,
         });
       };
 
-      hashManagerRef.current.events.on('ERROR', handleError);
-      analysisManagerRef.current.events.on('ERROR', handleError);
+      hashManagerRef.current!.events.on('ERROR', handleError);
+      analysisManagerRef.current!.events.on('ERROR', handleError);
 
       chunkWorker.onerror = (event) => {
         console.error('[Chunk Worker] Error:', event.message);
         eventBus.emit('toast', {
           code: 'CHUNK_WORKER_ERROR',
-          customMessage: event.message,
+          message: event.message,
         });
       };
 
@@ -112,25 +198,10 @@ export const WorkerProvider: React.FC<{ children: React.ReactNode }> = ({
       stopProcessing();
       eventBus.emit('toast', {
         code: 'WORKER_INIT_FAILED',
-        customMessage: (error as Error).message,
+        message: (error as Error).message,
       });
     }
   }, [startProcessing, stopProcessing]);
-
-  const getWorkerCache = useCallback(
-    (key: TabKey) => cacheRef.current.get(key),
-    []
-  );
-
-  const setWorkerCache = useCallback((key: TabKey, data: WorkerCacheData) => {
-    cacheRef.current.set(key, data);
-  }, []);
-
-  const deleteWorkerCache = useCallback((key: TabKey) => {
-    const cache = cacheRef.current.get(key);
-    if (cache?.cleanup) cache.cleanup();
-    cacheRef.current.delete(key);
-  }, []);
 
   const value = useMemo(
     () => ({
@@ -138,11 +209,8 @@ export const WorkerProvider: React.FC<{ children: React.ReactNode }> = ({
       analysisManager: analysisManagerRef.current,
       chunkWorker: chunkWorkerRef.current,
       isWasmReady,
-      getWorkerCache,
-      setWorkerCache,
-      deleteWorkerCache,
     }),
-    [isWasmReady, getWorkerCache, setWorkerCache, deleteWorkerCache]
+    [isWasmReady]
   );
 
   return (

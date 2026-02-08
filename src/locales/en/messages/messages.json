@@ -1,4 +1,12 @@
 {
+  "notifications": {
+    "title": "Notifications",
+    "clearAll": "Clear all",
+    "close": "Close",
+    "noNotifications": "No notifications",
+    "delete": "Delete",
+    "back": "Back"
+  },
   "WORKER_NOT_INITIALIZED": {
     "title": "Worker Error",
     "message": "Worker is not initialized.\nPlease refresh the page."
@@ -59,9 +67,24 @@
     "title": "EXIF Processing Timeout",
     "message": "EXIF data processing timed out.\nPlease try again."
   },
+  "EXIF_SUCCESS": {
+    "title": "EXIF Processed",
+    "message": "EXIF data processed successfully."
+  },
   "SEARCH_FAILED": {
     "title": "Search Failed",
     "message": "An error occurred during search."
+  },
+  "HASH_CALCULATION_SUCCESS": {
+    "title": "Hash Calculated",
+    "message": "Hash calculation completed successfully."
+  },
+  "SEARCH_NO_RESULTS": {
+    "title": "No Results",
+    "message": "Search completed - no results found."
+  },
+  "SEARCH_SUCCESS": {
+    "title": "Search Complete"
   },
   "SEARCH_TIMEOUT": {
     "title": "Search Timeout",
@@ -70,14 +93,6 @@
   "SEARCH_WASM_ERROR": {
     "title": "WASM Search Error",
     "message": "An error occurred during WASM search."
-  },
-  "SEARCH_NO_RESULTS": {
-    "title": "No Results",
-    "message": "No search results found."
-  },
-  "SEARCH_SUCCESS": {
-    "title": "Search Complete",
-    "message": "Search completed successfully."
   },
   "SEARCH_NO_INPUT": {
     "title": "No Input",
@@ -130,5 +145,11 @@
   "IP_COPIED": {
     "title": "IP Copied",
     "message": "IP address copied to clipboard."
+  },
+  "stats": {
+    "fileName": "File",
+    "duration": "Duration",
+    "speed": "Speed",
+    "progress": "Scanned"
   }
 }

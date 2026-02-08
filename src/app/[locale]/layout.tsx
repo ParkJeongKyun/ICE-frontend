@@ -2,7 +2,6 @@ import { NextIntlClientProvider } from 'next-intl';
 import { routing, type Locale } from '@/locales/routing';
 import { getMessages } from 'next-intl/server';
 import { MessageProvider } from '@/contexts/MessageContext/MessageContext';
-import ToastListener from '@/components/common/ToastListener/ToastListener';
 import { redirect } from 'next/navigation';
 import type { Metadata, Viewport } from 'next';
 
@@ -122,10 +121,7 @@ export default async function LocaleLayout({
       </head>
       <body>
         <NextIntlClientProvider locale={locale} messages={messages}>
-          <MessageProvider>
-            <ToastListener />
-            {children}
-          </MessageProvider>
+          <MessageProvider>{children}</MessageProvider>
         </NextIntlClientProvider>
       </body>
     </html>

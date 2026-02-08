@@ -1,6 +1,10 @@
 {
   "common": {
-    "noData": "No Data"
+    "noData": "No Data",
+    "copy": "Copy",
+    "close": "Close",
+    "delete": "Delete",
+    "back": "Back"
   },
   "welcome": "Welcome to ICE!",
   "description": "A web-based hex viewer and image metadata (EXIF) analysis tool.",
@@ -25,7 +29,6 @@
     "about": "About",
     "linknote": "LinkNote",
     "showIp": "Show My IP",
-    "calculateHash": "Calculate Hash",
     "fileProcessing": "Processing file..."
   },
   "ipInfo": {
@@ -56,14 +59,6 @@
     "decPlaceholder": "offset (Decimal)",
     "octPlaceholder": "offset (Octal)",
     "navigateTooltip": "Navigate to offset"
-  },
-  "notifications": {
-    "title": "Notifications",
-    "clearAll": "Clear all",
-    "close": "Close",
-    "noNotifications": "No notifications",
-    "delete": "Delete",
-    "back": "Back"
   },
   "dataInspector": {
     "title": "Data Inspector",
@@ -162,5 +157,9 @@
     "allTags": "All tags",
     "noTags": "No tags",
     "noIfdSelected": "No IFD selected"
+  },
+  "calculateHash": {
+    "title": "Calculate Hash",
+    "calculating": "Calculating..."
   }
 }

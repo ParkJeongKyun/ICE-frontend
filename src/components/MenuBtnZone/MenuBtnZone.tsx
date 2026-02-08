@@ -13,15 +13,13 @@ import { useRefs } from '@/contexts/RefContext/RefContext';
 import { parseExifData } from '@/utils/exifParser';
 import { useWorker } from '@/contexts/WorkerContext/WorkerContext';
 import { getClientIp } from '@/utils/getClientIp';
-import eventBus from '@/utils/eventBus';
+import eventBus from '@/types/eventBus';
 
 export interface MenuBtnZoneRef {
   openBtnClick: () => void;
   helpBtnClick: () => void;
   aboutBtnClick: () => void;
 }
-
-const EXIF_TIMEOUT = 30000;
 
 const MenuBtnZone: React.FC = () => {
   const t = useTranslations();
@@ -76,15 +74,19 @@ const MenuBtnZone: React.FC = () => {
 
       eventBus.emit('toast', {
         code: 'IP_FETCH_SUCCESS',
-        customMessage: infoText,
+        message: infoText,
       });
 
       // IP만 클립보드에 복사
       await navigator.clipboard.writeText(ipInfo.ip);
-      eventBus.emit('toast', { code: 'IP_COPIED' });
+      eventBus.emit('toast', {
+        code: 'IP_COPIED',
+      });
     } catch (error) {
       console.error('[MenuBtnZone] IP fetch failed:', error);
-      eventBus.emit('toast', { code: 'IP_FETCH_FAILED' });
+      eventBus.emit('toast', {
+        code: 'IP_FETCH_FAILED',
+      });
     }
   }, [t]);
 
@@ -94,19 +96,23 @@ const MenuBtnZone: React.FC = () => {
       if (!file) return;
 
       if (!analysisManager) {
-        eventBus.emit('toast', { code: 'WORKER_NOT_INITIALIZED' });
+        eventBus.emit('toast', {
+          code: 'WORKER_NOT_INITIALIZED',
+        });
         return;
       }
 
       if (!isWasmReady) {
-        eventBus.emit('toast', { code: 'WASM_LOADING' });
+        eventBus.emit('toast', {
+          code: 'WASM_LOADING',
+        });
         return;
       }
 
       if (isProcessing) {
         eventBus.emit('toast', {
           code: 'FILE_PROCESSING_FAILED',
-          customMessage: t('home.processing'),
+          message: t('home.processing'),
         });
         return;
       }
@@ -125,10 +131,6 @@ const MenuBtnZone: React.FC = () => {
           console.log('EXIF processing result:', result);
         }
 
-        if (result.error) {
-          throw new Error(result.error);
-        }
-
         const {
           thumbnail,
           baseOffset,
@@ -139,7 +141,11 @@ const MenuBtnZone: React.FC = () => {
           location,
           ifdInfos,
           tagInfos,
-        } = await parseExifData(result.exifData || '[]', file, result.mimeType);
+        } = await parseExifData(
+          result.data.exifData || '[]',
+          file,
+          result.data.mimeType
+        );
 
         setTabData((prevDatas) => ({
           ...prevDatas,
@@ -153,10 +159,10 @@ const MenuBtnZone: React.FC = () => {
               name: file.name,
               lastModified: file.lastModified,
               size: file.size,
-              mimeType: result.mimeType,
-              extension: result.extension,
+              mimeType: result.data.mimeType,
+              extension: result.data.extension,
             },
-            hasExif: result.hasExif || false,
+            hasExif: result.data.hasExif || false,
             exifInfo: {
               thumbnail,
               baseOffset,
@@ -172,6 +178,7 @@ const MenuBtnZone: React.FC = () => {
         }));
 
         setActiveKey(newActiveKey);
+        eventBus.emit('toast', { code: 'EXIF_SUCCESS', stats: result.stats });
       } catch (error) {
         console.error('[MenuBtnZone] File processing failed:', error);
         const errorMessage =
@@ -185,7 +192,7 @@ const MenuBtnZone: React.FC = () => {
         } else {
           eventBus.emit('toast', {
             code: 'FILE_PROCESSING_FAILED',
-            customMessage: errorMessage,
+            message: errorMessage,
           });
         }
       } finally {

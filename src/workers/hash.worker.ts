@@ -1,11 +1,38 @@
 /// <reference lib="webworker" />
 
 import { createSHA256 } from 'hash-wasm';
+import type { HashWorkerRequest } from '@/types/worker/hash.worker.types';
 
 declare const self: DedicatedWorkerGlobalScope;
 
+/**
+ * WorkerStats 생성 헬퍼 함수 - 중복 코드 최소화
+ */
+function createStats(
+  id: string,
+  duration: number,
+  bytesRead: number,
+  totalBytes: number,
+  fileName: string,
+  progress?: number,
+  eta?: number
+) {
+  const speedMBps = bytesRead ? bytesRead / 1024 / 1024 / (duration / 1000) : 0;
+  return {
+    id,
+    ...(progress !== undefined && { progress }),
+    ...(eta !== undefined && { eta }),
+    speed: speedMBps, // ✅ 숫자값만
+    durationMs: duration,
+    durationSec: duration / 1000,
+    processedBytes: bytesRead,
+    totalBytes,
+    fileName,
+  };
+}
+
 // ✅ [최종 최적화] Streams API를 사용한 물리적 한계 속도 해시 계산
-async function processHash(id: number, file: File) {
+async function processHash(id: string, file: File) {
   try {
     const startTime = performance.now();
 
@@ -55,11 +82,15 @@ async function processHash(id: number, file: File) {
 
         self.postMessage({
           type: 'HASH_PROGRESS',
-          id,
-          progress,
-          speed: `${speedVal.toFixed(2)} MB/s`,
-          eta,
-          processedBytes: totalRead,
+          stats: createStats(
+            id,
+            now - startTime,
+            totalRead,
+            file.size,
+            file.name,
+            progress,
+            eta
+          ),
         });
 
         lastReportBytes = totalRead;
@@ -82,18 +113,37 @@ async function processHash(id: number, file: File) {
     // Final progress = 100%
     self.postMessage({
       type: 'HASH_PROGRESS',
-      id,
-      progress: 100,
-      speed: `${speed} MB/s`,
-      eta: 0,
-      processedBytes: file.size,
+      stats: createStats(
+        id,
+        performance.now() - startTime,
+        file.size,
+        file.size,
+        file.name,
+        100,
+        0
+      ),
     });
 
-    self.postMessage({ type: 'HASH_RESULT', id, result: { hash: hashHex } });
+    // Include basic stats with the final result so callers can show summary info
+    self.postMessage({
+      type: 'HASH_RESULT',
+      stats: createStats(
+        id,
+        performance.now() - startTime,
+        file.size,
+        file.size,
+        file.name
+      ),
+      data: {
+        hash: hashHex,
+      },
+    });
   } catch (error) {
     self.postMessage({
       type: 'HASH_ERROR',
-      id,
+      stats: {
+        id,
+      },
       error: (error as Error).message,
     });
   }
@@ -117,13 +167,13 @@ self.addEventListener('unhandledrejection', (event) => {
 });
 
 // Message 핸들러
-self.addEventListener('message', (e) => {
+self.addEventListener('message', (e: MessageEvent<HashWorkerRequest>) => {
   const { type, id, file } = e.data;
 
   switch (type) {
     case 'PROCESS_HASH':
       if (file && file instanceof File) {
-        processHash(id, file);
+        processHash(id ?? '', file);
       } else {
         self.postMessage({
           type: 'HASH_ERROR',

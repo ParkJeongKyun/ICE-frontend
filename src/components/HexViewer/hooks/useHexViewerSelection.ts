@@ -4,7 +4,7 @@ import {
   useSelection,
   SelectionState,
 } from '@/contexts/TabDataContext/TabDataContext';
-import eventBus from '@/utils/eventBus';
+import eventBus from '@/types/eventBus';
 import {
   LAYOUT,
   HEX_START_X,
