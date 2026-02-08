@@ -5,6 +5,7 @@ import {
   WasmExifFunction,
   WasmSearchFunction,
 } from '@/types/worker/analysis.worker.types';
+import { createStats, calculateProgressInterval } from './workerUtils';
 
 declare const self: DedicatedWorkerGlobalScope;
 
@@ -21,33 +22,7 @@ let currentFileSize = 0;
 let currentFileName = '';
 let currentRequestId: string | undefined;
 let lastProgressReportBytes = 0;
-const PROGRESS_REPORT_INTERVAL = 4 * 1024 * 1024; // 4MB마다 진행률 전송
-
-/**
- * WorkerStats 생성 헬퍼 함수 - 중복 코드 최소화
- */
-function createStats(
-  id: string,
-  duration: number,
-  bytesRead: number,
-  totalBytes: number,
-  fileName: string,
-  progress?: number,
-  eta?: number
-) {
-  const speedMBps = bytesRead ? bytesRead / 1024 / 1024 / (duration / 1000) : 0;
-  return {
-    id,
-    ...(progress !== undefined && { progress }),
-    ...(eta !== undefined && { eta }),
-    speed: speedMBps, // ✅ 숫자값만
-    durationMs: duration,
-    durationSec: duration / 1000,
-    processedBytes: bytesRead,
-    totalBytes,
-    fileName,
-  };
-}
+let progressReportInterval = 4 * 1024 * 1024; // 동적으로 계산됨
 
 /**
  * Go WASM에서 호출할 전역 동기 함수
@@ -67,10 +42,10 @@ function createStats(
     totalReadCount++;
     totalReadBytes += length;
 
-    // ✅ 진행률 전송 (일정 간격마다)
+    // ✅ 진행률 전송 (동적 간격마다)
     if (currentFileSize > 0 && currentRequestId !== undefined) {
       const bytesProcessed = totalReadBytes - lastProgressReportBytes;
-      if (bytesProcessed >= PROGRESS_REPORT_INTERVAL) {
+      if (bytesProcessed >= progressReportInterval) {
         const duration = performance.now();
         const progress = Math.min(
           100,
@@ -277,6 +252,7 @@ async function processExif(id: string, file: File) {
   lastProgressReportBytes = 0;
   totalReadBytes = 0;
   totalReadCount = 0;
+  progressReportInterval = calculateProgressInterval(file.size).bytes;
 
   // ✅ WASM 준비 대기 로직 통일
   const startTime = Date.now();
@@ -354,6 +330,7 @@ async function searchInFile(
   lastProgressReportBytes = 0;
   totalReadBytes = 0;
   totalReadCount = 0;
+  progressReportInterval = calculateProgressInterval(file.size).bytes;
 
   // pattern을 Uint8Array로 변환
   const patternBytes = new TextEncoder().encode(pattern);

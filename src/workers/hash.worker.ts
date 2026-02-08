@@ -2,34 +2,9 @@
 
 import { createSHA256 } from 'hash-wasm';
 import type { HashWorkerRequest } from '@/types/worker/hash.worker.types';
+import { createStats, calculateProgressInterval } from './workerUtils';
 
 declare const self: DedicatedWorkerGlobalScope;
-
-/**
- * WorkerStats 생성 헬퍼 함수 - 중복 코드 최소화
- */
-function createStats(
-  id: string,
-  duration: number,
-  bytesRead: number,
-  totalBytes: number,
-  fileName: string,
-  progress?: number,
-  eta?: number
-) {
-  const speedMBps = bytesRead ? bytesRead / 1024 / 1024 / (duration / 1000) : 0;
-  return {
-    id,
-    ...(progress !== undefined && { progress }),
-    ...(eta !== undefined && { eta }),
-    speed: speedMBps, // ✅ 숫자값만
-    durationMs: duration,
-    durationSec: duration / 1000,
-    processedBytes: bytesRead,
-    totalBytes,
-    fileName,
-  };
-}
 
 // ✅ [최종 최적화] Streams API를 사용한 물리적 한계 속도 해시 계산
 async function processHash(id: string, file: File) {
@@ -48,8 +23,11 @@ async function processHash(id: string, file: File) {
     let totalRead = 0;
     let lastReportBytes = 0;
     let lastReportTime = performance.now();
-    const PROGRESS_INTERVAL_BYTES = 1024 * 1024; // 1MB
-    const PROGRESS_INTERVAL_MS = 500; // 0.5s
+
+    // 동적 진행률 보고 간격
+    const interval = calculateProgressInterval(file.size);
+    const PROGRESS_INTERVAL_BYTES = interval.bytes;
+    const PROGRESS_INTERVAL_MS = interval.ms;
 
     while (true) {
       const { done, value } = await reader.read();
