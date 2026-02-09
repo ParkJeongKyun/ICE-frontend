@@ -13,7 +13,7 @@ export const SearchSelect = styled.select`
   &:hover {
     outline: none;
     border: none;
-    background-color: var(--main-hover-color_1);
+    background-color: var(--main-hover-color-primary);
   }
 `;
 
@@ -50,7 +50,7 @@ export const SearchInput = styled.input`
   &:focus,
   &:hover {
     outline: none;
-    background-color: var(--main-hover-color_1);
+    background-color: var(--main-hover-color-primary);
   }
 `;
 

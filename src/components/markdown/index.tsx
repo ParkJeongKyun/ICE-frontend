@@ -66,7 +66,7 @@ const ICEMarkDown: React.FC<Props> = ({ defaultText, childTexts }) => {
           <BackArrowIcon
             width={18}
             height={18}
-            color="var(--ice-main-color_3)"
+            color="var(--ice-main-color-warning)"
           />
         </FloatingBackBtn>
       )}

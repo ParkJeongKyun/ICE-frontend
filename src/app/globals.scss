@@ -8,32 +8,33 @@ body,
   margin: 0 0 0 0;
   padding: 0 0 0 0;
   text-align: center;
-  font-size: 1rem; 
+  font-size: 1rem;
   line-height: 1.5;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 
   // 메인 색
   --main-bg-color: #121820; // Darker with blue tint
-  --main-bg-color_1: #81d4fe; // Lighter ice blue
-  --main-bg-color_reverse: #e8f4ff; // Cool white with blue tint
+  --main-bg-color-primary: #81d4fe; // Lighter ice blue
+  --main-bg-color-reverse: #e8f4ff; // Cool white with blue tint
   --main-hover-color: #243240; // Blue-gray hover
-  --main-hover-color_1: #0a1218; // Darker ice blue
+  --main-hover-color-primary: #0a1218; // Darker ice blue
   --main-hover-line-color: #7aa8c8; // Frosted blue
   --main-color: #d8e8f0; // Cool white text
-  --main-color_1: #a0c0d8; // Light blue-gray
+  --main-color-reverse: #a0c0d8; // Light blue-gray
   --main-line-color: #345167; // Medium blue-gray line
   --main-disabled-color: #3a4754; // Disabled blue-gray
 
   // 강조 색
   --ice-main-color: #60c8ff; // Bright ice blue
-  --ice-main-color_1: #e05858; // Cooler red
-  --ice-main-color_2: #40e0a0; // Cool mint green
-  --ice-main-color_3: #e0c040; // Cool gold
-  --ice-main-color_4: #d8f0ff; // Very light ice blue
-  --ice-main-color_5: #5a9cb5; // Light blue-gray_2
-
+  --ice-main-color-error: #e05858; // Cooler red
+  --ice-main-color-success: #40e0a0; // Cool mint green
+  --ice-main-color-warning: #e0c040; // Cool gold
+  --ice-main-color-primary: #d8f0ff; // Very light ice blue
+  --ice-main-color-reverse: #5a9cb5; // Light blue-gray_2
   background-color: var(--main-bg-color);
 
   // 스크롤바
@@ -50,31 +51,33 @@ body,
     --main-hover-color
   ); /* Surface color for cards/panels */
   --crepe-color-surface-low: var(
-    --main-hover-color_1
+    --main-hover-color-primary
   ); /* Lower surface color for depth */
 
   /* Text Colors */
   --crepe-color-on-background: var(--main-color); /* Text color on background */
   --crepe-color-on-surface: var(--main-color); /* Text color on surface */
   --crepe-color-on-surface-variant: var(
-    --main-color_1
+    --main-color-reverse
   ); /* Secondary text color */
 
   /* Accent Colors */
   --crepe-color-primary: var(--ice-main-color); /* Primary brand color */
   --crepe-color-secondary: var(--main-hover-color); /* Secondary accent color */
   --crepe-color-on-secondary: var(
-    --ice-main-color_4
+    --ice-main-color-primary
   ); /* Text color on secondary */
 
   /* UI Colors */
-  --crepe-color-outline: var(--main-color_1);
+  --crepe-color-outline: var(--main-color-reverse);
   --crepe-color-inverse: var(
-    --main-bg-color_reverse
+    --main-bg-color-reverse
   ); /* Inverse color for contrast */
   --crepe-color-on-inverse: var(--main-bg-color); /* Text color on inverse */
-  --crepe-color-inline-code: var(--ice-main-color_1); /* Inline code color */
-  --crepe-color-error: var(--ice-main-color_1); /* Error state color */
+  --crepe-color-inline-code: var(
+    --ice-main-color-error
+  ); /* Inline code color */
+  --crepe-color-error: var(--ice-main-color-error); /* Error state color */
 
   /* Interactive Colors */
   --crepe-color-hover: var(--main-hover-color); /* Hover state color */

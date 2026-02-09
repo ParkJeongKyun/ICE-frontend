@@ -124,14 +124,14 @@ export const ToggleButton = styled.button<{
 }>`
   ${ButtonBase}
   color: ${({ $isReadOnly }) =>
-    $isReadOnly ? 'var(--ice-main-color_2)' : 'var(--ice-main-color)'};
+    $isReadOnly ? 'var(--ice-main-color-success)' : 'var(--ice-main-color)'};
   ${({ $pulse }) => $pulse && pulse}
 
   svg {
     stroke: ${({ $isReadOnly }) =>
-      $isReadOnly ? 'var(--ice-main-color_2)' : 'var(--ice-main-color)'};
+      $isReadOnly ? 'var(--ice-main-color-success)' : 'var(--ice-main-color)'};
     fill: ${({ $isReadOnly }) =>
-      $isReadOnly ? 'var(--ice-main-color_2)' : 'var(--ice-main-color)'};
+      $isReadOnly ? 'var(--ice-main-color-success)' : 'var(--ice-main-color)'};
   }
 
   &:hover .btn-tooltip,
@@ -197,9 +197,9 @@ export const ErrorMessage = styled.div`
   font-family: monospace;
   top: 2%;
   left: 4%;
-  border: 1px solid var(--ice-main-color_1);
+  border: 1px solid var(--ice-main-color-error);
   background-color: var(--main-bg-color);
-  color: var(--ice-main-color_1);
+  color: var(--ice-main-color-error);
   padding: 0.5rem 1rem;
   border-radius: 8px;
   z-index: 1001;
@@ -247,7 +247,7 @@ export const LastModifiedTime = styled.div`
   bottom: 2%;
   left: 4%;
   font-size: 0.8rem;
-  color: var(--main-color_1);
+  color: var(--main-color-reverse);
   padding: 0;
   z-index: 999;
   opacity: 0.4;
@@ -266,13 +266,13 @@ export const GuideBox = styled.div`
   width: 90vw;
   max-width: 500px;
   padding: 1.2rem 1rem 1.3rem 1rem;
-  color: var(--ice-main-color_2);
+  color: var(--ice-main-color-success);
   border-radius: 10px;
   font-family: monospace;
   font-size: 1.02rem;
   text-align: left;
   opacity: 0.96;
-  border: 1.5px dashed var(--ice-main-color_2);
+  border: 1.5px dashed var(--ice-main-color-success);
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.04);
   z-index: 2001;
 
@@ -290,7 +290,7 @@ export const GuideBox = styled.div`
       margin-bottom: 0.25em;
       line-height: 1.7;
       &::marker {
-        color: var(--ice-main-color_2);
+        color: var(--ice-main-color-success);
       }
     }
   }

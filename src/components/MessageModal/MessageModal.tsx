@@ -11,19 +11,9 @@ import {
   CloseButton,
 } from './MessageModal.styles';
 import XIcon from '@/components/common/Icons/XIcon';
-import InfoIcon from '@/components/common/Icons/InfoIcon';
-import AlertIcon from '@/components/common/Icons/AlertIcon';
-import CheckIcon from '@/components/common/Icons/CheckIcon';
-import ErrorIcon from '@/components/common/Icons/ErrorIcon';
 import { isMobile } from 'react-device-detect';
 import { formatBytes, formatSpeed, formatTime } from '@/utils/formatters';
-
-const ICON_MAP = {
-  error: ErrorIcon,
-  warning: AlertIcon,
-  success: CheckIcon,
-  info: InfoIcon,
-};
+import { MESSAGE_TYPE_ICONS } from '@/utils/messageStyles';
 
 const MessageModal: React.FC = () => {
   const t = useTranslations('messages');
@@ -41,7 +31,7 @@ const MessageModal: React.FC = () => {
   return (
     <MessageModalContainer $isMobile={isMobile}>
       {currentMessages.map((message) => {
-        const Icon = ICON_MAP[message.type];
+        const Icon = MESSAGE_TYPE_ICONS[message.type];
         const { stats } = message;
 
         return (

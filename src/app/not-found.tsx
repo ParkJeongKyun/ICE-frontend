@@ -22,7 +22,7 @@ const NotFoundContainer = styled.div`
     background: linear-gradient(
       135deg,
       var(--ice-main-color) 0%,
-      var(--ice-main-color_5) 100%
+      var(--ice-main-color-reverse) 100%
     );
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -39,7 +39,7 @@ const NotFoundContainer = styled.div`
   p {
     font-size: 1.1rem;
     margin: 10px 0;
-    color: var(--main-color_1);
+    color: var(--main-color-reverse);
     line-height: 1.6;
   }
 
@@ -57,7 +57,7 @@ const NotFoundContainer = styled.div`
     box-shadow: 0 4px 12px rgba(96, 200, 255, 0.3);
 
     &:hover {
-      background-color: var(--ice-main-color_4);
+      background-color: var(--ice-main-color-primary);
       box-shadow: 0 6px 20px rgba(96, 200, 255, 0.4);
       transform: translateY(-2px);
     }

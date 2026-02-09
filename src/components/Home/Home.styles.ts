@@ -38,7 +38,7 @@ export const Version = styled.div`
   flex-grow: 1;
   font-size: 1rem;
   font-weight: 600;
-  color: var(--main-color_1);
+  color: var(--main-color-reverse);
 `;
 
 export const SubTitleDiv = styled.div`
@@ -58,7 +58,7 @@ export const StartDiv = styled.div`
   margin: 0.25rem 1rem;
   font-size: 1.25rem;
   font-weight: 600;
-  color: var(--ice-main-color_3);
+  color: var(--ice-main-color-warning);
 `;
 
 export const Btn = styled.div`
@@ -83,6 +83,6 @@ export const InfoDiv = styled.div`
   color: var(--main-color);
   > div:last-child {
     padding: 1rem 0;
-    color: var(--main-color_1);
+    color: var(--main-color-reverse);
   }
 `;

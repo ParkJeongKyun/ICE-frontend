@@ -45,7 +45,7 @@ export const TOAST_DEFAULTS: Record<
 
   // Hash 관련
   NO_FILE_SELECTED: { type: 'warning', duration: 4000 },
-  ALREADY_CALCULATING: { type: 'warning', duration: 4000 },
+  HASH_CALCULATION_SUCCESS: { type: 'success', duration: 4000 },
   COMMON_ERROR: { type: 'error', duration: 10000 },
 
   // 기타

@@ -25,7 +25,7 @@ export const NavigatorInput = styled.input`
   &:focus,
   &:hover {
     outline: none;
-    background-color: var(--main-hover-color_1);
+    background-color: var(--main-hover-color-primary);
   }
 `;
 

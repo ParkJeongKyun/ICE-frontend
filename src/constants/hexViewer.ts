@@ -66,13 +66,13 @@ export const MIN_HEX_WIDTH =
 
 // 색상 키
 export const COLOR_KEYS = {
-  HEX_EVEN: '--main-color_1',
+  HEX_EVEN: '--main-color-reverse',
   HEX_ODD: '--main-color',
   ASCII: '--main-color',
   ASCII_DISABLED: '--main-disabled-color',
   SELECTED_BG: '--main-hover-color',
   SELECTED_TEXT: '--ice-main-color',
-  OFFSET: '--ice-main-color_5',
+  OFFSET: '--ice-main-color-reverse',
   BG: '--main-bg-color',
 } as const;
 

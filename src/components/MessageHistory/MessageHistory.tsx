@@ -31,20 +31,11 @@ import {
 import XIcon from '@/components/common/Icons/XIcon';
 import BellIcon from '@/components/common/Icons/BellIcon';
 import InfoIcon from '@/components/common/Icons/InfoIcon';
-import AlertIcon from '@/components/common/Icons/AlertIcon';
-import CheckIcon from '@/components/common/Icons/CheckIcon';
-import ErrorIcon from '@/components/common/Icons/ErrorIcon';
 import TrashIcon from '@/components/common/Icons/TrashIcon';
 import ChevronDownIcon from '@/components/common/Icons/ChevronDownIcon';
 import { isMobile } from 'react-device-detect';
 import { getDate } from '@/utils/exifParser';
-
-const ICON_MAP = {
-  error: ErrorIcon,
-  warning: AlertIcon,
-  success: CheckIcon,
-  info: InfoIcon,
-};
+import { MESSAGE_TYPE_ICONS } from '@/utils/messageStyles';
 
 const MessageHistory: React.FC = () => {
   const t = useTranslations('messages');
@@ -119,7 +110,7 @@ const MessageHistory: React.FC = () => {
                   <HistoryItemHeader onClick={() => toggleExpand(msg.id)}>
                     <HistoryItemIcon $type={msg.type}>
                       {(() => {
-                        const Icon = ICON_MAP[msg.type] || InfoIcon;
+                        const Icon = MESSAGE_TYPE_ICONS[msg.type] || InfoIcon;
                         return <Icon width={14} height={14} />;
                       })()}
                     </HistoryItemIcon>
