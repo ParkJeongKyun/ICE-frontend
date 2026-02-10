@@ -21,7 +21,7 @@ const MessageModal: React.FC = () => {
 
   const handleClose = useCallback(
     (id: string) => {
-      hideMessage(id, true);
+      hideMessage(id, false);
     },
     [hideMessage]
   );

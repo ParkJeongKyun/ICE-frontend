@@ -28,6 +28,7 @@ export interface MessageItem {
 }
 
 const MAX_TOAST_COUNT = 3;
+const MAX_HISTORY_COUNT = 50;
 
 interface MessageContextType {
   showMessage: (code: string, message?: string, stats?: WorkerStats) => void;
@@ -110,7 +111,10 @@ export const MessageProvider: React.FC<{ children: React.ReactNode }> = ({
         return updated;
       });
 
-      setMessageHistory((prev) => [newMessage, ...prev.slice(0, 99)]);
+      setMessageHistory((prev) => [
+        newMessage,
+        ...prev.slice(0, MAX_HISTORY_COUNT - 1),
+      ]);
 
       if (duration > 0) {
         const timeoutId = setTimeout(() => {
