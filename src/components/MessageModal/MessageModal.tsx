@@ -44,7 +44,11 @@ const MessageModal: React.FC = () => {
               <Icon width={20} height={20} />
             </MessageIcon>
             <MessageContent>
-              {message.title && <MessageTitle>{message.title}</MessageTitle>}
+              {message.title && (
+                <MessageTitle $type={message.type}>
+                  {message.title}
+                </MessageTitle>
+              )}
               <MessageText>{message.message}</MessageText>
               {stats?.fileName && (
                 <MessageText style={{ fontSize: '0.75rem', opacity: 0.85 }}>

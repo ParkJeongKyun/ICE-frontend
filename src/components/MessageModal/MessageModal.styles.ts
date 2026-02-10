@@ -77,10 +77,10 @@ export const MessageContent = styled.div`
   min-width: 0;
 `;
 
-export const MessageTitle = styled.div`
+export const MessageTitle = styled.div<{ $type: MessageType }>`
   font-size: 0.85rem;
   font-weight: 600;
-  color: var(--ice-main-color);
+  color: ${({ $type }) => getMessageTypeColor($type)};
   line-height: 1.2;
 `;
 

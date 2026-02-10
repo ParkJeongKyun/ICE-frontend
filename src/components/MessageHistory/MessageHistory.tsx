@@ -115,7 +115,9 @@ const MessageHistory: React.FC = () => {
                       })()}
                     </HistoryItemIcon>
                     {msg.title && (
-                      <HistoryItemTitle>{msg.title}</HistoryItemTitle>
+                      <HistoryItemTitle $type={msg.type}>
+                        {msg.title}
+                      </HistoryItemTitle>
                     )}
                     <HistoryItemActions onClick={(e) => e.stopPropagation()}>
                       <Tooltip text={t('notifications.delete')}>

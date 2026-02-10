@@ -41,7 +41,6 @@ import {
   LAYOUT,
   MIN_HEX_WIDTH,
   COLOR_KEYS,
-  DEFAULT_COLORS,
 } from '@/constants/hexViewer';
 import { getDevicePixelRatio } from '@/utils/hexViewer';
 
@@ -285,28 +284,16 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
     const updateColors = () => {
       const style = getComputedStyle(document.documentElement);
       colorsRef.current = {
-        HEX_EVEN:
-          style.getPropertyValue(COLOR_KEYS.HEX_EVEN).trim() ||
-          DEFAULT_COLORS.HEX_EVEN,
-        HEX_ODD:
-          style.getPropertyValue(COLOR_KEYS.HEX_ODD).trim() ||
-          DEFAULT_COLORS.HEX_ODD,
-        ASCII:
-          style.getPropertyValue(COLOR_KEYS.ASCII).trim() ||
-          DEFAULT_COLORS.ASCII,
-        ASCII_DISABLED:
-          style.getPropertyValue(COLOR_KEYS.ASCII_DISABLED).trim() ||
-          DEFAULT_COLORS.ASCII_DISABLED,
-        SELECTED_BG:
-          style.getPropertyValue(COLOR_KEYS.SELECTED_BG).trim() ||
-          DEFAULT_COLORS.SELECTED_BG,
-        SELECTED_TEXT:
-          style.getPropertyValue(COLOR_KEYS.SELECTED_TEXT).trim() ||
-          DEFAULT_COLORS.SELECTED_TEXT,
-        OFFSET:
-          style.getPropertyValue(COLOR_KEYS.OFFSET).trim() ||
-          DEFAULT_COLORS.OFFSET,
-        BG: style.getPropertyValue(COLOR_KEYS.BG).trim() || DEFAULT_COLORS.BG,
+        HEX_EVEN: style.getPropertyValue(COLOR_KEYS.HEX_EVEN).trim(),
+        HEX_ODD: style.getPropertyValue(COLOR_KEYS.HEX_ODD).trim(),
+        ASCII: style.getPropertyValue(COLOR_KEYS.ASCII).trim(),
+        ASCII_DISABLED: style
+          .getPropertyValue(COLOR_KEYS.ASCII_DISABLED)
+          .trim(),
+        SELECTED_BG: style.getPropertyValue(COLOR_KEYS.SELECTED_BG).trim(),
+        SELECTED_TEXT: style.getPropertyValue(COLOR_KEYS.SELECTED_TEXT).trim(),
+        OFFSET: style.getPropertyValue(COLOR_KEYS.OFFSET).trim(),
+        BG: style.getPropertyValue(COLOR_KEYS.BG).trim(),
       };
     };
     updateColors();

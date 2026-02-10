@@ -75,15 +75,3 @@ export const COLOR_KEYS = {
   OFFSET: '--ice-main-color-reverse',
   BG: '--main-bg-color',
 } as const;
-
-// 기본 색상
-export const DEFAULT_COLORS = {
-  HEX_EVEN: '#a0c0d8',
-  HEX_ODD: '#d8e8f0',
-  ASCII: '#d8e8f0',
-  ASCII_DISABLED: '#3a4754',
-  SELECTED_BG: '#243240',
-  SELECTED_TEXT: '#60c8ff',
-  OFFSET: '#d8f0ff',
-  BG: '#1a1f28',
-} as const;

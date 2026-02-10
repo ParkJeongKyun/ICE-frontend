@@ -156,10 +156,10 @@ export const HistoryItemIcon = styled.div<{ $type: MessageType }>`
   align-items: center;
 `;
 
-export const HistoryItemTitle = styled.div`
+export const HistoryItemTitle = styled.div<{ $type: MessageType }>`
   font-size: 0.75rem;
   font-weight: 600;
-  color: var(--ice-main-color);
+  color: ${({ $type }) => getMessageTypeColor($type)};
 `;
 
 export const HistoryItemBody = styled.div`
