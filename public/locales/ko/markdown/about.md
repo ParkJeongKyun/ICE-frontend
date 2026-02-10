@@ -38,6 +38,7 @@
 - Javascript
 - Go
 - React
+- Next.js
 - WebAssembly
 
 ## 🚀 [업데이트 예정](/markdown/update)

@@ -38,6 +38,7 @@ You can check the release notes at the "Release Notes" link above.
 - Javascript
 - Go
 - React
+- Next.js
 - WebAssembly
 
 ## 🚀 [Upcoming Updates](/markdown/update)
