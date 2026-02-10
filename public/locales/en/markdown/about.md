@@ -23,7 +23,7 @@ Stay healthy and happy :)
 **Park Jeong-Kyun**
 
 - 🗓️ Feb 23, 2001
-- 🇺🇸 Republic of Korea
+- 🇰🇷 Republic of Korea
 - 📧 dbzoseh84@gmail.com
 - 🔒 Digital Forensics, Information Security, Incident Response, Full-stack Development
 - For more information about the developer, click the "Developer" link above.
@@ -57,6 +57,7 @@ Sites and libraries that helped with site development. Thank you!
 - [Pixabay - Free Photos](https://pixabay.com/)
 - [React Bits - Interactive Web UI](https://github.com/DavidHDev/react-bits)
 - [Go Exif - GoLang Exif Analysis Library](https://pkg.go.dev/github.com/dsoprea/go-exif/v3)
+- [GO Heic Exif - GoLang HEIC/HEIF Analysis Library](https://pkg.go.dev/github.com/dsoprea/go-heic-exif-extractor/v2)
 - [Yara - Malware Detection Tool](https://github.com/VirusTotal/yara)
 - [Nominatim - Open Source Geocoding](https://nominatim.org/)
 - [Leaflet - JavaScript Map Library](https://leafletjs.com/)
@@ -65,3 +66,7 @@ Sites and libraries that helped with site development. Thank you!
 - [React Markdown - Markdown Renderer](https://github.com/remarkjs/react-markdown)
 - [Google Analytics - Web Analytics Service](https://analytics.google.com/analytics/web/)
 - [ipinfo.io - IP Address Information Lookup API](https://ipinfo.io)
+- [Next.js - The React Framework for the Web](https://nextjs.org/)
+- [react-resizable-layout - Resizable Layout Components for React](https://www.npmjs.com/package/react-resizable-layout)
+- [heic2any - HEIC/HEIF Image Converter Library](https://www.npmjs.com/package/heic2any)
+- [utif - TIFF Image Decoder/Encoder Library](https://www.npmjs.com/package/utif)
