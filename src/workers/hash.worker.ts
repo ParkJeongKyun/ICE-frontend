@@ -88,14 +88,8 @@ class HashWorker {
 
       const hashHex = hasher.digest();
 
-      // Final progress = 100%
-      this.sendProgress(
-        id,
-        file,
-        file.size,
-        performance.now() - startTime,
-        100
-      );
+      // Final update
+      this.sendProgress(id, file, file.size, performance.now() - startTime);
 
       // Include basic stats with the final result so callers can show summary info
       this.sendResult(
@@ -111,24 +105,14 @@ class HashWorker {
   }
 
   /**
-   * 진행률 메시지 전송
+   * 진행률 메시지 전송 (raw stats만 전달)
    */
   private sendProgress(
     id: string,
     file: File,
     totalRead: number,
-    duration: number,
-    progress?: number
+    duration: number
   ): void {
-    const calculatedProgress =
-      progress ?? Math.min(100, Math.round((totalRead / file.size) * 100));
-    const speedVal =
-      duration > 0 ? totalRead / 1024 / 1024 / (duration / 1000) : 0;
-    const eta =
-      speedVal > 0
-        ? Math.round((file.size - totalRead) / 1024 / 1024 / speedVal)
-        : 0;
-
     self.postMessage({
       type: 'HASH_PROGRESS',
       stats: createStats(id, duration, totalRead, file.size, file.name),

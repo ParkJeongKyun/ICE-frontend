@@ -91,23 +91,12 @@ class AnalysisWorker {
   }
 
   /**
-   * 검색 진행률 전송
+   * 검색 진행률 전송 (raw stats만 전달)
    */
   private sendSearchProgress(): void {
     if (this.currentRequestId === undefined) return;
 
     const duration = performance.now();
-    const progress = Math.min(
-      100,
-      Math.round((this.totalReadBytes / this.currentFileSize) * 100)
-    );
-    const speed = this.totalReadBytes / 1024 / 1024 / (duration / 1000);
-    const eta =
-      this.totalReadBytes < this.currentFileSize && speed > 0
-        ? Math.round(
-            (this.currentFileSize - this.totalReadBytes) / 1024 / 1024 / speed
-          )
-        : 0;
 
     self.postMessage({
       type: 'SEARCH_PROGRESS',

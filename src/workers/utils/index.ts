@@ -3,23 +3,20 @@
  */
 
 /**
- * WorkerStats 생성 헬퍼 함수 - 중복 코드 최소화
+ * WorkerStats 생성 헬퍼 함수
+ * 워커에서는 progress/eta를 계산하지 않음 (useProgress에서 계산)
  */
 export function createStats(
   id: string,
   duration: number,
   bytesRead: number,
   totalBytes: number,
-  fileName: string,
-  progress?: number,
-  eta?: number
+  fileName: string
 ) {
   const speedMBps = bytesRead ? bytesRead / 1024 / 1024 / (duration / 1000) : 0;
   return {
     id,
-    ...(progress !== undefined && { progress }),
-    ...(eta !== undefined && { eta }),
-    speed: speedMBps, // ✅ 숫자값만
+    speed: speedMBps,
     durationMs: duration,
     durationSec: duration / 1000,
     processedBytes: bytesRead,
