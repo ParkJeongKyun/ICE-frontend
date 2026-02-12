@@ -15,26 +15,3 @@ export interface WorkerStats {
   fileName: string; // 파일명
   speed: number; // ✅ 처리 속도 (MB/s) - 숫자값만, 포매팅은 UI에서 처리
 }
-
-/**
- * 워커 진행률 stats
- * PROGRESS 메시지에서 사용되는 stats 타입
- */
-export interface ProgressStats extends WorkerStats {
-  progress: number;
-  eta: number;
-}
-
-/**
- * 워커 진행률 페이로드
- * Progress 이벤트에서 사용되는 통합 타입
- */
-export interface ProgressPayload {
-  id: string;
-  progress: number;
-  speed: string;
-  eta: number;
-  processedBytes: number;
-  totalBytes: number;
-  fileName: string;
-}

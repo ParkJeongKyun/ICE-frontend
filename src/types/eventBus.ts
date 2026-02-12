@@ -7,16 +7,9 @@ export type ToastEvent = {
   stats?: WorkerStats;
 };
 
-export type ProgressEvent = {
-  progress: number;
-  speed?: string;
-  eta?: number;
-  processedBytes?: number;
-};
-
 export type Events = {
   toast: ToastEvent;
-  progress: ProgressEvent;
+  progress: WorkerStats;
 };
 
 const eventBus = mitt<Events>();

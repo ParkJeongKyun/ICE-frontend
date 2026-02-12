@@ -13,7 +13,7 @@ import { useProcess } from '@/contexts/ProcessContext/ProcessContext';
 import eventBus from '@/types/eventBus';
 import { HashResult } from '@/types/worker/hash.worker.types';
 import { ExifResult, SearchResult } from '@/types/worker/analysis.worker.types';
-import { ProgressPayload } from '@/types/worker/index.worker.types';
+import { WorkerStats } from '@/types/worker/index.worker.types';
 
 interface WorkerContextType {
   // ✅ 제네릭으로 분리된 타입
@@ -79,35 +79,49 @@ export const WorkerProvider: React.FC<{ children: React.ReactNode }> = ({
         eventBus.emit('toast', { code: 'WASM_LOADED_SUCCESS' });
       });
 
-      // Aggregate progress (MAX strategy)
+      // Aggregate progress (바이트 기반 계산)
       const progressMap = new Map<
         string,
         {
-          progress: number;
           processedBytes?: number;
-          speed?: string;
-          eta?: number;
+          totalBytes?: number;
+          speed?: number;
+          fileName?: string;
+          startTime: number;
           lastSeen: number;
         }
       >();
       let rafId: number | null = null;
 
       const emitAggregated = () => {
-        // compute max progress
-        let max = 0;
-        let bestSpeed = '0';
-        let bestEta = 0;
+        let totalBytes = 0;
+        let processedBytes = 0;
+        let totalSpeed = 0;
+        let taskCount = 0;
+        let oldestStartTime = Date.now();
+        let fileName = '';
+
         for (const v of progressMap.values()) {
-          if (v.progress > max) {
-            max = v.progress;
-            bestSpeed = v.speed ?? bestSpeed;
-            bestEta = v.eta ?? bestEta;
-          }
+          totalBytes += v.totalBytes ?? 0;
+          processedBytes += v.processedBytes ?? 0;
+          totalSpeed += v.speed ?? 0;
+          if (v.fileName) fileName = v.fileName;
+          oldestStartTime = Math.min(oldestStartTime, v.startTime);
+          taskCount++;
         }
+
+        const now = Date.now();
+        const durationMs = taskCount > 0 ? now - oldestStartTime : 0;
+        const durationSec = Math.round(durationMs / 1000);
+
         eventBus.emit('progress', {
-          progress: max,
-          speed: bestSpeed,
-          eta: bestEta,
+          id: 'aggregated',
+          speed: totalSpeed,
+          durationMs,
+          durationSec,
+          processedBytes,
+          totalBytes,
+          fileName,
         });
         rafId = null;
       };
@@ -124,13 +138,15 @@ export const WorkerProvider: React.FC<{ children: React.ReactNode }> = ({
       };
 
       // hash progress listener
-      const hashProgressHandler = (data: ProgressPayload) => {
+      const hashProgressHandler = (data: WorkerStats) => {
         const key = makeKey('hash', data.id);
+        const existing = progressMap.get(key);
         progressMap.set(key, {
-          progress: data.progress,
           processedBytes: data.processedBytes,
+          totalBytes: data.totalBytes,
           speed: data.speed,
-          eta: data.eta,
+          fileName: data.fileName,
+          startTime: existing?.startTime ?? Date.now(),
           lastSeen: Date.now(),
         });
         scheduleEmit();
@@ -146,13 +162,15 @@ export const WorkerProvider: React.FC<{ children: React.ReactNode }> = ({
       };
 
       // analysis progress listener
-      const analysisProgressHandler = (data: ProgressPayload) => {
+      const analysisProgressHandler = (data: WorkerStats) => {
         const key = makeKey('analysis', data.id);
+        const existing = progressMap.get(key);
         progressMap.set(key, {
-          progress: data.progress,
           processedBytes: data.processedBytes,
+          totalBytes: data.totalBytes,
           speed: data.speed,
-          eta: data.eta,
+          fileName: data.fileName,
+          startTime: existing?.startTime ?? Date.now(),
           lastSeen: Date.now(),
         });
         scheduleEmit();

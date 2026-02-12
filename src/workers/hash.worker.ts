@@ -5,7 +5,7 @@ import type {
   HashWorkerRequest,
   HashType,
 } from '@/types/worker/hash.worker.types';
-import { createStats, calculateProgressInterval } from './workerUtils';
+import { createStats, calculateProgressInterval } from './utils';
 
 declare const self: DedicatedWorkerGlobalScope;
 

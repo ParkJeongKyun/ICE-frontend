@@ -5,9 +5,8 @@ import {
   WasmExifFunction,
   WasmSearchFunction,
 } from '@/types/worker/analysis.worker.types';
-import { createStats, calculateProgressInterval } from './workerUtils';
-import { parseExifDataInWorker } from '@/utils/exifParser';
-import { generateThumbnailFromFile } from './utils/thumbnailGenerator';
+import { createStats, calculateProgressInterval } from './utils';
+import { parseExifDataInWorker } from '@/workers/utils/exifParser';
 
 declare const self: DedicatedWorkerGlobalScope;
 
@@ -311,17 +310,6 @@ async function processExif(id: string, file: File) {
       wasmResult.mimeType || '',
       syncReader
     );
-
-    // 🎨 썸네일 처리: EXIF 태그에 없으면 원본 이미지로부터 생성
-    if (!exifInfo.thumbnail && wasmResult.mimeType) {
-      const generatedThumbnail = await generateThumbnailFromFile(
-        file,
-        wasmResult.mimeType
-      );
-      if (generatedThumbnail) {
-        exifInfo.thumbnail = generatedThumbnail;
-      }
-    }
 
     self.postMessage({
       type: 'EXIF_RESULT',

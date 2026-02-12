@@ -1,13 +1,14 @@
 import { ExifResult, SearchResult } from '@/types/worker/analysis.worker.types';
 import { HashResult } from '@/types/worker/hash.worker.types';
-import { ProgressPayload } from '@/types/worker/index.worker.types';
+import { WorkerStats } from '@/types/worker/index.worker.types';
+import { isImageMimeType } from '@/utils/thumbnail';
 import mitt, { Emitter } from 'mitt';
 
 // ============================================================================
 // 이벤트 타입
 // ============================================================================
 export type WorkerEvents<T = HashResult | SearchResult | ExifResult> = {
-  PROGRESS: ProgressPayload;
+  PROGRESS: WorkerStats;
   DONE: {
     type: string;
     result: T;
@@ -81,20 +82,15 @@ export class WorkerManager<
 
         case 'HASH_PROGRESS':
         case 'SEARCH_PROGRESS':
-          // ✅ stats에서만 id 추출
-          const statsId = stats?.id;
           this.events.emit('PROGRESS', {
-            id: statsId,
-            progress: stats?.progress ?? 0,
-            speed:
-              typeof stats?.speed === 'number'
-                ? `${stats.speed.toFixed(2)} MB/s`
-                : (stats?.speed ?? ''),
-            eta: stats?.eta ?? 0,
+            id: stats?.id ?? '',
+            speed: stats?.speed ?? 0,
+            durationMs: stats?.durationMs ?? 0,
+            durationSec: stats?.durationSec ?? 0,
             processedBytes: stats?.processedBytes ?? 0,
             totalBytes: stats?.totalBytes ?? 0,
             fileName: stats?.fileName ?? '',
-          } as ProgressPayload);
+          } as WorkerStats);
           break;
 
         case 'HASH_RESULT':
@@ -128,12 +124,13 @@ export class WorkerManager<
           const exifReq =
             this.pendingRequests.get(id) || this.getFirstPendingRequest();
 
-          // 🎨 HEIC/HEIF 썸네일 처리 (메인 스레드에서)
+          // 🎨 썸네일 처리 (이미지 타입만 메인 스레드에서 생성)
           if (
             exifReq &&
             data?.exifInfo &&
             !data.exifInfo.thumbnail &&
             data.mimeType &&
+            isImageMimeType(data.mimeType) &&
             exifReq.file
           ) {
             // 동적 import로 썸네일 생성 함수 로드
