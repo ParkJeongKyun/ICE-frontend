@@ -1,6 +1,7 @@
 import { RefObject, useCallback, useRef } from 'react';
 import { useTab } from '@/contexts/TabDataContext/TabDataContext';
 import { useWorker } from '@/contexts/WorkerContext/WorkerContext';
+import eventBus from '@/types/eventBus';
 import { CHUNK_SIZE, LAYOUT } from '@/constants/hexViewer';
 
 interface UseHexViewerWorkerProps {
@@ -69,93 +70,66 @@ export const useHexViewerWorker = ({
   const initializeWorker = useCallback(
     async (initialPosition: number): Promise<void> => {
       if (!file || !chunkWorker) return;
-      if (fileSize === 0) {
-        const cache = new Map<number, Uint8Array>();
-        if (chunkCacheRef.current) chunkCacheRef.current = cache;
-
-        const handleWorkerMessage = (e: MessageEvent) => {
-          const { type, offset, buffer, data } = e.data;
-          if (type === 'CHUNK_DATA') {
-            const u8 = buffer ? new Uint8Array(buffer) : data ? data : null;
-            if (u8) {
-              cache.set(offset, u8);
-              if (chunkCacheRef.current) chunkCacheRef.current = cache;
-              checkCacheSize();
-              onChunkLoaded();
-            }
-          }
-        };
-
-        if (workerMessageHandlerRef.current) {
-          chunkWorker.removeEventListener(
-            'message',
-            workerMessageHandlerRef.current
-          );
-        }
-
-        chunkWorker.addEventListener('message', handleWorkerMessage);
-        workerMessageHandlerRef.current = handleWorkerMessage;
-
-        isInitialLoadingRef.current = false;
-        onChunkLoaded();
-        return;
-      }
-
       requestedChunksRef.current?.clear();
+      const cache = new Map<number, Uint8Array>();
+      if (chunkCacheRef.current) chunkCacheRef.current = cache;
 
-      const startByte = initialPosition * LAYOUT.bytesPerRow;
-      const chunkOffset = Math.floor(startByte / CHUNK_SIZE) * CHUNK_SIZE;
-
-      try {
-        const blob = file.slice(chunkOffset, chunkOffset + CHUNK_SIZE);
-        const data = new Uint8Array(await blob.arrayBuffer());
-        const cache = new Map<number, Uint8Array>();
-        cache.set(chunkOffset, data);
-
-        if (chunkCacheRef.current) chunkCacheRef.current = cache;
-        requestedChunksRef.current?.add(chunkOffset);
-
-        const handleWorkerMessage = (e: MessageEvent) => {
-          const { type, offset, buffer, data } = e.data;
-          if (type === 'CHUNK_DATA') {
-            const u8 = buffer ? new Uint8Array(buffer) : data ? data : null;
-            if (u8) {
-              cache.set(offset, u8);
-              if (chunkCacheRef.current) chunkCacheRef.current = cache;
-              checkCacheSize();
-              onChunkLoaded();
-            }
+      const handleWorkerMessage = (e: MessageEvent) => {
+        const { type, offset, buffer, data, errorCode } = e.data;
+        if (type === 'CHUNK_DATA') {
+          const u8 = buffer ? new Uint8Array(buffer) : data ? data : null;
+          if (u8) {
+            cache.set(offset, u8);
+            if (chunkCacheRef.current) chunkCacheRef.current = cache;
+            checkCacheSize();
+            onChunkLoaded();
           }
-        };
-
-        if (workerMessageHandlerRef.current) {
-          chunkWorker.removeEventListener(
-            'message',
-            workerMessageHandlerRef.current
+          requestedChunksRef.current?.delete(offset);
+        } else if (type === 'CHUNK_ERROR' || type === 'ERROR') {
+          // ✅ HexViewer에서 청크 에러 완전히 관리
+          requestedChunksRef.current?.delete(offset);
+          console.error(
+            `[HexViewer] Chunk Error at offset ${offset}:`,
+            errorCode
           );
+          // 사용자에게 에러 알림
+          eventBus.emit('toast', { code: errorCode || 'CHUNK_READ_FAILED' });
         }
+      };
 
-        chunkWorker.addEventListener('message', handleWorkerMessage);
-        workerMessageHandlerRef.current = handleWorkerMessage;
-
-        requestChunks(initialPosition, file, fileSize, visibleRows + 20);
-
-        isInitialLoadingRef.current = false;
-        onChunkLoaded();
-      } catch (error) {
-        console.error('[useHexViewerWorker] 초기화 실패:', error);
-        throw error;
+      if (workerMessageHandlerRef.current) {
+        chunkWorker.removeEventListener(
+          'message',
+          workerMessageHandlerRef.current
+        );
       }
+
+      chunkWorker.addEventListener('message', handleWorkerMessage);
+      workerMessageHandlerRef.current = handleWorkerMessage;
+
+      // ✅ 워커 스크립트 로딩 에러 처리 (critical error)
+      chunkWorker.onerror = (event) => {
+        console.error('[HexViewer] Chunk Worker Critical Error');
+        eventBus.emit('toast', { code: 'CHUNK_WORKER_ERROR' });
+      };
+
+      // ✅ 워커에게 초기 데이터 로드 요청
+      // 이 호출부터 워커가 processChunk를 실행하며 test error가 발동합니다.
+      requestChunks(initialPosition, file, fileSize, visibleRows + 20);
+
+      isInitialLoadingRef.current = false;
+      onChunkLoaded();
     },
     [
       file,
       chunkWorker,
-      activeKey,
       fileSize,
       visibleRows,
       requestChunks,
       onChunkLoaded,
       checkCacheSize,
+      requestedChunksRef,
+      chunkCacheRef,
     ]
   );
 

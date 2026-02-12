@@ -75,9 +75,22 @@ export const useHexViewerYScroll = ({
           : Math.max(firstRowRef.current - 1, 0);
       if (nextRow !== firstRowRef.current) {
         updateScrollPosition(nextRow);
+        // ✅ 휠 스크롤 시에도 워커에 데이터 요청
+        // 캐시에 없으면 워커가 processChunk를 실행합니다.
+        if (file) {
+          requestChunks(nextRow, file, fileSize, visibleRows + 20);
+        }
       }
     },
-    [firstRowRef, maxFirstRow, updateScrollPosition]
+    [
+      firstRowRef,
+      maxFirstRow,
+      updateScrollPosition,
+      requestChunks,
+      file,
+      fileSize,
+      visibleRows,
+    ]
   );
 
   // ===== 2. Touch Scroll =====
@@ -107,10 +120,23 @@ export const useHexViewerYScroll = ({
         );
         if (nextRow !== firstRowRef.current) {
           updateScrollPosition(nextRow);
+          // ✅ 터치 스크롤 시에도 워커에 데이터 요청
+          if (file) {
+            requestChunks(nextRow, file, fileSize, visibleRows + 20);
+          }
         }
       }
     },
-    [scrollbarDragging, maxFirstRow, updateScrollPosition, firstRowRef]
+    [
+      scrollbarDragging,
+      maxFirstRow,
+      updateScrollPosition,
+      firstRowRef,
+      requestChunks,
+      file,
+      fileSize,
+      visibleRows,
+    ]
   );
 
   const handleTouchEnd = useCallback(() => {
@@ -176,6 +202,12 @@ export const useHexViewerYScroll = ({
         nextRow = Math.max(0, Math.min(nextRow, maxFirstRow));
 
         if (nextRow !== firstRowRef.current) {
+          // ✅ 큰 스크롤 점프 감지: 20줄 이상 이동하면 워커 큐 비우기
+          const jumpDistance = Math.abs(nextRow - firstRowRef.current);
+          if (jumpDistance > 20 && chunkWorker) {
+            chunkWorker.postMessage({ type: 'CANCEL_ALL' });
+          }
+
           updateScrollPosition(nextRow);
         }
         lastUpdateTime = currentTime;
@@ -203,6 +235,12 @@ export const useHexViewerYScroll = ({
         nextRow = Math.max(0, Math.min(nextRow, maxFirstRow));
 
         if (nextRow !== firstRowRef.current) {
+          // ✅ 큰 스크롤 점프 감지: 20줄 이상 이동하면 워커 큐 비우기
+          const jumpDistance = Math.abs(nextRow - firstRowRef.current);
+          if (jumpDistance > 20 && chunkWorker) {
+            chunkWorker.postMessage({ type: 'CANCEL_ALL' });
+          }
+
           updateScrollPosition(nextRow);
         }
         lastUpdateTime = currentTime;

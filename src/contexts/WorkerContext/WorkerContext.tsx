@@ -191,16 +191,6 @@ export const WorkerProvider: React.FC<{ children: React.ReactNode }> = ({
         );
       }
 
-      // Chunk Worker Error
-      if (chunkWorker) {
-        chunkWorker.onerror = (event) => {
-          console.error('[Chunk Worker] Error:', event.message);
-          eventBus.emit('toast', {
-            code: 'CHUNK_WORKER_ERROR',
-          });
-        };
-      }
-
       return () => {
         hashManager?.terminate();
         analysisManager?.terminate();

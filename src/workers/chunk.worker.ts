@@ -51,6 +51,7 @@ class ChunkWorker {
       self.postMessage({
         type: 'CHUNK_ERROR',
         offset: request.offset,
+        errorCode: 'CHUNK_READ_FAILED',
       });
     } finally {
       this.activeRequests--;
@@ -67,6 +68,11 @@ class ChunkWorker {
     if (type === 'READ_CHUNK') {
       this.queue.push({ type, file, offset, length, priority });
       this.processQueue();
+    } else if (type === 'CANCEL_ALL') {
+      this.queue = [];
+      if (process.env.NODE_ENV === 'development') {
+        console.log('[Chunk Worker] Queue cleared - CANCEL_ALL');
+      }
     }
   }
 }
