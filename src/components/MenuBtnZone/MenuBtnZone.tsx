@@ -25,7 +25,7 @@ const MenuBtnZone: React.FC = () => {
   const pathname = usePathname();
   const { hexViewerRef, setMenuBtnZoneRef, openModal } = useRefs();
   const { setTabData, setActiveKey, getNewKey } = useTab();
-  const { analysisManager, isWasmReady } = useWorker();
+  const { analysisManager } = useWorker();
   const { isAnalysisProcessing } = useProcess();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const toolsMenuRef = useRef<HTMLDivElement>(null);
@@ -92,34 +92,11 @@ const MenuBtnZone: React.FC = () => {
   const handleFileChange = useCallback(
     async (e: ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
-      if (!file) return;
-
-      if (!analysisManager) {
-        eventBus.emit('toast', {
-          code: 'WORKER_NOT_INITIALIZED',
-        });
-        return;
-      }
-
-      if (!isWasmReady) {
-        eventBus.emit('toast', {
-          code: 'WASM_LOADING',
-        });
-        return;
-      }
-
-      if (isAnalysisProcessing) {
-        eventBus.emit('toast', {
-          code: 'FILE_PROCESSING_FAILED',
-          message: t('home.processing'),
-        });
-        return;
-      }
+      if (!file || !analysisManager) return;
 
       try {
         const newActiveKey = getNewKey();
 
-        // ✅ Promise 기반으로 변경 (await 사용)
         const result = await analysisManager.execute('PROCESS_EXIF', {
           file,
         });
@@ -173,36 +150,15 @@ const MenuBtnZone: React.FC = () => {
         setActiveKey(newActiveKey);
         eventBus.emit('toast', { code: 'EXIF_SUCCESS', stats: result.stats });
       } catch (error) {
+        // ✅ 에러는 WorkerContext(WorkerManager.ERROR 이벤트)에서 처리됨
         console.error('[MenuBtnZone] File processing failed:', error);
-        const errorMessage =
-          error instanceof Error ? error.message : '알 수 없는 오류';
-
-        if (
-          error instanceof Error &&
-          error.message === 'EXIF_PROCESSING_TIMEOUT'
-        ) {
-          eventBus.emit('toast', { code: 'EXIF_PROCESSING_TIMEOUT' });
-        } else {
-          eventBus.emit('toast', {
-            code: 'FILE_PROCESSING_FAILED',
-            message: errorMessage,
-          });
-        }
       } finally {
         if (fileInputRef.current) {
           fileInputRef.current.value = '';
         }
       }
     },
-    [
-      analysisManager,
-      isWasmReady,
-      isAnalysisProcessing,
-      getNewKey,
-      setTabData,
-      setActiveKey,
-      hexViewerRef,
-    ]
+    [analysisManager, getNewKey, setTabData, setActiveKey, hexViewerRef]
   );
 
   // Register methods into RefContext so parents can use without passing ref

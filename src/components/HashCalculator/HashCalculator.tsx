@@ -124,9 +124,6 @@ const HashCalculator: React.FC = () => {
         }
       } catch (error) {
         console.error(`[HashCalculator] Error calculating ${hashType}:`, error);
-        const errorMsg =
-          error instanceof Error ? error.message : 'Unknown error';
-        eventBus.emit('toast', { code: 'COMMON_ERROR', message: errorMsg });
       } finally {
         setCalculatingHash(null);
       }

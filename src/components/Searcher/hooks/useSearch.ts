@@ -59,11 +59,8 @@ export const useSearch = () => {
 
         return result;
       } catch (error) {
-        eventBus.emit('toast', {
-          code: 'SEARCH_ERROR',
-          message: error instanceof Error ? error.message : 'Search failed',
-        });
-        throw error;
+        console.error('[useSearch] Search execution failed:', error);
+        return null;
       }
     },
     [file, analysisManager, activeKey]

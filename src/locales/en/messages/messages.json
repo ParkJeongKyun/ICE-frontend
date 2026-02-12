@@ -7,10 +7,6 @@
     "delete": "Delete",
     "back": "Back"
   },
-  "WORKER_NOT_INITIALIZED": {
-    "title": "Worker Error",
-    "message": "Worker is not initialized.\nPlease refresh the page."
-  },
   "WORKER_CREATION_FAILED": {
     "title": "Worker Creation Failed",
     "message": "Failed to create worker.\nPlease refresh the page."
@@ -22,10 +18,6 @@
   "WORKER_INIT_FAILED": {
     "title": "Worker Initialization Failed",
     "message": "Failed to initialize the worker."
-  },
-  "WASM_LOADING": {
-    "title": "WASM Loading",
-    "message": "WASM is loading.\nPlease try again later."
   },
   "WASM_LOAD_FAILED": {
     "title": "WASM Load Failed",
@@ -77,6 +69,10 @@
   },
   "HASH_CALCULATION_SUCCESS": {
     "title": "Hash Calculated"
+  },
+  "HASH_TIMEOUT": {
+    "title": "Hash Calculation Timeout",
+    "message": "Hash calculation timed out.\nPlease try again."
   },
   "SEARCH_NO_RESULTS": {
     "title": "No Results",

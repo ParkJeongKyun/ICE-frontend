@@ -94,12 +94,13 @@ export class WorkerManager<
           break;
 
         case 'HASH_RESULT':
-          const hashReq =
-            this.pendingRequests.get(id) || this.getFirstPendingRequest();
-          if (hashReq) {
-            hashReq.resolve({ data, stats } as any);
-            this.pendingRequests.delete(id);
+          const hashReq = this.pendingRequests.get(id);
+          if (!hashReq) {
+            // Request not found (timed out), ignore result
+            break;
           }
+          hashReq.resolve({ data, stats } as any);
+          this.pendingRequests.delete(id);
           this.events.emit('DONE', {
             type: 'HASH_RESULT',
             result: { data, stats } as any,
@@ -108,12 +109,13 @@ export class WorkerManager<
 
         case 'SEARCH_RESULT_HEX':
         case 'SEARCH_RESULT_ASCII':
-          const searchReq =
-            this.pendingRequests.get(id) || this.getFirstPendingRequest();
-          if (searchReq) {
-            searchReq.resolve({ data, stats } as any);
-            this.pendingRequests.delete(id);
+          const searchReq = this.pendingRequests.get(id);
+          if (!searchReq) {
+            // Request not found (timed out), ignore result
+            break;
           }
+          searchReq.resolve({ data, stats } as any);
+          this.pendingRequests.delete(id);
           this.events.emit('DONE', {
             type,
             result: { data, stats } as any,
@@ -121,12 +123,14 @@ export class WorkerManager<
           break;
 
         case 'EXIF_RESULT':
-          const exifReq =
-            this.pendingRequests.get(id) || this.getFirstPendingRequest();
+          const exifReq = this.pendingRequests.get(id);
+          if (!exifReq) {
+            // Request not found (timed out), ignore result
+            break;
+          }
 
           // 🎨 썸네일 처리 (이미지 타입만 메인 스레드에서 생성)
           if (
-            exifReq &&
             data?.exifInfo &&
             !data.exifInfo.thumbnail &&
             data.mimeType &&
@@ -163,10 +167,9 @@ export class WorkerManager<
                 });
               });
           } else {
-            if (exifReq) {
-              exifReq.resolve({ data, stats } as any);
-              this.pendingRequests.delete(id);
-            }
+            // 썸네일 생성이 필요 없는 경우
+            exifReq.resolve({ data, stats } as any);
+            this.pendingRequests.delete(id);
             this.events.emit('DONE', {
               type,
               result: { data, stats } as any,
@@ -178,36 +181,44 @@ export class WorkerManager<
         case 'SEARCH_ERROR':
         case 'EXIF_ERROR':
         case 'ERROR':
-          const errReq =
-            this.pendingRequests.get(id) || this.getFirstPendingRequest();
+          const errReq = this.pendingRequests.get(id);
           if (errReq) {
-            errReq.reject(new Error(error || errorCode));
-            this.pendingRequests.delete(id);
-          } else {
-            // 요청 ID가 없는 전역 에러는 이벤트로 전파
+            const errorMessage = errorCode || error || 'Unknown error';
+
+            // ✅ 글로벌 ERROR 이벤트 발행 (WorkerContext가 구독)
             this.events.emit('ERROR', {
-              code: errorCode || 'WORKER_ERROR',
-              message: error || errorCode || 'Unknown error',
+              code: errorCode || 'WORKER_LOGIC_ERROR',
+              message: errorMessage,
             });
+
+            // ✅ Promise reject (컴포넌트 로딩 상태 해제용)
+            errReq.reject(new Error(errorMessage));
+            this.pendingRequests.delete(id);
           }
           break;
       }
     };
 
-    this.worker.onerror = (event) => {
+    // ✅ worker.onerror: 워커 스크립트 로딩/초기화 에러 처리
+    // HASH_ERROR, SEARCH_ERROR 등의 로직상 에러는 메시지로 옴
+    // 하지만 워커 파일이 404이거나 문법 에러가 있으면, self.addEventListener가 실행되기 전에
+    // 워커가 뻗어버리므로 메시지가 오지 않고 worker.onerror만 발생함
+    this.worker.onerror = (event: ErrorEvent) => {
+      console.error('[WorkerManager] Critical Worker Error:', event.message);
+
+      // 대기 중인 모든 요청을 에러 처리
+      this.pendingRequests.forEach((req) => {
+        req.reject(new Error(`WORKER_CRITICAL_ERROR: ${event.message}`));
+      });
+      this.pendingRequests.clear();
+      this.stopProcessing?.();
+
+      // 컴포넌트에 에러 전파
       this.events.emit('ERROR', {
-        code: 'WORKER_RUNTIME_ERROR',
+        code: 'WORKER_CRITICAL_ERROR',
         message: event.message,
       });
     };
-  }
-
-  // 첫 번째 대기 중인 요청을 반환하는 헬퍼
-  private getFirstPendingRequest() {
-    for (const [, req] of this.pendingRequests) {
-      return req;
-    }
-    return null;
   }
 
   // Overload signatures for type inference
@@ -234,13 +245,53 @@ export class WorkerManager<
     // 프로세스 시작
     this.startProcessing?.();
 
+    // 타입별 타임아웃 설정 (ms)
+    const timeoutMap: Record<string, number> = {
+      PROCESS_HASH: 1, // 5분
+      SEARCH_HEX: 1, // 5분
+      SEARCH_ASCII: 1, // 5분
+      PROCESS_EXIF: 1, // 30초
+    };
+
+    // 타입별 타임아웃 토스트 코드 매핑
+    const timeoutCodeMap: Record<string, string> = {
+      PROCESS_HASH: 'HASH_TIMEOUT',
+      PROCESS_EXIF: 'EXIF_PROCESSING_TIMEOUT',
+      SEARCH_HEX: 'SEARCH_TIMEOUT',
+      SEARCH_ASCII: 'SEARCH_TIMEOUT',
+    };
+
+    const timeoutMs = timeoutMap[type] ?? 60000; // 기본값 1분
+    const timeoutCode = timeoutCodeMap[type] ?? 'TIMEOUT';
+
     return new Promise((resolve, reject) => {
+      // ✅ 타임아웃 설정 (워커에 취소 신호 전송 + 에러 반환)
+      const timeoutId = setTimeout(() => {
+        // 1️⃣ 워커에게 취소 신호 전송 (soft cancel)
+        this.worker.postMessage({ type: 'CANCEL', id });
+
+        // 2️⃣ 주요 리소스 정리
+        this.pendingRequests.delete(id);
+        this.stopProcessing?.();
+
+        // 3️⃣ 글로벌 ERROR 이벤트 발행 (WorkerContext가 구독)
+        this.events.emit('ERROR', {
+          code: timeoutCode,
+          message: `Task timeout: ${timeoutCode}`,
+        });
+
+        // 4️⃣ Promise reject (컴포넌트 로딩 상태 해제용)
+        reject(new Error(timeoutCode));
+      }, timeoutMs);
+
       this.pendingRequests.set(id, {
         resolve: (value) => {
+          clearTimeout(timeoutId);
           this.stopProcessing?.();
           resolve(value);
         },
         reject: (error) => {
+          clearTimeout(timeoutId);
           this.stopProcessing?.();
           reject(error);
         },

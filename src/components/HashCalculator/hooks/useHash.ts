@@ -23,12 +23,8 @@ export const useHash = () => {
 
         return result;
       } catch (error) {
-        eventBus.emit('toast', {
-          code: 'HASH_ERROR',
-          message:
-            error instanceof Error ? error.message : 'Hash calculation failed',
-        });
-        throw error;
+        console.error('[useHash] Hash execution failed:', error);
+        return null;
       }
     },
     [file, hashManager]

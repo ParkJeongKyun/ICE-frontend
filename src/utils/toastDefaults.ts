@@ -5,12 +5,10 @@ export const TOAST_DEFAULTS: Record<
   { type: MessageType; duration: number }
 > = {
   // Worker 관련
-  WORKER_NOT_INITIALIZED: { type: 'error', duration: 10000 },
   WORKER_CREATION_FAILED: { type: 'error', duration: 10000 },
   WORKER_ERROR: { type: 'error', duration: 10000 },
 
   // WASM 관련
-  WASM_LOADING: { type: 'warning', duration: 6000 },
   WASM_LOAD_FAILED: { type: 'error', duration: 10000 },
   WASM_NOT_READY: { type: 'warning', duration: 6000 },
   WASM_LOADED_SUCCESS: { type: 'success', duration: 4000 },
@@ -46,6 +44,7 @@ export const TOAST_DEFAULTS: Record<
   // Hash 관련
   NO_FILE_SELECTED: { type: 'warning', duration: 4000 },
   HASH_CALCULATION_SUCCESS: { type: 'success', duration: 4000 },
+  HASH_TIMEOUT: { type: 'error', duration: 10000 },
   COMMON_ERROR: { type: 'error', duration: 10000 },
 
   // 기타

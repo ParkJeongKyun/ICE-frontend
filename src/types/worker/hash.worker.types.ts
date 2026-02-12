@@ -5,7 +5,7 @@
 import { WorkerStats } from './index.worker.types';
 
 // Request
-export type HashWorkerRequestType = 'PROCESS_HASH';
+export type HashWorkerRequestType = 'PROCESS_HASH' | 'CANCEL'; // ✅ CANCEL: 타임아웃 시 WorkerManager에서 전송
 export type HashType = 'sha256' | 'sha512' | 'md5' | 'sha1';
 
 export interface HashWorkerRequest {

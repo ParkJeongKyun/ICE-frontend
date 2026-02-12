@@ -186,8 +186,11 @@ const Searcher: React.FC = () => {
           results,
         });
 
-        // 캐시 MISS 검색 결과 토스트 (stats 포함)
-        if (results.length > 0 && searchResult) {
+        if (searchResult === null) {
+          return;
+        }
+
+        if (results.length > 0) {
           eventBus.emit('toast', {
             code: 'SEARCH_SUCCESS',
             message: t('searcher.success', {
@@ -198,7 +201,7 @@ const Searcher: React.FC = () => {
         } else {
           eventBus.emit('toast', {
             code: 'SEARCH_NO_RESULTS',
-            stats: searchResult?.stats,
+            stats: searchResult.stats,
           });
         }
 

@@ -51,7 +51,6 @@ class ChunkWorker {
       self.postMessage({
         type: 'CHUNK_ERROR',
         offset: request.offset,
-        error: (error as Error).message,
       });
     } finally {
       this.activeRequests--;
@@ -76,14 +75,14 @@ class ChunkWorker {
 self.addEventListener('error', (event) => {
   self.postMessage({
     type: 'ERROR',
-    error: event.error?.message || event.message,
+    errorCode: 'WORKER_ERROR',
   });
 });
 
 self.addEventListener('unhandledrejection', (event) => {
   self.postMessage({
     type: 'ERROR',
-    error: `Promise rejection: ${event.reason}`,
+    errorCode: 'WORKER_ERROR',
   });
 });
 

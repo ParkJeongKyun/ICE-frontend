@@ -200,7 +200,6 @@ class AnalysisWorker {
       self.postMessage({
         type: 'WASM_ERROR',
         errorCode: 'WASM_INIT_FAILED',
-        error: (error as Error).message,
       });
     }
   }
@@ -212,21 +211,18 @@ class AnalysisWorker {
     try {
       this.initProgress(file.size, id);
 
-      // ✅ WASM 준비 대기 로직
-      const startTime = Date.now();
-      const timeout = 3000;
-
-      while (!this.wasmReady && Date.now() - startTime < timeout) {
-        await new Promise((resolve) => setTimeout(resolve, 100));
-      }
-
       if (!this.wasmReady || !this.wasmExifFunc) {
         self.postMessage({
           type: 'EXIF_ERROR',
           errorCode: 'WASM_NOT_READY',
-          error: 'WASM module not ready',
         });
         return;
+      }
+
+      // ✅ [우선순위 1] WASM 실행 전 취소 요청 확인
+      if (this.cancelledRequestIds.has(id)) {
+        this.cancelledRequestIds.delete(id);
+        return; // 작업 중단
       }
 
       const perfStart = performance.now();
@@ -243,7 +239,6 @@ class AnalysisWorker {
           type: 'EXIF_ERROR',
           stats: { id },
           errorCode: 'EXIF_PARSE_ERROR',
-          error: wasmResult.error,
         });
         return;
       }
@@ -277,7 +272,6 @@ class AnalysisWorker {
         type: 'EXIF_ERROR',
         id,
         errorCode: 'EXIF_ERROR',
-        error: (error as Error).message,
       });
     }
   }
@@ -296,14 +290,6 @@ class AnalysisWorker {
 
     const patternBytes = new TextEncoder().encode(pattern);
 
-    // ✅ WASM 준비 대기 로직
-    const startTime = Date.now();
-    const timeout = 3000;
-
-    while (!this.wasmReady && Date.now() - startTime < timeout) {
-      await new Promise((resolve) => setTimeout(resolve, 100));
-    }
-
     if (!this.wasmReady || !this.wasmSearchFunc) {
       self.postMessage({
         type: type === 'HEX' ? 'SEARCH_RESULT_HEX' : 'SEARCH_RESULT_ASCII',
@@ -318,7 +304,6 @@ class AnalysisWorker {
           fileName: this.currentFileName,
         },
         errorCode: 'WASM_NOT_READY',
-        error: 'WASM module not ready',
       });
       return;
     }
@@ -330,6 +315,12 @@ class AnalysisWorker {
         ignoreCase: type === 'ASCII' ? ignoreCase : false,
         maxResults: 1000,
       };
+
+      // ✅ [우선순위 1] WASM 실행 전 취소 요청 확인
+      if (this.cancelledRequestIds.has(id)) {
+        this.cancelledRequestIds.delete(id);
+        return; // 작업 중단
+      }
 
       // --- WASM 실행 (핵심 작업) ---
       const result = this.wasmSearchFunc(file, patternBytes, searchOptions);
@@ -352,7 +343,6 @@ class AnalysisWorker {
             fileName: file.name,
           },
           errorCode: 'SEARCH_WASM_ERROR',
-          error: result.error,
         });
         return;
       }
@@ -384,7 +374,6 @@ class AnalysisWorker {
           id,
         },
         errorCode: 'SEARCH_ERROR',
-        error: (error as Error).message || 'Search failed',
       });
     }
   }
@@ -392,25 +381,25 @@ class AnalysisWorker {
   /**
    * 메시지 핸들러
    */
-  handle(data: AnalysisWorkerRequest): void {
+  async handle(data: AnalysisWorkerRequest): Promise<void> {
     const { type, id, file, pattern, ignoreCase } = data;
 
     switch (type) {
-      case 'CANCEL_SEARCH':
+      case 'CANCEL': // ✅ 타임아웃 시 워커 취소 신호 (WorkerManager에서 전송)
         this.cancelledRequestIds.add(id);
         break;
 
       case 'RELOAD_WASM':
         if (!this.wasmInitializing) {
           this.wasmReady = false;
-          this.initWasm();
+          await this.initWasm();
         }
         break;
 
       case 'SEARCH_HEX':
       case 'SEARCH_ASCII':
         if (file && pattern) {
-          this.search(
+          await this.search(
             id,
             file,
             pattern,
@@ -422,7 +411,7 @@ class AnalysisWorker {
 
       case 'PROCESS_EXIF':
         if (file) {
-          this.processExif(id, file);
+          await this.processExif(id, file);
         }
         break;
     }
@@ -434,7 +423,6 @@ self.addEventListener('error', (event) => {
   self.postMessage({
     type: 'ERROR',
     errorCode: 'WORKER_ERROR',
-    error: event.error?.message || event.message,
   });
 });
 
@@ -442,7 +430,6 @@ self.addEventListener('unhandledrejection', (event) => {
   self.postMessage({
     type: 'ERROR',
     errorCode: 'WORKER_ERROR',
-    error: `Promise rejection: ${event.reason}`,
   });
 });
 
