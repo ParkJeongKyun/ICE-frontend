@@ -1,6 +1,5 @@
 import { useCallback } from 'react';
 import { useTab } from '@/contexts/TabDataContext/TabDataContext';
-import { useProcess } from '@/contexts/ProcessContext/ProcessContext';
 import { useWorker } from '@/contexts/WorkerContext/WorkerContext';
 import type { HashType } from '@/types/hash';
 import type { HashResult } from '@/types/worker/hash.worker.types';
@@ -8,7 +7,6 @@ import eventBus from '@/types/eventBus';
 
 export const useHash = () => {
   const { activeData } = useTab();
-  const { startProcessing, stopProcessing } = useProcess();
   const { hashManager } = useWorker();
 
   const file = activeData?.file;
@@ -16,8 +14,6 @@ export const useHash = () => {
   const executeHash = useCallback(
     async (hashType: HashType): Promise<HashResult | null> => {
       if (!hashManager) return null;
-
-      startProcessing();
 
       try {
         const result = await hashManager.execute('PROCESS_HASH', {
@@ -33,11 +29,9 @@ export const useHash = () => {
             error instanceof Error ? error.message : 'Hash calculation failed',
         });
         throw error;
-      } finally {
-        stopProcessing();
       }
     },
-    [file, hashManager, startProcessing, stopProcessing]
+    [file, hashManager]
   );
 
   const calculateSHA256 = useCallback(async (): Promise<HashResult | null> => {

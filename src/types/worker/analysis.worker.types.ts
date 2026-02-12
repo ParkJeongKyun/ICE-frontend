@@ -4,6 +4,7 @@
  */
 
 import { WorkerStats } from './index.worker.types';
+import { ExifInfo } from '@/types';
 
 // ============================================================================
 // Request
@@ -40,7 +41,7 @@ export interface ExifResult {
     hasExif: boolean;
     mimeType: string;
     extension: string;
-    exifData: string | null;
+    exifInfo: ExifInfo;
   };
   stats: WorkerStats;
 }

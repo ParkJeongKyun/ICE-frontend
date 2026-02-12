@@ -10,7 +10,6 @@ import HexViewer from '@/components/HexViewer/HexViewer';
 import { useProcess } from '@/contexts/ProcessContext/ProcessContext';
 import { useTab } from '@/contexts/TabDataContext/TabDataContext';
 import { useRefs } from '@/contexts/RefContext/RefContext';
-import { parseExifData } from '@/utils/exifParser';
 import { useWorker } from '@/contexts/WorkerContext/WorkerContext';
 import { getClientIp } from '@/utils/getClientIp';
 import eventBus from '@/types/eventBus';
@@ -27,7 +26,7 @@ const MenuBtnZone: React.FC = () => {
   const { hexViewerRef, setMenuBtnZoneRef, openModal } = useRefs();
   const { setTabData, setActiveKey, getNewKey } = useTab();
   const { analysisManager, isWasmReady } = useWorker();
-  const { startProcessing, stopProcessing, isProcessing } = useProcess();
+  const { isProcessing } = useProcess();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const toolsMenuRef = useRef<HTMLDivElement>(null);
   const [showToolsMenu, setShowToolsMenu] = useState(false);
@@ -117,8 +116,6 @@ const MenuBtnZone: React.FC = () => {
         return;
       }
 
-      startProcessing();
-
       try {
         const newActiveKey = getNewKey();
 
@@ -141,11 +138,7 @@ const MenuBtnZone: React.FC = () => {
           location,
           ifdInfos,
           tagInfos,
-        } = await parseExifData(
-          result.data.exifData || '[]',
-          file,
-          result.data.mimeType
-        );
+        } = result.data.exifInfo;
 
         setTabData((prevDatas) => ({
           ...prevDatas,
@@ -196,7 +189,6 @@ const MenuBtnZone: React.FC = () => {
           });
         }
       } finally {
-        stopProcessing();
         if (fileInputRef.current) {
           fileInputRef.current.value = '';
         }
@@ -206,8 +198,6 @@ const MenuBtnZone: React.FC = () => {
       analysisManager,
       isWasmReady,
       isProcessing,
-      startProcessing,
-      stopProcessing,
       getNewKey,
       setTabData,
       setActiveKey,

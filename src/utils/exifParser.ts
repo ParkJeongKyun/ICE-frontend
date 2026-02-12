@@ -1,129 +1,70 @@
+import { ExifInfo, ExifRow, IfdInfo } from '@/types';
 import dayjs from 'dayjs';
-import { ExifRow, ExifInfo, IfdInfo } from '@/types';
-import { parseGPSFromRows } from './gps';
-import {
-  createThumbnailBlobFromTag,
-  createThumbnailFromImage,
-} from './thumbnail';
 
-/**
- * EXIF 데이터 파싱
- * - GO가 반환한 객체(또는 JSON 문자열)를 입력으로 허용
- * - 태그 배열을 정리하여 `ExifInfo`를 반환
- */
-export const parseExifData = async (
+// EXIF 데이터를 파싱하여 ExifInfo 객체 생성
+export async function parseExifDataInWorker(
   exifData: unknown,
-  file?: File,
-  mimeType?: string
-): Promise<ExifInfo> => {
+  file: File,
+  mimeType: string,
+  syncReader: FileReaderSync
+): Promise<ExifInfo> {
   let thumbnail = '';
   let baseOffset = 0;
   let dataSize = 0;
   let endOffset = 0;
   let byteOrder: string | undefined;
   let firstIfdOffset: number | undefined;
-  let lat = 'NaN';
-  let lng = 'NaN';
   let ifdInfos: IfdInfo[] | undefined;
   let tagInfos: ExifRow[] | null = null;
+  let location = { lat: 'NaN', lng: 'NaN' };
 
   try {
     const parsed: any =
-      typeof exifData === 'string' ? JSON.parse(exifData) : (exifData as any);
+      typeof exifData === 'string' ? JSON.parse(exifData) : exifData;
 
-    if (process.env.NODE_ENV === 'development') {
-      console.log('parseExifData input:', parsed);
-    }
+    if (parsed && Array.isArray(parsed.tags)) {
+      const metaRows = parsed.tags;
 
-    if (!parsed || !Array.isArray(parsed.tags)) {
-      // 태그 배열이 없어도 이미지면 썸네일 생성
-      if (file && mimeType && mimeType.startsWith('image')) {
-        try {
-          const thumbBlob = await createThumbnailFromImage(file);
-          thumbnail = URL.createObjectURL(thumbBlob);
-        } catch (err) {
-          thumbnail = URL.createObjectURL(file);
-        }
+      // 메타데이터 추출
+      baseOffset = Number(parsed.baseOffset) || 0;
+      dataSize = Number(parsed.dataSize) || 0;
+      endOffset = Number(parsed.endOffset) || 0;
+      byteOrder = parsed.byteOrder ? String(parsed.byteOrder) : undefined;
+      firstIfdOffset =
+        parsed.firstIfdOffset !== undefined && parsed.firstIfdOffset !== null
+          ? Number(parsed.firstIfdOffset)
+          : undefined;
+      ifdInfos = Array.isArray(parsed.ifdInfo) ? parsed.ifdInfo : undefined;
+
+      // 태그 정규화
+      tagInfos = metaRows.map((item: any) => ({
+        tag: item.tag,
+        ifd: item.ifd,
+        data: item.data,
+        type: item.type,
+        offset: Number.isFinite(Number(item.offset))
+          ? Number(item.offset)
+          : undefined,
+        length: Number.isFinite(Number(item.length))
+          ? Number(item.length)
+          : undefined,
+        isFar: Boolean(item.isFar),
+      }));
+
+      // Go WASM에서 생성한 썸네일 및 GPS 좌표 사용
+      if (parsed.thumbnail) {
+        thumbnail = parsed.thumbnail; // base64 Data URL
       }
-      return {
-        thumbnail,
-        baseOffset,
-        dataSize,
-        endOffset,
-        byteOrder,
-        firstIfdOffset,
-        location: { lat, lng },
-        ifdInfos,
-        tagInfos: null,
-      } as ExifInfo;
-    }
 
-    const metaRows = parsed.tags as any[];
-
-    // GO에서 제공되는 필드 안정적으로 읽기
-    baseOffset = Number(parsed.baseOffset);
-    dataSize = Number(parsed.dataSize);
-    endOffset = Number(parsed.endOffset);
-    byteOrder = parsed.byteOrder ? String(parsed.byteOrder) : undefined;
-    firstIfdOffset =
-      parsed.firstIfdOffset !== undefined && parsed.firstIfdOffset !== null
-        ? Number(parsed.firstIfdOffset)
-        : undefined;
-    ifdInfos = Array.isArray(parsed.ifdInfo)
-      ? (parsed.ifdInfo as IfdInfo[])
-      : undefined;
-
-    // GPS 파싱
-    const parsedGPS = parseGPSFromRows(metaRows);
-    lat = parsedGPS.lat;
-    lng = parsedGPS.lng;
-
-    // 태그 리스트 정규화
-    tagInfos = metaRows.map((item: ExifRow) => ({
-      tag: item.tag,
-      ifd: item.ifd,
-      data: item.data,
-      type: item.type,
-      offset: Number.isFinite(Number(item.offset))
-        ? Number(item.offset)
-        : undefined,
-      length: Number.isFinite(Number(item.length))
-        ? Number(item.length)
-        : undefined,
-      isFar: Boolean(item.isFar),
-    })) as ExifRow[];
-
-    // 썸네일 추출 (우선 EXIF thumb tags, 없으면 image 파일로 폴백)
-    const findTag = (names: string[]) =>
-      metaRows.find((it: any) => names.includes(it.tag));
-    const thumbTag = findTag([
-      'JPEGInterchangeFormat',
-      'ThumbJPEGInterchangeFormat',
-    ]);
-    const thumbLenTag = findTag([
-      'JPEGInterchangeFormatLength',
-      'ThumbJPEGInterchangeFormatLength',
-    ]);
-
-    const createFromTagBlob = (tagItem?: any, lenItem?: any): Blob | null => {
-      if (!tagItem || !tagItem.data) return null;
-      return createThumbnailBlobFromTag(tagItem.data, lenItem?.data, file);
-    };
-
-    const topBlob = createFromTagBlob(thumbTag, thumbLenTag);
-    if (topBlob) {
-      thumbnail = URL.createObjectURL(topBlob);
-    } else if (file && mimeType && mimeType.startsWith('image')) {
-      // EXIF 썸네일이 없으면 Canvas로 리사이징
-      try {
-        const thumbBlob = await createThumbnailFromImage(file);
-        thumbnail = URL.createObjectURL(thumbBlob);
-      } catch (err) {
-        thumbnail = URL.createObjectURL(file);
+      if (parsed.location) {
+        location = {
+          lat: String(parsed.location.lat || 'NaN'),
+          lng: String(parsed.location.lng || 'NaN'),
+        };
       }
     }
   } catch (err) {
-    console.error('parseExifData error:', err);
+    console.error('[exifParser] Parse error:', err);
   }
 
   return {
@@ -133,12 +74,11 @@ export const parseExifData = async (
     endOffset,
     byteOrder,
     firstIfdOffset,
-    location: { lat, lng },
+    location,
     ifdInfos,
     tagInfos,
   } as ExifInfo;
-};
-
+}
 // Byte 포매터
 export const getBytes = (bytes: number, decimals = 2): string => {
   if (bytes === 0) return '0 B';

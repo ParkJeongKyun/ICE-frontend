@@ -1,6 +1,5 @@
 import { useRef, useCallback } from 'react';
 import { useTab } from '@/contexts/TabDataContext/TabDataContext';
-import { useProcess } from '@/contexts/ProcessContext/ProcessContext';
 import { useWorker } from '@/contexts/WorkerContext/WorkerContext';
 import { asciiToBytes } from '@/utils/hexViewer';
 import { IndexInfo } from '@/components/HexViewer/HexViewer';
@@ -21,7 +20,6 @@ const filterInput = (inputValue: string, type: SearchType) => {
 
 export const useSearch = () => {
   const { activeKey, activeData } = useTab();
-  const { startProcessing, stopProcessing } = useProcess();
   const { analysisManager } = useWorker();
 
   const file = activeData?.file;
@@ -47,7 +45,6 @@ export const useSearch = () => {
       if (!analysisManager) return null;
 
       const searchStartTabKey = activeKey;
-      startProcessing();
 
       try {
         const result = await analysisManager.execute(searchType, {
@@ -67,11 +64,9 @@ export const useSearch = () => {
           message: error instanceof Error ? error.message : 'Search failed',
         });
         throw error;
-      } finally {
-        stopProcessing();
       }
     },
-    [file, analysisManager, activeKey, startProcessing, stopProcessing]
+    [file, analysisManager, activeKey]
   );
 
   const findAllByHex = useCallback(

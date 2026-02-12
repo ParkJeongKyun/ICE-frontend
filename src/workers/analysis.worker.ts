@@ -6,11 +6,10 @@ import {
   WasmSearchFunction,
 } from '@/types/worker/analysis.worker.types';
 import { createStats, calculateProgressInterval } from './workerUtils';
+import { parseExifDataInWorker } from '@/utils/exifParser';
+import { generateThumbnailFromFile } from './utils/thumbnailGenerator';
 
 declare const self: DedicatedWorkerGlobalScope;
-
-// ✅ FileReaderSync를 사용한 동기 파일 읽기
-const syncReader = new FileReaderSync();
 
 // 📊 [최적화된 로깅] 배열 대신 '단순 숫자 변수'만 사용
 // 객체 생성(Allocation)이 없으므로 GC 부하가 0에 가깝습니다.
@@ -23,6 +22,9 @@ let currentFileName = '';
 let currentRequestId: string | undefined;
 let lastProgressReportBytes = 0;
 let progressReportInterval = 4 * 1024 * 1024; // 동적으로 계산됨
+
+// ✅ FileReaderSync를 사용한 동기 파일 읽기
+const syncReader = new FileReaderSync();
 
 /**
  * Go WASM에서 호출할 전역 동기 함수
@@ -106,6 +108,21 @@ self.addEventListener('unhandledrejection', (event) => {
 
 // ✅ 동시 처리 제한 (요청 ID 기반)
 let cancelledRequestIds = new Set<string>();
+
+// 요청별 진행률 추적 초기화
+function initProgress(
+  fileSize: number,
+  requestId: string,
+  fileName: string = ''
+) {
+  totalReadCount = 0;
+  totalReadBytes = 0;
+  lastProgressReportBytes = 0;
+  currentFileSize = fileSize;
+  currentFileName = fileName;
+  currentRequestId = requestId;
+  progressReportInterval = calculateProgressInterval(fileSize).bytes;
+}
 
 // WASM 관련 변수
 let wasmReady = false;
@@ -245,66 +262,83 @@ self.addEventListener('message', (e: MessageEvent<AnalysisWorkerRequest>) => {
       break;
   }
 });
+
 async function processExif(id: string, file: File) {
-  // ✅ 진행률 추적 초기화
-  currentFileSize = file.size;
-  currentRequestId = id;
-  lastProgressReportBytes = 0;
-  totalReadBytes = 0;
-  totalReadCount = 0;
-  progressReportInterval = calculateProgressInterval(file.size).bytes;
-
-  // ✅ WASM 준비 대기 로직 통일
-  const startTime = Date.now();
-  const timeout = 3000;
-
-  while (!wasmReady && Date.now() - startTime < timeout) {
-    await new Promise((resolve) => setTimeout(resolve, 100));
-  }
-
-  if (!wasmReady || !wasmExifFunc) {
-    self.postMessage({
-      type: 'EXIF_ERROR',
-      errorCode: 'WASM_NOT_READY',
-      error: 'WASM module not ready',
-    });
-    return;
-  }
-
   try {
-    const startBytes = totalReadBytes;
-    const perfStart = performance.now();
+    // ✅ 진행률 추적 초기화
+    initProgress(file.size, id);
 
-    // --- WASM 실행 (핵심 작업) ---
-    const result = wasmExifFunc(file);
-    // -------------------------
+    // ✅ WASM 준비 대기 로직
+    const startTime = Date.now();
+    const timeout = 3000;
 
-    // 📊 [측정 종료] 차이값 계산
-    const perfEnd = performance.now();
-    const duration = perfEnd - perfStart;
-    const bytesRead = totalReadBytes - startBytes;
+    while (!wasmReady && Date.now() - startTime < timeout) {
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
 
-    if (result.error) {
+    if (!wasmReady || !wasmExifFunc) {
       self.postMessage({
         type: 'EXIF_ERROR',
-        stats: {
-          id,
-        },
-        errorCode: 'EXIF_PARSE_ERROR',
-        error: result.error,
+        errorCode: 'WASM_NOT_READY',
+        error: 'WASM module not ready',
       });
-    } else {
-      self.postMessage({
-        type: 'EXIF_RESULT',
-        stats: createStats(id, duration, bytesRead, currentFileSize, file.name),
-        data: {
-          hasExif: result.hasExif,
-          mimeType: result.mimeType,
-          extension: result.extension,
-          exifData: result.exifData,
-        },
-      });
+      return;
     }
+
+    const perfStart = performance.now();
+
+    // --- WASM 실행 (EXIF 추출) ---
+    const wasmResult = wasmExifFunc(file);
+    // -------------------------
+
+    const perfEnd = performance.now();
+    const duration = perfEnd - perfStart;
+
+    if (wasmResult.error) {
+      self.postMessage({
+        type: 'EXIF_ERROR',
+        stats: { id },
+        errorCode: 'EXIF_PARSE_ERROR',
+        error: wasmResult.error,
+      });
+      return;
+    }
+
+    // 📝 EXIF 데이터 파싱 (워커 유틸 사용)
+    const exifInfo = await parseExifDataInWorker(
+      wasmResult.exifData || '[]',
+      file,
+      wasmResult.mimeType || '',
+      syncReader
+    );
+
+    // 🎨 썸네일 처리: EXIF 태그에 없으면 원본 이미지로부터 생성
+    if (!exifInfo.thumbnail && wasmResult.mimeType) {
+      const generatedThumbnail = await generateThumbnailFromFile(
+        file,
+        wasmResult.mimeType
+      );
+      if (generatedThumbnail) {
+        exifInfo.thumbnail = generatedThumbnail;
+      }
+    }
+
+    self.postMessage({
+      type: 'EXIF_RESULT',
+      stats: createStats(
+        id,
+        duration,
+        totalReadBytes,
+        currentFileSize,
+        file.name
+      ),
+      data: {
+        hasExif: wasmResult.hasExif || false,
+        mimeType: wasmResult.mimeType,
+        extension: wasmResult.extension,
+        exifInfo,
+      },
+    });
   } catch (error) {
     self.postMessage({
       type: 'EXIF_ERROR',
@@ -324,13 +358,7 @@ async function searchInFile(
   ignoreCase: boolean = false
 ) {
   // ✅ 진행률 추적 초기화
-  currentFileSize = file.size;
-  currentFileName = file.name;
-  currentRequestId = id;
-  lastProgressReportBytes = 0;
-  totalReadBytes = 0;
-  totalReadCount = 0;
-  progressReportInterval = calculateProgressInterval(file.size).bytes;
+  initProgress(file.size, id, file.name);
 
   // pattern을 Uint8Array로 변환
   const patternBytes = new TextEncoder().encode(pattern);

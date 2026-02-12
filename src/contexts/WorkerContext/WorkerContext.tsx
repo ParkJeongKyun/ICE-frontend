@@ -51,9 +51,16 @@ export const WorkerProvider: React.FC<{ children: React.ReactNode }> = ({
       );
 
       // 2️⃣ 생성된 워커를 Manager에게 "주입" (제너릭 타입 명시)
-      hashManagerRef.current = new WorkerManager<HashResult>(hashWorker);
+      hashManagerRef.current = new WorkerManager<HashResult>(hashWorker, {
+        startProcessing,
+        stopProcessing,
+      });
       analysisManagerRef.current = new WorkerManager<SearchResult | ExifResult>(
-        analysisWorker
+        analysisWorker,
+        {
+          startProcessing,
+          stopProcessing,
+        }
       );
       chunkWorkerRef.current = chunkWorker;
 

@@ -1,177 +1,96 @@
 /**
- * Next.js SSR 대응 및 포맷 변환 로직 통합본
+ * 썸네일 유틸
+ * Go WASM에서 base64 Data URL로 받아서 사용하거나
+ * 메인 스레드에서 HEIC/HEIF 처리
  */
 
-const THUMBNAIL_MAX_WIDTH = 200;
-const THUMBNAIL_QUALITY = 0.8;
+import { calculateThumbnailSize, MAX_THUMBNAIL_SIZE } from './thumbnailUtils';
 
-const isBrowser = typeof window !== 'undefined';
-
-// 1. Hex -> Blob 변환 (Go에서 넘어온 데이터 처리)
-export const hexToBlob = (hexStr: string, type = 'image/jpeg'): Blob | null => {
+// Go WASM에서 받은 base64 Data URL을 Blob으로 변환
+export async function dataUrlToBlob(dataUrl: string): Promise<Blob | null> {
   try {
-    const clean = String(hexStr || '').replace(/[^0-9a-fA-F]/g, '');
-    if (clean.length < 2 || clean.length % 2 !== 0) return null;
-    const pairs = clean.match(/.{1,2}/g) ?? [];
-    const bytes = new Uint8Array(pairs.map((p) => parseInt(p, 16)));
-    if (!bytes.length) return null;
-    return new Blob([bytes], { type });
-  } catch (e) {
+    if (!dataUrl) return null;
+    const response = await fetch(dataUrl);
+    return await response.blob();
+  } catch (error) {
+    console.error('[thumbnail] Data URL to Blob conversion failed:', error);
     return null;
   }
-};
+}
 
-// 2. File Slice -> Blob 변환 (Offset/Length 기반)
-export const sliceToBlob = (
+/**
+ * 메인 스레드에서 썸네일 생성 (HEIC/HEIF 전용)
+ * @param file - 원본 이미지 파일
+ * @param mimeType - MIME 타입
+ * @returns base64 Data URL 또는 null
+ */
+export async function generateThumbnailInMainThread(
   file: File,
-  offset: number,
-  len: number
-): Blob | null => {
-  try {
-    if (
-      Number.isNaN(offset) ||
-      Number.isNaN(len) ||
-      offset < 0 ||
-      offset + len > file.size
-    )
-      return null;
-    return file.slice(offset, offset + len);
-  } catch (e) {
+  mimeType: string
+): Promise<string | null> {
+  // HEIC/HEIF만 메인 스레드에서 처리
+  const heicFormats = ['image/heic', 'image/heif'];
+
+  if (!heicFormats.includes(mimeType.toLowerCase())) {
     return null;
   }
-};
 
-/**
- * 3. [에러 해결 포인트] EXIF 태그 데이터로부터 Blob 생성 (정상적으로 export 함)
- */
-export const createThumbnailBlobFromTag = (
-  tagData: any,
-  lenData?: any,
-  file?: File
-): Blob | null => {
-  if (!tagData) return null;
+  try {
+    // 동적 import로 heic2any 로드 (번들 크기 최적화)
+    const heic2any = (await import('heic2any')).default;
 
-  // 1) Hex 문자열인 경우 처리
-  const hexBlob = hexToBlob(String(tagData));
-  if (hexBlob) return hexBlob;
+    // HEIC -> JPEG 변환
+    const convertedBlob = await heic2any({
+      blob: file,
+      toType: 'image/jpeg',
+      quality: 0.9,
+    });
 
-  // 2) Offset + Length인 경우 처리
-  if (
-    file &&
-    /^\d+$/.test(String(tagData)) &&
-    lenData &&
-    /^\d+$/.test(String(lenData))
-  ) {
-    const off = parseInt(String(tagData), 10);
-    const len = parseInt(String(lenData), 10);
-    const blob = sliceToBlob(file, off, len);
-    if (blob) return blob;
-  }
+    // 배열인 경우 첫 번째 요소 사용
+    const blob = Array.isArray(convertedBlob)
+      ? convertedBlob[0]
+      : convertedBlob;
 
-  return null;
-};
+    // Blob을 이미지로 로드
+    const imageUrl = URL.createObjectURL(blob);
 
-/**
- * 4. 브라우저 미지원 포맷 변환 (HEIC/TIFF)
- */
-export const getRenderableBlob = async (file: File | Blob): Promise<Blob> => {
-  if (!isBrowser) return file;
-
-  const type = file.type.toLowerCase();
-  const name = (file as File).name?.toLowerCase() || '';
-
-  // HEIC 변환
-  if (
-    type.includes('heic') ||
-    type.includes('heif') ||
-    name.endsWith('.heic')
-  ) {
     try {
-      const heic2any = (await import('heic2any')).default;
-      const converted = await heic2any({
-        blob: file,
-        toType: 'image/jpeg',
-        quality: 0.8,
-      });
-      return Array.isArray(converted) ? converted[0] : converted;
-    } catch (e) {
-      console.error('HEIC 변환 실패:', e);
-    }
-  }
-
-  // TIFF 변환
-  if (
-    type.includes('tiff') ||
-    name.endsWith('.tif') ||
-    name.endsWith('.tiff')
-  ) {
-    try {
-      const UTIF = (await import('utif')).default;
-      const buffer = await file.arrayBuffer();
-      const ifds = UTIF.decode(buffer);
-      UTIF.decodeImage(buffer, ifds[0]);
-      const rgba = UTIF.toRGBA8(ifds[0]);
-
-      const canvas = document.createElement('canvas');
-      canvas.width = ifds[0].width;
-      canvas.height = ifds[0].height;
-      const ctx = canvas.getContext('2d');
-      if (ctx) {
-        const imgData = ctx.createImageData(canvas.width, canvas.height);
-        imgData.data.set(rgba);
-        ctx.putImageData(imgData, 0, 0);
-        return new Promise((resolve) => {
-          canvas.toBlob((blob) => resolve(blob!), 'image/png');
-        });
-      }
-    } catch (e) {
-      console.error('TIFF 변환 실패:', e);
-    }
-  }
-
-  return file;
-};
-
-/**
- * 5. Canvas 리사이징 썸네일 생성
- */
-export const createThumbnailFromImage = async (
-  file: File,
-  maxWidth: number = THUMBNAIL_MAX_WIDTH,
-  quality: number = THUMBNAIL_QUALITY
-): Promise<Blob> => {
-  if (!isBrowser) throw new Error('Client-side only');
-
-  const renderableFile = await getRenderableBlob(file);
-
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
       const img = new Image();
-      img.onload = () => {
-        try {
-          const canvas = document.createElement('canvas');
-          const ratio = img.height / img.width;
-          canvas.width = maxWidth;
-          canvas.height = maxWidth * ratio;
-          const ctx = canvas.getContext('2d');
-          if (!ctx) return reject(new Error('Canvas context error'));
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = reject;
+        img.src = imageUrl;
+      });
 
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-          canvas.toBlob(
-            (blob) => {
-              blob ? resolve(blob) : reject(new Error('Blob null'));
-            },
-            'image/jpeg',
-            quality
-          );
-        } catch (err) {
-          reject(err);
-        }
-      };
-      img.onerror = () => reject(new Error('Image load failed'));
-      img.src = e.target?.result as string;
-    };
-    reader.readAsDataURL(renderableFile);
-  });
-};
+      // 썸네일 크기 계산
+      const { width, height } = calculateThumbnailSize(
+        img.width,
+        img.height,
+        MAX_THUMBNAIL_SIZE
+      );
+
+      // Canvas로 리사이징
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+
+      if (!ctx) {
+        throw new Error('Failed to get 2D context');
+      }
+
+      // 고품질 리사이징
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(img, 0, 0, width, height);
+
+      // Data URL로 변환
+      return canvas.toDataURL('image/jpeg', 0.85);
+    } finally {
+      URL.revokeObjectURL(imageUrl);
+    }
+  } catch (error) {
+    console.error('[thumbnail] HEIC thumbnail generation failed:', error);
+    return null;
+  }
+}

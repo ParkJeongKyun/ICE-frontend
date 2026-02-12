@@ -37,14 +37,25 @@ export class WorkerManager<
     {
       resolve: (value: T) => void;
       reject: (reason: Error) => void;
+      file?: File; // HEIC/HEIF 썸네일 생성용
     }
   >();
 
   public events: Emitter<WorkerEvents<T>>;
+  private startProcessing?: () => void;
+  private stopProcessing?: () => void;
 
-  constructor(worker: Worker) {
+  constructor(
+    worker: Worker,
+    callbacks?: {
+      startProcessing?: () => void;
+      stopProcessing?: () => void;
+    }
+  ) {
     this.worker = worker;
     this.events = mitt<WorkerEvents<T>>();
+    this.startProcessing = callbacks?.startProcessing;
+    this.stopProcessing = callbacks?.stopProcessing;
     this.setupListener();
   }
 
@@ -101,17 +112,69 @@ export class WorkerManager<
 
         case 'SEARCH_RESULT_HEX':
         case 'SEARCH_RESULT_ASCII':
-        case 'EXIF_RESULT':
-          const req =
+          const searchReq =
             this.pendingRequests.get(id) || this.getFirstPendingRequest();
-          if (req) {
-            req.resolve({ data, stats } as any);
+          if (searchReq) {
+            searchReq.resolve({ data, stats } as any);
             this.pendingRequests.delete(id);
           }
           this.events.emit('DONE', {
             type,
             result: { data, stats } as any,
           });
+          break;
+
+        case 'EXIF_RESULT':
+          const exifReq =
+            this.pendingRequests.get(id) || this.getFirstPendingRequest();
+
+          // 🎨 HEIC/HEIF 썸네일 처리 (메인 스레드에서)
+          if (
+            exifReq &&
+            data?.exifInfo &&
+            !data.exifInfo.thumbnail &&
+            data.mimeType &&
+            exifReq.file
+          ) {
+            // 동적 import로 썸네일 생성 함수 로드
+            import('@/utils/thumbnail')
+              .then(({ generateThumbnailInMainThread }) =>
+                generateThumbnailInMainThread(exifReq.file!, data.mimeType)
+              )
+              .then((generatedThumbnail) => {
+                if (generatedThumbnail) {
+                  data.exifInfo.thumbnail = generatedThumbnail;
+                }
+                exifReq.resolve({ data, stats } as any);
+                this.pendingRequests.delete(id);
+                this.events.emit('DONE', {
+                  type,
+                  result: { data, stats } as any,
+                });
+              })
+              .catch((err) => {
+                console.error(
+                  '[WorkerManager] Thumbnail generation failed:',
+                  err
+                );
+                // 썸네일 생성 실패해도 EXIF 결과는 반환
+                exifReq.resolve({ data, stats } as any);
+                this.pendingRequests.delete(id);
+                this.events.emit('DONE', {
+                  type,
+                  result: { data, stats } as any,
+                });
+              });
+          } else {
+            if (exifReq) {
+              exifReq.resolve({ data, stats } as any);
+              this.pendingRequests.delete(id);
+            }
+            this.events.emit('DONE', {
+              type,
+              result: { data, stats } as any,
+            });
+          }
           break;
 
         case 'HASH_ERROR':
@@ -170,8 +233,23 @@ export class WorkerManager<
     payload: Record<string, any>
   ): Promise<HashResult | SearchResult | ExifResult> {
     const id = generateUUID();
+
+    // 프로세스 시작
+    this.startProcessing?.();
+
     return new Promise((resolve, reject) => {
-      this.pendingRequests.set(id, { resolve, reject });
+      this.pendingRequests.set(id, {
+        resolve: (value) => {
+          this.stopProcessing?.();
+          resolve(value);
+        },
+        reject: (error) => {
+          this.stopProcessing?.();
+          reject(error);
+        },
+        // PROCESS_EXIF인 경우 file 저장 (HEIC/HEIF 썸네일 생성용)
+        file: type === 'PROCESS_EXIF' ? payload.file : undefined,
+      });
       this.worker.postMessage({ type, id, ...payload });
     });
   }
