@@ -14,7 +14,7 @@ export type WorkerEvents<T = HashResult | SearchResult | ExifResult> = {
     result: T;
   };
   WASM_READY: void;
-  ERROR: { code: string; message: string };
+  ERROR: { code: string };
 };
 
 // UUID v4 랜덤 생성 유틸
@@ -188,7 +188,6 @@ export class WorkerManager<
             // ✅ 글로벌 ERROR 이벤트 발행 (WorkerContext가 구독)
             this.events.emit('ERROR', {
               code: errorCode || 'WORKER_LOGIC_ERROR',
-              message: errorMessage,
             });
 
             // ✅ Promise reject (컴포넌트 로딩 상태 해제용)
@@ -216,9 +215,69 @@ export class WorkerManager<
       // 컴포넌트에 에러 전파
       this.events.emit('ERROR', {
         code: 'WORKER_CRITICAL_ERROR',
-        message: event.message,
       });
     };
+  }
+
+  // 📏 파일 크기 기반 동적 타임아웃 계산
+  // 공식: Timeout = Base Time + (File Size (MB) / Min Speed (MB/s)) × Safety Factor
+  // (최대값: 20분)
+  private calculateDynamicTimeout(
+    taskType: string,
+    fileSizeBytes?: number
+  ): number {
+    // 파열 크기가 없으면 기본값 사용
+    if (!fileSizeBytes || fileSizeBytes <= 0) {
+      return 30000; // 기본 대기 시간: 30초
+    }
+
+    const fileSizeMB = fileSizeBytes / (1024 * 1024);
+
+    // 작업 타입별 기본값
+    // Base Time: 워커 초기화 및 메시지 왕복 비용
+    // Min Speed: 저사양 기기에서도 나올 법한 최소 속도
+    const config: Record<string, { baseTime: number; minSpeed: number }> = {
+      PROCESS_HASH: {
+        baseTime: 30000, // 30초
+        minSpeed: 5, // MB/s (SHA256)
+      },
+      PROCESS_EXIF: {
+        baseTime: 30000, // 30초
+        minSpeed: 10, // MB/s (메모리 I/O)
+      },
+      SEARCH_HEX: {
+        baseTime: 30000, // 30초
+        minSpeed: 10, // MB/s (WASM)
+      },
+      SEARCH_ASCII: {
+        baseTime: 30000, // 30초
+        minSpeed: 10, // MB/s (WASM)
+      },
+    };
+
+    const { baseTime, minSpeed } = config[taskType] ?? {
+      baseTime: 30000,
+      minSpeed: 10,
+    };
+
+    // 안전 계수: 2배 (예상치 못한 렉이나 백그라운드 작업 고려)
+    const SAFETY_FACTOR = 2;
+    // 최대 제한: 20분
+    const MAX_TIMEOUT = 20 * 60 * 1000; // 1200000ms
+
+    const calculatedTimeout =
+      baseTime + (fileSizeMB / minSpeed) * SAFETY_FACTOR * 1000;
+
+    // ✅ 최대값으로 제한
+    const finalTimeout = Math.min(calculatedTimeout, MAX_TIMEOUT);
+
+    if (process.env.NODE_ENV === 'development') {
+      console.log(
+        `[WorkerManager] Task: ${taskType}, File: ${fileSizeMB.toFixed(2)}MB, Timeout: ${(finalTimeout / 1000).toFixed(1)}s`
+      );
+    }
+
+    return Math.round(finalTimeout);
   }
 
   // Overload signatures for type inference
@@ -245,14 +304,6 @@ export class WorkerManager<
     // 프로세스 시작
     this.startProcessing?.();
 
-    // 타입별 타임아웃 설정 (ms)
-    const timeoutMap: Record<string, number> = {
-      PROCESS_HASH: 1, // 5분
-      SEARCH_HEX: 1, // 5분
-      SEARCH_ASCII: 1, // 5분
-      PROCESS_EXIF: 1, // 30초
-    };
-
     // 타입별 타임아웃 토스트 코드 매핑
     const timeoutCodeMap: Record<string, string> = {
       PROCESS_HASH: 'HASH_TIMEOUT',
@@ -261,8 +312,11 @@ export class WorkerManager<
       SEARCH_ASCII: 'SEARCH_TIMEOUT',
     };
 
-    const timeoutMs = timeoutMap[type] ?? 60000; // 기본값 1분
     const timeoutCode = timeoutCodeMap[type] ?? 'TIMEOUT';
+
+    // 📏 파일 크기 기반 동적 타임아웃 계산
+    const fileSizeBytes = payload.file?.size; // File 객체 또는 undefined
+    const timeoutMs = this.calculateDynamicTimeout(type, fileSizeBytes);
 
     return new Promise((resolve, reject) => {
       // ✅ 타임아웃 설정 (워커에 취소 신호 전송 + 에러 반환)
@@ -277,7 +331,6 @@ export class WorkerManager<
         // 3️⃣ 글로벌 ERROR 이벤트 발행 (WorkerContext가 구독)
         this.events.emit('ERROR', {
           code: timeoutCode,
-          message: `Task timeout: ${timeoutCode}`,
         });
 
         // 4️⃣ Promise reject (컴포넌트 로딩 상태 해제용)

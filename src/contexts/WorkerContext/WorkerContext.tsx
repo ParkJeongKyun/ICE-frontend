@@ -102,8 +102,8 @@ export const WorkerProvider: React.FC<{ children: React.ReactNode }> = ({
       }
 
       // ✅ 공통 에러 핸들러 (중앙 집중식 에러 처리)
-      const handleGlobalError = (err: { code: string; message: string }) => {
-        console.error(`[Global Error] ${err.code}:`, err.message);
+      const handleGlobalError = (err: { code: string }) => {
+        console.error(`[Global Error] ${err.code}`);
 
         // 토스트 메시지 전송 (코드만 - UI에서 처리)
         eventBus.emit('toast', {
