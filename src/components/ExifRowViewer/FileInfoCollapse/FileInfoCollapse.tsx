@@ -11,7 +11,7 @@ import {
   ContentDiv,
   NoDataMessage,
 } from '../ExifRowViewer.styles';
-import { getBytes, getDate } from '@/utils/exifParser';
+import { getBytes, getDate } from '@/utils/formatters';
 
 const FileInfoCollapse: React.FC = () => {
   const t = useTranslations();

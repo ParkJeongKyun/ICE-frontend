@@ -1,4 +1,4 @@
-import { getDate } from "./exifParser";
+import { getDate } from './formatters';
 
 // 최소 바이트 수 정의
 export const MIN_BYTE_LENGTHS = {
@@ -237,7 +237,7 @@ export function bytesToDOSDateTime(
   const dateStr = bytesToDOSDate(dateBytes, littleEndian);
   const timeStr = bytesToDOSTime(timeBytes, littleEndian);
   if (dateStr === '-' || timeStr === '-') return '-';
-  
+
   const dateTime = new Date(`${dateStr}T${timeStr}`);
   return isNaN(dateTime.getTime()) ? '-' : getDate(dateTime);
 }

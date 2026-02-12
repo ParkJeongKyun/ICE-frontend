@@ -57,6 +57,7 @@
     "@types/react-dom": "^19.0.0",
     "@types/styled-components": "^5.1.26",
     "@types/three": "^0.182.0",
+    "@types/utif": "^3.0.6",
     "autoprefixer": "^10.4.20",
     "eslint": "^8.57.0",
     "eslint-config-next": "^14.0.0",

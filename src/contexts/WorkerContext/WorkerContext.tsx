@@ -34,10 +34,15 @@ export const WorkerProvider: React.FC<{ children: React.ReactNode }> = ({
   > | null>(null);
   const chunkWorkerRef = useRef<Worker | null>(null);
   const [isWasmReady, setIsWasmReady] = useState(false);
-  const { startProcessing, stopProcessing } = useProcess();
+  const {
+    startHashProcessing,
+    stopHashProcessing,
+    startAnalysisProcessing,
+    stopAnalysisProcessing,
+  } = useProcess();
 
   useEffect(() => {
-    startProcessing();
+    startAnalysisProcessing();
     try {
       // 1️⃣ 워커를 "직접" 생성 (Webpack이 경로를 인식할 수 있도록)
       const hashWorker = new Worker(
@@ -52,14 +57,14 @@ export const WorkerProvider: React.FC<{ children: React.ReactNode }> = ({
 
       // 2️⃣ 생성된 워커를 Manager에게 "주입" (제너릭 타입 명시)
       hashManagerRef.current = new WorkerManager<HashResult>(hashWorker, {
-        startProcessing,
-        stopProcessing,
+        startProcessing: startHashProcessing,
+        stopProcessing: stopHashProcessing,
       });
       analysisManagerRef.current = new WorkerManager<SearchResult | ExifResult>(
         analysisWorker,
         {
-          startProcessing,
-          stopProcessing,
+          startProcessing: startAnalysisProcessing,
+          stopProcessing: stopAnalysisProcessing,
         }
       );
       chunkWorkerRef.current = chunkWorker;
@@ -70,7 +75,7 @@ export const WorkerProvider: React.FC<{ children: React.ReactNode }> = ({
       // WASM 준비 이벤트 구독
       analysisManagerRef.current!.events.on('WASM_READY', () => {
         setIsWasmReady(true);
-        stopProcessing();
+        stopAnalysisProcessing();
         eventBus.emit('toast', { code: 'WASM_LOADED_SUCCESS' });
       });
 
@@ -172,7 +177,13 @@ export const WorkerProvider: React.FC<{ children: React.ReactNode }> = ({
       const handleError = (err: { code: string; message: string }) => {
         if (err.code === 'WASM_ERROR') {
           setIsWasmReady(false);
-          stopProcessing();
+          stopAnalysisProcessing();
+        } else if (err.code === 'HASH_ERROR') {
+          // 해시 워커 에러 시 해시 processing 상태 초기화
+          stopHashProcessing();
+        } else if (err.code === 'SEARCH_ERROR' || err.code === 'EXIF_ERROR') {
+          // 분석 워커 에러 시 분석 processing 상태 초기화
+          stopAnalysisProcessing();
         }
         eventBus.emit('toast', {
           code: err.code,
@@ -198,13 +209,18 @@ export const WorkerProvider: React.FC<{ children: React.ReactNode }> = ({
       };
     } catch (error) {
       console.error('[WorkerContext] ❌ Failed to create worker:', error);
-      stopProcessing();
+      stopAnalysisProcessing();
       eventBus.emit('toast', {
         code: 'WORKER_INIT_FAILED',
         message: (error as Error).message,
       });
     }
-  }, [startProcessing, stopProcessing]);
+  }, [
+    startHashProcessing,
+    stopHashProcessing,
+    startAnalysisProcessing,
+    stopAnalysisProcessing,
+  ]);
 
   const value = useMemo(
     () => ({

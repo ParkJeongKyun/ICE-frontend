@@ -26,7 +26,7 @@ const MenuBtnZone: React.FC = () => {
   const { hexViewerRef, setMenuBtnZoneRef, openModal } = useRefs();
   const { setTabData, setActiveKey, getNewKey } = useTab();
   const { analysisManager, isWasmReady } = useWorker();
-  const { isProcessing } = useProcess();
+  const { isAnalysisProcessing } = useProcess();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const toolsMenuRef = useRef<HTMLDivElement>(null);
   const [showToolsMenu, setShowToolsMenu] = useState(false);
@@ -108,7 +108,7 @@ const MenuBtnZone: React.FC = () => {
         return;
       }
 
-      if (isProcessing) {
+      if (isAnalysisProcessing) {
         eventBus.emit('toast', {
           code: 'FILE_PROCESSING_FAILED',
           message: t('home.processing'),
@@ -197,7 +197,7 @@ const MenuBtnZone: React.FC = () => {
     [
       analysisManager,
       isWasmReady,
-      isProcessing,
+      isAnalysisProcessing,
       getNewKey,
       setTabData,
       setActiveKey,
@@ -245,7 +245,7 @@ const MenuBtnZone: React.FC = () => {
       <MenuBtn
         onClick={handleOpenClick}
         text={t('menu.open')}
-        disabled={isProcessing}
+        disabled={isAnalysisProcessing}
         disabledTxt={t('menu.fileProcessing')}
       />
       <FileInput type="file" ref={fileInputRef} onChange={handleFileChange} />

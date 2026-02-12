@@ -4,7 +4,12 @@ import React, { useState, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { useMessage } from '@/contexts/MessageContext/MessageContext';
 import Tooltip from '@/components/common/Tooltip/Tooltip';
-import { formatBytes, formatSpeed, formatTime } from '@/utils/formatters';
+import {
+  formatBytes,
+  formatSpeed,
+  formatTime,
+  getDate,
+} from '@/utils/formatters';
 import {
   HistoryButton,
   HistoryBadge,
@@ -34,7 +39,6 @@ import InfoIcon from '@/components/common/Icons/InfoIcon';
 import TrashIcon from '@/components/common/Icons/TrashIcon';
 import ChevronDownIcon from '@/components/common/Icons/ChevronDownIcon';
 import { isMobile } from 'react-device-detect';
-import { getDate } from '@/utils/exifParser';
 import { MESSAGE_TYPE_ICONS } from '@/utils/messageStyles';
 
 const MessageHistory: React.FC = () => {
