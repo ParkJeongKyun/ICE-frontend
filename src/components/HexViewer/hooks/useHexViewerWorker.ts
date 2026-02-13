@@ -99,7 +99,7 @@ export const useHexViewerWorker = ({
             errorCode
           );
           // 사용자에게 에러 알림
-          eventBus.emit('toast', { code: errorCode || 'CHUNK_READ_FAILED' });
+          eventBus.emit('toast', { code: errorCode || 'CHUNK_READ_ERROR' });
         }
       };
 

@@ -58,7 +58,7 @@ class ChunkWorker {
         data: {
           offset: request.offset,
         },
-        errorCode: 'CHUNK_READ_FAILED',
+        errorCode: 'CHUNK_READ_ERROR',
       });
     } finally {
       this.activeRequests--;

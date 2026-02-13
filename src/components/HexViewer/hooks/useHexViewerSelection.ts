@@ -292,7 +292,7 @@ export const useHexViewerSelection = ({
         eventBus.emit('toast', { code: 'COPY_SUCCESS' });
       } catch (error) {
         console.error('Copy failed:', error);
-        eventBus.emit('toast', { code: 'COPY_FAILED' });
+        eventBus.emit('toast', { code: 'COPY_ERROR' });
       }
       setContextMenu(null); // 메뉴 닫기
     },
@@ -311,7 +311,7 @@ export const useHexViewerSelection = ({
       );
       eventBus.emit('toast', { code: 'COPY_SUCCESS' });
     } catch {
-      eventBus.emit('toast', { code: 'COPY_FAILED' });
+      eventBus.emit('toast', { code: 'COPY_ERROR' });
     }
     setContextMenu(null); // 메뉴 닫기
   }, [selection.start, selection.end]);

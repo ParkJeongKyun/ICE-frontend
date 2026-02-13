@@ -197,12 +197,12 @@ export const WorkerProvider: React.FC<{ children: React.ReactNode }> = ({
         chunkWorker?.terminate();
       };
     } catch (error) {
-      console.error('[WorkerContext] Failed to init workers:', error);
+      console.error('[WorkerContext] Failed to create workers:', error);
       stopAnalysisProcessing();
 
       // ✅ 초기화 실패 에러
       eventBus.emit('toast', {
-        code: 'WORKER_INIT_FAILED',
+        code: 'WORKER_CREATION_FAILED',
       });
     }
 

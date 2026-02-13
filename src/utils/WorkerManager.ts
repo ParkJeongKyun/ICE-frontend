@@ -276,7 +276,7 @@ export class WorkerManager {
     // 타입별 타임아웃 토스트 코드 매핑
     const timeoutCodeMap: Record<string, string> = {
       PROCESS_HASH: 'HASH_TIMEOUT',
-      PROCESS_EXIF: 'EXIF_PROCESSING_TIMEOUT',
+      PROCESS_EXIF: 'EXIF_TIMEOUT',
       SEARCH_HEX: 'SEARCH_TIMEOUT',
       SEARCH_ASCII: 'SEARCH_TIMEOUT',
     };

@@ -45,7 +45,7 @@ export const useShowIp = () => {
     } catch (error) {
       console.error('[useShowIp] IP fetch failed:', error);
       eventBus.emit('toast', {
-        code: 'IP_FETCH_FAILED',
+        code: 'IP_FETCH_ERROR',
       });
     }
   }, [t]);

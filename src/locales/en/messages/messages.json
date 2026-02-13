@@ -15,10 +15,6 @@
     "title": "Worker Error",
     "message": "An error occurred in the worker."
   },
-  "WORKER_INIT_FAILED": {
-    "title": "Worker Initialization Failed",
-    "message": "Failed to initialize the worker."
-  },
   "WASM_LOAD_FAILED": {
     "title": "WASM Load Failed",
     "message": "Failed to load WASM module."
@@ -39,14 +35,6 @@
     "title": "File Read Error",
     "message": "An error occurred while reading the file."
   },
-  "FILE_READ_FAILED": {
-    "title": "File Read Failed",
-    "message": "Cannot read the file.\nThe file may be corrupted or in an unsupported format."
-  },
-  "FILE_TOO_LARGE": {
-    "title": "File Too Large",
-    "message": "The file is too large.\nThe maximum supported size is 100MB."
-  },
   "EXIF_ERROR": {
     "title": "EXIF Error",
     "message": "Failed to process EXIF data."
@@ -55,7 +43,7 @@
     "title": "EXIF Parse Error",
     "message": "An error occurred while parsing EXIF data."
   },
-  "EXIF_PROCESSING_TIMEOUT": {
+  "EXIF_TIMEOUT": {
     "title": "EXIF Processing Timeout",
     "message": "EXIF data processing timed out.\nPlease try again."
   },
@@ -63,16 +51,16 @@
     "title": "EXIF Processed",
     "message": "EXIF data processed successfully."
   },
-  "SEARCH_FAILED": {
-    "title": "Search Failed",
-    "message": "An error occurred during search."
-  },
   "HASH_CALCULATION_SUCCESS": {
     "title": "Hash Calculated"
   },
   "HASH_TIMEOUT": {
     "title": "Hash Calculation Timeout",
     "message": "Hash calculation timed out.\nPlease try again."
+  },
+  "HASH_ERROR": {
+    "title": "Hash Calculation Error",
+    "message": "An error occurred while calculating hash."
   },
   "SEARCH_NO_RESULTS": {
     "title": "No Results",
@@ -101,17 +89,21 @@
     "title": "Offset Out of Range",
     "message": "Offset is out of file range."
   },
+  "SEARCH_ERROR": {
+    "title": "Search Error",
+    "message": "An error occurred during search."
+  },
   "COPY_SUCCESS": {
     "title": "Copy Success",
     "message": "Copied to clipboard."
   },
-  "COPY_FAILED": {
+  "COPY_ERROR": {
     "title": "Copy Failed",
     "message": "Failed to copy to clipboard."
   },
-  "FILE_LOADED_SUCCESS": {
-    "title": "File Loaded",
-    "message": "File loaded successfully."
+  "CHUNK_READ_ERROR": {
+    "title": "Chunk Read Failed",
+    "message": "An error occurred while reading file chunk."
   },
   "UNKNOWN_ERROR": {
     "title": "Unknown Error",
@@ -133,7 +125,7 @@
     "title": "IP Information",
     "message": ""
   },
-  "IP_FETCH_FAILED": {
+  "IP_FETCH_ERROR": {
     "title": "IP Fetch Failed",
     "message": "Failed to retrieve your IP address."
   },
