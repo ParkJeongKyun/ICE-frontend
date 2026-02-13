@@ -6,13 +6,10 @@ import styled from 'styled-components';
 import { useTranslations } from 'next-intl';
 import { usePathname } from 'next/navigation';
 import MenuBtn from '@/components/common/MenuBtn/MenuBtn';
-import HexViewer from '@/components/HexViewer/HexViewer';
 import { useProcess } from '@/contexts/ProcessContext/ProcessContext';
-import { useTab } from '@/contexts/TabDataContext/TabDataContext';
 import { useRefs } from '@/contexts/RefContext/RefContext';
-import { useWorker } from '@/contexts/WorkerContext/WorkerContext';
-import { getClientIp } from '@/utils/getClientIp';
-import eventBus from '@/types/eventBus';
+import { useFileProcessor } from '@/hooks/useFileProcessor';
+import { useShowIp } from '@/hooks/useShowIp';
 
 export interface MenuBtnZoneRef {
   openBtnClick: () => void;
@@ -23,9 +20,9 @@ export interface MenuBtnZoneRef {
 const MenuBtnZone: React.FC = () => {
   const t = useTranslations();
   const pathname = usePathname();
-  const { hexViewerRef, setMenuBtnZoneRef, openModal } = useRefs();
-  const { setTabData, setActiveKey, getNewKey } = useTab();
-  const { analysisManager } = useWorker();
+  const { setMenuBtnZoneRef, openModal } = useRefs();
+  const { processFile } = useFileProcessor(); // 👈 파일 처리 로직을 훅으로 위임
+  const { showIp } = useShowIp(); // 👈 IP 조회 로직을 훅으로 위임
   const { isAnalysisProcessing } = useProcess();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const toolsMenuRef = useRef<HTMLDivElement>(null);
@@ -43,122 +40,26 @@ const MenuBtnZone: React.FC = () => {
         const locale = pathname.split('/')[1] || 'en';
         window.open(`/${locale}/linknote`, '_blank');
       } else if (action === 'show-ip') {
-        handleShowIP();
+        showIp(); // 🚀 훅의 함수 호출로 끝!
       }
     },
-    [pathname]
+    [pathname, showIp]
   );
-
-  const handleShowIP = useCallback(async () => {
-    try {
-      const ipInfo = await getClientIp();
-
-      // 정보 키와 값의 매핑
-      const infoMapping = [
-        { key: 'ipInfo.address', value: ipInfo.ip },
-        { key: 'ipInfo.hostname', value: ipInfo.hostname },
-        { key: 'ipInfo.city', value: ipInfo.city },
-        { key: 'ipInfo.region', value: ipInfo.region },
-        { key: 'ipInfo.country', value: ipInfo.country },
-        { key: 'ipInfo.location', value: ipInfo.loc },
-        { key: 'ipInfo.organization', value: ipInfo.org },
-        { key: 'ipInfo.timezone', value: ipInfo.timezone },
-      ];
-
-      // 값이 있는 것만 필터링하고 포맷팅
-      const infoText = infoMapping
-        .filter(({ value }) => value)
-        .map(({ key, value }) => `${t(key)}: ${value}`)
-        .join('\n');
-
-      eventBus.emit('toast', {
-        code: 'IP_FETCH_SUCCESS',
-        message: infoText,
-      });
-
-      // IP만 클립보드에 복사
-      await navigator.clipboard.writeText(ipInfo.ip);
-      eventBus.emit('toast', {
-        code: 'IP_COPIED',
-      });
-    } catch (error) {
-      console.error('[MenuBtnZone] IP fetch failed:', error);
-      eventBus.emit('toast', {
-        code: 'IP_FETCH_FAILED',
-      });
-    }
-  }, [t]);
 
   const handleFileChange = useCallback(
     async (e: ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
-      if (!file || !analysisManager) return;
+      if (!file) return;
 
-      try {
-        const newActiveKey = getNewKey();
+      // 파일 처리는 훅에게 위임 (비즈니스 로직 분리)
+      await processFile(file);
 
-        const result = await analysisManager.execute('PROCESS_EXIF', {
-          file,
-        });
-
-        if (process.env.NODE_ENV === 'development') {
-          console.log('EXIF processing result:', result);
-        }
-
-        const {
-          thumbnail,
-          baseOffset,
-          dataSize,
-          endOffset,
-          byteOrder,
-          firstIfdOffset,
-          location,
-          ifdInfos,
-          tagInfos,
-        } = result.data.exifInfo;
-
-        setTabData((prevDatas) => ({
-          ...prevDatas,
-          [newActiveKey]: {
-            window: {
-              label: file.name,
-              contents: <HexViewer ref={hexViewerRef} />,
-            },
-            file,
-            fileInfo: {
-              name: file.name,
-              lastModified: file.lastModified,
-              size: file.size,
-              mimeType: result.data.mimeType,
-              extension: result.data.extension,
-            },
-            hasExif: result.data.hasExif || false,
-            exifInfo: {
-              thumbnail,
-              baseOffset,
-              dataSize,
-              endOffset,
-              byteOrder,
-              firstIfdOffset,
-              location,
-              ifdInfos,
-              tagInfos,
-            },
-          },
-        }));
-
-        setActiveKey(newActiveKey);
-        eventBus.emit('toast', { code: 'EXIF_SUCCESS', stats: result.stats });
-      } catch (error) {
-        // ✅ 에러는 WorkerContext(WorkerManager.ERROR 이벤트)에서 처리됨
-        console.error('[MenuBtnZone] File processing failed:', error);
-      } finally {
-        if (fileInputRef.current) {
-          fileInputRef.current.value = '';
-        }
+      // 파일 인풋 초기화 로직은 UI 컴포넌트의 책임이므로 여기에 남김
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
       }
     },
-    [analysisManager, getNewKey, setTabData, setActiveKey, hexViewerRef]
+    [processFile]
   );
 
   // Register methods into RefContext so parents can use without passing ref
