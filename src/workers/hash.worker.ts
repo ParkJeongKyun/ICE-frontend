@@ -117,7 +117,7 @@ class HashWorker {
   }
 
   /**
-   * 진행률 메시지 전송 (raw stats만 전달)
+   * 진행률 메시지 전송 (StandardWorkerResponse 형식)
    */
   private sendProgress(
     id: string,
@@ -126,13 +126,14 @@ class HashWorker {
     duration: number
   ): void {
     self.postMessage({
-      type: 'HASH_PROGRESS',
+      status: 'PROGRESS',
+      taskType: 'PROCESS_HASH',
       stats: createStats(id, duration, totalRead, file.size, file.name),
     });
   }
 
   /**
-   * 최종 결과 전송
+   * 최종 결과 전송 (StandardWorkerResponse 형식)
    */
   private sendResult(
     id: string,
@@ -142,7 +143,8 @@ class HashWorker {
     duration: number
   ): void {
     self.postMessage({
-      type: 'HASH_RESULT',
+      status: 'SUCCESS',
+      taskType: 'PROCESS_HASH',
       stats: createStats(id, duration, file.size, file.size, file.name),
       data: {
         hash,
@@ -152,14 +154,13 @@ class HashWorker {
   }
 
   /**
-   * 에러 메시지 전송
+   * 에러 메시지 전송 (StandardWorkerResponse 형식)
    */
   private sendError(id: string, errorCode: string): void {
     self.postMessage({
-      type: 'HASH_ERROR',
-      stats: {
-        id,
-      },
+      id, // 🚀 루트에 id 직접 삽입
+      status: 'ERROR',
+      taskType: 'PROCESS_HASH',
       errorCode,
     });
   }
@@ -185,17 +186,17 @@ class HashWorker {
   }
 }
 
-// 전역 에러 핸들러
+// 전역 에러 핸들러 (StandardWorkerResponse 형식)
 self.addEventListener('error', (event) => {
   self.postMessage({
-    type: 'ERROR',
+    status: 'ERROR',
     errorCode: 'WORKER_ERROR',
   });
 });
 
 self.addEventListener('unhandledrejection', (event) => {
   self.postMessage({
-    type: 'ERROR',
+    status: 'ERROR',
     errorCode: 'WORKER_ERROR',
   });
 });

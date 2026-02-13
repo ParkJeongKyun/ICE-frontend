@@ -75,9 +75,13 @@ export const useHexViewerWorker = ({
       if (chunkCacheRef.current) chunkCacheRef.current = cache;
 
       const handleWorkerMessage = (e: MessageEvent) => {
-        const { type, offset, buffer, data, errorCode } = e.data;
-        if (type === 'CHUNK_DATA') {
-          const u8 = buffer ? new Uint8Array(buffer) : data ? data : null;
+        // 🚀 표준 규격에 맞춰 status와 data, errorCode를 추출
+        const { status, data, errorCode } = e.data;
+
+        if (status === 'SUCCESS') {
+          const { offset, buffer } = data; // data 안에서 꺼냄
+          const u8 = buffer ? new Uint8Array(buffer) : null;
+
           if (u8) {
             cache.set(offset, u8);
             if (chunkCacheRef.current) chunkCacheRef.current = cache;
@@ -85,9 +89,11 @@ export const useHexViewerWorker = ({
             onChunkLoaded();
           }
           requestedChunksRef.current?.delete(offset);
-        } else if (type === 'CHUNK_ERROR' || type === 'ERROR') {
+        } else if (status === 'ERROR') {
           // ✅ HexViewer에서 청크 에러 완전히 관리
-          requestedChunksRef.current?.delete(offset);
+          const { offset } = data || {};
+          if (offset !== undefined) requestedChunksRef.current?.delete(offset);
+
           console.error(
             `[HexViewer] Chunk Error at offset ${offset}:`,
             errorCode

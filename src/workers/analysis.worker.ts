@@ -96,7 +96,7 @@ class AnalysisWorker {
   }
 
   /**
-   * 검색 진행률 전송 (raw stats만 전달)
+   * 검색 진행률 전송 (StandardWorkerResponse 형식)
    */
   private sendSearchProgress(): void {
     if (this.currentRequestId === undefined) return;
@@ -104,7 +104,8 @@ class AnalysisWorker {
     const duration = performance.now();
 
     self.postMessage({
-      type: 'SEARCH_PROGRESS',
+      status: 'PROGRESS',
+      taskType: 'SEARCH_HEX', // or SEARCH_ASCII (taskType은 호출자가 구분하지만, 진행률에서는 크게 중요하지 않음)
       stats: createStats(
         this.currentRequestId,
         duration,
@@ -120,7 +121,7 @@ class AnalysisWorker {
    */
   async initWasm(): Promise<void> {
     if (this.wasmReady) {
-      self.postMessage({ type: 'WASM_READY' });
+      self.postMessage({ status: 'WASM_READY' });
       return;
     }
 
@@ -198,13 +199,13 @@ class AnalysisWorker {
       this.wasmReady = true;
       this.wasmInitializing = false;
 
-      self.postMessage({ type: 'WASM_READY' });
+      self.postMessage({ status: 'WASM_READY' });
     } catch (error) {
       this.wasmReady = false;
       this.wasmInitializing = false;
       console.error('[Worker] WASM initialization error:', error);
       self.postMessage({
-        type: 'WASM_ERROR',
+        status: 'ERROR',
         errorCode: 'WASM_INIT_FAILED',
       });
     }
@@ -219,7 +220,9 @@ class AnalysisWorker {
 
       if (!this.wasmReady || !this.wasmExifFunc) {
         self.postMessage({
-          type: 'EXIF_ERROR',
+          id, // 🚀 루트에 id 직접 삽입
+          status: 'ERROR',
+          taskType: 'PROCESS_EXIF',
           errorCode: 'WASM_NOT_READY',
         });
         return;
@@ -242,8 +245,9 @@ class AnalysisWorker {
 
       if (wasmResult.error) {
         self.postMessage({
-          type: 'EXIF_ERROR',
-          stats: { id },
+          id, // 🚀 루트에 id 직접 삽입
+          status: 'ERROR',
+          taskType: 'PROCESS_EXIF',
           errorCode: 'EXIF_PARSE_ERROR',
         });
         return;
@@ -258,7 +262,8 @@ class AnalysisWorker {
       );
 
       self.postMessage({
-        type: 'EXIF_RESULT',
+        status: 'SUCCESS',
+        taskType: 'PROCESS_EXIF',
         stats: createStats(
           id,
           duration,
@@ -275,8 +280,9 @@ class AnalysisWorker {
       });
     } catch (error) {
       self.postMessage({
-        type: 'EXIF_ERROR',
-        id,
+        id, // 🚀 루트에 id 직접 삽입
+        status: 'ERROR',
+        taskType: 'PROCESS_EXIF',
         errorCode: 'EXIF_ERROR',
       });
     }
@@ -288,27 +294,17 @@ class AnalysisWorker {
   async search(
     id: string,
     file: File,
-    pattern: string,
+    pattern: Uint8Array, // 🚀 Uint8Array로 직접 받음
     type: 'HEX' | 'ASCII',
     ignoreCase: boolean = false
   ): Promise<void> {
     this.initProgress(file.size, id, file.name);
 
-    const patternBytes = new TextEncoder().encode(pattern);
-
     if (!this.wasmReady || !this.wasmSearchFunc) {
       self.postMessage({
-        type: type === 'HEX' ? 'SEARCH_RESULT_HEX' : 'SEARCH_RESULT_ASCII',
-        id,
-        indices: null,
-        stats: {
-          id,
-          durationMs: 0,
-          durationSec: 0,
-          processedBytes: 0,
-          totalBytes: 0,
-          fileName: this.currentFileName,
-        },
+        id, // 🚀 루트에 id 직접 삽입
+        status: 'ERROR',
+        taskType: type === 'HEX' ? 'SEARCH_HEX' : 'SEARCH_ASCII',
         errorCode: 'WASM_NOT_READY',
       });
       return;
@@ -329,7 +325,7 @@ class AnalysisWorker {
       }
 
       // --- WASM 실행 (핵심 작업) ---
-      const result = this.wasmSearchFunc(file, patternBytes, searchOptions);
+      const result = this.wasmSearchFunc(file, pattern, searchOptions);
       // -------------------------
 
       const perfEnd = performance.now();
@@ -337,17 +333,9 @@ class AnalysisWorker {
 
       if (result.error) {
         self.postMessage({
-          type: type === 'HEX' ? 'SEARCH_RESULT_HEX' : 'SEARCH_RESULT_ASCII',
-          id,
-          indices: null,
-          stats: {
-            id,
-            durationMs: duration,
-            durationSec: duration / 1000,
-            processedBytes: this.totalReadBytes,
-            totalBytes: this.currentFileSize,
-            fileName: file.name,
-          },
+          id, // 🚀 루트에 id 직접 삽입
+          status: 'ERROR',
+          taskType: type === 'HEX' ? 'SEARCH_HEX' : 'SEARCH_ASCII',
           errorCode: 'SEARCH_WASM_ERROR',
         });
         return;
@@ -360,7 +348,8 @@ class AnalysisWorker {
 
       if (!this.cancelledRequestIds.has(id)) {
         self.postMessage({
-          type: type === 'HEX' ? 'SEARCH_RESULT_HEX' : 'SEARCH_RESULT_ASCII',
+          status: 'SUCCESS',
+          taskType: type === 'HEX' ? 'SEARCH_HEX' : 'SEARCH_ASCII',
           stats: createStats(
             id,
             duration,
@@ -375,10 +364,9 @@ class AnalysisWorker {
       }
     } catch (error) {
       self.postMessage({
-        type: type === 'HEX' ? 'SEARCH_RESULT_HEX' : 'SEARCH_RESULT_ASCII',
-        stats: {
-          id,
-        },
+        id, // 🚀 루트에 id 직접 삽입
+        status: 'ERROR',
+        taskType: type === 'HEX' ? 'SEARCH_HEX' : 'SEARCH_ASCII',
         errorCode: 'SEARCH_ERROR',
       });
     }
@@ -424,17 +412,17 @@ class AnalysisWorker {
   }
 }
 
-// 전역 에러 핸들러
+// 전역 에러 핸들러 (StandardWorkerResponse 형식)
 self.addEventListener('error', (event) => {
   self.postMessage({
-    type: 'ERROR',
+    status: 'ERROR',
     errorCode: 'WORKER_ERROR',
   });
 });
 
 self.addEventListener('unhandledrejection', (event) => {
   self.postMessage({
-    type: 'ERROR',
+    status: 'ERROR',
     errorCode: 'WORKER_ERROR',
   });
 });

@@ -20,5 +20,5 @@ export interface HashResult {
     hash: string;
     hashType: HashType;
   };
-  stats: WorkerStats;
+  stats?: WorkerStats; // 🚀 optional로 변경 (ExecuteResponse와 일치)
 }

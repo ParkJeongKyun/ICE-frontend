@@ -21,7 +21,7 @@ export interface AnalysisWorkerRequest {
   type: AnalysisWorkerRequestType;
   id: string; // WorkerManager에서 생성한 랜덤 UUID ID (내부 추적 포함)
   file?: File;
-  pattern?: string;
+  pattern?: Uint8Array; // 🚀 Uint8Array로 변경
   ignoreCase?: boolean;
 }
 
@@ -33,7 +33,7 @@ export interface SearchResult {
   data: {
     indices: Array<{ index: number; offset: number }>;
   };
-  stats: WorkerStats;
+  stats?: WorkerStats; // 🚀 optional로 변경 (ExecuteResponse와 일치)
 }
 
 export interface ExifResult {
@@ -43,7 +43,7 @@ export interface ExifResult {
     extension: string;
     exifInfo: ExifInfo;
   };
-  stats: WorkerStats;
+  stats?: WorkerStats; // 🚀 optional로 변경 (ExecuteResponse와 일치)
 }
 // ============================================================================
 // WASM

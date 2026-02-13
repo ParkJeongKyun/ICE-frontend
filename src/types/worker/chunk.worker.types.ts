@@ -2,7 +2,10 @@
  * Chunk Worker 타입
  */
 
+// ============================================================================
 // Request
+// ============================================================================
+
 export type ChunkWorkerRequestType = 'READ_CHUNK' | 'CANCEL_ALL';
 
 export interface ReadChunkRequest {
@@ -19,8 +22,20 @@ export interface CancelAllRequest {
 
 export type ChunkWorkerRequest = ReadChunkRequest | CancelAllRequest;
 
-// Payload
-export interface ChunkData {
+// ============================================================================
+// Response (StandardWorkerResponse 형식 사용)
+// ============================================================================
+
+/**
+ * Chunk Worker 응답 데이터
+ * status: 'SUCCESS' -> data: ChunkSuccessData
+ * status: 'ERROR' -> data: ChunkErrorData
+ */
+export interface ChunkSuccessData {
   offset: number;
   buffer: ArrayBuffer;
+}
+
+export interface ChunkErrorData {
+  offset: number;
 }

@@ -3,7 +3,6 @@ import { useTab } from '@/contexts/TabDataContext/TabDataContext';
 import { useWorker } from '@/contexts/WorkerContext/WorkerContext';
 import type { HashType } from '@/types/hash';
 import type { HashResult } from '@/types/worker/hash.worker.types';
-import eventBus from '@/types/eventBus';
 
 export const useHash = () => {
   const { activeData } = useTab();

@@ -10,13 +10,11 @@ import React, {
 import { WorkerManager, type WorkerEvents } from '@/utils/WorkerManager';
 import { useProcess } from '@/contexts/ProcessContext/ProcessContext';
 import eventBus from '@/types/eventBus';
-import { HashResult } from '@/types/worker/hash.worker.types';
-import { ExifResult, SearchResult } from '@/types/worker/analysis.worker.types';
 import { WorkerStats } from '@/types/worker/index.worker.types';
 
 interface WorkerContextType {
-  hashManager: WorkerManager<HashResult> | null;
-  analysisManager: WorkerManager<SearchResult | ExifResult> | null;
+  hashManager: WorkerManager | null; // 🚀 제네릭 제거!
+  analysisManager: WorkerManager | null; // 🚀 제네릭 제거!
   chunkWorker: Worker | null;
   isWasmReady: boolean;
 }
@@ -28,8 +26,8 @@ export const WorkerProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   // ✅ Manager를 State로 관리하여 초기화 직후 리렌더링 유발 (하위 컴포넌트가 null 안 받게)
   const [managers, setManagers] = useState<{
-    hashManager: WorkerManager<HashResult> | null;
-    analysisManager: WorkerManager<SearchResult | ExifResult> | null;
+    hashManager: WorkerManager | null; // 🚀 제네릭 제거!
+    analysisManager: WorkerManager | null; // 🚀 제네릭 제거!
     chunkWorker: Worker | null;
   }>({
     hashManager: null,
@@ -49,8 +47,8 @@ export const WorkerProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     startAnalysisProcessing();
 
-    let hashManager: WorkerManager<HashResult> | null = null;
-    let analysisManager: WorkerManager<SearchResult | ExifResult> | null = null;
+    let hashManager: WorkerManager | null = null; // 🚀 제네릭 제거!
+    let analysisManager: WorkerManager | null = null; // 🚀 제네릭 제거!
     let chunkWorker: Worker | null = null;
 
     try {
@@ -65,19 +63,16 @@ export const WorkerProvider: React.FC<{ children: React.ReactNode }> = ({
         new URL('../../workers/chunk.worker.ts', import.meta.url)
       );
 
-      // 2️⃣ Manager 생성
-      hashManager = new WorkerManager<HashResult>(hashWorkerInstance, {
+      // 2️⃣ Manager 생성 (🚀 제네릭 제거!)
+      hashManager = new WorkerManager(hashWorkerInstance, {
         startProcessing: startHashProcessing,
         stopProcessing: stopHashProcessing,
       });
 
-      analysisManager = new WorkerManager<SearchResult | ExifResult>(
-        analysisWorkerInstance,
-        {
-          startProcessing: startAnalysisProcessing,
-          stopProcessing: stopAnalysisProcessing,
-        }
-      );
+      analysisManager = new WorkerManager(analysisWorkerInstance, {
+        startProcessing: startAnalysisProcessing,
+        stopProcessing: stopAnalysisProcessing,
+      });
 
       chunkWorker = chunkWorkerInstance;
 
@@ -182,7 +177,7 @@ export const WorkerProvider: React.FC<{ children: React.ReactNode }> = ({
           updateProgress('hash', data)
         );
         hashManager.events.on('DONE', (e) =>
-          cleanupProgress('hash', e.stats.id)
+          cleanupProgress('hash', e.stats?.id ?? '')
         );
       }
 
@@ -192,7 +187,7 @@ export const WorkerProvider: React.FC<{ children: React.ReactNode }> = ({
           updateProgress('analysis', data)
         );
         analysisManager.events.on('DONE', (e) =>
-          cleanupProgress('analysis', e.stats.id)
+          cleanupProgress('analysis', e.stats?.id ?? '')
         );
       }
 

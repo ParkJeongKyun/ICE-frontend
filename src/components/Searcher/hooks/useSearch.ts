@@ -1,11 +1,10 @@
-import { useRef, useCallback } from 'react';
+import { useCallback } from 'react';
 import { useTab } from '@/contexts/TabDataContext/TabDataContext';
 import { useWorker } from '@/contexts/WorkerContext/WorkerContext';
 import { asciiToBytes } from '@/utils/hexViewer';
 import { IndexInfo } from '@/components/HexViewer/HexViewer';
 import type { SearchType } from '@/types/searcher';
 import type { SearchResult } from '@/types/worker/analysis.worker.types';
-import eventBus from '@/types/eventBus';
 
 const filterInput = (inputValue: string, type: SearchType) => {
   switch (type) {

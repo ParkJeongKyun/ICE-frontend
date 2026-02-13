@@ -44,16 +44,20 @@ class ChunkWorker {
 
       self.postMessage(
         {
-          type: 'CHUNK_DATA',
-          offset,
-          buffer: uint8.buffer,
+          status: 'SUCCESS',
+          data: {
+            offset,
+            buffer: uint8.buffer,
+          },
         },
         [uint8.buffer]
       );
     } catch (error) {
       self.postMessage({
-        type: 'CHUNK_ERROR',
-        offset: request.offset,
+        status: 'ERROR',
+        data: {
+          offset: request.offset,
+        },
         errorCode: 'CHUNK_READ_FAILED',
       });
     } finally {
@@ -78,17 +82,17 @@ class ChunkWorker {
   }
 }
 
-// 전역 에러 핸들러
+// 전역 에러 핸들러 (StandardWorkerResponse 형식)
 self.addEventListener('error', (event) => {
   self.postMessage({
-    type: 'ERROR',
+    status: 'ERROR',
     errorCode: 'WORKER_ERROR',
   });
 });
 
 self.addEventListener('unhandledrejection', (event) => {
   self.postMessage({
-    type: 'ERROR',
+    status: 'ERROR',
     errorCode: 'WORKER_ERROR',
   });
 });

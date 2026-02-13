@@ -1,18 +1,23 @@
 import { ExifResult, SearchResult } from '@/types/worker/analysis.worker.types';
 import { HashResult } from '@/types/worker/hash.worker.types';
-import { WorkerStats } from '@/types/worker/index.worker.types';
+import {
+  WorkerStats,
+  TaskMap,
+  StandardWorkerResponse,
+  ExecuteResponse,
+} from '@/types/worker/index.worker.types';
 import { isImageMimeType } from '@/utils/thumbnail';
 import mitt, { Emitter } from 'mitt';
 
 // ============================================================================
-// 이벤트 타입
+// 이벤트 타입 (any 완전 제거 🚀)
 // ============================================================================
-export type WorkerEvents<T = HashResult | SearchResult | ExifResult> = {
+export type WorkerEvents = {
   PROGRESS: WorkerStats;
   DONE: {
-    type: string;
-    result: T;
-    stats: WorkerStats;
+    type: keyof TaskMap; // 👈 string 대신 정확한 작업명 추론
+    result: TaskMap[keyof TaskMap]['res']; // 👈 any 대신 '모든 가능한 결과물 타입의 유니언'
+    stats?: WorkerStats;
   };
   WASM_READY: void;
   ERROR: { code: string };
@@ -20,30 +25,22 @@ export type WorkerEvents<T = HashResult | SearchResult | ExifResult> = {
 
 // UUID v4 랜덤 생성 유틸
 function generateUUID(): string {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-    const r = (Math.random() * 16) | 0;
-    const v = c === 'x' ? r : (r & 0x3) | 0x8;
-    return v.toString(16);
-  });
+  return crypto.randomUUID();
 }
 
-export class WorkerManager<
-  T extends HashResult | SearchResult | ExifResult =
-    | HashResult
-    | SearchResult
-    | ExifResult,
-> {
+export class WorkerManager {
   private worker: Worker;
   private pendingRequests = new Map<
     string,
     {
-      resolve: (value: T) => void;
+      resolve: (value: ExecuteResponse<unknown>) => void;
       reject: (reason: Error) => void;
+      taskType: keyof TaskMap;
       file?: File; // HEIC/HEIF 썸네일 생성용
     }
   >();
 
-  public events: Emitter<WorkerEvents<T>>;
+  public events: Emitter<WorkerEvents>;
   private startProcessing?: () => void;
   private stopProcessing?: () => void;
 
@@ -55,155 +52,64 @@ export class WorkerManager<
     }
   ) {
     this.worker = worker;
-    this.events = mitt<WorkerEvents<T>>();
+    this.events = mitt<WorkerEvents>();
     this.startProcessing = callbacks?.startProcessing;
     this.stopProcessing = callbacks?.stopProcessing;
     this.setupListener();
   }
 
   private setupListener() {
-    this.worker.onmessage = (
-      e: MessageEvent<{
-        type: string;
-        data?: any;
-        result?: HashResult | SearchResult | ExifResult;
-        error?: string;
-        stats?: any;
-        errorCode?: string;
-      }>
-    ) => {
-      const { type, result, data, error, stats, errorCode } = e.data;
-      // ✅ ID는 stats에서만 추출
-      const id = stats?.id;
+    // 1️⃣ 메시지 수신 리스너
+    this.worker.onmessage = (e: MessageEvent<StandardWorkerResponse>) => {
+      const { status, taskType, data, stats, errorCode, id } = e.data;
+      // 🚀 id를 루트 레벨에서 추출! (stats.id는 호환성을 위해 보조로 사용)
+      const targetId = id ?? stats?.id ?? '';
 
-      switch (type) {
+      switch (status) {
         case 'WASM_READY':
           this.events.emit('WASM_READY');
           break;
 
-        case 'HASH_PROGRESS':
-        case 'SEARCH_PROGRESS':
-          this.events.emit('PROGRESS', {
-            id: stats?.id ?? '',
-            speed: stats?.speed ?? 0,
-            durationMs: stats?.durationMs ?? 0,
-            durationSec: stats?.durationSec ?? 0,
-            processedBytes: stats?.processedBytes ?? 0,
-            totalBytes: stats?.totalBytes ?? 0,
-            fileName: stats?.fileName ?? '',
-          } as WorkerStats);
+        case 'PROGRESS':
+          // 모든 워커의 진행률이 여기로 통합됨
+          if (stats) {
+            this.events.emit('PROGRESS', stats);
+          }
           break;
 
-        case 'HASH_RESULT':
-          const hashReq = this.pendingRequests.get(id);
-          if (!hashReq) {
-            // Request not found (timed out), ignore result
-            break;
-          }
-          hashReq.resolve({ data, stats } as any);
-          this.pendingRequests.delete(id);
-          this.events.emit('DONE', {
-            type: 'HASH_RESULT',
-            result: data as T,
-            stats,
-          });
-          break;
+        case 'SUCCESS':
+          // 모든 워커의 성공 결과가 여기로 통합됨
+          const req = this.pendingRequests.get(targetId);
+          if (!req) break; // Request not found (timed out), ignore result
 
-        case 'SEARCH_RESULT_HEX':
-        case 'SEARCH_RESULT_ASCII':
-          const searchReq = this.pendingRequests.get(id);
-          if (!searchReq) {
-            // Request not found (timed out), ignore result
-            break;
-          }
-          searchReq.resolve({ data, stats } as any);
-          this.pendingRequests.delete(id);
-          this.events.emit('DONE', {
-            type,
-            result: data as T,
-            stats,
-          });
-          break;
-
-        case 'EXIF_RESULT':
-          const exifReq = this.pendingRequests.get(id);
-          if (!exifReq) {
-            // Request not found (timed out), ignore result
-            break;
-          }
-
-          // 🎨 썸네일 처리 (이미지 타입만 메인 스레드에서 생성)
+          // EXIF 썸네일 처리는 taskType으로 구분 (isProcessing 유지를 위해 매니저에서 수행)
           if (
-            data?.exifInfo &&
-            !data.exifInfo.thumbnail &&
-            data.mimeType &&
-            isImageMimeType(data.mimeType) &&
-            exifReq.file
+            req.taskType === 'PROCESS_EXIF' &&
+            data &&
+            typeof data === 'object' &&
+            'mimeType' in data &&
+            isImageMimeType(data.mimeType as string)
           ) {
-            // 동적 import로 썸네일 생성 함수 로드
-            import('@/utils/thumbnail')
-              .then(({ generateThumbnailInMainThread }) =>
-                generateThumbnailInMainThread(exifReq.file!, data.mimeType)
-              )
-              .then((generatedThumbnail) => {
-                if (generatedThumbnail) {
-                  data.exifInfo.thumbnail = generatedThumbnail;
-                }
-                exifReq.resolve({ data, stats } as any);
-                this.pendingRequests.delete(id);
-                this.events.emit('DONE', {
-                  type,
-                  result: data as T,
-                  stats,
-                });
-              })
-              .catch((err) => {
-                console.error(
-                  '[WorkerManager] Thumbnail generation failed:',
-                  err
-                );
-                // 썸네일 생성 실패해도 EXIF 결과는 반환
-                exifReq.resolve({ data, stats } as any);
-                this.pendingRequests.delete(id);
-                this.events.emit('DONE', {
-                  type,
-                  result: data as T,
-                  stats,
-                });
-              });
+            this.handleThumbnail(targetId, req, data, stats);
           } else {
-            // 썸네일 생성이 필요 없는 경우
-            exifReq.resolve({ data, stats } as any);
-            this.pendingRequests.delete(id);
-            this.events.emit('DONE', {
-              type,
-              result: data as T,
-              stats,
-            });
+            this.resolveRequest(targetId, req, data, stats);
           }
           break;
 
-        case 'HASH_ERROR':
-        case 'SEARCH_ERROR':
-        case 'EXIF_ERROR':
         case 'ERROR':
-          const errReq = this.pendingRequests.get(id);
+          // 모든 워커의 에러가 여기로 통합됨
+          const errReq = this.pendingRequests.get(targetId);
           if (errReq) {
-            const errorMessage = errorCode || error || 'Unknown error';
-
-            // ✅ 글로벌 ERROR 이벤트 발행 (WorkerContext가 구독)
-            this.events.emit('ERROR', {
-              code: errorCode || 'WORKER_LOGIC_ERROR',
-            });
-
-            // ✅ Promise reject (컴포넌트 로딩 상태 해제용)
-            errReq.reject(new Error(errorMessage));
-            this.pendingRequests.delete(id);
+            this.events.emit('ERROR', { code: errorCode || 'WORKER_ERROR' });
+            errReq.reject(new Error(errorCode || 'Unknown error'));
+            if (targetId) this.pendingRequests.delete(targetId); // 🚀 undefined 검사
+            this.stopProcessing?.();
           }
           break;
       }
-    };
+    }; // 👈 onmessage 함수를 확실히 닫아줍니다.
 
+    // 2️⃣ 치명적 에러 리스너 (onmessage 바깥에 위치)
     // ✅ worker.onerror: 워커 스크립트 로딩/초기화 에러 처리
     // HASH_ERROR, SEARCH_ERROR 등의 로직상 에러는 메시지로 옴
     // 하지만 워커 파일이 404이거나 문법 에러가 있으면, self.addEventListener가 실행되기 전에
@@ -223,6 +129,77 @@ export class WorkerManager<
         code: 'WORKER_CRITICAL_ERROR',
       });
     };
+  }
+
+  /**
+   * 헬퍼: 요청을 즉시 resolve 처리
+   */
+  private resolveRequest(
+    id: string,
+    req: {
+      resolve: (value: ExecuteResponse<unknown>) => void;
+      taskType: keyof TaskMap;
+    },
+    data: unknown,
+    stats?: WorkerStats
+  ) {
+    req.resolve({ data, stats }); // 컴포넌트에게 { data, stats } 래퍼로 반환
+    this.events.emit('DONE', {
+      type: req.taskType,
+      result: data as TaskMap[keyof TaskMap]['res'], // 🚀 타입 단언: 워커에서 올바른 타입 보장됨
+      stats,
+    });
+    this.pendingRequests.delete(id);
+    this.stopProcessing?.();
+  }
+
+  /**
+   * 헬퍼: EXIF 썸네일 생성 후 resolve 처리
+   */
+  private handleThumbnail(
+    id: string,
+    req: {
+      resolve: (value: ExecuteResponse<unknown>) => void;
+      taskType: keyof TaskMap;
+      file?: File;
+    },
+    data: unknown,
+    stats?: WorkerStats
+  ) {
+    // 타입 가드를 통해 안전하게 속성 접근
+    if (
+      typeof data === 'object' &&
+      data !== null &&
+      'exifInfo' in data &&
+      'mimeType' in data
+    ) {
+      const typedData = data as Record<string, any>;
+      // 🎨 썸네일 처리 (이미지 타입만 메인 스레드에서 생성)
+      if (typedData.exifInfo && !typedData.exifInfo.thumbnail && req.file) {
+        // 동적 import로 썸네일 생성 함수 로드
+        import('@/utils/thumbnail')
+          .then(({ generateThumbnailInMainThread }) =>
+            generateThumbnailInMainThread(req.file!, typedData.mimeType)
+          )
+          .then((generatedThumbnail) => {
+            if (generatedThumbnail) {
+              typedData.exifInfo.thumbnail = generatedThumbnail;
+            }
+            this.resolveRequest(id, req, typedData, stats);
+          })
+          .catch((err) => {
+            console.error('[WorkerManager] Thumbnail generation failed:', err);
+            // 썸네일 생성 실패해도 EXIF 결과는 반환
+            this.resolveRequest(id, req, data, stats);
+          });
+      } else {
+        // 썸네일 생성이 필요 없는 경우
+        this.resolveRequest(id, req, data, stats);
+      }
+    } else {
+      // data가 예상 형식이 아니면 그냥 반환
+      this.resolveRequest(id, req, data, stats);
+    }
   }
 
   // 📏 파일 크기 기반 동적 타임아웃 계산
@@ -286,25 +263,11 @@ export class WorkerManager<
     return Math.round(finalTimeout);
   }
 
-  // Overload signatures for type inference
-  public execute(
-    type: 'PROCESS_HASH',
-    payload: Record<string, any>
-  ): Promise<HashResult>;
-  public execute(
-    type: 'PROCESS_EXIF',
-    payload: Record<string, any>
-  ): Promise<ExifResult>;
-  public execute(
-    type: 'SEARCH_HEX' | 'SEARCH_ASCII',
-    payload: Record<string, any>
-  ): Promise<SearchResult>;
-
-  // Implementation
-  public execute(
-    type: string,
-    payload: Record<string, any>
-  ): Promise<HashResult | SearchResult | ExifResult> {
+  // 최종 응늵 타입은 ExecuteResponse<TaskMap[K]['res']>
+  public async execute<K extends keyof TaskMap>(
+    type: K,
+    payload: TaskMap[K]['req']
+  ): Promise<ExecuteResponse<TaskMap[K]['res']>> {
     const id = generateUUID();
 
     // 프로세스 시작
@@ -347,15 +310,20 @@ export class WorkerManager<
         resolve: (value) => {
           clearTimeout(timeoutId);
           this.stopProcessing?.();
-          resolve(value);
+          resolve(value as ExecuteResponse<TaskMap[K]['res']>);
         },
         reject: (error) => {
           clearTimeout(timeoutId);
           this.stopProcessing?.();
           reject(error);
         },
+        taskType: type,
         // PROCESS_EXIF인 경우 file 저장 (HEIC/HEIF 썸네일 생성용)
-        file: type === 'PROCESS_EXIF' ? payload.file : undefined,
+        // 🚀 in 연산자를 써서 any 캠스팅 제거
+        file:
+          'file' in payload && payload.file instanceof File
+            ? payload.file
+            : undefined,
       });
       this.worker.postMessage({ type, id, ...payload });
     });
