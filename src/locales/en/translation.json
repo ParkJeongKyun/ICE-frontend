@@ -53,6 +53,9 @@
     "range": "Range",
     "encoding": "Encoding"
   },
+  "dropzone": {
+    "message": "Drop files here to analyze (Click to close)"
+  },
   "offsetNavigator": {
     "radixTooltip": "Toggle 16/10/8 radix",
     "hexPlaceholder": "offset (Hexadecimal)",

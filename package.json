@@ -23,6 +23,7 @@
     "react": "^19.2.3",
     "react-device-detect": "^2.2.3",
     "react-dom": "^19.2.3",
+    "react-dropzone": "^15.0.0",
     "react-markdown": "^9.0.1",
     "react-resizable-layout": "^0.7.2",
     "styled-components": "^6.1.13",

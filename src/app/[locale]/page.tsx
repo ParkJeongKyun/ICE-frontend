@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import MainLayout from '@/layouts/MainLayout/MainLayout';
+import DropzoneWrapper from '@/components/DropzoneWrapper/DropzoneWrapper';
 import JsonLd from './JsonLd';
 import { type Locale } from '@/locales/routing';
 
@@ -76,7 +77,9 @@ export default async function HomePage({
   return (
     <>
       <JsonLd locale={locale} />
-      <MainLayout />
+      <DropzoneWrapper>
+        <MainLayout />
+      </DropzoneWrapper>
     </>
   );
 }

@@ -82,7 +82,10 @@ export const IceHeaderLeftSider = styled.div<{
 `;
 
 // 진행률 바 (헤더 내부에서 사용)
-export const IceHeaderProgressBar = styled.div<{ $progress: number; $isProcessing: boolean }>`
+export const IceHeaderProgressBar = styled.div<{
+  $progress: number;
+  $isProcessing: boolean;
+}>`
   position: absolute;
   left: 0;
   top: 100%; /* 헤더 바로 아래 */
@@ -309,12 +312,15 @@ export const IceMobileTabButton = styled.button<{ $active?: boolean }>`
   border-radius: 0;
   border: none;
   background: transparent;
-  color: ${({ $active }) => ($active ? 'var(--ice-main-color)' : 'var(--main-color)')};
-  font-size: 0.70rem;
+  color: ${({ $active }) =>
+    $active ? 'var(--ice-main-color)' : 'var(--main-color)'};
+  font-size: 0.7rem;
   font-weight: 700;
   cursor: pointer;
   opacity: 1;
-  transition: color 0.12s ease, background 0.12s ease;
+  transition:
+    color 0.12s ease,
+    background 0.12s ease;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -343,9 +349,11 @@ export const IceMobileTabButton = styled.button<{ $active?: boolean }>`
   }
 `;
 
-export const IceMobileTabPanel = styled.div.attrs<{ $active?: boolean }>((props) => ({
-  'aria-hidden': !props.$active,
-}))<{ $active?: boolean }>`
+export const IceMobileTabPanel = styled.div.attrs<{ $active?: boolean }>(
+  (props) => ({
+    'aria-hidden': !props.$active,
+  })
+)<{ $active?: boolean }>`
   display: ${({ $active }) => ($active ? 'block' : 'none')};
   height: 65%;
   overflow: auto;

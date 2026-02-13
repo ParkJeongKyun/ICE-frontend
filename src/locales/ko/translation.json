@@ -53,6 +53,9 @@
     "range": "범위",
     "encoding": "인코딩"
   },
+  "dropzone": {
+    "message": "파일을 여기에 놓으면 분석이 시작됩니다 (클릭하여 닫기)"
+  },
   "offsetNavigator": {
     "radixTooltip": "16/10/8진수 전환",
     "hexPlaceholder": "오프셋 (16진수)",
