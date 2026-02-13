@@ -1,5 +1,12 @@
 ## Release Notes
 
+### v2026.02.13
+
+- Added drag & drop file functionality
+- Added hash calculation feature
+- Performance and UI/UX improvements (Go code and frontend code optimization)
+- Bug fixes
+
 ### v2026.02.01
 
 - Migrated to Next.js
