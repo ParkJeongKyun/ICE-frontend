@@ -37,14 +37,14 @@ class AnalysisWorker {
   private wasmInitializing = false;
   private wasmSearchFunc: WasmSearchFunction | null = null;
   private wasmExifFunc: WasmExifFunction | null = null;
-  private goInstance: any = null;
+  private goInstance: Go | null = null;
   private wasmPath = process.env.NEXT_PUBLIC_WASM_PATH;
 
   /**
    * Go WASM에서 호출할 전역 동기 함수 설정
    */
   setupReadBlockSync(): void {
-    (self as any).readBlockSync = (
+    const readBlockSync = (
       file: File,
       offset: number,
       length: number
@@ -71,6 +71,11 @@ class AnalysisWorker {
         return null;
       }
     };
+    (
+      self as DedicatedWorkerGlobalScope & {
+        readBlockSync: typeof readBlockSync;
+      }
+    ).readBlockSync = readBlockSync;
   }
 
   /**
@@ -165,7 +170,7 @@ class AnalysisWorker {
 
       const result = await WebAssembly.instantiateStreaming(
         Promise.resolve(response),
-        go.importObject as any
+        go.importObject
       );
 
       const wasmReadyPromise = new Promise<void>((resolve) => {
@@ -182,8 +187,9 @@ class AnalysisWorker {
       ]);
 
       // 함수 가져오기
-      this.wasmSearchFunc = (self as any).searchFunc;
-      this.wasmExifFunc = (self as any).exifFunc;
+      const globalScope = self as DedicatedWorkerGlobalScope;
+      this.wasmSearchFunc = globalScope.searchFunc;
+      this.wasmExifFunc = globalScope.exifFunc;
 
       if (!this.wasmSearchFunc || !this.wasmExifFunc) {
         throw new Error('WASM functions not registered');

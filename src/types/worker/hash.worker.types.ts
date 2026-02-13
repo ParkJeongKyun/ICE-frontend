@@ -15,26 +15,6 @@ export interface HashWorkerRequest {
   hashType?: HashType; // 기본값: sha256
 }
 
-// Response
-export type HashWorkerResponseType =
-  | 'HASH_PROGRESS'
-  | 'HASH_RESULT'
-  | 'HASH_ERROR';
-
-export interface HashWorkerResponse {
-  type: HashWorkerResponseType;
-  stats?: WorkerStats;
-  [key: string]: any;
-}
-
-// Payloads
-export interface HashProgress {
-  progress: number;
-  speed: number;
-  eta: number;
-  stats: WorkerStats;
-}
-
 export interface HashResult {
   data: {
     hash: string;

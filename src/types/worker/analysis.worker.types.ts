@@ -45,7 +45,6 @@ export interface ExifResult {
   };
   stats: WorkerStats;
 }
-
 // ============================================================================
 // WASM
 // ============================================================================
@@ -55,13 +54,32 @@ export interface SearchOptions {
   maxResults?: number;
 }
 
+// ============================================================================
+// WASM Response Types
+// ============================================================================
+
+export interface WasmSearchResponse {
+  indices: number[];
+  error?: string;
+}
+
+export interface WasmExifResponse {
+  mimeType: string;
+  extension: string;
+  typeDetected: boolean;
+  hasExif: boolean;
+  isEmpty: boolean;
+  exifData?: string;
+  error?: string;
+}
+
 export type WasmSearchFunction = (
   file: File,
   pattern: Uint8Array,
   options?: SearchOptions
-) => any;
+) => WasmSearchResponse;
 
-export type WasmExifFunction = (data: File) => any;
+export type WasmExifFunction = (data: File) => WasmExifResponse;
 
 // ============================================================================
 // Global Types (Worker 내부 참조용)

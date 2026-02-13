@@ -18,6 +18,29 @@ export function isImageMimeType(mimeType: string): boolean {
 }
 
 /**
+ * Uint32 배열을 Uint8ClampedArray로 변환
+ * TIFF 디코더 결과를 Canvas ImageData로 사용하기 위함
+ */
+function assign32(
+  target: Uint8ClampedArray,
+  source: Uint32Array | Uint8Array
+): void {
+  if (source instanceof Uint32Array) {
+    // RGBA 패킹된 32-bit 값 → RGBA 8-bit 4개 값
+    for (let i = 0; i < source.length; i++) {
+      const val = source[i];
+      target[i * 4 + 0] = (val >> 0) & 0xff; // R
+      target[i * 4 + 1] = (val >> 8) & 0xff; // G
+      target[i * 4 + 2] = (val >> 16) & 0xff; // B
+      target[i * 4 + 3] = (val >> 24) & 0xff; // A
+    }
+  } else {
+    // 이미 8-bit 배열인 경우 그대로 복사
+    target.set(source);
+  }
+}
+
+/**
  * 썸네일 크기 계산 (비율 유지)
  */
 function calculateThumbnailSize(
@@ -71,15 +94,19 @@ export async function generateThumbnailInMainThread(
   mimeType: string
 ): Promise<string | null> {
   const mime = mimeType.toLowerCase();
-  const heicFormats = ['image/heic', 'image/heif'];
 
   try {
     // HEIC/HEIF 처리
-    if (heicFormats.includes(mime)) {
+    if (mime === 'image/heic' || mime === 'image/heif') {
       return await generateHeicThumbnail(file);
     }
 
-    // 그 외 모든 이미지 포맷 (JPEG, PNG, TIFF, WEBP, SVG 등)
+    // TIFF 처리
+    if (mime === 'image/tiff' || mime === 'image/tif') {
+      return await generateTiffThumbnail(file);
+    }
+
+    // 표준 포맷 (JPEG, PNG, WEBP, SVG 등)
     return await generateStandardThumbnail(file);
   } catch (error) {
     console.error('[thumbnail] Thumbnail generation failed:', error);
@@ -110,8 +137,66 @@ async function generateHeicThumbnail(file: File): Promise<string | null> {
     return await generateThumbnailFromBlob(blob);
   } catch (error) {
     console.error('[thumbnail] HEIC thumbnail generation failed:', error);
-    return null;
   }
+  return null;
+}
+
+/**
+ * TIFF 썸네일 생성
+ * 우선순위: utif.js 디코딩 → EXIF 추출
+ */
+async function generateTiffThumbnail(file: File): Promise<string | null> {
+  // 1️⃣ utif.js로 TIFF 디코딩 시도
+  try {
+    const utifModule = await import('utif');
+    const utif = utifModule.default || utifModule;
+    const arrayBuffer = await file.arrayBuffer();
+    const images = utif.decode(arrayBuffer);
+
+    if (images && images.length > 0) {
+      const firstImage = images[0];
+      const canvas = document.createElement('canvas');
+      canvas.width = firstImage.width;
+      canvas.height = firstImage.height;
+      const ctx = canvas.getContext('2d');
+
+      if (ctx) {
+        const imageData = ctx.createImageData(
+          firstImage.width,
+          firstImage.height
+        );
+        assign32(imageData.data, firstImage.data);
+        ctx.putImageData(imageData, 0, 0);
+
+        const mimeType = supportsWebP() ? 'image/webp' : 'image/jpeg';
+        const thumbBlob = await canvasToBlob(canvas, mimeType, 0.8);
+        return await generateThumbnailFromBlob(thumbBlob);
+      }
+    }
+  } catch (e) {
+    // utif 실패, EXIF 폴백으로 진행
+  }
+
+  // 2️⃣ EXIF 썸네일 추출 시도 (폴백)
+  try {
+    const win = window as any;
+    if (win.exifFunc && win.wasmReady) {
+      const result = win.exifFunc(file);
+
+      if (result?.exifData) {
+        const exifJson = JSON.parse(result.exifData);
+        if (exifJson.thumbnail) {
+          const dataUrl = `data:image/jpeg;base64,${exifJson.thumbnail}`;
+          const response = await fetch(dataUrl);
+          const blob = await response.blob();
+          return await generateThumbnailFromBlob(blob);
+        }
+      }
+    }
+  } catch (error) {
+    console.error('[thumbnail] TIFF thumbnail generation failed:', error);
+  }
+  return null;
 }
 
 /**

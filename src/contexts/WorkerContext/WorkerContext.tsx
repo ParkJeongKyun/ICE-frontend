@@ -134,12 +134,15 @@ export const WorkerProvider: React.FC<{ children: React.ReactNode }> = ({
         let processedBytes = 0;
         let totalSpeed = 0;
         let fileName = '';
+        let durationMs = 0;
 
         for (const data of progressMap.values()) {
           totalBytes += data.totalBytes ?? 0;
           processedBytes += data.processedBytes ?? 0;
           totalSpeed += data.speed ?? 0;
           if (data.fileName) fileName = data.fileName;
+          if (data.durationMs)
+            durationMs = Math.max(durationMs, data.durationMs);
         }
 
         eventBus.emit('progress', {
@@ -148,7 +151,9 @@ export const WorkerProvider: React.FC<{ children: React.ReactNode }> = ({
           processedBytes,
           totalBytes,
           fileName,
-        } as any);
+          durationMs,
+          durationSec: durationMs / 1000,
+        } as WorkerStats);
 
         rafId = null;
       };
@@ -177,7 +182,7 @@ export const WorkerProvider: React.FC<{ children: React.ReactNode }> = ({
           updateProgress('hash', data)
         );
         hashManager.events.on('DONE', (e) =>
-          cleanupProgress('hash', e.result.stats.id)
+          cleanupProgress('hash', e.stats.id)
         );
       }
 
@@ -187,7 +192,7 @@ export const WorkerProvider: React.FC<{ children: React.ReactNode }> = ({
           updateProgress('analysis', data)
         );
         analysisManager.events.on('DONE', (e) =>
-          cleanupProgress('analysis', e.result.stats.id)
+          cleanupProgress('analysis', e.stats.id)
         );
       }
 

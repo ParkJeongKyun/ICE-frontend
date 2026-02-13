@@ -12,6 +12,7 @@ export type WorkerEvents<T = HashResult | SearchResult | ExifResult> = {
   DONE: {
     type: string;
     result: T;
+    stats: WorkerStats;
   };
   WASM_READY: void;
   ERROR: { code: string };
@@ -103,7 +104,8 @@ export class WorkerManager<
           this.pendingRequests.delete(id);
           this.events.emit('DONE', {
             type: 'HASH_RESULT',
-            result: { data, stats } as any,
+            result: data as T,
+            stats,
           });
           break;
 
@@ -118,7 +120,8 @@ export class WorkerManager<
           this.pendingRequests.delete(id);
           this.events.emit('DONE', {
             type,
-            result: { data, stats } as any,
+            result: data as T,
+            stats,
           });
           break;
 
@@ -150,7 +153,8 @@ export class WorkerManager<
                 this.pendingRequests.delete(id);
                 this.events.emit('DONE', {
                   type,
-                  result: { data, stats } as any,
+                  result: data as T,
+                  stats,
                 });
               })
               .catch((err) => {
@@ -163,7 +167,8 @@ export class WorkerManager<
                 this.pendingRequests.delete(id);
                 this.events.emit('DONE', {
                   type,
-                  result: { data, stats } as any,
+                  result: data as T,
+                  stats,
                 });
               });
           } else {
@@ -172,7 +177,8 @@ export class WorkerManager<
             this.pendingRequests.delete(id);
             this.events.emit('DONE', {
               type,
-              result: { data, stats } as any,
+              result: data as T,
+              stats,
             });
           }
           break;

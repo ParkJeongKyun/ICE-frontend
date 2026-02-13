@@ -21,7 +21,7 @@ export const useHexViewerWorker = ({
   visibleRows,
   checkCacheSize,
 }: UseHexViewerWorkerProps) => {
-  const { activeKey, activeData } = useTab();
+  const { activeData } = useTab();
   const { chunkWorker } = useWorker();
 
   const file = activeData?.file;

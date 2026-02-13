@@ -1,6 +1,9 @@
 /// <reference lib="webworker" />
 
-import { ChunkWorkerRequest } from '@/types/worker/chunk.worker.types';
+import {
+  ChunkWorkerRequest,
+  ReadChunkRequest,
+} from '@/types/worker/chunk.worker.types';
 
 declare const self: DedicatedWorkerGlobalScope;
 
@@ -9,7 +12,7 @@ declare const self: DedicatedWorkerGlobalScope;
  * 파일 청크 읽기 및 큐 관리
  */
 class ChunkWorker {
-  private queue: ChunkWorkerRequest[] = [];
+  private queue: ReadChunkRequest[] = [];
   private readonly MAX_CONCURRENT = 4;
   private activeRequests = 0;
 
@@ -32,7 +35,7 @@ class ChunkWorker {
   /**
    * 청크 처리
    */
-  private async processChunk(request: ChunkWorkerRequest): Promise<void> {
+  private async processChunk(request: ReadChunkRequest): Promise<void> {
     try {
       const { file, offset, length } = request;
       const blob = file.slice(offset, offset + length);
@@ -63,12 +66,10 @@ class ChunkWorker {
    * 메시지 핸들러
    */
   handle(data: ChunkWorkerRequest): void {
-    const { type, file, offset, length, priority } = data;
-
-    if (type === 'READ_CHUNK') {
-      this.queue.push({ type, file, offset, length, priority });
+    if (data.type === 'READ_CHUNK') {
+      this.queue.push(data);
       this.processQueue();
-    } else if (type === 'CANCEL_ALL') {
+    } else if (data.type === 'CANCEL_ALL') {
       this.queue = [];
       if (process.env.NODE_ENV === 'development') {
         console.log('[Chunk Worker] Queue cleared - CANCEL_ALL');
