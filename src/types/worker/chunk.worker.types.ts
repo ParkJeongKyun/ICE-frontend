@@ -19,23 +19,6 @@ export interface CancelAllRequest {
 
 export type ChunkWorkerRequest = ReadChunkRequest | CancelAllRequest;
 
-// Response
-export type ChunkWorkerResponseType = 'CHUNK_DATA' | 'CHUNK_ERROR' | 'ERROR';
-
-export interface ChunkDataResponse {
-  type: 'CHUNK_DATA';
-  offset: number;
-  buffer: ArrayBuffer;
-}
-
-export interface ChunkErrorResponse {
-  type: 'CHUNK_ERROR' | 'ERROR';
-  offset: number;
-  errorCode: string;
-}
-
-export type ChunkWorkerResponse = ChunkDataResponse | ChunkErrorResponse;
-
 // Payload
 export interface ChunkData {
   offset: number;
