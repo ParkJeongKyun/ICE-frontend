@@ -9,14 +9,11 @@ import {
 import { isImageMimeType } from '@/utils/thumbnail';
 import mitt, { Emitter } from 'mitt';
 
-// ============================================================================
-// 이벤트 타입 (any 완전 제거 🚀)
-// ============================================================================
 export type WorkerEvents = {
   PROGRESS: WorkerStats;
   DONE: {
-    type: keyof TaskMap; // 👈 string 대신 정확한 작업명 추론
-    result: TaskMap[keyof TaskMap]['res']; // 👈 any 대신 '모든 가능한 결과물 타입의 유니언'
+    type: keyof TaskMap;
+    result: TaskMap[keyof TaskMap]['res'];
     stats?: WorkerStats;
   };
   WASM_READY: void;
@@ -62,7 +59,6 @@ export class WorkerManager {
     // 1️⃣ 메시지 수신 리스너
     this.worker.onmessage = (e: MessageEvent<StandardWorkerResponse>) => {
       const { status, taskType, data, stats, errorCode, id } = e.data;
-      // 🚀 id를 루트 레벨에서 추출! (stats.id는 호환성을 위해 보조로 사용)
       const targetId = id ?? stats?.id ?? '';
 
       switch (status) {
@@ -107,7 +103,7 @@ export class WorkerManager {
           }
           break;
       }
-    }; // 👈 onmessage 함수를 확실히 닫아줍니다.
+    };
 
     // 2️⃣ 치명적 에러 리스너 (onmessage 바깥에 위치)
     // ✅ worker.onerror: 워커 스크립트 로딩/초기화 에러 처리
@@ -119,14 +115,14 @@ export class WorkerManager {
 
       // 대기 중인 모든 요청을 에러 처리
       this.pendingRequests.forEach((req) => {
-        req.reject(new Error(`WORKER_CRITICAL_ERROR: ${event.message}`));
+        req.reject(new Error(`WORKER_ERROR: ${event.message}`));
       });
       this.pendingRequests.clear();
       this.stopProcessing?.();
 
       // 컴포넌트에 에러 전파
       this.events.emit('ERROR', {
-        code: 'WORKER_CRITICAL_ERROR',
+        code: 'WORKER_ERROR',
       });
     };
   }
@@ -143,10 +139,10 @@ export class WorkerManager {
     data: unknown,
     stats?: WorkerStats
   ) {
-    req.resolve({ data, stats }); // 컴포넌트에게 { data, stats } 래퍼로 반환
+    req.resolve({ data, stats });
     this.events.emit('DONE', {
       type: req.taskType,
-      result: data as TaskMap[keyof TaskMap]['res'], // 🚀 타입 단언: 워커에서 올바른 타입 보장됨
+      result: data as TaskMap[keyof TaskMap]['res'],
       stats,
     });
     this.pendingRequests.delete(id);
@@ -319,7 +315,6 @@ export class WorkerManager {
         },
         taskType: type,
         // PROCESS_EXIF인 경우 file 저장 (HEIC/HEIF 썸네일 생성용)
-        // 🚀 in 연산자를 써서 any 캠스팅 제거
         file:
           'file' in payload && payload.file instanceof File
             ? payload.file

@@ -206,7 +206,7 @@ class AnalysisWorker {
       console.error('[Worker] WASM initialization error:', error);
       self.postMessage({
         status: 'ERROR',
-        errorCode: 'WASM_INIT_FAILED',
+        errorCode: 'WASM_LOAD_FAILED',
       });
     }
   }
