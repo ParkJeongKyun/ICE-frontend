@@ -29,6 +29,7 @@ import ChevronRightIcon from '@/components/common/Icons/ChevronRightIcon';
 import SearchIcon from '@/components/common/Icons/SearchIcon';
 import { useTab } from '@/contexts/TabDataContext/TabDataContext';
 import { useRefs } from '@/contexts/RefContext/RefContext';
+import { useProcess } from '@/contexts/ProcessContext/ProcessContext';
 import eventBus from '@/types/eventBus';
 import { useSearch } from './hooks/useSearch';
 import Tooltip from '@/components/common/Tooltip/Tooltip';
@@ -60,6 +61,7 @@ const Searcher: React.FC = () => {
   const t = useTranslations();
   const { hexViewerRef, setSearcherRef } = useRefs();
   const { activeKey } = useTab();
+  const { isAnalysisProcessing } = useProcess();
   const [searchResults, dispatch] = useReducer(
     searchReducer,
     initialSearchState
@@ -115,7 +117,7 @@ const Searcher: React.FC = () => {
 
   const search = useCallback(
     async (inputValue: string, type: SearchType, shouldScroll = true) => {
-      if (!hexViewerRef.current) return;
+      if (!hexViewerRef.current || isAnalysisProcessing) return;
 
       searchTabKeyRef.current = activeKey;
 
@@ -216,6 +218,7 @@ const Searcher: React.FC = () => {
     [
       activeKey,
       ignoreCase,
+      isAnalysisProcessing,
       getCacheKey,
       searchResults.__cache__,
       findAllByHex,
@@ -274,11 +277,11 @@ const Searcher: React.FC = () => {
 
   const handleInputKeyPress = useCallback(
     async (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === 'Enter' && inputValue) {
+      if (e.key === 'Enter' && inputValue && !isAnalysisProcessing) {
         await search(inputValue, searchType);
       }
     },
-    [inputValue, search, searchType]
+    [inputValue, isAnalysisProcessing, search, searchType]
   );
 
   const handleSearchTypeChange = useCallback(
@@ -358,7 +361,11 @@ const Searcher: React.FC = () => {
       <SearchDiv>
         <SearchLabel>{t('searcher.typeLabel')}</SearchLabel>
         <SearchData>
-          <SearchSelect value={searchType} onChange={handleSearchTypeChange}>
+          <SearchSelect
+            value={searchType}
+            onChange={handleSearchTypeChange}
+            disabled={isAnalysisProcessing}
+          >
             <option value="hex">{t('searcher.hexOption')}</option>
             <option value="ascii">{t('searcher.asciiOption')}</option>
           </SearchSelect>
@@ -375,6 +382,7 @@ const Searcher: React.FC = () => {
             placeholder={t('searcher.placeholder', {
               type: searchType.toUpperCase(),
             })}
+            disabled={isAnalysisProcessing}
           />
           {searchType === 'ascii' && (
             <Tooltip
@@ -385,7 +393,10 @@ const Searcher: React.FC = () => {
               }
             >
               <ButtonDiv
-                onClick={() => setIgnoreCase((prev) => !prev)}
+                onClick={() =>
+                  !isAnalysisProcessing && setIgnoreCase((prev) => !prev)
+                }
+                $disabled={isAnalysisProcessing}
                 style={{
                   opacity: ignoreCase ? 1 : 0.4,
                   fontWeight: ignoreCase ? 600 : 400,
@@ -397,7 +408,12 @@ const Searcher: React.FC = () => {
           )}
           <Tooltip text={t('searcher.searchTooltip')}>
             <ButtonDiv
-              onClick={() => inputValue && search(inputValue, searchType)}
+              onClick={() =>
+                !isAnalysisProcessing &&
+                inputValue &&
+                search(inputValue, searchType)
+              }
+              $disabled={isAnalysisProcessing || !inputValue}
             >
               <SearchIcon width={16} height={16} />
             </ButtonDiv>
