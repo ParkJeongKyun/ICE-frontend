@@ -94,7 +94,6 @@ export async function generateThumbnailInMainThread(
   mimeType: string
 ): Promise<string | null> {
   const mime = mimeType.toLowerCase();
-
   try {
     // HEIC/HEIF 처리
     if (mime === 'image/heic' || mime === 'image/heif') {
@@ -143,10 +142,8 @@ async function generateHeicThumbnail(file: File): Promise<string | null> {
 
 /**
  * TIFF 썸네일 생성
- * 우선순위: utif.js 디코딩 → EXIF 추출
  */
 async function generateTiffThumbnail(file: File): Promise<string | null> {
-  // 1️⃣ utif.js로 TIFF 디코딩 시도
   try {
     const utifModule = await import('utif');
     const utif = utifModule.default || utifModule;
@@ -155,6 +152,8 @@ async function generateTiffThumbnail(file: File): Promise<string | null> {
 
     if (images && images.length > 0) {
       const firstImage = images[0];
+      utif.decodeImage(arrayBuffer, firstImage);
+
       const canvas = document.createElement('canvas');
       canvas.width = firstImage.width;
       canvas.height = firstImage.height;
@@ -168,28 +167,24 @@ async function generateTiffThumbnail(file: File): Promise<string | null> {
         assign32(imageData.data, firstImage.data);
         ctx.putImageData(imageData, 0, 0);
 
-        const mimeType = supportsWebP() ? 'image/webp' : 'image/jpeg';
-        const thumbBlob = await canvasToBlob(canvas, mimeType, 0.8);
-        return await generateThumbnailFromBlob(thumbBlob);
-      }
-    }
-  } catch (e) {
-    // utif 실패, EXIF 폴백으로 진행
-  }
+        const { width, height } = calculateThumbnailSize(
+          firstImage.width,
+          firstImage.height
+        );
 
-  // 2️⃣ EXIF 썸네일 추출 시도 (폴백)
-  try {
-    const win = window as any;
-    if (win.exifFunc && win.wasmReady) {
-      const result = win.exifFunc(file);
+        const thumbCanvas = document.createElement('canvas');
+        thumbCanvas.width = width;
+        thumbCanvas.height = height;
+        const thumbCtx = thumbCanvas.getContext('2d');
 
-      if (result?.exifData) {
-        const exifJson = JSON.parse(result.exifData);
-        if (exifJson.thumbnail) {
-          const dataUrl = `data:image/jpeg;base64,${exifJson.thumbnail}`;
-          const response = await fetch(dataUrl);
-          const blob = await response.blob();
-          return await generateThumbnailFromBlob(blob);
+        if (thumbCtx) {
+          thumbCtx.imageSmoothingEnabled = true;
+          thumbCtx.imageSmoothingQuality = 'high';
+          thumbCtx.drawImage(canvas, 0, 0, width, height);
+
+          const mimeType = supportsWebP() ? 'image/webp' : 'image/jpeg';
+          const thumbBlob = await canvasToBlob(thumbCanvas, mimeType, 0.8);
+          return await blobToDataUrl(thumbBlob);
         }
       }
     }
