@@ -7,14 +7,20 @@ import styled from 'styled-components';
 import USFlagIcon from '../Icons/USFlagIcon';
 import KRFlagIcon from '../Icons/KRFlagIcon';
 import Tooltip from '../Tooltip/Tooltip';
+import { useProcess } from '@/contexts/ProcessContext/ProcessContext';
 
 const LanguageSwitcher: React.FC = () => {
   const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
   const [isPending, startTransition] = useTransition();
+  const { isHashProcessing, isAnalysisProcessing } = useProcess();
+
+  const isProcessing = isHashProcessing || isAnalysisProcessing;
 
   const handleLanguageToggle = () => {
+    if (isProcessing) return;
+
     const nextLocale = locale === 'en' ? 'ko' : 'en';
     localStorage.setItem('user-locale', nextLocale);
 
@@ -26,10 +32,17 @@ const LanguageSwitcher: React.FC = () => {
   const currentLangName = locale === 'en' ? 'English' : '한국어';
   const isEnglish = locale === 'en';
 
+  const tooltipText = isProcessing
+    ? locale === 'en'
+      ? 'Cannot change language during processing'
+      : '작업 중에는 언어를 변경할 수 없습니다'
+    : `Current: ${currentLangName} (Click to switch)`;
+
   return (
-    <Tooltip text={`Current: ${currentLangName} (Click to switch)`}>
+    <Tooltip text={tooltipText}>
       <FlagButton
         onClick={handleLanguageToggle}
+        disabled={isProcessing}
         aria-label={`Switch language (current: ${currentLangName})`}
       >
         <span className="current" aria-hidden={false}>
@@ -63,8 +76,14 @@ const FlagButton = styled.button`
   color: var(--main-color);
   transition:
     color 0.18s ease,
-    background 0.18s ease;
+    background 0.18s ease,
+    opacity 0.18s ease;
   border-radius: 0;
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
 
   /* 기본 current flag */
   .current {
@@ -106,7 +125,7 @@ const FlagButton = styled.button`
     ); /* 대각선 분할 - 오른쪽/아래 삼각형 */
   }
 
-  &:hover {
+  &:hover:not(:disabled) {
     background-color: var(--main-hover-color);
     .current {
       opacity: 0;
