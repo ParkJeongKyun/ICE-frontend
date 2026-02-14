@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   },
 
   description:
-    'Web-based digital forensics tool without installation. Supports Hex Viewer, File Header Analysis, and Image EXIF Metadata Analysis.',
+    'Web-based digital forensics tool without installation. Supports Hex Viewer, File Header Analysis, Image EXIF Metadata Extraction, and File Hash Calculator (SHA256/SHA512/MD5/SHA1).',
 
   authors: [
     {
@@ -38,9 +38,10 @@ export const metadata: Metadata = {
     locale: 'en_US',
     url: DOMAIN,
     siteName: 'ICE Forensic',
-    title: 'ICE Forensic - Online Hex Viewer & EXIF Viewer',
+    title:
+      'ICE Forensic - Online Hex Viewer & EXIF Viewer & File Hash Calculator',
     description:
-      'Web-based digital forensics tool without installation. Supports Hex Viewer, File Header Analysis, and Image EXIF Metadata Analysis.',
+      'Web-based digital forensics tool without installation. Supports Hex Viewer, File Header Analysis, Image EXIF Metadata Extraction, and File Hash Calculator (SHA256/SHA512/MD5/SHA1).',
     images: [
       {
         url: `${DOMAIN}/pullLogo.png`,
@@ -53,8 +54,10 @@ export const metadata: Metadata = {
 
   twitter: {
     card: 'summary_large_image',
-    title: 'ICE Forensic - Online Hex Viewer & EXIF Viewer',
-    description: 'Web-based digital forensics tool without installation.',
+    title:
+      'ICE Forensic - Online Hex Viewer & EXIF Viewer & File Hash Calculator',
+    description:
+      'Web-based digital forensics tool without installation. Supports Hex Viewer, EXIF Analysis, and File Hash Calculator.',
     images: [`${DOMAIN}/pullLogo.png`],
   },
 };
