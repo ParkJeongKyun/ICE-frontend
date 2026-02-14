@@ -15,11 +15,6 @@ declare const self: DedicatedWorkerGlobalScope;
  */
 class HashWorker {
   /**
-   * 취소 요청 추적 (타임아웃으로 인한 soft cancel)
-   */
-  private cancelledIds = new Set<string>();
-
-  /**
    * 해시 타입에 따른 해셔 생성
    */
   private static async createHasher(hashType: HashType) {
@@ -67,13 +62,6 @@ class HashWorker {
       const PROGRESS_INTERVAL_MS = interval.ms;
 
       while (true) {
-        // ✅ [우선순위 1] 취소 요청 확인 (타임아웃)
-        if (this.cancelledIds.has(id)) {
-          reader.cancel(); // 스트림 읽기 취소
-          this.cancelledIds.delete(id); // 메모리 정리
-          return; // 작업 중단
-        }
-
         const { done, value } = await reader.read();
 
         if (done) break;
@@ -172,9 +160,6 @@ class HashWorker {
     const { type, id, file, hashType = 'sha256' } = data;
 
     switch (type) {
-      case 'CANCEL': // ✅ 타임아웃 시 워커 취소 신호
-        this.cancelledIds.add(id);
-        break;
       case 'PROCESS_HASH':
         if (file && file instanceof File) {
           this.process(id, file, hashType);

@@ -217,7 +217,7 @@ const Searcher: React.FC = () => {
         }
       } catch (error) {
         // 취소된 경우 조기 return (캐시 저장 안함)
-        if (error instanceof Error && error.message === 'USER_CANCELLED') {
+        if (error instanceof Error && error.message === 'SEARCH_CANCELLED') {
           if (process.env.NODE_ENV === 'development') {
             console.log('[Searcher] Search cancelled by user');
           }

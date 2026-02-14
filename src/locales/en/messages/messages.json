@@ -133,9 +133,17 @@
     "title": "IP Copied",
     "message": "IP address copied to clipboard."
   },
-  "USER_CANCELLED": {
+  "HASH_CANCELLED": {
+    "title": "Hash Cancelled",
+    "message": "Hash calculation has been cancelled."
+  },
+  "SEARCH_CANCELLED": {
     "title": "Search Cancelled",
     "message": "Search operation has been cancelled."
+  },
+  "USER_CANCELLED": {
+    "title": "Operation Cancelled",
+    "message": "Operation has been cancelled by user."
   },
   "stats": {
     "fileName": "File",

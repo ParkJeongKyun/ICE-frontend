@@ -22,6 +22,10 @@ export const useHash = () => {
 
         return result;
       } catch (error) {
+        // 취소 에러는 다시 throw (상위에서 처리)
+        if (error instanceof Error && error.message === 'HASH_CANCELLED') {
+          throw error;
+        }
         console.error('[useHash] Hash execution failed:', error);
         return null;
       }
@@ -49,11 +53,18 @@ export const useHash = () => {
     return executeHash('sha1');
   }, [file, hashManager, executeHash]);
 
+  const cancelHash = useCallback(() => {
+    if (hashManager) {
+      hashManager.cancel();
+    }
+  }, [hashManager]);
+
   return {
     calculateSHA256,
     calculateSHA512,
     calculateMD5,
     calculateSHA1,
     executeHash,
+    cancelHash,
   };
 };

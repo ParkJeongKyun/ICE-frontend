@@ -59,7 +59,7 @@ export const useSearch = () => {
         return result;
       } catch (error) {
         // 취소 에러는 다시 throw (상위에서 처리)
-        if (error instanceof Error && error.message === 'USER_CANCELLED') {
+        if (error instanceof Error && error.message === 'SEARCH_CANCELLED') {
           throw error;
         }
         console.error('[useSearch] Search execution failed:', error);
@@ -99,7 +99,7 @@ export const useSearch = () => {
 
   const cancelSearch = useCallback(() => {
     if (analysisManager) {
-      analysisManager.cancel(true);
+      analysisManager.cancel();
     }
   }, [analysisManager]);
 

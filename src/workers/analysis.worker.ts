@@ -29,9 +29,6 @@ class AnalysisWorker {
   // ✅ FileReaderSync를 사용한 동기 파일 읽기
   private syncReader = new FileReaderSync();
 
-  // ✅ 동시 처리 제한 (요청 ID 기반)
-  private cancelledRequestIds = new Set<string>();
-
   // WASM 관련 변수
   private wasmReady = false;
   private wasmInitializing = false;
@@ -228,12 +225,6 @@ class AnalysisWorker {
         return;
       }
 
-      // ✅ [우선순위 1] WASM 실행 전 취소 요청 확인
-      if (this.cancelledRequestIds.has(id)) {
-        this.cancelledRequestIds.delete(id);
-        return; // 작업 중단
-      }
-
       const perfStart = performance.now();
 
       // --- WASM 실행 (EXIF 추출) ---
@@ -318,12 +309,6 @@ class AnalysisWorker {
         maxResults: 1000,
       };
 
-      // ✅ [우선순위 1] WASM 실행 전 취소 요청 확인
-      if (this.cancelledRequestIds.has(id)) {
-        this.cancelledRequestIds.delete(id);
-        return; // 작업 중단
-      }
-
       // --- WASM 실행 (핵심 작업) ---
       const result = this.wasmSearchFunc(file, pattern, searchOptions);
       // -------------------------
@@ -346,22 +331,20 @@ class AnalysisWorker {
         offset: pattern.length,
       }));
 
-      if (!this.cancelledRequestIds.has(id)) {
-        self.postMessage({
-          status: 'SUCCESS',
-          taskType: type === 'HEX' ? 'SEARCH_HEX' : 'SEARCH_ASCII',
-          stats: createStats(
-            id,
-            duration,
-            this.totalReadBytes,
-            this.currentFileSize,
-            file.name
-          ),
-          data: {
-            indices: results,
-          },
-        });
-      }
+      self.postMessage({
+        status: 'SUCCESS',
+        taskType: type === 'HEX' ? 'SEARCH_HEX' : 'SEARCH_ASCII',
+        stats: createStats(
+          id,
+          duration,
+          this.totalReadBytes,
+          this.currentFileSize,
+          file.name
+        ),
+        data: {
+          indices: results,
+        },
+      });
     } catch (error) {
       self.postMessage({
         id, // 루트에 id 직접 삽입
@@ -379,10 +362,6 @@ class AnalysisWorker {
     const { type, id, file, pattern, ignoreCase } = data;
 
     switch (type) {
-      case 'CANCEL': // 타임아웃 시 워커 취소 신호 (WorkerManager에서 전송)
-        this.cancelledRequestIds.add(id);
-        break;
-
       case 'SEARCH_HEX':
       case 'SEARCH_ASCII':
         if (file && pattern) {

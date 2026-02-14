@@ -10,6 +10,7 @@ import { initialHashState, hashReducer } from './hooks/useHashReducer';
 import type { HashType, HashResult } from '@/types/hash';
 import eventBus from '@/types/eventBus';
 import FlopyIcon from '@/components/common/Icons/FlopyIcon';
+import XIcon from '@/components/common/Icons/XIcon';
 import Tooltip from '@/components/common/Tooltip/Tooltip';
 
 const HASH_TYPES: HashType[] = ['sha256', 'sha512', 'md5', 'sha1'];
@@ -17,8 +18,13 @@ const HASH_TYPES: HashType[] = ['sha256', 'sha512', 'md5', 'sha1'];
 const HashCalculator: React.FC = () => {
   const t = useTranslations();
   const { activeKey, activeData } = useTab();
-  const { calculateSHA256, calculateSHA512, calculateMD5, calculateSHA1 } =
-    useHash();
+  const {
+    calculateSHA256,
+    calculateSHA512,
+    calculateMD5,
+    calculateSHA1,
+    cancelHash,
+  } = useHash();
 
   const [hashResults, dispatch] = useReducer(hashReducer, initialHashState);
   const [calculatingHash, setCalculatingHash] = React.useState<HashType | null>(
@@ -123,6 +129,13 @@ const HashCalculator: React.FC = () => {
           });
         }
       } catch (error) {
+        // 취소된 경우 조기 return (캐시 저장 안함)
+        if (error instanceof Error && error.message === 'HASH_CANCELLED') {
+          if (process.env.NODE_ENV === 'development') {
+            console.log('[HashCalculator] Hash calculation cancelled by user');
+          }
+          return;
+        }
         console.error(`[HashCalculator] Error calculating ${hashType}:`, error);
       } finally {
         setCalculatingHash(null);
@@ -171,6 +184,16 @@ const HashCalculator: React.FC = () => {
             </HashButton>
           ))}
         </HashButtonContainer>
+
+        {calculatingHash && (
+          <CancelButtonContainer>
+            <Tooltip text={t('calculateHash.cancelTooltip')}>
+              <CancelButton onClick={cancelHash}>
+                <XIcon width={16} height={16} />
+              </CancelButton>
+            </Tooltip>
+          </CancelButtonContainer>
+        )}
 
         {currentResult && (
           <HashResultsContainer>
@@ -280,6 +303,33 @@ const HashValueText = styled.div`
   color: var(--main-color);
   word-break: break-all;
   opacity: 0.9;
+`;
+
+const CancelButtonContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 4px;
+`;
+
+const CancelButton = styled.button`
+  padding: 6px 12px;
+  background: transparent;
+  border: 1px solid var(--ice-main-color);
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--ice-main-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: var(--ice-main-color);
+    color: var(--main-bg-color);
+  }
 `;
 
 const CopyButton = styled.button`

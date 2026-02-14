@@ -166,6 +166,7 @@
     "title": "해시 계산",
     "calculating": "계산중...",
     "success": "{type} 해시 계산이 완료되었습니다.",
-    "calculateTooltip": "{type} 해시 계산"
+    "calculateTooltip": "{type} 해시 계산",
+    "cancelTooltip": "해시 계산 취소"
   }
 }

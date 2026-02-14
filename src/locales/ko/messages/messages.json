@@ -133,9 +133,17 @@
     "title": "IP 복사 완료",
     "message": "IP 주소를 클립보드에 복사했습니다."
   },
-  "USER_CANCELLED": {
+  "HASH_CANCELLED": {
+    "title": "해시 취소",
+    "message": "해시 계산이 취소되었습니다."
+  },
+  "SEARCH_CANCELLED": {
     "title": "검색 취소",
     "message": "검색 작업이 취소되었습니다."
+  },
+  "USER_CANCELLED": {
+    "title": "작업 취소",
+    "message": "사용자에 의해 작업이 취소되었습니다."
   },
   "stats": {
     "fileName": "파일명",

@@ -166,6 +166,7 @@
     "title": "Calculate Hash",
     "calculating": "Calculating...",
     "success": "{type} Hash calculation completed successfully.",
-    "calculateTooltip": "Calculate {type} hash"
+    "calculateTooltip": "Calculate {type} hash",
+    "cancelTooltip": "Cancel hash calculation"
   }
 }

@@ -13,14 +13,13 @@ import { ExifInfo } from '@/types';
 export type AnalysisWorkerRequestType =
   | 'SEARCH_HEX'
   | 'SEARCH_ASCII'
-  | 'PROCESS_EXIF'
-  | 'CANCEL'; // 타임아웃 시 WorkerManager에서 전송
+  | 'PROCESS_EXIF';
 
 export interface AnalysisWorkerRequest {
   type: AnalysisWorkerRequestType;
   id: string; // WorkerManager에서 생성한 랜덤 UUID ID (내부 추적 포함)
   file?: File;
-  pattern?: Uint8Array; // 🚀 Uint8Array로 변경
+  pattern?: Uint8Array; // Uint8Array로 변경
   ignoreCase?: boolean;
 }
 
@@ -32,7 +31,7 @@ export interface SearchResult {
   data: {
     indices: Array<{ index: number; offset: number }>;
   };
-  stats?: WorkerStats; // 🚀 optional로 변경 (ExecuteResponse와 일치)
+  stats?: WorkerStats; // optional로 변경 (ExecuteResponse와 일치)
 }
 
 export interface ExifResult {
@@ -42,7 +41,7 @@ export interface ExifResult {
     extension: string;
     exifInfo: ExifInfo;
   };
-  stats?: WorkerStats; // 🚀 optional로 변경 (ExecuteResponse와 일치)
+  stats?: WorkerStats; // optional로 변경 (ExecuteResponse와 일치)
 }
 // ============================================================================
 // WASM

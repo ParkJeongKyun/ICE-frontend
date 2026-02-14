@@ -1,5 +1,3 @@
-import { ExifResult, SearchResult } from '@/types/worker/analysis.worker.types';
-import { HashResult } from '@/types/worker/hash.worker.types';
 import {
   WorkerStats,
   TaskMap,
@@ -303,28 +301,19 @@ export class WorkerManager {
     return new Promise((resolve, reject) => {
       // 타임아웃 설정 (워커에 취소 신호 전송 + 에러 반환)
       const timeoutId = setTimeout(() => {
-        // 타임아웃 시 WASM은 하드 종료 + 부활, 해시는 소프트 캔슬
-        if (
-          type === 'SEARCH_HEX' ||
-          type === 'SEARCH_ASCII' ||
-          type === 'PROCESS_EXIF'
-        ) {
-          this.respawnWorker();
-        } else {
-          // 1️⃣ 워커에게 취소 신호 전송 (soft cancel)
-          this.worker.postMessage({ type: 'CANCEL', id });
-        }
+        // [수정됨] 해시든 분석이든 타임아웃 걸리면 무조건 하드 종료 후 부활!
+        this.respawnWorker();
 
-        // 2️⃣ 주요 리소스 정리
+        // 주요 리소스 정리
         this.pendingRequests.delete(id);
         this.stopProcessing?.();
 
-        // 3️⃣ 글로벌 ERROR 이벤트 발행 (WorkerContext가 구독)
+        // 글로벌 ERROR 이벤트 발행 (WorkerContext가 구독하여 진행률 UI 비움)
         this.events.emit('ERROR', {
           code: timeoutCode,
         });
 
-        // 4️⃣ Promise reject (컴포넌트 로딩 상태 해제용)
+        // Promise reject (컴포넌트 로딩 상태 해제용)
         reject(new Error(timeoutCode));
       }, timeoutMs);
 
@@ -351,25 +340,16 @@ export class WorkerManager {
   }
 
   /**
-   * 현재 진행 중인 작업을 즉시 취소합니다.
-   * @param forceKill true일 경우 워커 스레드 자체를 강제 종료(WASM용)
+   * 현재 진행 중인 작업을 즉시 강제 취소(하드 종료)합니다.
    */
-  public cancel(forceKill: boolean = false): void {
+  public cancel(): void {
     if (this.pendingRequests.size === 0) return;
 
-    this.pendingRequests.forEach((req, id) => {
-      // 강제 종료가 아닐 때만 각각의 작업에 취소 메시지를 보냄
-      if (!forceKill) {
-        this.worker.postMessage({ type: 'CANCEL', id });
-      }
+    // 1. UI 대기열 에러 처리
+    this.pendingRequests.forEach((req) => {
       req.reject(new Error('USER_CANCELLED'));
     });
-
-    // 강제 종료 시 워커 부활 프로세스 실행!
-    if (forceKill) {
-      this.respawnWorker();
-    }
-
+    this.respawnWorker();
     this.pendingRequests.clear();
     this.stopProcessing?.();
     this.events.emit('ERROR', { code: 'USER_CANCELLED' });
