@@ -1,19 +1,32 @@
-# 1. Open File
-![Open file](/images/sample/example1.png)
-- Click the "Open" button at the top or the "Open File" button on the home page.
-- Select the file you want to analyze and open it.
+# How to Use
 
-# 2. Check Analysis Results
-![Check results](/images/sample/example2.png)
-- **Thumbnail**: Thumbnail of image file (image files only)
-- **File Info**: File name, modification time, size, etc.
-- **Map**: Display shooting location on map (only for image files with location information)
-- **Exif Data**: Image metadata (image files only, not displayed if not available)
-- **Hex Viewer**: File Hex viewer
-- **Search**: Hex/ASCII/Offset search feature
+## Open Files
 
-# 3. Search
-![File search](/images/sample/example3.png)
-- Search by Offset, Hex, ASCII values
-- Display up to 1000 results
-- Reset search with "X", move through results with "PREV"/"NEXT"
+- You can click the **Open** button or drag and drop files
+- Multiple files can be opened in tabs for simultaneous analysis
+
+## Analysis Results
+
+### Image Files
+
+- **Thumbnail**: You can preview the image
+- **EXIF Data**: You can view camera info, shooting date, and other metadata
+- **Map**: If GPS coordinates exist, you can see the shooting location on the map
+
+### All Files
+
+- **File Info**: You can check the name, size, type, and modification date
+- **Hash Calculator**: You can calculate SHA256, SHA512, MD5, SHA1 hashes
+- **Hex Viewer**: You can view the file in hexadecimal format
+
+## Search
+
+- **Hex**: You can search by hexadecimal like `FF D8 FF`
+- **ASCII**: You can search by string like `JFIF`
+- **Offset**: You can jump to a specific position like `0x1000`
+- Use **PREV/NEXT** buttons to navigate results, and **X** button to reset
+
+## Others
+
+- You can switch the language in the top menu
+- Search results and hash values are automatically cached for fast reuse

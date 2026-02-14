@@ -14,11 +14,11 @@
 
 ## PC 버전
 
-![PC 버전 샘플 이미지](/images/sample/sample3.png)
+![PC 버전 샘플 이미지](/images/sample/sample.png)
 
 ## 모바일 버전
 
-![모바일 버전 샘플 이미지](/images/sample/mobile_sample1.png)
+![모바일 버전 샘플 이미지](/images/sample/sample_mobile.png)
 
 # 문의
 

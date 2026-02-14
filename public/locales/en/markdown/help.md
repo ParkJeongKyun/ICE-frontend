@@ -14,11 +14,11 @@ Click the "How to Use" link above to see detailed instructions.
 
 ## PC Version
 
-![PC version sample image](/images/sample/sample3.png)
+![PC version sample image](/images/sample/sample.png)
 
 ## Mobile Version
 
-![Mobile version sample image](/images/sample/mobile_sample1.png)
+![Mobile version sample image](/images/sample/sample_mobile.png)
 
 # Contact
 
