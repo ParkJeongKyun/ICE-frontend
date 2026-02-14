@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { useTab } from '@/contexts/TabDataContext/TabDataContext';
 import { useWorker } from '@/contexts/WorkerContext/WorkerContext';
+import { useProcess } from '@/contexts/ProcessContext/ProcessContext';
 import type { HashType } from '@/types/hash';
 import type { HashResult } from '@/types/worker/hash.worker.types';
 
@@ -22,7 +23,6 @@ export const useHash = () => {
 
         return result;
       } catch (error) {
-        // 취소 에러는 다시 throw (상위에서 처리)
         if (error instanceof Error && error.message === 'HASH_CANCELLED') {
           throw error;
         }

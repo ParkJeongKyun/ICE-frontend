@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import Collapse from '@/components/common/Collapse/Collapse';
 import { useHash } from './hooks/useHash';
 import { useTab } from '@/contexts/TabDataContext/TabDataContext';
+import { useProcess } from '@/contexts/ProcessContext/ProcessContext';
 import { initialHashState, hashReducer } from './hooks/useHashReducer';
 import type { HashType, HashResult } from '@/types/hash';
 import eventBus from '@/types/eventBus';
@@ -18,6 +19,7 @@ const HASH_TYPES: HashType[] = ['sha256', 'sha512', 'md5', 'sha1'];
 const HashCalculator: React.FC = () => {
   const t = useTranslations();
   const { activeKey, activeData } = useTab();
+  const { isHashProcessing } = useProcess();
   const {
     calculateSHA256,
     calculateSHA512,
@@ -68,6 +70,9 @@ const HashCalculator: React.FC = () => {
         return;
       }
 
+      const existingCache: Partial<HashResult> =
+        hashResults.__cache__.get(cacheKey) || {};
+
       if (process.env.NODE_ENV === 'development') {
         console.log(`[HashCalculator] 캐시 MISS: ${hashType}`);
       }
@@ -103,10 +108,12 @@ const HashCalculator: React.FC = () => {
           });
 
           const cacheResult: HashResult = {
+            ...existingCache,
             fileName: activeData.file.name,
             fileSize: activeData.file.size,
             [hashType]: result.data.hash,
             lastCalculated: {
+              ...(existingCache.lastCalculated || {}),
               [hashType]: Date.now(),
             },
           };
@@ -181,9 +188,7 @@ const HashCalculator: React.FC = () => {
                     ? cancelHash()
                     : handleCalculateHash(hashType)
                 }
-                $disabled={
-                  calculatingHash !== null && calculatingHash !== hashType
-                }
+                $disabled={isHashProcessing && calculatingHash !== hashType}
                 $isCalculating={calculatingHash === hashType}
               >
                 {calculatingHash === hashType ? (
@@ -228,14 +233,13 @@ const HashCalculator: React.FC = () => {
 const HashDiv = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 4px 0;
+  gap: 10px;
 `;
 
 const HashButtonContainer = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-  gap: 4px;
+  gap: 5px;
 `;
 
 const HashButton = styled.button<{
@@ -268,18 +272,18 @@ const HashButton = styled.button<{
 const HashResultsContainer = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 0px;
 `;
 
 const HashResultItem = styled.div`
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 3px 0;
+  gap: 5px;
+  padding: 5px 0;
   border-bottom: 1px solid var(--main-line-color);
 
-  &:last-child {
-    border-bottom: none;
+  &:first-child {
+    border-top: 1px solid var(--main-line-color);
   }
 `;
 
