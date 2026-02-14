@@ -14,8 +14,7 @@ export type AnalysisWorkerRequestType =
   | 'SEARCH_HEX'
   | 'SEARCH_ASCII'
   | 'PROCESS_EXIF'
-  | 'CANCEL' // ✅ 타임아웃 시 WorkerManager에서 전송
-  | 'RELOAD_WASM';
+  | 'CANCEL'; // 타임아웃 시 WorkerManager에서 전송
 
 export interface AnalysisWorkerRequest {
   type: AnalysisWorkerRequestType;

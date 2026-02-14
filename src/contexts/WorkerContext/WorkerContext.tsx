@@ -13,8 +13,8 @@ import eventBus from '@/types/eventBus';
 import { WorkerStats } from '@/types/worker/index.worker.types';
 
 interface WorkerContextType {
-  hashManager: WorkerManager | null; // 🚀 제네릭 제거!
-  analysisManager: WorkerManager | null; // 🚀 제네릭 제거!
+  hashManager: WorkerManager | null; // 제네릭 제거!
+  analysisManager: WorkerManager | null; // 제네릭 제거!
   chunkWorker: Worker | null;
   isWasmReady: boolean;
 }
@@ -26,8 +26,8 @@ export const WorkerProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   // ✅ Manager를 State로 관리하여 초기화 직후 리렌더링 유발 (하위 컴포넌트가 null 안 받게)
   const [managers, setManagers] = useState<{
-    hashManager: WorkerManager | null; // 🚀 제네릭 제거!
-    analysisManager: WorkerManager | null; // 🚀 제네릭 제거!
+    hashManager: WorkerManager | null; // 제네릭 제거!
+    analysisManager: WorkerManager | null; // 제네릭 제거!
     chunkWorker: Worker | null;
   }>({
     hashManager: null,
@@ -47,148 +47,87 @@ export const WorkerProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     startAnalysisProcessing();
 
-    let hashManager: WorkerManager | null = null; // 🚀 제네릭 제거!
-    let analysisManager: WorkerManager | null = null; // 🚀 제네릭 제거!
+    let hashManager: WorkerManager | null = null; // 제네릭 제거!
+    let analysisManager: WorkerManager | null = null; // 제네릭 제거!
     let chunkWorker: Worker | null = null;
 
     try {
-      // 1️⃣ 워커 생성
-      const hashWorkerInstance = new Worker(
-        new URL('../../workers/hash.worker.ts', import.meta.url)
-      );
-      const analysisWorkerInstance = new Worker(
-        new URL('../../workers/analysis.worker.ts', import.meta.url)
-      );
+      // 청크 워커만 직접 생성 (스트리밍용)
       const chunkWorkerInstance = new Worker(
         new URL('../../workers/chunk.worker.ts', import.meta.url)
       );
 
-      // 2️⃣ Manager 생성 (🚀 제네릭 제거!)
-      hashManager = new WorkerManager(hashWorkerInstance, {
-        startProcessing: startHashProcessing,
-        stopProcessing: stopHashProcessing,
-      });
+      // Manager 생성 (워커 팩토리 함수 전달)
+      hashManager = new WorkerManager(
+        () =>
+          new Worker(new URL('../../workers/hash.worker.ts', import.meta.url)),
+        {
+          startProcessing: startHashProcessing,
+          stopProcessing: stopHashProcessing,
+        }
+      );
 
-      analysisManager = new WorkerManager(analysisWorkerInstance, {
-        startProcessing: startAnalysisProcessing,
-        stopProcessing: stopAnalysisProcessing,
-      });
+      analysisManager = new WorkerManager(
+        () =>
+          new Worker(
+            new URL('../../workers/analysis.worker.ts', import.meta.url)
+          ),
+        {
+          startProcessing: startAnalysisProcessing,
+          stopProcessing: stopAnalysisProcessing,
+        }
+      );
 
       chunkWorker = chunkWorkerInstance;
 
-      // 3️⃣ State 업데이트 (리렌더링 트리거)
+      // State 업데이트 (리렌더링 트리거)
       setManagers({
         hashManager,
         analysisManager,
         chunkWorker,
       });
 
-      // ✅ WASM 초기화
-      analysisWorkerInstance.postMessage({ type: 'RELOAD_WASM' });
+      // ---------------------------------------------------------
+      // 독립적인 이벤트 리스너 설정 (완벽한 채널 분리)
+      // ---------------------------------------------------------
 
-      // 4️⃣ 이벤트 리스너 설정
-      // WASM Ready
+      // ✅ 1. 해시 매니저 전용 이벤트
+      if (hashManager) {
+        hashManager.events.on('PROGRESS', (data) => {
+          eventBus.emit('hashProgress', data);
+        });
+
+        hashManager.events.on('DONE', () => {
+          eventBus.emit('hashProgress', null);
+        });
+
+        hashManager.events.on('ERROR', (err) => {
+          eventBus.emit('toast', { code: err.code }); // 토스트 띄우기
+          eventBus.emit('hashProgress', null); // 해시 진행률 0으로
+          stopHashProcessing(); // 🚀 해시 스피너만 끄기! (분석은 건드리지 않음)
+        });
+      }
+
+      // ✅ 2. 분석(검색) 매니저 전용 이벤트
       if (analysisManager) {
         analysisManager.events.on('WASM_READY', () => {
           setIsWasmReady(true);
           stopAnalysisProcessing();
-          eventBus.emit('toast', { code: 'WASM_LOADED_SUCCESS' });
-        });
-      }
-
-      // ✅ 공통 에러 핸들러 (중앙 집중식 에러 처리)
-      const handleGlobalError = (err: { code: string }) => {
-        console.error(`[Global Error] ${err.code}`);
-
-        // 토스트 메시지 전송 (코드만 - UI에서 처리)
-        eventBus.emit('toast', {
-          code: err.code,
         });
 
-        // 에러 발생 시 전역 처리 상태 중단
-        stopAnalysisProcessing();
-        stopHashProcessing();
-      };
+        analysisManager.events.on('PROGRESS', (data) => {
+          eventBus.emit('analysisProgress', data);
+        });
 
-      // 각 매니저에 에러 리스너 등록
-      if (hashManager) {
-        hashManager.events.on('ERROR', handleGlobalError);
-      }
-      if (analysisManager) {
-        analysisManager.events.on('ERROR', handleGlobalError);
-      }
+        analysisManager.events.on('DONE', () => {
+          eventBus.emit('analysisProgress', null);
+        });
 
-      // ---------------------------------------------------------
-      // Progress Aggregation Logic
-      // ---------------------------------------------------------
-      const progressMap = new Map<string, WorkerStats>();
-      let rafId: number | null = null;
-
-      const emitAggregated = () => {
-        let totalBytes = 0;
-        let processedBytes = 0;
-        let totalSpeed = 0;
-        let fileName = '';
-        let durationMs = 0;
-
-        for (const data of progressMap.values()) {
-          totalBytes += data.totalBytes ?? 0;
-          processedBytes += data.processedBytes ?? 0;
-          totalSpeed += data.speed ?? 0;
-          if (data.fileName) fileName = data.fileName;
-          if (data.durationMs)
-            durationMs = Math.max(durationMs, data.durationMs);
-        }
-
-        eventBus.emit('progress', {
-          id: 'aggregated',
-          speed: totalSpeed,
-          processedBytes,
-          totalBytes,
-          fileName,
-          durationMs,
-          durationSec: durationMs / 1000,
-        } as WorkerStats);
-
-        rafId = null;
-      };
-
-      const scheduleEmit = () => {
-        if (rafId === null) {
-          rafId = requestAnimationFrame(emitAggregated);
-        }
-      };
-
-      const updateProgress = (source: string, data: WorkerStats) => {
-        const key = `${source}:${data.id}`;
-        progressMap.set(key, data);
-        scheduleEmit();
-      };
-
-      const cleanupProgress = (source: string, id: string) => {
-        const key = `${source}:${id}`;
-        progressMap.delete(key);
-        scheduleEmit();
-      };
-
-      // Hash Events
-      if (hashManager) {
-        hashManager.events.on('PROGRESS', (data) =>
-          updateProgress('hash', data)
-        );
-        hashManager.events.on('DONE', (e) =>
-          cleanupProgress('hash', e.stats?.id ?? '')
-        );
-      }
-
-      // Analysis Events
-      if (analysisManager) {
-        analysisManager.events.on('PROGRESS', (data) =>
-          updateProgress('analysis', data)
-        );
-        analysisManager.events.on('DONE', (e) =>
-          cleanupProgress('analysis', e.stats?.id ?? '')
-        );
+        analysisManager.events.on('ERROR', (err) => {
+          eventBus.emit('toast', { code: err.code }); // 토스트 띄우기
+          eventBus.emit('analysisProgress', null); // 검색 진행률 0으로
+          stopAnalysisProcessing(); // 🚀 검색 스피너만 끄기! (해시는 건드리지 않음)
+        });
       }
 
       return () => {
@@ -200,7 +139,7 @@ export const WorkerProvider: React.FC<{ children: React.ReactNode }> = ({
       console.error('[WorkerContext] Failed to create workers:', error);
       stopAnalysisProcessing();
 
-      // ✅ 초기화 실패 에러
+      // 초기화 실패 에러
       eventBus.emit('toast', {
         code: 'WORKER_CREATION_FAILED',
       });

@@ -113,6 +113,7 @@
     "caseInsensitiveTooltip": "Case insensitive",
     "placeholder": "Enter {type} value",
     "searchTooltip": "Search",
+    "cancelTooltip": "Cancel search",
     "prevTooltip": "Previous",
     "nextTooltip": "Next",
     "resetTooltip": "Reset",

@@ -75,8 +75,8 @@ const Searcher: React.FC = () => {
     findByOffset,
     findAllByHex,
     findAllByAsciiText,
-    cleanup: cleanupSearch,
     filterInput,
+    cancelSearch,
   } = useSearch();
 
   // Exposed imperative methods (extracted so they can be registered into context)
@@ -163,56 +163,68 @@ const Searcher: React.FC = () => {
       }
 
       // 캐시 MISS: 컴포넌트에서 결과 처리 및 토스트 emit
-      let searchResult = null;
-      if (type === 'hex') {
-        searchResult = await findAllByHex(inputValue);
-      } else if (type === 'ascii') {
-        searchResult = await findAllByAsciiText(inputValue, ignoreCase);
-      }
+      try {
+        let searchResult = null;
+        if (type === 'hex') {
+          searchResult = await findAllByHex(inputValue);
+        } else if (type === 'ascii') {
+          searchResult = await findAllByAsciiText(inputValue, ignoreCase);
+        }
 
-      const results = searchResult?.data.indices || [];
+        const results = searchResult?.data.indices || [];
 
-      if (searchTabKeyRef.current === activeKey) {
-        dispatch({
-          type: 'SET_RESULTS',
-          key: activeKey,
-          results,
-          inputValue,
-          searchType: type,
-          tabKey: activeKey,
-        });
+        if (searchTabKeyRef.current === activeKey) {
+          dispatch({
+            type: 'SET_RESULTS',
+            key: activeKey,
+            results,
+            inputValue,
+            searchType: type,
+            tabKey: activeKey,
+          });
 
-        dispatch({
-          type: 'SET_CACHE',
-          cacheKey,
-          results,
-        });
+          dispatch({
+            type: 'SET_CACHE',
+            cacheKey,
+            results,
+          });
 
-        if (searchResult === null) {
+          if (searchResult === null) {
+            return;
+          }
+
+          if (results.length > 0) {
+            eventBus.emit('toast', {
+              code: 'SEARCH_SUCCESS',
+              message: t('searcher.success', {
+                count: results.length,
+              }),
+              stats: searchResult.stats,
+            });
+          } else {
+            eventBus.emit('toast', {
+              code: 'SEARCH_NO_RESULTS',
+              stats: searchResult.stats,
+            });
+          }
+
+          if (shouldScroll && results.length > 0 && hexViewerRef.current) {
+            hexViewerRef.current.scrollToIndex(
+              results[0].index,
+              results[0].offset
+            );
+          }
+        }
+      } catch (error) {
+        // 취소된 경우 조기 return (캐시 저장 안함)
+        if (error instanceof Error && error.message === 'USER_CANCELLED') {
+          if (process.env.NODE_ENV === 'development') {
+            console.log('[Searcher] Search cancelled by user');
+          }
           return;
         }
-
-        if (results.length > 0) {
-          eventBus.emit('toast', {
-            code: 'SEARCH_SUCCESS',
-            message: t('searcher.success', {
-              count: results.length,
-            }),
-            stats: searchResult.stats,
-          });
-        } else {
-          eventBus.emit('toast', {
-            code: 'SEARCH_NO_RESULTS',
-            stats: searchResult.stats,
-          });
-        }
-
-        if (shouldScroll && results.length > 0 && hexViewerRef.current) {
-          hexViewerRef.current.scrollToIndex(
-            results[0].index,
-            results[0].offset
-          );
-        }
+        // 기타 에러는 로그만 남김
+        console.error('[Searcher] Search failed:', error);
       }
     },
     [
@@ -350,12 +362,6 @@ const Searcher: React.FC = () => {
     setInputValue('');
   }, [searchType]);
 
-  useEffect(() => {
-    return () => {
-      cleanupSearch();
-    };
-  }, [cleanupSearch]);
-
   return (
     <Collapse title={t('searcher.title')} open>
       <SearchDiv>
@@ -406,18 +412,26 @@ const Searcher: React.FC = () => {
               </ButtonDiv>
             </Tooltip>
           )}
-          <Tooltip text={t('searcher.searchTooltip')}>
-            <ButtonDiv
-              onClick={() =>
-                !isAnalysisProcessing &&
-                inputValue &&
-                search(inputValue, searchType)
-              }
-              $disabled={isAnalysisProcessing || !inputValue}
-            >
-              <SearchIcon width={16} height={16} />
-            </ButtonDiv>
-          </Tooltip>
+          {isAnalysisProcessing ? (
+            <Tooltip text={t('searcher.cancelTooltip')}>
+              <ButtonDiv onClick={cancelSearch}>
+                <XIcon width={16} height={16} />
+              </ButtonDiv>
+            </Tooltip>
+          ) : (
+            <Tooltip text={t('searcher.searchTooltip')}>
+              <ButtonDiv
+                onClick={() =>
+                  !isAnalysisProcessing &&
+                  inputValue &&
+                  search(inputValue, searchType)
+                }
+                $disabled={isAnalysisProcessing || !inputValue}
+              >
+                <SearchIcon width={16} height={16} />
+              </ButtonDiv>
+            </Tooltip>
+          )}
         </SearchData>
       </SearchDiv>
       <SearchResultBar>

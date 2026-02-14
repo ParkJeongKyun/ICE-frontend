@@ -113,6 +113,7 @@
     "caseInsensitiveTooltip": "대소문자 구분 안함",
     "placeholder": "{type} 값을 입력하세요.",
     "searchTooltip": "검색",
+    "cancelTooltip": "검색 취소",
     "prevTooltip": "이전",
     "nextTooltip": "다음",
     "resetTooltip": "초기화",

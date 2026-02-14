@@ -58,6 +58,10 @@ export const useSearch = () => {
 
         return result;
       } catch (error) {
+        // 취소 에러는 다시 throw (상위에서 처리)
+        if (error instanceof Error && error.message === 'USER_CANCELLED') {
+          throw error;
+        }
         console.error('[useSearch] Search execution failed:', error);
         return null;
       }
@@ -93,15 +97,17 @@ export const useSearch = () => {
     [file, analysisManager, executeSearch]
   );
 
-  const cleanup = useCallback(() => {
-    // cleanup is handled by WorkerManager
-  }, []);
+  const cancelSearch = useCallback(() => {
+    if (analysisManager) {
+      analysisManager.cancel(true);
+    }
+  }, [analysisManager]);
 
   return {
     findByOffset,
     findAllByHex,
     findAllByAsciiText,
-    cleanup,
+    cancelSearch,
     filterInput,
   };
 };

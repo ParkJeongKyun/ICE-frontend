@@ -133,6 +133,10 @@
     "title": "IP Copied",
     "message": "IP address copied to clipboard."
   },
+  "USER_CANCELLED": {
+    "title": "Search Cancelled",
+    "message": "Search operation has been cancelled."
+  },
   "stats": {
     "fileName": "File",
     "duration": "Duration",

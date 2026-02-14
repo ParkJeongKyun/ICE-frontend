@@ -9,7 +9,8 @@ export type ToastEvent = {
 
 export type Events = {
   toast: ToastEvent;
-  progress: WorkerStats;
+  hashProgress: WorkerStats | null; // 해시 전용 채널 (null: 비움)
+  analysisProgress: WorkerStats | null; // 검색 전용 채널 (null: 비움)
 };
 
 const eventBus = mitt<Events>();

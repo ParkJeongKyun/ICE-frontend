@@ -26,7 +26,8 @@ function generateUUID(): string {
 }
 
 export class WorkerManager {
-  private worker: Worker;
+  private worker!: Worker;
+  private workerFactory: () => Worker; // 워커 생성 함수(레시피) 보관
   private pendingRequests = new Map<
     string,
     {
@@ -41,18 +42,34 @@ export class WorkerManager {
   private startProcessing?: () => void;
   private stopProcessing?: () => void;
 
+  // 기존 worker: Worker 대신 workerFactory 함수를 받습니다.
   constructor(
-    worker: Worker,
+    workerFactory: () => Worker,
     callbacks?: {
       startProcessing?: () => void;
       stopProcessing?: () => void;
     }
   ) {
-    this.worker = worker;
+    this.workerFactory = workerFactory;
     this.events = mitt<WorkerEvents>();
     this.startProcessing = callbacks?.startProcessing;
     this.stopProcessing = callbacks?.stopProcessing;
+
+    // 초기 워커 생성
+    this.initWorker();
+  }
+
+  // 워커 초기화 및 리스너 부착
+  private initWorker() {
+    this.worker = this.workerFactory();
     this.setupListener();
+  }
+
+  // 워커 부활 프로세스 (기존 워커 죽이고 새로 생성)
+  private respawnWorker() {
+    console.warn('[WorkerManager] Respawning worker...');
+    this.worker.terminate();
+    this.initWorker(); // 새 워커 생성 후 리스너 다시 연결!
   }
 
   private setupListener() {
@@ -98,7 +115,7 @@ export class WorkerManager {
           if (errReq) {
             this.events.emit('ERROR', { code: errorCode || 'WORKER_ERROR' });
             errReq.reject(new Error(errorCode || 'Unknown error'));
-            if (targetId) this.pendingRequests.delete(targetId); // 🚀 undefined 검사
+            if (targetId) this.pendingRequests.delete(targetId); // undefined 검사
             this.stopProcessing?.();
           }
           break;
@@ -106,7 +123,7 @@ export class WorkerManager {
     };
 
     // 2️⃣ 치명적 에러 리스너 (onmessage 바깥에 위치)
-    // ✅ worker.onerror: 워커 스크립트 로딩/초기화 에러 처리
+    // worker.onerror: 워커 스크립트 로딩/초기화 에러 처리
     // HASH_ERROR, SEARCH_ERROR 등의 로직상 에러는 메시지로 옴
     // 하지만 워커 파일이 404이거나 문법 에러가 있으면, self.addEventListener가 실행되기 전에
     // 워커가 뻗어버리므로 메시지가 오지 않고 worker.onerror만 발생함
@@ -170,7 +187,7 @@ export class WorkerManager {
       'mimeType' in data
     ) {
       const typedData = data as Record<string, any>;
-      // 🎨 썸네일 처리 (이미지 타입만 메인 스레드에서 생성)
+      // 썸네일 처리 (이미지 타입만 메인 스레드에서 생성)
       if (typedData.exifInfo && !typedData.exifInfo.thumbnail && req.file) {
         // 동적 import로 썸네일 생성 함수 로드
         import('@/utils/thumbnail')
@@ -198,7 +215,7 @@ export class WorkerManager {
     }
   }
 
-  // 📏 파일 크기 기반 동적 타임아웃 계산
+  // 파일 크기 기반 동적 타임아웃 계산
   // 공식: Timeout = Base Time + (File Size (MB) / Min Speed (MB/s)) × Safety Factor
   // (최대값: 20분)
   private calculateDynamicTimeout(
@@ -247,7 +264,7 @@ export class WorkerManager {
     const calculatedTimeout =
       baseTime + (fileSizeMB / minSpeed) * SAFETY_FACTOR * 1000;
 
-    // ✅ 최대값으로 제한
+    // 최대값으로 제한
     const finalTimeout = Math.min(calculatedTimeout, MAX_TIMEOUT);
 
     if (process.env.NODE_ENV === 'development') {
@@ -284,10 +301,19 @@ export class WorkerManager {
     const timeoutMs = this.calculateDynamicTimeout(type, fileSizeBytes);
 
     return new Promise((resolve, reject) => {
-      // ✅ 타임아웃 설정 (워커에 취소 신호 전송 + 에러 반환)
+      // 타임아웃 설정 (워커에 취소 신호 전송 + 에러 반환)
       const timeoutId = setTimeout(() => {
-        // 1️⃣ 워커에게 취소 신호 전송 (soft cancel)
-        this.worker.postMessage({ type: 'CANCEL', id });
+        // 타임아웃 시 WASM은 하드 종료 + 부활, 해시는 소프트 캔슬
+        if (
+          type === 'SEARCH_HEX' ||
+          type === 'SEARCH_ASCII' ||
+          type === 'PROCESS_EXIF'
+        ) {
+          this.respawnWorker();
+        } else {
+          // 1️⃣ 워커에게 취소 신호 전송 (soft cancel)
+          this.worker.postMessage({ type: 'CANCEL', id });
+        }
 
         // 2️⃣ 주요 리소스 정리
         this.pendingRequests.delete(id);
@@ -324,9 +350,41 @@ export class WorkerManager {
     });
   }
 
+  /**
+   * 현재 진행 중인 작업을 즉시 취소합니다.
+   * @param forceKill true일 경우 워커 스레드 자체를 강제 종료(WASM용)
+   */
+  public cancel(forceKill: boolean = false): void {
+    if (this.pendingRequests.size === 0) return;
+
+    this.pendingRequests.forEach((req, id) => {
+      // 강제 종료가 아닐 때만 각각의 작업에 취소 메시지를 보냄
+      if (!forceKill) {
+        this.worker.postMessage({ type: 'CANCEL', id });
+      }
+      req.reject(new Error('USER_CANCELLED'));
+    });
+
+    // 강제 종료 시 워커 부활 프로세스 실행!
+    if (forceKill) {
+      this.respawnWorker();
+    }
+
+    this.pendingRequests.clear();
+    this.stopProcessing?.();
+    this.events.emit('ERROR', { code: 'USER_CANCELLED' });
+  }
+
   public terminate() {
+    // 대기 중인 모든 요청을 에러 처리
+    this.pendingRequests.forEach((req) => {
+      req.reject(new Error('WORKER_TERMINATED'));
+    });
+
+    // 워커 종료 및 정리
     this.worker.terminate();
     this.pendingRequests.clear();
     this.events.all.clear();
+    this.stopProcessing?.();
   }
 }

@@ -220,7 +220,7 @@ class AnalysisWorker {
 
       if (!this.wasmReady || !this.wasmExifFunc) {
         self.postMessage({
-          id, // 🚀 루트에 id 직접 삽입
+          id, // 루트에 id 직접 삽입
           status: 'ERROR',
           taskType: 'PROCESS_EXIF',
           errorCode: 'WASM_NOT_READY',
@@ -245,7 +245,7 @@ class AnalysisWorker {
 
       if (wasmResult.error) {
         self.postMessage({
-          id, // 🚀 루트에 id 직접 삽입
+          id, // 루트에 id 직접 삽입
           status: 'ERROR',
           taskType: 'PROCESS_EXIF',
           errorCode: 'EXIF_PARSE_ERROR',
@@ -280,7 +280,7 @@ class AnalysisWorker {
       });
     } catch (error) {
       self.postMessage({
-        id, // 🚀 루트에 id 직접 삽입
+        id, // 루트에 id 직접 삽입
         status: 'ERROR',
         taskType: 'PROCESS_EXIF',
         errorCode: 'EXIF_ERROR',
@@ -294,7 +294,7 @@ class AnalysisWorker {
   async search(
     id: string,
     file: File,
-    pattern: Uint8Array, // 🚀 Uint8Array로 직접 받음
+    pattern: Uint8Array, // Uint8Array로 직접 받음
     type: 'HEX' | 'ASCII',
     ignoreCase: boolean = false
   ): Promise<void> {
@@ -302,7 +302,7 @@ class AnalysisWorker {
 
     if (!this.wasmReady || !this.wasmSearchFunc) {
       self.postMessage({
-        id, // 🚀 루트에 id 직접 삽입
+        id, // 루트에 id 직접 삽입
         status: 'ERROR',
         taskType: type === 'HEX' ? 'SEARCH_HEX' : 'SEARCH_ASCII',
         errorCode: 'WASM_NOT_READY',
@@ -333,7 +333,7 @@ class AnalysisWorker {
 
       if (result.error) {
         self.postMessage({
-          id, // 🚀 루트에 id 직접 삽입
+          id, // 루트에 id 직접 삽입
           status: 'ERROR',
           taskType: type === 'HEX' ? 'SEARCH_HEX' : 'SEARCH_ASCII',
           errorCode: 'SEARCH_WASM_ERROR',
@@ -364,7 +364,7 @@ class AnalysisWorker {
       }
     } catch (error) {
       self.postMessage({
-        id, // 🚀 루트에 id 직접 삽입
+        id, // 루트에 id 직접 삽입
         status: 'ERROR',
         taskType: type === 'HEX' ? 'SEARCH_HEX' : 'SEARCH_ASCII',
         errorCode: 'SEARCH_ERROR',
@@ -379,15 +379,8 @@ class AnalysisWorker {
     const { type, id, file, pattern, ignoreCase } = data;
 
     switch (type) {
-      case 'CANCEL': // ✅ 타임아웃 시 워커 취소 신호 (WorkerManager에서 전송)
+      case 'CANCEL': // 타임아웃 시 워커 취소 신호 (WorkerManager에서 전송)
         this.cancelledRequestIds.add(id);
-        break;
-
-      case 'RELOAD_WASM':
-        if (!this.wasmInitializing) {
-          this.wasmReady = false;
-          await this.initWasm();
-        }
         break;
 
       case 'SEARCH_HEX':
@@ -433,3 +426,6 @@ analysisWorker.setupReadBlockSync();
 self.addEventListener('message', (e: MessageEvent<AnalysisWorkerRequest>) => {
   analysisWorker.handle(e.data as AnalysisWorkerRequest);
 });
+
+// 워커 생성 직후 자동으로 WASM 초기화
+analysisWorker.initWasm();
