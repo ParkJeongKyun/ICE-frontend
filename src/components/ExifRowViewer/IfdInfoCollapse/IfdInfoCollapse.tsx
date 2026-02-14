@@ -61,7 +61,7 @@ const IfdInfoCollapse: React.FC = () => {
       title={t('exifViewer.ifdInfo')}
       children={
         hasData ? (
-          <>
+          <div style={{ borderTop: '1px solid var(--main-line-color)' }}>
             {ifdInfos.map((ifd, i) => (
               <Collapse
                 key={`${ifd.ifdName || 'ifd'}-${i}`}
@@ -95,7 +95,7 @@ const IfdInfoCollapse: React.FC = () => {
                 }
               />
             ))}
-          </>
+          </div>
         ) : (
           <NoDataMessage>{t('common.noData')}</NoDataMessage>
         )
