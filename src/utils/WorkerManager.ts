@@ -342,17 +342,16 @@ export class WorkerManager {
   /**
    * 현재 진행 중인 작업을 즉시 강제 취소(하드 종료)합니다.
    */
-  public cancel(): void {
+  public cancel(errorCode: string = 'USER_CANCELLED'): void {
     if (this.pendingRequests.size === 0) return;
 
-    // 1. UI 대기열 에러 처리
     this.pendingRequests.forEach((req) => {
-      req.reject(new Error('USER_CANCELLED'));
+      req.reject(new Error(errorCode));
     });
     this.respawnWorker();
     this.pendingRequests.clear();
     this.stopProcessing?.();
-    this.events.emit('ERROR', { code: 'USER_CANCELLED' });
+    this.events.emit('ERROR', { code: errorCode });
   }
 
   public terminate() {

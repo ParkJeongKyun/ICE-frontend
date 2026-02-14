@@ -46,10 +46,8 @@ const HashCalculator: React.FC = () => {
       const cacheKey = getCacheKey();
       if (!cacheKey) return;
 
-      // 캐시 확인
       const cachedResult = hashResults.__cache__.get(cacheKey);
       if (cachedResult && cachedResult[hashType]) {
-        // 이미 계산된 해시 타입이면 캐시에서 가져오기
         if (process.env.NODE_ENV === 'development') {
           console.log(`[HashCalculator] 캐시 HIT: ${hashType}`);
         }
@@ -104,7 +102,6 @@ const HashCalculator: React.FC = () => {
             fileSize: activeData.file.size,
           });
 
-          // 캐시에 저장
           const cacheResult: HashResult = {
             fileName: activeData.file.name,
             fileSize: activeData.file.size,
@@ -129,7 +126,6 @@ const HashCalculator: React.FC = () => {
           });
         }
       } catch (error) {
-        // 취소된 경우 조기 return (캐시 저장 안함)
         if (error instanceof Error && error.message === 'HASH_CANCELLED') {
           if (process.env.NODE_ENV === 'development') {
             console.log('[HashCalculator] Hash calculation cancelled by user');
@@ -169,31 +165,36 @@ const HashCalculator: React.FC = () => {
       <HashDiv>
         <HashButtonContainer>
           {HASH_TYPES.map((hashType) => (
-            <HashButton
+            <Tooltip
               key={hashType}
-              onClick={() => handleCalculateHash(hashType)}
-              $disabled={calculatingHash !== null}
-              $isCalculating={calculatingHash === hashType}
-              title={t('calculateHash.calculateTooltip', {
-                type: hashType.toUpperCase(),
-              })}
+              text={
+                calculatingHash === hashType
+                  ? t('calculateHash.cancelTooltip')
+                  : t('calculateHash.calculateTooltip', {
+                      type: hashType.toUpperCase(),
+                    })
+              }
             >
-              {calculatingHash === hashType
-                ? t('calculateHash.calculating')
-                : hashType.toUpperCase()}
-            </HashButton>
+              <HashButton
+                onClick={() =>
+                  calculatingHash === hashType
+                    ? cancelHash()
+                    : handleCalculateHash(hashType)
+                }
+                $disabled={
+                  calculatingHash !== null && calculatingHash !== hashType
+                }
+                $isCalculating={calculatingHash === hashType}
+              >
+                {calculatingHash === hashType ? (
+                  <XIcon width={12} height={12} />
+                ) : (
+                  hashType.toUpperCase()
+                )}
+              </HashButton>
+            </Tooltip>
           ))}
         </HashButtonContainer>
-
-        {calculatingHash && (
-          <CancelButtonContainer>
-            <Tooltip text={t('calculateHash.cancelTooltip')}>
-              <CancelButton onClick={cancelHash}>
-                <XIcon width={16} height={16} />
-              </CancelButton>
-            </Tooltip>
-          </CancelButtonContainer>
-        )}
 
         {currentResult && (
           <HashResultsContainer>
@@ -210,7 +211,7 @@ const HashCalculator: React.FC = () => {
                             handleCopyHash(currentResult[hashType]!)
                           }
                         >
-                          <FlopyIcon width={14} height={14} />
+                          <FlopyIcon width={12} height={12} />
                         </CopyButton>
                       </Tooltip>
                     </HashValueContainer>
@@ -227,113 +228,89 @@ const HashCalculator: React.FC = () => {
 const HashDiv = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding: 10px 0;
+  gap: 6px;
+  padding: 4px 0;
 `;
 
 const HashButtonContainer = styled.div`
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 8px;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 4px;
 `;
 
 const HashButton = styled.button<{
   $disabled?: boolean;
   $isCalculating?: boolean;
 }>`
-  padding: 8px 12px;
-  background-color: ${(props) =>
-    props.$isCalculating ? 'var(--ice-main-color)' : 'var(--main-hover-color)'};
+  width: 100%;
+  min-height: 12px;
+  padding: 4px 8px;
+  background: transparent;
   border: 1px solid var(--main-line-color);
   border-radius: 4px;
   color: ${(props) =>
-    props.$isCalculating ? 'var(--main-bg-color)' : 'var(--main-color)'};
+    props.$isCalculating ? 'var(--ice-main-color)' : 'var(--main-color)'};
   cursor: ${(props) => (props.$disabled ? 'not-allowed' : 'pointer')};
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   font-weight: ${(props) => (props.$isCalculating ? '600' : '400')};
   transition: all 0.15s ease;
   opacity: ${(props) => (props.$disabled && !props.$isCalculating ? 0.5 : 1)};
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-  &:hover {
-    background-color: ${(props) =>
-      props.$disabled && !props.$isCalculating
-        ? 'var(--main-hover-color)'
-        : 'var(--ice-main-color)'};
-    color: ${(props) =>
-      props.$disabled && !props.$isCalculating
-        ? 'var(--main-color)'
-        : 'var(--main-bg-color)'};
+  &:hover:not(:disabled) {
+    border-color: var(--ice-main-color);
+    color: var(--ice-main-color);
   }
 `;
 
 const HashResultsContainer = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 8px;
-  background-color: var(--main-hover-color);
-  border-radius: 4px;
-  border: 1px solid var(--main-line-color);
+  gap: 4px;
 `;
 
 const HashResultItem = styled.div`
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 0;
+  border-bottom: 1px solid var(--main-line-color);
+
+  &:last-child {
+    border-bottom: none;
+  }
 `;
 
 const HashLabel = styled.div`
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: var(--ice-main-color);
+  flex-shrink: 0;
+  width: 45px;
+  font-size: 0.65rem;
+  font-weight: 500;
+  color: var(--main-color);
   text-transform: uppercase;
-  opacity: 0.8;
+  opacity: 0.7;
 `;
 
 const HashValueContainer = styled.div`
+  flex: 1;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
 `;
 
 const HashValueText = styled.div`
   flex: 1;
   font-family: monospace;
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   color: var(--main-color);
   word-break: break-all;
-  opacity: 0.9;
-`;
-
-const CancelButtonContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 4px;
-`;
-
-const CancelButton = styled.button`
-  padding: 6px 12px;
-  background: transparent;
-  border: 1px solid var(--ice-main-color);
-  border-radius: 4px;
-  cursor: pointer;
-  color: var(--ice-main-color);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  font-size: 0.75rem;
-  transition: all 0.15s ease;
-
-  &:hover {
-    background: var(--ice-main-color);
-    color: var(--main-bg-color);
-  }
+  text-align: left;
 `;
 
 const CopyButton = styled.button`
-  padding: 3px 5px;
+  padding: 2px 4px;
   background: transparent;
   border: none;
   cursor: pointer;
@@ -343,8 +320,10 @@ const CopyButton = styled.button`
   justify-content: center;
   transition: all 0.15s ease;
   flex-shrink: 0;
+  opacity: 0.6;
 
   &:hover {
+    opacity: 1;
     color: var(--ice-main-color);
   }
 `;

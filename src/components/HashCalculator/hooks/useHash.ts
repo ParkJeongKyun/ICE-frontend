@@ -55,7 +55,7 @@ export const useHash = () => {
 
   const cancelHash = useCallback(() => {
     if (hashManager) {
-      hashManager.cancel();
+      hashManager.cancel('HASH_CANCELLED');
     }
   }, [hashManager]);
 

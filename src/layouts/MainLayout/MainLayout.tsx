@@ -68,8 +68,8 @@ const MainLayout: React.FC = () => {
     separatorProps: leftSideSepProps,
   } = useResizable({
     axis: 'x',
-    initial: MIN_SIDER_WIDTH * 4,
-    max: MIN_SIDER_WIDTH * 5.5,
+    initial: MIN_SIDER_WIDTH * 5,
+    max: MIN_SIDER_WIDTH * 8,
   });
 
   const {
@@ -78,9 +78,9 @@ const MainLayout: React.FC = () => {
     separatorProps: rightSideSepProps,
   } = useResizable({
     axis: 'x',
-    initial: MIN_SIDER_WIDTH * 3,
+    initial: MIN_SIDER_WIDTH * 5,
     reverse: true,
-    max: MIN_SIDER_WIDTH * 4.5,
+    max: MIN_SIDER_WIDTH * 8,
   });
 
   const selectionInfo = (() => {

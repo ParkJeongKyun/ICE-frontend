@@ -99,7 +99,7 @@ export const useSearch = () => {
 
   const cancelSearch = useCallback(() => {
     if (analysisManager) {
-      analysisManager.cancel();
+      analysisManager.cancel('SEARCH_CANCELLED');
     }
   }, [analysisManager]);
 
