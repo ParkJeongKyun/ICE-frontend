@@ -1,0 +1,19 @@
+{
+  "ColorType": {
+    "0": "Grayscale",
+    "2": "Truecolor (RGB)",
+    "3": "Indexed-color (Palette)",
+    "4": "Grayscale with Alpha",
+    "6": "Truecolor with Alpha (RGBA)"
+  },
+  "Compression": {
+    "0": "Deflate/Inflate (zlib)"
+  },
+  "Filter": {
+    "0": "Adaptive Filtering"
+  },
+  "Interlace": {
+    "0": "None",
+    "1": "Adam7 (Progressive)"
+  }
+}

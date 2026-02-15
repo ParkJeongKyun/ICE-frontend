@@ -13,19 +13,19 @@
   },
   "colorType": {
     "name": "Color Type",
-    "description": "Image color type (Grayscale, Truecolor, Palette, etc.)"
+    "description": "Image color type"
   },
   "compression": {
     "name": "Compression",
-    "description": "Image data compression method (Default: 0 - zlib)"
+    "description": "Image data compression method"
   },
   "filter": {
     "name": "Filter Method",
-    "description": "Preprocessing filter method applied before compression (Default: 0)"
+    "description": "Preprocessing filter method applied before compression"
   },
   "interlace": {
     "name": "Interlace",
-    "description": "Progressive image rendering method (0: None, 1: Adam7)"
+    "description": "Progressive image rendering method"
   },
   "chunks": {
     "name": "Chunks",
@@ -33,11 +33,11 @@
   },
   "type": {
     "name": "Chunk Type",
-    "description": "Type of the chunk (e.g., tEXt, iTXt, zTXt, eXIf)"
+    "description": "Type of the chunk"
   },
   "keyword": {
     "name": "Keyword",
-    "description": "Identifying keyword for the text chunk (e.g., Comment, Software, prompt)"
+    "description": "Identifying keyword for the text chunk"
   },
   "data": {
     "name": "Data",

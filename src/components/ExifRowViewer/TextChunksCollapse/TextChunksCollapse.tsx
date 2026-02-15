@@ -15,6 +15,22 @@ const TextChunksCollapse: React.FC = () => {
   const { activeData } = useTab();
   const textChunkData = activeData?.textChunkData;
 
+  // exifExamples 방식과 동일하게, 번역된 값과 원본을 툴팁으로 출력하는 함수
+  const renderIHDRExample = (
+    field: 'ColorType' | 'Compression' | 'Filter' | 'Interlace',
+    value: string | number
+  ) => {
+    const key = `ihdrExamples.${field}`;
+    let display = String(value);
+    if (t.has(key)) {
+      const examples = t.raw(key);
+      if (examples && typeof examples === 'object' && value in examples) {
+        display = (examples as Record<string, string>)[String(value)];
+      }
+    }
+    return <Tooltip text={String(value)}>{display}</Tooltip>;
+  };
+
   return (
     <>
       <Collapse title={t('textChunksViewer.ihdrInfo')} open>
@@ -52,7 +68,12 @@ const TextChunksCollapse: React.FC = () => {
                   {t('textChunks.colorType.name')}
                 </Tooltip>
               </CellHeaderDiv>
-              <CellBodyDiv>{textChunkData.colorType ?? '-'}</CellBodyDiv>
+              <CellBodyDiv>
+                {textChunkData.colorType !== undefined &&
+                textChunkData.colorType !== null
+                  ? renderIHDRExample('ColorType', textChunkData.colorType)
+                  : '-'}
+              </CellBodyDiv>
             </ContentDiv>
             <ContentDiv>
               <CellHeaderDiv>
@@ -60,7 +81,12 @@ const TextChunksCollapse: React.FC = () => {
                   {t('textChunks.compression.name')}
                 </Tooltip>
               </CellHeaderDiv>
-              <CellBodyDiv>{textChunkData.compression ?? '-'}</CellBodyDiv>
+              <CellBodyDiv>
+                {textChunkData.compression !== undefined &&
+                textChunkData.compression !== null
+                  ? renderIHDRExample('Compression', textChunkData.compression)
+                  : '-'}
+              </CellBodyDiv>
             </ContentDiv>
             <ContentDiv>
               <CellHeaderDiv>
@@ -68,7 +94,12 @@ const TextChunksCollapse: React.FC = () => {
                   {t('textChunks.filter.name')}
                 </Tooltip>
               </CellHeaderDiv>
-              <CellBodyDiv>{textChunkData.filter ?? '-'}</CellBodyDiv>
+              <CellBodyDiv>
+                {textChunkData.filter !== undefined &&
+                textChunkData.filter !== null
+                  ? renderIHDRExample('Filter', textChunkData.filter)
+                  : '-'}
+              </CellBodyDiv>
             </ContentDiv>
             <ContentDiv>
               <CellHeaderDiv>
@@ -76,7 +107,12 @@ const TextChunksCollapse: React.FC = () => {
                   {t('textChunks.interlace.name')}
                 </Tooltip>
               </CellHeaderDiv>
-              <CellBodyDiv>{textChunkData.interlace ?? '-'}</CellBodyDiv>
+              <CellBodyDiv>
+                {textChunkData.interlace !== undefined &&
+                textChunkData.interlace !== null
+                  ? renderIHDRExample('Interlace', textChunkData.interlace)
+                  : '-'}
+              </CellBodyDiv>
             </ContentDiv>
           </>
         )}

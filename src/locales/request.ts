@@ -23,6 +23,9 @@ export default getRequestConfig(async ({ locale }) => {
       textChunks: (
         await import(`../locales/${locale}/textChunks/textChunks.json`)
       ).default,
+      ihdrExamples: (
+        await import(`../locales/${locale}/ihdrExamples/ihdrExamples.json`)
+      ).default,
       linknote: (await import(`../locales/${locale}/linknote/linknote.json`))
         .default,
       about: (await import(`../locales/${locale}/about/about.json`)).default,
