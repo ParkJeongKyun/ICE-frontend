@@ -13,7 +13,7 @@ export const Container = styled.div`
 
 export const MarkdownBox = styled.div`
   margin: 40px 0;
-  border: 1.5px solid var(--ice-main-color);
+  border: 1px solid var(--ice-main-color);
   max-width: 800px;
   width: 92vw;
   background: var(--main-bg-color);

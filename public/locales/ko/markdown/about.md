@@ -83,3 +83,7 @@
 - [lz-string - 문자열 압축 라이브러리](https://github.com/pieroxy/lz-string)
 - [Google Analytics - 웹 로그 분석 서비스](https://analytics.google.com/analytics/web/)
 - [ipinfo.io - IP 주소 정보 조회 API](https://ipinfo.io)
+
+# [개인정보 처리방침](/ko/privacy)
+
+개인정보처리방침은 위 "개인정보 처리방침" 링크에서 확인하실 수 있습니다.
