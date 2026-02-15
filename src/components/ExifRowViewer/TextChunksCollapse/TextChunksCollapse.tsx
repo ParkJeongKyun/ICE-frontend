@@ -1,19 +1,37 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import Tooltip from '@/components/common/Tooltip/Tooltip';
 import { useTab } from '@/contexts/TabDataContext/TabDataContext';
+import { useRefs } from '@/contexts/RefContext/RefContext';
 import Collapse from '@/components/common/Collapse/Collapse';
 import {
   CellBodyDiv,
   CellHeaderDiv,
   ContentDiv,
   NoDataMessage,
+  JumpButton,
 } from '../ExifRowViewer.styles';
+import ChevronRightIcon from '@/components/common/Icons/ChevronRightIcon';
 
 const TextChunksCollapse: React.FC = () => {
   const t = useTranslations();
   const { activeData } = useTab();
+  const { searcherRef } = useRefs();
   const textChunkData = activeData?.textChunkData;
+
+  // 오프셋 점프 함수
+  const onJumpToChunkOffset = useCallback(
+    async (offset: number, length: number) => {
+      if (!searcherRef?.current) return;
+      const hexStr = offset.toString(16);
+      try {
+        await searcherRef.current.findByOffset(hexStr, length);
+      } catch (e) {
+        // ignore
+      }
+    },
+    [searcherRef]
+  );
 
   // exifExamples 방식과 동일하게, 번역된 값과 원본을 툴팁으로 출력하는 함수
   const renderIHDRExample = (
@@ -127,13 +145,24 @@ const TextChunksCollapse: React.FC = () => {
             {textChunkData.chunks.map((chunk, idx) => (
               <ContentDiv key={idx}>
                 <CellHeaderDiv>
-                  {chunk.type ? ` (${chunk.type})` : ''}
-                  {chunk.keyword && (
-                    <>
-                      <Tooltip text={t('textChunks.keyword.description')}>
-                        {chunk.keyword}
-                      </Tooltip>
-                    </>
+                  {
+                    <Tooltip text={t('textChunks.keyword.description')}>
+                      {chunk.type ? ` (${chunk.type}) ` : ''}
+                      {chunk.keyword ? `${chunk.keyword}` : ''}
+                    </Tooltip>
+                  }
+                  {typeof chunk.offset === 'number' && (
+                    <Tooltip
+                      text={`${t('textChunksViewer.jumpToOffset')} 0x${chunk.offset.toString(16).toUpperCase()} (${chunk.offset})`}
+                    >
+                      <JumpButton
+                        onClick={() =>
+                          onJumpToChunkOffset(chunk.offset, chunk.length || 0)
+                        }
+                      >
+                        <ChevronRightIcon />
+                      </JumpButton>
+                    </Tooltip>
                   )}
                 </CellHeaderDiv>
                 <CellBodyDiv style={{ wordBreak: 'break-all', fontSize: 13 }}>

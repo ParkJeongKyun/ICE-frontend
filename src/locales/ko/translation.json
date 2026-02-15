@@ -164,7 +164,8 @@
   },
   "textChunksViewer": {
     "ihdrInfo": "IHDR 정보",
-    "textChunks": "텍스트 청크"
+    "textChunks": "텍스트 청크",
+    "jumpToOffset": "다음으로 이동"
   },
   "calculateHash": {
     "title": "해시 계산",

@@ -164,7 +164,8 @@
   },
   "textChunksViewer": {
     "ihdrInfo": "IHDR Info",
-    "textChunks": "Text Chunks"
+    "textChunks": "Text Chunks",
+    "jumpToOffset": "Jump to"
   },
   "calculateHash": {
     "title": "Calculate Hash",
