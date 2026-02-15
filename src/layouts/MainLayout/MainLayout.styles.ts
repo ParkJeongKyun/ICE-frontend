@@ -279,7 +279,7 @@ export const IceMobileLayout = styled.div`
   display: flex;
   flex: 1;
   flex-direction: column;
-  height: 100%;
+  min-height: 0;
   background-color: var(--main-bg-color);
   color: var(--main-color);
   overflow: hidden; /* 스크롤 숨기기 */
@@ -289,6 +289,8 @@ export const IceMobileLayout = styled.div`
 export const IceMobileContent = styled.div`
   display: flex;
   flex-grow: 1;
+  flex: 1; /* 남은 공간 모두 차지 */
+  min-height: 0; /* 콘텐츠가 넘쳐도 부모를 늘리지 않음 */
   background-color: var(--main-bg-color);
   color: var(--main-color);
 `;

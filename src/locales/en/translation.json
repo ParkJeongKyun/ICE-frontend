@@ -22,6 +22,47 @@
     "noServerUpload": "Files are not uploaded or stored on server",
     "processing": "Processing file"
   },
+  "faqTab": "FAQ",
+  "useCasesTab": "Use Cases",
+  "faq": [
+    {
+      "q": "What features are included in the Web-based Hex Viewer?",
+      "a": "It visualizes raw binary data in hexadecimal format for deep inspection. Features include instant offset navigation and automatic data interpretation for types like UInt, Float, and Time, providing a professional forensic environment."
+    },
+    {
+      "q": "Which file hash algorithms are supported?",
+      "a": "We support all standard algorithms including MD5, SHA-1, SHA-256, and SHA-512 for verifying file identity and integrity. Large files are processed instantly via local WASM technology."
+    },
+    {
+      "q": "Can it handle large images or binary files?",
+      "a": "Yes. Utilizing WebAssembly (WASM) for efficient memory management, the tool can load and analyze files over several hundred MBs in real-time without browser freezing."
+    },
+    {
+      "q": "Are my photos or analysis data stored on a server?",
+      "a": "Absolutely not. This is a client-side tool where all analysis occurs on your device. Not a single byte is sent to an external server, ensuring maximum data privacy."
+    },
+    {
+      "q": "Can it extract prompts from AI-generated images like Stable Diffusion or NovelAI?",
+      "a": "Yes, with full support. It extracts hidden prompts, model details, and seeds embedded in iTXt or tEXt chunks. It perfectly interprets metadata from ComfyUI, WebUI, and more."
+    },
+    {
+      "q": "Is it possible to check metadata for corrupted or broken images?",
+      "a": "Yes. By using binary stream scanning instead of standard rendering, it can recover text information as long as the file header (IHDR) or metadata chunks are partially intact."
+    },
+    {
+      "q": "Does it support screenshots from mobile devices like iPhone or Android?",
+      "a": "Yes, it fully analyzes eXIf and standard PNG chunks within mobile screenshots, providing details such as device info, capture timestamps, and resolution."
+    }
+  ],
+  "useCases": [
+    "Verify file integrity and detect tampering via hash (MD5, SHA-256, etc.) calculations",
+    "Recover hidden prompts and parameters from AI-generated images (Stable Diffusion, etc.)",
+    "Inspect GPS location and detailed camera metadata (EXIF) in digital photos",
+    "Prevent privacy leaks by checking sensitive metadata before social media sharing",
+    "Detect steganography and hidden data through deep PNG chunk structure analysis",
+    "Perform real-time binary Hex analysis and offset tracking for security experts",
+    "Optimize web performance by validating image compression (Deflate) and interlace settings"
+  ],
   "menu": {
     "open": "Open",
     "tools": "Tools",

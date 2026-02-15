@@ -4,7 +4,9 @@ import { useRefs } from '@/contexts/RefContext/RefContext';
 import {
   Btn,
   HomeDiv,
-  ContientDiv,
+  LeftSection,
+  RightSection,
+  ContentWrapper,
   TitleDiv,
   InfoDiv,
   StartDiv,
@@ -13,6 +15,11 @@ import {
   Version,
   SubTitleDiv,
   PrivacyLink,
+  SectionTitle,
+  ListText,
+  FaqBox,
+  ContientDiv,
+  PreviewBox,
 } from './Home.styles';
 import Logo from '../common/Icons/Logo/Logo';
 import { useTranslations, useLocale } from 'next-intl';
@@ -24,66 +31,93 @@ const Home: React.FC = () => {
   const locale = useLocale();
   const isMobileView = useIsMobile();
 
+  const faqData = t.raw('faq') as { q: string; a: string }[];
+  const useCasesData = t.raw('useCases') as string[];
+
   return (
     <HomeDiv>
-      <ContientDiv>
-        <TitleDiv>
-          <Title>
-            <Logo showText size={36} textSize={36} />
-            <Version>
-              <span>
-                {process.env.NEXT_PUBLIC_APP_VERSION}
-                {isMobileView && '_Mobile'}
-              </span>
-            </Version>
-          </Title>
-          <SubTitleDiv>
-            <SubTitle>{t('home.subtitle1')}</SubTitle>
-            <SubTitle>{t('home.subtitle2')}</SubTitle>
-            <SubTitle>{t('home.subtitle3')}</SubTitle>
-            <SubTitle>{t('home.subtitle4')}</SubTitle>
-          </SubTitleDiv>
-        </TitleDiv>
-        <StartDiv>
-          {t('home.startGuide')}
-          <Btn
-            onClick={() => {
-              menuBtnZoneRef.current?.openBtnClick();
-            }}
-          >
-            {t('home.openFile')}
-          </Btn>
-          <Btn
-            onClick={() => {
-              menuBtnZoneRef.current?.helpBtnClick();
-            }}
-          >
-            {t('home.help')}
-          </Btn>
-          <Btn
-            onClick={() => {
-              menuBtnZoneRef.current?.aboutBtnClick();
-            }}
-          >
-            {t('home.about')}
-          </Btn>
-        </StartDiv>
-        <InfoDiv>
-          <div>{t('home.browserBased')}</div>
-          <div>
-            <PrivacyLink
-              href={`/${locale}/privacy`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {t('home.privacyPolicy')}
-            </PrivacyLink>
-          </div>
-          <div>{t('home.noServerUpload')}</div>
-          <div>{t('copyright')}</div>
-        </InfoDiv>
-      </ContientDiv>
+      <LeftSection>
+        <ContentWrapper>
+          <ContientDiv>
+            <TitleDiv>
+              <Title>
+                <Logo showText size={36} textSize={36} />
+                <Version>
+                  <span>
+                    {process.env.NEXT_PUBLIC_APP_VERSION}
+                    {isMobileView && '_Mobile'}
+                  </span>
+                </Version>
+              </Title>
+              <SubTitleDiv>
+                <SubTitle>{t('home.subtitle1')}</SubTitle>
+                <SubTitle>{t('home.subtitle2')}</SubTitle>
+                <SubTitle>{t('home.subtitle3')}</SubTitle>
+                <SubTitle>{t('home.subtitle4')}</SubTitle>
+              </SubTitleDiv>
+            </TitleDiv>
+
+            <StartDiv>
+              {t('home.startGuide')}
+              <Btn onClick={() => menuBtnZoneRef.current?.openBtnClick()}>
+                {t('home.openFile')}
+              </Btn>
+              <Btn onClick={() => menuBtnZoneRef.current?.helpBtnClick()}>
+                {t('home.help')}
+              </Btn>
+              <Btn onClick={() => menuBtnZoneRef.current?.aboutBtnClick()}>
+                {t('home.about')}
+              </Btn>
+            </StartDiv>
+
+            <InfoDiv>
+              <div>{t('home.browserBased')}</div>
+              <div>
+                <PrivacyLink
+                  href={`/${locale}/privacy`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {t('home.privacyPolicy')}
+                </PrivacyLink>
+              </div>
+              <div>{t('home.noServerUpload')}</div>
+              <div>{t('copyright')}</div>
+            </InfoDiv>
+          </ContientDiv>
+        </ContentWrapper>
+      </LeftSection>
+
+      <RightSection>
+        <ContentWrapper>
+          <ContientDiv>
+            <PreviewBox>
+              <img
+                src="/images/sample/sample.png"
+                alt="ICE-PNG Forensic Interface Preview"
+              />
+            </PreviewBox>
+            <section>
+              <SectionTitle>{t('faqTab')}</SectionTitle>
+              {faqData.map((item, index) => (
+                <FaqBox key={index}>
+                  <div className="q">Q. {item.q}</div>
+                  <div className="a">{item.a}</div>
+                </FaqBox>
+              ))}
+            </section>
+
+            <section>
+              <SectionTitle>{t('useCasesTab')}</SectionTitle>
+              {useCasesData.map((text, index) => (
+                <ListText key={index}>• {text}</ListText>
+              ))}
+            </section>
+          </ContientDiv>
+        </ContentWrapper>
+      </RightSection>
     </HomeDiv>
   );
 };
+
 export default Home;
