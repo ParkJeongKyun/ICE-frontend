@@ -241,7 +241,7 @@ const MainLayout: React.FC = () => {
               </>
             )
           ) : (
-            <IceCopyRight>{process.env.NEXT_PUBLIC_APP_COPYRIGHT}</IceCopyRight>
+            <IceCopyRight>{t('copyright')}</IceCopyRight>
           )}
         </SelectInfo>
         <IceFooterRight>

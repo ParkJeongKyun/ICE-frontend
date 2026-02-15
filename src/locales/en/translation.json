@@ -173,5 +173,6 @@
     "success": "{type} Hash calculation completed successfully.",
     "calculateTooltip": "Calculate {type} hash",
     "cancelTooltip": "Cancel hash calculation"
-  }
+  },
+  "copyright": "© 2022 ParkJeong-kyun (dbzoseh84@gmail.com). All rights reserved."
 }

@@ -173,5 +173,6 @@
     "success": "{type} 해시 계산이 완료되었습니다.",
     "calculateTooltip": "{type} 해시 계산",
     "cancelTooltip": "해시 계산 취소"
-  }
+  },
+  "copyright": "© 2022 박정균 (dbzoseh84@gmail.com). 모든 권리 보유."
 }

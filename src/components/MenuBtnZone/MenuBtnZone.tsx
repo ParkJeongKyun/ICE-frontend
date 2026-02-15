@@ -40,7 +40,7 @@ const MenuBtnZone: React.FC = () => {
         const locale = pathname.split('/')[1] || 'en';
         window.open(`/${locale}/linknote`, '_blank');
       } else if (action === 'show-ip') {
-        showIp(); // 🚀 훅의 함수 호출로 끝!
+        showIp();
       }
     },
     [pathname, showIp]
@@ -115,14 +115,14 @@ const MenuBtnZone: React.FC = () => {
           <ToolsDropdownMenu>
             <ToolsMenuList>
               <ToolsMenuItem
-                onClick={() => handleToolsMenuItemClick('linknote')}
-              >
-                {t('menu.linknote')}
-              </ToolsMenuItem>
-              <ToolsMenuItem
                 onClick={() => handleToolsMenuItemClick('show-ip')}
               >
                 {t('menu.showIp')}
+              </ToolsMenuItem>
+              <ToolsMenuItem
+                onClick={() => handleToolsMenuItemClick('linknote')}
+              >
+                {t('menu.linknote')}
               </ToolsMenuItem>
             </ToolsMenuList>
           </ToolsDropdownMenu>

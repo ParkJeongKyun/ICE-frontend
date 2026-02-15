@@ -80,7 +80,7 @@ const Home: React.FC = () => {
             </PrivacyLink>
           </div>
           <div>{t('home.noServerUpload')}</div>
-          <div>{process.env.NEXT_PUBLIC_APP_COPYRIGHT}</div>
+          <div>{t('copyright')}</div>
         </InfoDiv>
       </ContientDiv>
     </HomeDiv>
