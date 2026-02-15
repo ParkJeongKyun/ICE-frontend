@@ -18,7 +18,7 @@
     "help": "Help...",
     "about": "About...",
     "browserBased": "Works on web browser",
-    "noPersonalData": "No personal data collection or processing",
+    "privacyPolicy": "Privacy Policy",
     "noServerUpload": "Files are not uploaded or stored on server",
     "processing": "Processing file"
   },

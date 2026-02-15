@@ -12,14 +12,16 @@ import {
   Title,
   Version,
   SubTitleDiv,
+  PrivacyLink,
 } from './Home.styles';
 import Logo from '../common/Icons/Logo/Logo';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { useIsMobile } from '@/hooks/useIsMobile';
 
 const Home: React.FC = () => {
   const { menuBtnZoneRef } = useRefs();
   const t = useTranslations();
+  const locale = useLocale();
   const isMobileView = useIsMobile();
 
   return (
@@ -68,7 +70,15 @@ const Home: React.FC = () => {
         </StartDiv>
         <InfoDiv>
           <div>{t('home.browserBased')}</div>
-          <div>{t('home.noPersonalData')}</div>
+          <div>
+            <PrivacyLink
+              href={`/${locale}/privacy`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {t('home.privacyPolicy')}
+            </PrivacyLink>
+          </div>
           <div>{t('home.noServerUpload')}</div>
           <div>{process.env.NEXT_PUBLIC_APP_COPYRIGHT}</div>
         </InfoDiv>

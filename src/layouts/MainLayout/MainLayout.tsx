@@ -50,6 +50,7 @@ import InfoPanel from './SidePanels/InfoPanel';
 import ToolsPanel from './SidePanels/ToolsPanel';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useProgress } from '@/hooks/useProgress';
+import PrivacyBtn from '@/components/common/Btn/PrivacyBtn';
 
 const MIN_SIDER_WIDTH = 100;
 
@@ -260,6 +261,7 @@ const MainLayout: React.FC = () => {
             />
           )}
           {isMobileView && <LanguageSwitcher />}
+          <PrivacyBtn />
           <MessageHistory />
         </IceFooterRight>
       </IceFooter>

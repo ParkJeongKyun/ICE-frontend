@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import Link from 'next/link';
 
 export const HomeDiv = styled.div`
   display: flex;
@@ -84,5 +85,17 @@ export const InfoDiv = styled.div`
   > div:last-child {
     padding: 1rem 0;
     color: var(--main-color-reverse);
+  }
+`;
+
+export const PrivacyLink = styled(Link)`
+  color: var(--ice-main-color);
+  text-decoration: underline;
+  cursor: pointer;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: var(--main-hover-line-color);
+    text-decoration: none;
   }
 `;
