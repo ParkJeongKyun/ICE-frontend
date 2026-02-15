@@ -20,6 +20,9 @@ export default getRequestConfig(async ({ locale }) => {
       exifExamples: (
         await import(`../locales/${locale}/exifExamples/exifExamples.json`)
       ).default,
+      textChunks: (
+        await import(`../locales/${locale}/textChunks/textChunks.json`)
+      ).default,
       linknote: (await import(`../locales/${locale}/linknote/linknote.json`))
         .default,
       about: (await import(`../locales/${locale}/about/about.json`)).default,

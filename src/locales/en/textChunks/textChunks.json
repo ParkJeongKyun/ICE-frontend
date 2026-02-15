@@ -1,0 +1,46 @@
+{
+  "width": {
+    "name": "Width",
+    "description": "Image width in pixels"
+  },
+  "height": {
+    "name": "Height",
+    "description": "Image height in pixels"
+  },
+  "bitDepth": {
+    "name": "Bit Depth",
+    "description": "Number of bits per channel"
+  },
+  "colorType": {
+    "name": "Color Type",
+    "description": "Image color type (Grayscale, Truecolor, Palette, etc.)"
+  },
+  "compression": {
+    "name": "Compression",
+    "description": "Image data compression method (Default: 0 - zlib)"
+  },
+  "filter": {
+    "name": "Filter Method",
+    "description": "Preprocessing filter method applied before compression (Default: 0)"
+  },
+  "interlace": {
+    "name": "Interlace",
+    "description": "Progressive image rendering method (0: None, 1: Adam7)"
+  },
+  "chunks": {
+    "name": "Chunks",
+    "description": "List of PNG structure and AI metadata chunks in the file"
+  },
+  "type": {
+    "name": "Chunk Type",
+    "description": "Type of the chunk (e.g., tEXt, iTXt, zTXt, eXIf)"
+  },
+  "keyword": {
+    "name": "Keyword",
+    "description": "Identifying keyword for the text chunk (e.g., Comment, Software, prompt)"
+  },
+  "data": {
+    "name": "Data",
+    "description": "Actual text or binary payload stored in the chunk"
+  }
+}

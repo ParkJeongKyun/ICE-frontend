@@ -162,6 +162,10 @@
     "noTags": "No tags",
     "noIfdSelected": "No IFD selected"
   },
+  "textChunksViewer": {
+    "ihdrInfo": "IHDR Info",
+    "textChunks": "Text Chunks"
+  },
   "calculateHash": {
     "title": "Calculate Hash",
     "calculating": "Calculating...",

@@ -1,0 +1,46 @@
+{
+  "width": {
+    "name": "가로 크기",
+    "description": "이미지의 가로(폭) 픽셀 수"
+  },
+  "height": {
+    "name": "세로 크기",
+    "description": "이미지의 세로(높이) 픽셀 수"
+  },
+  "bitDepth": {
+    "name": "비트 심도",
+    "description": "채널당 비트 수 (Bit Depth)"
+  },
+  "colorType": {
+    "name": "컬러 타입",
+    "description": "색상 타입 (그레이스케일, 트루컬러, 팔레트 등)"
+  },
+  "compression": {
+    "name": "압축 방식",
+    "description": "이미지 데이터 압축 알고리즘 (기본값: 0 - zlib)"
+  },
+  "filter": {
+    "name": "필터 방식",
+    "description": "압축 전 데이터 전처리 필터링 방식 (기본값: 0)"
+  },
+  "interlace": {
+    "name": "인터레이스",
+    "description": "웹 점진적 이미지 렌더링 방식 (0: 없음, 1: Adam7)"
+  },
+  "chunks": {
+    "name": "청크 목록",
+    "description": "파일 내 PNG 구조 및 AI 메타데이터 청크 목록"
+  },
+  "type": {
+    "name": "청크 타입",
+    "description": "청크의 종류 (tEXt, iTXt, zTXt, eXIf 등)"
+  },
+  "keyword": {
+    "name": "키워드",
+    "description": "텍스트 청크의 식별 이름표 (Comment, Software, prompt 등)"
+  },
+  "data": {
+    "name": "데이터",
+    "description": "청크 내부에 저장된 실제 텍스트 또는 바이너리 내용"
+  }
+}

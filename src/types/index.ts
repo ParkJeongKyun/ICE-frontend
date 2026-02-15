@@ -36,6 +36,24 @@ export interface ExifInfo {
   tagInfos: ExifRow[] | null;
 }
 
+// JSON.parse 후 타입
+export interface TextChunkInfo {
+  width?: number;
+  height?: number;
+  bitDepth?: number;
+  colorType?: number;
+  compression?: number;
+  filter?: number;
+  interlace?: number;
+  chunks: Array<{
+    type: string;
+    offset: number;
+    length: number;
+    keyword?: string;
+    data: string;
+  }>;
+}
+
 // 파일 정보
 export interface fileinfo {
   name: string;
@@ -59,5 +77,6 @@ export interface TabData {
     fileInfo: fileinfo;
     hasExif: boolean;
     exifInfo: ExifInfo;
+    textChunkData?: TextChunkInfo;
   };
 }

@@ -162,6 +162,10 @@
     "noTags": "태그가 없습니다",
     "noIfdSelected": "선택된 IFD가 없습니다"
   },
+  "textChunksViewer": {
+    "ihdrInfo": "IHDR 정보",
+    "textChunks": "텍스트 청크"
+  },
   "calculateHash": {
     "title": "해시 계산",
     "calculating": "계산중...",

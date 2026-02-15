@@ -4,7 +4,7 @@
  */
 
 import { WorkerStats } from './index.worker.types';
-import { ExifInfo } from '@/types';
+import { ExifInfo, TextChunkInfo } from '@/types';
 
 // ============================================================================
 // Request
@@ -40,9 +40,11 @@ export interface ExifResult {
     mimeType: string;
     extension: string;
     exifInfo: ExifInfo;
+    textChunkData?: TextChunkInfo;
   };
   stats?: WorkerStats; // optional로 변경 (ExecuteResponse와 일치)
 }
+
 // ============================================================================
 // WASM
 // ============================================================================
@@ -71,6 +73,13 @@ export interface WasmExifResponse {
   error?: string;
 }
 
+// PNG 메타데이터 응답 (EXIF와 동일한 패턴: JSON 문자열)
+export interface WasmTextChunkResponse {
+  hasTextChunks: boolean;
+  textChunkData?: string;
+  error?: string;
+}
+
 export type WasmSearchFunction = (
   file: File,
   pattern: Uint8Array,
@@ -78,6 +87,9 @@ export type WasmSearchFunction = (
 ) => WasmSearchResponse;
 
 export type WasmExifFunction = (data: File) => WasmExifResponse;
+
+// PNG 메타데이터 함수 (EXIF와 동일하게 JSON 문자열 반환)
+export type WasmTextChunkFunction = (data: File) => WasmTextChunkResponse;
 
 // ============================================================================
 // Global Types (Worker 내부 참조용)
@@ -93,6 +105,7 @@ declare global {
     Go: typeof Go;
     searchFunc: WasmSearchFunction;
     exifFunc: WasmExifFunction;
+    textChunkFunc: WasmTextChunkFunction;
   }
 
   class Go {

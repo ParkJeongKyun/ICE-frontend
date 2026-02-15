@@ -4,6 +4,7 @@ import {
   SearchOptions,
   WasmExifFunction,
   WasmSearchFunction,
+  WasmTextChunkFunction,
 } from '@/types/worker/analysis.worker.types';
 import { createStats, calculateProgressInterval } from './utils';
 import { parseExifDataInWorker } from '@/workers/utils/exifParser';
@@ -34,6 +35,7 @@ class AnalysisWorker {
   private wasmInitializing = false;
   private wasmSearchFunc: WasmSearchFunction | null = null;
   private wasmExifFunc: WasmExifFunction | null = null;
+  private wasmTextChunkFunc: WasmTextChunkFunction | null = null;
   private goInstance: Go | null = null;
   private wasmPath = process.env.NEXT_PUBLIC_WASM_PATH;
 
@@ -188,8 +190,13 @@ class AnalysisWorker {
       const globalScope = self as DedicatedWorkerGlobalScope;
       this.wasmSearchFunc = globalScope.searchFunc;
       this.wasmExifFunc = globalScope.exifFunc;
+      this.wasmTextChunkFunc = globalScope.textChunkFunc;
 
-      if (!this.wasmSearchFunc || !this.wasmExifFunc) {
+      if (
+        !this.wasmSearchFunc ||
+        !this.wasmExifFunc ||
+        !this.wasmTextChunkFunc
+      ) {
         throw new Error('WASM functions not registered');
       }
 
@@ -209,13 +216,13 @@ class AnalysisWorker {
   }
 
   /**
-   * EXIF 처리
+   * EXIF 처리 (PNG 메타데이터 추출 포함)
    */
   async processExif(id: string, file: File): Promise<void> {
     try {
       this.initProgress(file.size, id);
 
-      if (!this.wasmReady || !this.wasmExifFunc) {
+      if (!this.wasmReady || !this.wasmExifFunc || !this.wasmTextChunkFunc) {
         self.postMessage({
           id, // 루트에 id 직접 삽입
           status: 'ERROR',
@@ -252,6 +259,23 @@ class AnalysisWorker {
         this.syncReader
       );
 
+      // PNG 파일인 경우 추가로 PNG 메타데이터 추출
+      let textChunkData = undefined;
+      if (
+        wasmResult.mimeType === 'image/png' ||
+        wasmResult.mimeType === 'image/apng'
+      ) {
+        try {
+          // WASM 함수가 JSON 문자열을 반환 (EXIF와 동일한 패턴)
+          const pngResponse = this.wasmTextChunkFunc(file);
+          if (pngResponse.hasTextChunks && pngResponse.textChunkData) {
+            textChunkData = JSON.parse(pngResponse.textChunkData);
+          }
+        } catch (e) {
+          console.warn('[Worker] PNG metadata extraction failed:', e);
+        }
+      }
+
       self.postMessage({
         status: 'SUCCESS',
         taskType: 'PROCESS_EXIF',
@@ -267,6 +291,7 @@ class AnalysisWorker {
           mimeType: wasmResult.mimeType,
           extension: wasmResult.extension,
           exifInfo,
+          textChunkData,
         },
       });
     } catch (error) {

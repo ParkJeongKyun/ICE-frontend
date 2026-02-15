@@ -4,6 +4,7 @@ import ExifThumbnailCollapse from './ExifThumbnailCollapse/ExifThumbnailCollapse
 import FileInfoCollapse from './FileInfoCollapse/FileInfoCollapse';
 import MapCollapse from './MapCollapse';
 import ExifInfoCollapse from './ExifInfoCollapse/ExifInfoCollapse';
+import TextChunksCollapse from './TextChunksCollapse/TextChunksCollapse';
 import IfdInfoCollapse from './IfdInfoCollapse/IfdInfoCollapse';
 import ExifTagsCollapse from './ExifTagsCollapse/ExifTagsCollapse';
 
@@ -16,6 +17,7 @@ const ExifRowViewer: React.FC = () => {
       <ExifInfoCollapse />
       <IfdInfoCollapse />
       <ExifTagsCollapse />
+      <TextChunksCollapse />
     </ViewerDiv>
   );
 };

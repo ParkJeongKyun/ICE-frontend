@@ -68,6 +68,7 @@ export const useFileProcessor = () => {
               ifdInfos,
               tagInfos,
             },
+            textChunkData: result.data.textChunkData,
           },
         }));
 
