@@ -4,6 +4,7 @@ import { getMessages } from 'next-intl/server';
 import { MessageProvider } from '@/contexts/MessageContext/MessageContext';
 import { redirect } from 'next/navigation';
 import type { Metadata, Viewport } from 'next';
+import JsonLd from './JsonLd';
 
 const DOMAIN = process.env.NEXT_PUBLIC_DOMAIN || 'https://www.ice-forensic.com';
 
@@ -69,9 +70,9 @@ export default async function LocaleLayout({
         <meta charSet="utf-8" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="msapplication-TileColor" content="#000000" />
-        <meta name="msapplication-TileImage" content="/logo.png" />
-        <link rel="manifest" href="/manifest.json" />
-        <link rel="apple-touch-icon" href="/logo.png" />
+        <meta name="msapplication-TileImage" content={`${DOMAIN}/logo.png`} />
+        <link rel="manifest" href={`${DOMAIN}/manifest.json`} />
+        <link rel="apple-touch-icon" href={`${DOMAIN}/logo.png`} />
         <meta name="google-adsense-account" content="ca-pub-9099594574723250" />
         <script
           async
@@ -89,6 +90,7 @@ export default async function LocaleLayout({
         />
       </head>
       <body>
+        <JsonLd locale={locale} />
         <NextIntlClientProvider locale={locale} messages={messages}>
           <MessageProvider>{children}</MessageProvider>
         </NextIntlClientProvider>

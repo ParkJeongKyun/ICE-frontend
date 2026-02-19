@@ -6,9 +6,14 @@ interface JsonLdProps {
 
 export default function JsonLd({ locale }: JsonLdProps) {
   const isKo = locale === 'ko';
+  const DOMAIN = 'https://www.ice-forensic.com';
 
-  const PERSON_ID = 'https://www.ice-forensic.com/#person';
-  const ORG_ID = 'https://www.ice-forensic.com/#organization';
+  // 1. 현재 언어 경로를 포함한 URL 생성
+  const currentUrl = `${DOMAIN}/${locale}`;
+
+  // ID값은 전역적인 식별자이므로 그대로 두거나 도메인 루트를 기준으로 하는 것이 일반적입니다.
+  const PERSON_ID = `${DOMAIN}/#person`;
+  const ORG_ID = `${DOMAIN}/#organization`;
 
   const personJsonLd = {
     '@context': 'https://schema.org',
@@ -40,8 +45,9 @@ export default function JsonLd({ locale }: JsonLdProps) {
     '@type': 'Organization',
     '@id': ORG_ID,
     name: 'ICE Forensic',
-    url: 'https://www.ice-forensic.com',
-    logo: 'https://www.ice-forensic.com/logo.png',
+    // 2. 조직의 URL도 현재 언어 페이지를 가리키도록 수정
+    url: currentUrl,
+    logo: `${DOMAIN}/logo.png`,
     description: isKo
       ? '웹 기반 디지털 포렌식 도구'
       : 'Web-based Digital Forensic Tool',
@@ -59,7 +65,8 @@ export default function JsonLd({ locale }: JsonLdProps) {
     '@context': 'https://schema.org',
     '@type': 'WebApplication',
     name: 'ICE Forensic',
-    url: 'https://www.ice-forensic.com',
+    // 3. 애플리케이션의 공식 URL을 현재 언어 경로로 일치 (중요)
+    url: currentUrl,
     applicationCategory: 'DeveloperApplication',
     operatingSystem: 'Any',
     description: isKo
@@ -84,6 +91,7 @@ export default function JsonLd({ locale }: JsonLdProps) {
   return (
     <script
       type="application/ld+json"
+      // JSON 내부에 멀티바이트 문자(한글)가 있을 수 있으므로 안정적인 문자열화
       dangerouslySetInnerHTML={{ __html: JSON.stringify(combinedJsonLd) }}
     />
   );

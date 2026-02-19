@@ -7,7 +7,6 @@ export const metadata: Metadata = {
   description:
     '설치 없이 웹에서 바로 사용하는 디지털 포렌식 도구. 헥스 뷰어, EXIF 분석, 해시 계산을 지원합니다.',
   alternates: {
-    canonical: DOMAIN,
     languages: {
       ko: `${DOMAIN}/ko`,
       en: `${DOMAIN}/en`,

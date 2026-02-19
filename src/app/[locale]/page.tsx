@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import MainLayout from '@/layouts/MainLayout/MainLayout';
 import DropzoneWrapper from '@/components/DropzoneWrapper/DropzoneWrapper';
-import JsonLd from './JsonLd';
 import { type Locale } from '@/locales/routing';
 
 const DOMAIN = process.env.NEXT_PUBLIC_DOMAIN || 'https://www.ice-forensic.com';
@@ -67,16 +66,9 @@ export async function generateMetadata({
   };
 }
 
-export default async function HomePage({
-  params,
-}: {
-  params: Promise<{ locale: Locale }>;
-}) {
-  const { locale } = await params;
-
+export default async function HomePage() {
   return (
     <>
-      <JsonLd locale={locale} />
       <DropzoneWrapper>
         <MainLayout />
       </DropzoneWrapper>
