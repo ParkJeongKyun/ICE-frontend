@@ -7,9 +7,38 @@ interface JsonLdProps {
 export default function JsonLd({ locale }: JsonLdProps) {
   const isKo = locale === 'ko';
 
+  const PERSON_ID = 'https://www.ice-forensic.com/#person';
+  const ORG_ID = 'https://www.ice-forensic.com/#organization';
+
+  const personJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    '@id': PERSON_ID,
+    name: 'Park Jeong Kyun',
+    birthDate: '2001-02-23',
+    nationality: 'South Korea',
+    email: 'dbzoseh84@gmail.com',
+    jobTitle: [
+      'Digital Forensics Expert',
+      'Security Engineer',
+      'Full-Stack Developer',
+    ],
+    knowsAbout: [
+      'Digital Forensics',
+      'Information Security',
+      'Incident Response',
+      'Full-Stack Development',
+      'Python',
+      'TypeScript',
+      'JavaScript',
+      'Go',
+    ],
+  };
+
   const organizationJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Organization',
+    '@id': ORG_ID,
     name: 'ICE Forensic',
     url: 'https://www.ice-forensic.com',
     logo: 'https://www.ice-forensic.com/logo.png',
@@ -18,6 +47,7 @@ export default function JsonLd({ locale }: JsonLdProps) {
       : 'Web-based Digital Forensic Tool',
     inLanguage: isKo ? 'ko' : 'en',
     sameAs: ['https://github.com/ParkJeongKyun/ICE-frontend'],
+    founder: { '@id': PERSON_ID },
     contactPoint: {
       '@type': 'ContactPoint',
       contactType: 'Technical Support',
@@ -40,60 +70,21 @@ export default function JsonLd({ locale }: JsonLdProps) {
       price: '0',
       priceCurrency: 'USD',
     },
-    creator: {
-      '@type': 'Person',
-      name: 'Park Jeong Kyun',
-      email: 'dbzoseh84@gmail.com',
-    },
+    creator: { '@id': PERSON_ID },
+    publisher: { '@id': ORG_ID },
     inLanguage: isKo ? 'ko' : 'en',
   };
 
-  const personJsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'Person',
-    name: 'Park Jeong Kyun',
-    birthDate: '2001-02-23',
-    nationality: 'South Korea',
-    email: 'dbzoseh84@gmail.com',
-    jobTitle: [
-      'Digital Forensics Expert',
-      'Security Engineer',
-      'Full-Stack Developer',
-    ],
-    worksFor: [
-      {
-        '@type': 'Organization',
-        name: 'ParkJeongKyun',
-      },
-    ],
-    knowsAbout: [
-      'Digital Forensics',
-      'Information Security',
-      'Incident Response',
-      'Full-Stack Development',
-      'Python',
-      'TypeScript',
-      'JavaScript',
-      'Go',
-    ],
-  };
+  const combinedJsonLd = [
+    personJsonLd,
+    organizationJsonLd,
+    webApplicationJsonLd,
+  ];
 
   return (
-    <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(webApplicationJsonLd),
-        }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}
-      />
-    </>
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(combinedJsonLd) }}
+    />
   );
 }

@@ -2,68 +2,102 @@
 
 import { useRouter } from 'next/navigation';
 import styled from 'styled-components';
+import Logo from '@/components/common/Icons/Logo/Logo';
 
-const NotFoundContainer = styled.div`
+const NotFoundContainer = styled.main`
   display: flex;
-  flex-direction: column;
-  justify-content: center;
   align-items: center;
-  min-height: 100vh;
-  padding: 20px;
-  text-align: center;
-  background-color: var(--main-bg-color);
+  justify-content: center;
+  height: 100vh;
+  padding: 40px 16px;
+  background: var(--main-bg-color);
   color: var(--main-color);
   box-sizing: border-box;
 
-  h1 {
-    font-size: 5rem;
-    margin: 0 0 20px 0;
+  .card {
+    width: 100%;
+    max-width: 720px;
+    padding: 28px;
+    border-radius: 12px;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .left {
+    min-width: 96px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .code {
+    font-size: 3.25rem;
+    margin: 0;
+    font-weight: 800;
+    color: var(--ice-main-color);
+  }
+
+  .right {
+    flex: 1 1 auto;
+    max-width: 520px;
+    text-align: left;
+  }
+
+  .title {
+    font-size: 1.125rem;
+    margin: 0 0 8px 0;
     font-weight: 700;
-    background: linear-gradient(
-      135deg,
-      var(--ice-main-color) 0%,
-      var(--ice-main-color-reverse) 100%
-    );
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  h2 {
-    font-size: 1.8rem;
-    margin: 15px 0;
     color: var(--main-color);
-    font-weight: 600;
   }
 
-  p {
-    font-size: 1.1rem;
-    margin: 10px 0;
+  .desc {
     color: var(--main-color-reverse);
-    line-height: 1.6;
+    margin: 0 0 16px 0;
+    line-height: 1.5;
   }
 
-  button {
-    margin-top: 40px;
-    padding: 14px 40px;
-    font-size: 1rem;
-    background-color: var(--ice-main-color);
-    color: var(--main-bg-color);
+  .actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+  }
+
+  .btn-primary {
+    appearance: none;
     border: none;
+    background: var(--ice-main-color);
+    color: var(--main-bg-color);
+    padding: 10px 20px;
     border-radius: 8px;
+    font-weight: 700;
     cursor: pointer;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(96, 200, 255, 0.3);
+  }
 
-    &:hover {
-      background-color: var(--ice-main-color-primary);
-      box-shadow: 0 6px 20px rgba(96, 200, 255, 0.4);
-      transform: translateY(-2px);
+  .report {
+    display: inline-block;
+    margin-top: 12px;
+    margin-left: 4px;
+    color: var(--main-color);
+    opacity: 0.75;
+    font-size: 0.95rem;
+    text-decoration: underline;
+  }
+
+  @media (max-width: 640px) {
+    .card {
+      flex-direction: column;
+      text-align: left;
+      gap: 12px;
     }
-
-    &:active {
-      transform: translateY(0);
+    .right {
+      text-align: left;
+      max-width: 100%;
+    }
+    .desc {
+      margin-bottom: 12px;
     }
   }
 `;
@@ -72,11 +106,54 @@ export default function NotFound() {
   const router = useRouter();
 
   return (
-    <NotFoundContainer>
-      <h1>404</h1>
-      <p>Page not found</p>
-      <p>The requested page does not exist</p>
-      <button onClick={() => router.push('/')}>Go to home</button>
-    </NotFoundContainer>
+    <html lang="en">
+      <body>
+        <NotFoundContainer>
+          <div className="card" role="main" aria-labelledby="nf-title">
+            <div className="left">
+              <div className="code">404</div>
+            </div>
+
+            <div className="right">
+              <div
+                className="header"
+                style={{
+                  display: 'flex',
+                  justifyContent: 'left',
+                  marginBottom: 10,
+                }}
+              >
+                <Logo showText size={24} textSize={24} />
+              </div>
+
+              <div id="nf-title" className="title">
+                Page not found
+              </div>
+              <div className="desc">
+                We couldn't find the page you were looking for. Try returning to
+                the homepage or check our documentation.
+              </div>
+
+              <div className="actions">
+                <button
+                  className="btn-primary"
+                  onClick={() => router.push('/')}
+                >
+                  Back to home
+                </button>
+              </div>
+              <a
+                className="report"
+                href="https://github.com/ParkJeongKyun/ICE-frontend/issues"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Report an issue
+              </a>
+            </div>
+          </div>
+        </NotFoundContainer>
+      </body>
+    </html>
   );
 }
