@@ -22,8 +22,8 @@ const EDUCATION = [
   {
     school: '고려사이버대학교',
     major: '정보관리보안학과',
-    status: '4학년 재학',
-    year: '2024 ~',
+    status: '8월 졸업예정',
+    year: '2026',
   },
   {
     school: '영진직업전문학교',
@@ -56,7 +56,7 @@ const SKILLS = {
 
 const CAREERS = [
   {
-    period: '2025.01 - 현재',
+    period: '2025.01 - 2026.03',
     company: 'Aimos(주) AI 플랫폼 개발팀',
     position: '프리랜서 개발자',
   },
@@ -82,7 +82,7 @@ const PROJECTS = [
     name: '철 스크랩 Aimos 운영시스템',
     client: '대한제강, LG CNS, Aimos',
     role: '시스템 개발 및 운영',
-    period: '2023.06 - 현재',
+    period: '2023.06 - 2026.03',
   },
   {
     name: '현대제철 야드비상조업',
@@ -194,10 +194,10 @@ const About: React.FC = () => {
                 </a>
               </ListItem>
               <ListItem>
-                <strong>{t('residence')}</strong> 서울특별시 강서구
+                <strong>{t('residence')}</strong> 서울특별시
               </ListItem>
               <ListItem>
-                <strong>{t('birthplace')}</strong> 대구광역시 중구
+                <strong>{t('birthplace')}</strong> 대구광역시
               </ListItem>
             </List>
           </SimpleListCard>

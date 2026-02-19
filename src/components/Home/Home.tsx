@@ -15,12 +15,9 @@ import {
   Version,
   SubTitleDiv,
   PrivacyLink,
-  SectionTitle,
-  ListText,
-  FaqBox,
   ContientDiv,
-  PreviewBox,
 } from './Home.styles';
+import PreviewFaqUseCases from './PreviewFaqUseCases';
 import Logo from '../common/Icons/Logo/Logo';
 import { useTranslations, useLocale } from 'next-intl';
 import { useIsMobile } from '@/hooks/useIsMobile';
@@ -30,9 +27,6 @@ const Home: React.FC = () => {
   const t = useTranslations();
   const locale = useLocale();
   const isMobileView = useIsMobile();
-
-  const faqData = t.raw('faq') as { q: string; a: string }[];
-  const useCasesData = t.raw('useCases') as string[];
 
   return (
     <HomeDiv>
@@ -91,28 +85,7 @@ const Home: React.FC = () => {
       <RightSection>
         <ContentWrapper>
           <ContientDiv>
-            <PreviewBox>
-              <img
-                src="/images/sample/sample.png"
-                alt="ICE-PNG Forensic Interface Preview"
-              />
-            </PreviewBox>
-            <section>
-              <SectionTitle>{t('faqTab')}</SectionTitle>
-              {faqData.map((item, index) => (
-                <FaqBox key={index}>
-                  <div className="q">Q. {item.q}</div>
-                  <div className="a">{item.a}</div>
-                </FaqBox>
-              ))}
-            </section>
-
-            <section>
-              <SectionTitle>{t('useCasesTab')}</SectionTitle>
-              {useCasesData.map((text, index) => (
-                <ListText key={index}>• {text}</ListText>
-              ))}
-            </section>
+            <PreviewFaqUseCases />
           </ContientDiv>
         </ContentWrapper>
       </RightSection>
