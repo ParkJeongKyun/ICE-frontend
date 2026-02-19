@@ -14,6 +14,19 @@ export const IceMainLayout = styled.div<{ $isResizing: boolean }>`
   ${(props) => (props.$isResizing ? 'user-select: none;' : '')}
 `;
 
+// 시각적으로 숨기는 H1 (스크린리더/검색엔진용)
+export const VisuallyHiddenH1 = styled.h1`
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+  padding: 0;
+  margin: -1px;
+`;
+
 // 헤더
 export const IceHeader = styled.div<{
   $isMobile?: boolean;

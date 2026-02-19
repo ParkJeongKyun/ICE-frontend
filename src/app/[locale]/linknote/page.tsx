@@ -12,9 +12,7 @@ export async function generateMetadata({
   const { locale } = await params;
   const isKo = locale === 'ko';
 
-  const title = isKo
-    ? '링크 노트 - 온라인 메모장 | ICE Forensic'
-    : 'Link Note - Online Note | ICE Forensic';
+  const title = isKo ? '링크 노트 - 온라인 메모장' : 'Link Note - Online Note';
 
   const description = isKo
     ? 'URL을 통해 공유할 수 있는 간단한 온라인 메모장. 서버 저장 없이 클라이언트에서만 처리됩니다.'

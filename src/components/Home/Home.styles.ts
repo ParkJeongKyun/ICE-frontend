@@ -170,7 +170,7 @@ export const PrivacyLink = styled(Link)`
   cursor: pointer;
 `;
 
-export const SectionTitle = styled.div`
+export const SectionTitle = styled.h2`
   font-size: 1.5rem;
   font-weight: 600;
   color: var(--ice-main-color);

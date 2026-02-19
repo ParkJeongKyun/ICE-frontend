@@ -12,9 +12,7 @@ export async function generateMetadata({
   const { locale } = await params;
   const isKo = locale === 'ko';
 
-  const title = isKo
-    ? '개인정보 처리방침 | ICE Forensic'
-    : 'Privacy Policy | ICE Forensic';
+  const title = isKo ? '개인정보 처리방침' : 'Privacy Policy';
 
   const description = isKo
     ? 'ICE Forensic의 개인정보 처리방침. 클라이언트 기반 처리로 파일 데이터는 서버로 전송되지 않습니다.'

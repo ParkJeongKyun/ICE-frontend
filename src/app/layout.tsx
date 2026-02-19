@@ -7,41 +7,27 @@ const DOMAIN = process.env.NEXT_PUBLIC_DOMAIN || 'https://www.ice-forensic.com';
 export const metadata: Metadata = {
   metadataBase: new URL(DOMAIN),
 
+  // title template defined once at app root — pages provide plain titles
   title: {
     template: '%s | ICE Forensic',
     default: 'ICE Forensic',
   },
 
-  description:
-    'Web-based digital forensics tool without installation. Supports Hex Viewer, File Header Analysis, Image EXIF Metadata Extraction, and File Hash Calculator (SHA256/SHA512/MD5/SHA1).',
-
+  // invariant global metadata
   authors: [
     {
       name: 'Park Jeong Kyun',
-      url: 'https://www.ice-forensic.com',
+      url: DOMAIN,
     },
   ],
-
   creator: 'Park Jeong Kyun',
+  robots: { index: true, follow: true },
+  icons: { icon: '/favicon.ico' },
 
-  robots: {
-    index: true,
-    follow: true,
-  },
-
-  icons: {
-    icon: '/favicon.ico',
-  },
-
+  // common OpenGraph assets only (page-specific title/description are set per-page)
   openGraph: {
     type: 'website',
-    locale: 'en_US',
-    url: DOMAIN,
     siteName: 'ICE Forensic',
-    title:
-      'Online Hex Viewer & EXIF Viewer & File Hash Calculator | ICE Forensic',
-    description:
-      'Web-based digital forensics tool without installation. Supports Hex Viewer, File Header Analysis, Image EXIF Metadata Extraction, and File Hash Calculator (SHA256/SHA512/MD5/SHA1).',
     images: [
       {
         url: `${DOMAIN}/pullLogo.png`,
@@ -54,10 +40,6 @@ export const metadata: Metadata = {
 
   twitter: {
     card: 'summary_large_image',
-    title:
-      'Online Hex Viewer & EXIF Viewer & File Hash Calculator | ICE Forensic',
-    description:
-      'Web-based digital forensics tool without installation. Supports Hex Viewer, EXIF Analysis, and File Hash Calculator.',
     images: [`${DOMAIN}/pullLogo.png`],
   },
 };

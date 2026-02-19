@@ -23,8 +23,8 @@ const PreviewFaqUseCases: React.FC = () => {
         <SectionTitle>{t('faqTab')}</SectionTitle>
         {faqData.map((item, index) => (
           <FaqBox key={index}>
-            <div className="q">Q. {item.q}</div>
-            <div className="a">{item.a}</div>
+            <h3 className="q">Q. {item.q}</h3>
+            <p className="a">{item.a}</p>
           </FaqBox>
         ))}
       </section>

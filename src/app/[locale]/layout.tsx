@@ -25,65 +25,24 @@ export async function generateMetadata({
   const { locale } = (await params) as { locale: Locale };
   const isKo = locale === 'ko';
 
-  const title = isKo
-    ? '온라인 헥스 뷰어 & EXIF 뷰어 & 파일 해시 계산기 | ICE Forensic'
-    : 'Online Hex Viewer & EXIF Viewer & File Hash Calculator | ICE Forensic';
-
   const description = isKo
-    ? '설치 없이 웹에서 바로 사용하는 디지털 포렌식 도구. 헥스 뷰어로 파일 구조 분석, 파일 헤더 검사, 이미지 EXIF 메타데이터 추출, SHA256/SHA512/MD5/SHA1 해시 계산까지 모두 온라인에서 지원합니다.'
-    : 'Web-based digital forensics tool without installation. Supports Hex Viewer, File Header Analysis, Image EXIF Metadata Extraction, and File Hash Calculator (SHA256/SHA512/MD5/SHA1).';
+    ? '설치 없이 웹에서 바로 사용하는 디지털 포렌식 도구. 헥스 뷰어로 파일 구조 분석, 파일 헤더 검사, 이미지 EXIF 메타데이터 추출, SHA256/SHA512 해시 계산 등을 지원합니다.'
+    : 'Web-based digital forensics tool without installation. Supports Hex Viewer, File Header Analysis, Image EXIF Metadata Extraction, and File Hash Calculator.';
 
   const keywords = isKo
-    ? [
-        '헥스 뷰어',
-        '디지털 포렌식',
-        'EXIF 분석기',
-        '무설치 헥스 에디터',
-        '파일 분석',
-        '파일 해시 계산',
-        '온라인 해시 계산기',
-        'SHA256 계산',
-        'MD5 체크섬',
-        '파일 무결성 검증',
-      ]
+    ? ['헥스 뷰어', '디지털 포렌식', 'EXIF 분석기', '파일 해시 계산']
     : [
         'Hex Viewer',
         'Digital Forensics',
         'EXIF Viewer',
-        'Online Hex Editor',
-        'File Analysis',
         'File Hash Calculator',
-        'Online Hash Generator',
-        'SHA256 Calculator',
-        'MD5 Checksum',
-        'File Integrity Check',
       ];
 
   return {
-    metadataBase: new URL(DOMAIN),
-    title: title,
-    description: description,
-    keywords: keywords,
-    alternates: {
-      canonical: `${DOMAIN}/${locale}`,
-      languages: {
-        en: `${DOMAIN}/en`,
-        ko: `${DOMAIN}/ko`,
-      },
-    },
+    description,
+    keywords,
     openGraph: {
-      title: title,
-      description: description,
       locale: isKo ? 'ko_KR' : 'en_US',
-      url: `${DOMAIN}/${locale}`,
-      images: [
-        {
-          url: `${DOMAIN}/pullLogo.png`,
-          width: 1200,
-          height: 630,
-          alt: 'ICE Forensic Logo',
-        },
-      ],
     },
   };
 }

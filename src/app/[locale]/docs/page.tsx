@@ -12,7 +12,7 @@ export async function generateMetadata({
   const { locale } = await params;
   const isKo = locale === 'ko';
 
-  const title = isKo ? '문서 | ICE Forensic' : 'Docs | ICE Forensic';
+  const title = isKo ? '문서' : 'Docs';
   const description = isKo
     ? 'ICE Forensic 사용 가이드 및 참고 자료'
     : 'ICE Forensic — preview, FAQ and use-cases.';

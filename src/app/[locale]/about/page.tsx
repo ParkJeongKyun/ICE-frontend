@@ -12,9 +12,7 @@ export async function generateMetadata({
   const { locale } = await params;
   const isKo = locale === 'ko';
 
-  const title = isKo
-    ? '개발자 소개 | ICE Forensic'
-    : 'About Developer | ICE Forensic';
+  const title = isKo ? '개발자 소개' : 'About Developer';
 
   const description = isKo
     ? '박정균 개발자 소개. 디지털 포렌식, 정보보안, 침해사고대응 전문가.'

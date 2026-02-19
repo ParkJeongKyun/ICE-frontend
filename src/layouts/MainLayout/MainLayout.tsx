@@ -12,6 +12,7 @@ import {
   IceLayout,
   IceLeftSider,
   IceMainLayout,
+  VisuallyHiddenH1,
   IceMobileContent,
   IceMobileLayout,
   IceRightSider,
@@ -121,6 +122,7 @@ const MainLayout: React.FC = () => {
 
   return (
     <IceMainLayout $isResizing={isLeftSideDragging || isRightSideDragging}>
+      <VisuallyHiddenH1>{t('home.h1Title')}</VisuallyHiddenH1>
       <IceHeader $isMobile={isMobileView} $isProcessing={isProcessing}>
         <IceHeaderLeftSider $isMobile={isMobileView}>
           <Logo showText />
