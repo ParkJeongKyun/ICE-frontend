@@ -14,6 +14,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: new Date(),
       changeFrequency: route === '' ? ('daily' as const) : ('monthly' as const),
       priority: route === '' ? 1.0 : route === '/docs' ? 0.9 : 0.8,
+      alternates: {
+        languages: {
+          en: `${baseUrl}/en${route}`,
+          ko: `${baseUrl}/ko${route}`,
+        },
+      },
     }));
   });
 
