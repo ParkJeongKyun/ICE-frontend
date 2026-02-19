@@ -15,8 +15,8 @@ export async function generateMetadata({
   const isKo = locale === 'ko';
 
   const title = isKo
-    ? 'ICE Forensic - 온라인 헥스 뷰어 & 온라인 EXIF 뷰어'
-    : 'ICE Forensic - Online Hex Viewer & Online EXIF Viewer';
+    ? '온라인 헥스 뷰어 & 온라인 EXIF 뷰어 | ICE Forensic'
+    : 'Online Hex Viewer & Online EXIF Viewer | ICE Forensic';
 
   const description = isKo
     ? '설치 없이 웹에서 바로 사용하는 디지털 포렌식 도구. 헥스 뷰어, 파일 헤더 분석, 이미지 EXIF 메타데이터 분석을 지원합니다.'

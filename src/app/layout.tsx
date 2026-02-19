@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     url: DOMAIN,
     siteName: 'ICE Forensic',
     title:
-      'ICE Forensic - Online Hex Viewer & EXIF Viewer & File Hash Calculator',
+      'Online Hex Viewer & EXIF Viewer & File Hash Calculator | ICE Forensic',
     description:
       'Web-based digital forensics tool without installation. Supports Hex Viewer, File Header Analysis, Image EXIF Metadata Extraction, and File Hash Calculator (SHA256/SHA512/MD5/SHA1).',
     images: [
@@ -55,7 +55,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title:
-      'ICE Forensic - Online Hex Viewer & EXIF Viewer & File Hash Calculator',
+      'Online Hex Viewer & EXIF Viewer & File Hash Calculator | ICE Forensic',
     description:
       'Web-based digital forensics tool without installation. Supports Hex Viewer, EXIF Analysis, and File Hash Calculator.',
     images: [`${DOMAIN}/pullLogo.png`],

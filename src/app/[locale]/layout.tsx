@@ -26,8 +26,8 @@ export async function generateMetadata({
   const isKo = locale === 'ko';
 
   const title = isKo
-    ? 'ICE Forensic - 온라인 헥스 뷰어 & EXIF 뷰어 & 파일 해시 계산기'
-    : 'ICE Forensic - Online Hex Viewer & EXIF Viewer & File Hash Calculator';
+    ? '온라인 헥스 뷰어 & EXIF 뷰어 & 파일 해시 계산기 | ICE Forensic'
+    : 'Online Hex Viewer & EXIF Viewer & File Hash Calculator | ICE Forensic';
 
   const description = isKo
     ? '설치 없이 웹에서 바로 사용하는 디지털 포렌식 도구. 헥스 뷰어로 파일 구조 분석, 파일 헤더 검사, 이미지 EXIF 메타데이터 추출, SHA256/SHA512/MD5/SHA1 해시 계산까지 모두 온라인에서 지원합니다.'
