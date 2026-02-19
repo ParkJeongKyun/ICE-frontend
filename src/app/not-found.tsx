@@ -137,7 +137,7 @@ export default function NotFound() {
               <div className="actions">
                 <button
                   className="btn-primary"
-                  onClick={() => router.push('/')}
+                  onClick={() => (window.location.href = '/')}
                 >
                   Back to home
                 </button>
