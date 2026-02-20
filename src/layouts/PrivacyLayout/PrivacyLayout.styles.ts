@@ -5,7 +5,7 @@ export const Container = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100%;
+  min-height: 100%;
   width: 100%;
   overflow-y: auto;
   background: var(--main-bg-color);
@@ -18,6 +18,5 @@ export const MarkdownBox = styled.div`
   color: var(--main-color);
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1);
   border-radius: 5px;
-  overflow-y: auto;
   transition: box-shadow 0.2s;
 `;
