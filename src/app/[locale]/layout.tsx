@@ -5,6 +5,7 @@ import { MessageProvider } from '@/contexts/MessageContext/MessageContext';
 import { redirect } from 'next/navigation';
 import type { Metadata, Viewport } from 'next';
 import JsonLd from './JsonLd';
+import GoogleScripts from './GoogleScripts';
 
 const DOMAIN = process.env.NEXT_PUBLIC_DOMAIN || 'https://www.ice-forensic.com';
 
@@ -65,7 +66,7 @@ export default async function LocaleLayout({
   const messages = await getMessages({ locale: locale || 'en' });
 
   return (
-    <html lang={locale}>
+    <html lang={locale} suppressHydrationWarning>
       <head>
         <meta charSet="utf-8" />
         <meta name="mobile-web-app-capable" content="yes" />
@@ -74,23 +75,13 @@ export default async function LocaleLayout({
         <link rel="manifest" href={`${DOMAIN}/manifest.json`} />
         <link rel="apple-touch-icon" href={`${DOMAIN}/logo.png`} />
         <meta name="google-adsense-account" content="ca-pub-9099594574723250" />
-        <script
-          async
-          src="https://www.googletagmanager.com/gtag/js?id=G-79876PQVY4"
-        ></script>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'G-79876PQVY4');
-          `,
-          }}
-        />
       </head>
-      <body>
+      <body suppressHydrationWarning>
         <JsonLd locale={locale} />
+
+        {/* Google scripts (production only) */}
+        <GoogleScripts />
+
         <NextIntlClientProvider locale={locale} messages={messages}>
           <MessageProvider>{children}</MessageProvider>
         </NextIntlClientProvider>

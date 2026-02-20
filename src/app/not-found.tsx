@@ -1,6 +1,5 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import styled from 'styled-components';
 import Logo from '@/components/common/Icons/Logo/Logo';
 
@@ -103,8 +102,6 @@ const NotFoundContainer = styled.main`
 `;
 
 export default function NotFound() {
-  const router = useRouter();
-
   return (
     <html lang="en">
       <body>
