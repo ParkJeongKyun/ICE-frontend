@@ -77,7 +77,7 @@ export default async function HomePage({
 }) {
   const { locale } = (await params) as { locale: string };
 
-  const mdFiles = ['about', 'help', 'release', 'update', 'howToUse'];
+  const mdFiles = ['about', 'release', 'update', 'howToUse'];
   const markdownData: { [key: string]: string } = {};
 
   mdFiles.forEach((fname) => {

@@ -45,12 +45,11 @@ const Modal: React.FC<ModalProps> = ({
       about: {
         title: t('menu.about'),
         file: 'about',
-        childFiles: { release: 'release', update: 'update' },
-      },
-      help: {
-        title: t('menu.help'),
-        file: 'help',
-        childFiles: { howToUse: 'howToUse' },
+        childFiles: {
+          howToUse: 'howToUse',
+          release: 'release',
+          update: 'update',
+        },
       },
     }),
     [t]

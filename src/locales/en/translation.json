@@ -17,7 +17,7 @@
     "h1Title": "Free Online Hex Viewer and Image EXIF Metadata Analysis Tool Without Installation",
     "startGuide": "Getting Started",
     "openFile": "Open File (or Drag & Drop)...",
-    "help": "Help...",
+    "docs": "Docs...",
     "about": "About...",
     "browserBased": "Works on web browser",
     "privacyPolicy": "Privacy Policy",
@@ -68,8 +68,8 @@
   "menu": {
     "open": "Open",
     "tools": "Tools",
-    "help": "Help",
     "about": "About",
+    "docs": "Docs",
     "linknote": "LinkNote",
     "showIp": "Show My IP",
     "fileProcessing": "Processing file..."

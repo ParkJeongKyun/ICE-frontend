@@ -56,8 +56,8 @@ const Home: React.FC = () => {
               <Btn onClick={() => menuBtnZoneRef.current?.openBtnClick()}>
                 {t('home.openFile')}
               </Btn>
-              <Btn onClick={() => menuBtnZoneRef.current?.helpBtnClick()}>
-                {t('home.help')}
+              <Btn onClick={() => menuBtnZoneRef.current?.docsBtnClick()}>
+                {t('home.docs')}
               </Btn>
               <Btn onClick={() => menuBtnZoneRef.current?.aboutBtnClick()}>
                 {t('home.about')}

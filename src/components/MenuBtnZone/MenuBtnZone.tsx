@@ -3,8 +3,7 @@
 import React, { useEffect, useCallback, useMemo } from 'react';
 import { ChangeEvent, useRef, useState } from 'react';
 import styled from 'styled-components';
-import { useTranslations } from 'next-intl';
-import { usePathname } from 'next/navigation';
+import { useTranslations, useLocale } from 'next-intl';
 import MenuBtn from '@/components/common/MenuBtn/MenuBtn';
 import { useProcess } from '@/contexts/ProcessContext/ProcessContext';
 import { useRefs } from '@/contexts/RefContext/RefContext';
@@ -13,16 +12,16 @@ import { useShowIp } from '@/hooks/useShowIp';
 
 export interface MenuBtnZoneRef {
   openBtnClick: () => void;
-  helpBtnClick: () => void;
+  docsBtnClick: () => void;
   aboutBtnClick: () => void;
 }
 
 const MenuBtnZone: React.FC = () => {
   const t = useTranslations();
-  const pathname = usePathname();
+  const locale = useLocale();
   const { setMenuBtnZoneRef, openModal } = useRefs();
-  const { processFile } = useFileProcessor(); // 👈 파일 처리 로직을 훅으로 위임
-  const { showIp } = useShowIp(); // 👈 IP 조회 로직을 훅으로 위임
+  const { processFile } = useFileProcessor();
+  const { showIp } = useShowIp();
   const { isAnalysisProcessing } = useProcess();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const toolsMenuRef = useRef<HTMLDivElement>(null);
@@ -36,14 +35,13 @@ const MenuBtnZone: React.FC = () => {
     (action: string) => {
       setShowToolsMenu(false);
       if (action === 'linknote') {
-        // 현재 로케일 추출 (예: /ko/home → 'ko', /en/home → 'en')
-        const locale = pathname.split('/')[1] || 'en';
+        // useLocale을 사용해 로케일을 구합니다
         window.open(`/${locale}/linknote`, '_blank');
       } else if (action === 'show-ip') {
         showIp();
       }
     },
-    [pathname, showIp]
+    [locale, showIp]
   );
 
   const handleFileChange = useCallback(
@@ -62,14 +60,18 @@ const MenuBtnZone: React.FC = () => {
     [processFile]
   );
 
+  const handleDocsClick = useCallback(() => {
+    window.open(`/${locale}/docs`, '_blank');
+  }, [locale]);
+
   // Register methods into RefContext so parents can use without passing ref
   const menuMethods = useMemo(
     () => ({
       openBtnClick: handleOpenClick,
-      helpBtnClick: () => openModal('help'),
+      docsBtnClick: handleDocsClick,
       aboutBtnClick: () => openModal('about'),
     }),
-    [handleOpenClick, openModal]
+    [handleOpenClick, handleDocsClick, openModal]
   );
 
   useEffect(() => {
@@ -128,7 +130,7 @@ const MenuBtnZone: React.FC = () => {
           </ToolsDropdownMenu>
         )}
       </ToolsMenuContainer>
-      <MenuBtn onClick={() => openModal('help')} text={t('menu.help')} />
+      <MenuBtn onClick={handleDocsClick} text={t('menu.docs')} />
       <MenuBtn onClick={() => openModal('about')} text={t('menu.about')} />
     </Div>
   );

@@ -30,7 +30,6 @@ export const LogoContainer = styled.div`
   align-items: center;
   justify-content: flex-start; /* 좌측 정렬 */
   margin: 1rem;
-  margin-bottom: 0.5rem;
 
   /* 로고 링크 밑줄 제거 및 색상 상속 */
   a {
