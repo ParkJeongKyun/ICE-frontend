@@ -10,7 +10,7 @@ import {
   ModalTitle,
 } from './Modal.styles';
 import XIcon from '@/components/common/Icons/XIcon';
-import { useTranslations, useLocale } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { useRefs } from '@/contexts/RefContext/RefContext';
 import ICEMarkDown from '@/components/markdown';
 import Tooltip from '../Tooltip/Tooltip';
@@ -18,6 +18,8 @@ import Tooltip from '../Tooltip/Tooltip';
 export interface ModalProps {
   top?: string;
   left?: string;
+  // 서버에서 미리 읽어온 마크다운 데이터 (key: filename, value: content)
+  markdownData?: { [key: string]: string };
 }
 
 export interface ModalRef {
@@ -25,9 +27,12 @@ export interface ModalRef {
   close: () => void;
 }
 
-const Modal: React.FC<ModalProps> = ({ top = '50%', left = '50%' }) => {
+const Modal: React.FC<ModalProps> = ({
+  top = '50%',
+  left = '50%',
+  markdownData = {},
+}) => {
   const t = useTranslations();
-  const locale = useLocale();
   const { setModalRef } = useRefs();
   const [isOpen, setIsOpen] = useState(false);
   const [title, setTitle] = useState<string>('');
@@ -40,7 +45,7 @@ const Modal: React.FC<ModalProps> = ({ top = '50%', left = '50%' }) => {
       about: {
         title: t('menu.about'),
         file: 'about',
-        childFiles: { relase: 'release', update: 'update' },
+        childFiles: { release: 'release', update: 'update' },
       },
       help: {
         title: t('menu.help'),
@@ -52,30 +57,25 @@ const Modal: React.FC<ModalProps> = ({ top = '50%', left = '50%' }) => {
   );
 
   const open = useCallback(
-    async (key: string) => {
+    (key: string) => {
       const data = modalData[key as keyof typeof modalData];
       if (!data) return;
+
       setTitle(data.title);
-      // fetch main markdown
-      const mainRes = await fetch(
-        `/locales/${locale}/markdown/${data.file}.md`
-      );
-      const mainText = await mainRes.text();
-      setContent(mainText);
-      // fetch child markdowns
-      let childTexts: { [key: string]: string } = {};
+
+      // 서버에서 전달된 markdownData에서 바로 콘텐츠를 꺼내 사용합니다.
+      setContent(markdownData[data.file] || 'Content not found.');
+
+      const currentChildTexts: { [key: string]: string } = {};
       if (data.childFiles) {
-        await Promise.all(
-          Object.entries(data.childFiles).map(async ([key, fname]) => {
-            const res = await fetch(`/locales/${locale}/markdown/${fname}.md`);
-            childTexts[key] = await res.text();
-          })
-        );
+        Object.entries(data.childFiles).forEach(([childKey, fname]) => {
+          currentChildTexts[childKey] = markdownData[fname] || '';
+        });
       }
-      setChildTexts(childTexts);
+      setChildTexts(currentChildTexts);
       setIsOpen(true);
     },
-    [modalData, locale]
+    [modalData, markdownData]
   );
 
   const close = useCallback(() => {
@@ -115,7 +115,7 @@ const Modal: React.FC<ModalProps> = ({ top = '50%', left = '50%' }) => {
         <ModalHeader>
           <ModalTitle>{title}</ModalTitle>
           <Tooltip text={t('common.close')}>
-            <CloseBtn onClick={() => setIsOpen(false)}>
+            <CloseBtn onClick={close}>
               <XIcon width={14} height={14} />
             </CloseBtn>
           </Tooltip>

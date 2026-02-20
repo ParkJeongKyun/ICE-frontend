@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import MainLayout from '@/layouts/MainLayout/MainLayout';
 import DropzoneWrapper from '@/components/DropzoneWrapper/DropzoneWrapper';
+import Modal from '@/components/common/Modal/Modal';
 import { type Locale } from '@/locales/routing';
 
 const DOMAIN = process.env.NEXT_PUBLIC_DOMAIN || 'https://www.ice-forensic.com';
@@ -66,11 +67,41 @@ export async function generateMetadata({
   };
 }
 
-export default async function HomePage() {
+import fs from 'fs';
+import path from 'path';
+
+export default async function HomePage({
+  params,
+}: {
+  params: Promise<{ locale: string }> | { locale: string };
+}) {
+  const { locale } = (await params) as { locale: string };
+
+  const mdFiles = ['about', 'help', 'release', 'update', 'howToUse'];
+  const markdownData: { [key: string]: string } = {};
+
+  mdFiles.forEach((fname) => {
+    try {
+      const filePath = path.join(
+        process.cwd(),
+        'public',
+        'locales',
+        locale,
+        'markdown',
+        `${fname}.md`
+      );
+      markdownData[fname] = fs.readFileSync(filePath, 'utf8');
+    } catch (err) {
+      // 안전하게 빈 문자열로 처리
+      markdownData[fname] = '';
+    }
+  });
+
   return (
     <>
       <DropzoneWrapper>
         <MainLayout />
+        <Modal markdownData={markdownData} />
       </DropzoneWrapper>
     </>
   );

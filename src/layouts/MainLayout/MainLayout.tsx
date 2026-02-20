@@ -29,7 +29,6 @@ import {
 } from './MainLayout.styles';
 import MenuBtnZone from '@/components/MenuBtnZone/MenuBtnZone';
 import TabWindow from '@/components/TabWindow/TabWindow';
-import Modal from '@/components/common/Modal/Modal';
 
 import { useResizable } from 'react-resizable-layout';
 import { useProcess } from '@/contexts/ProcessContext/ProcessContext';
@@ -267,7 +266,6 @@ const MainLayout: React.FC = () => {
           <MessageHistory />
         </IceFooterRight>
       </IceFooter>
-      <Modal />
       <MessageModal />
     </IceMainLayout>
   );

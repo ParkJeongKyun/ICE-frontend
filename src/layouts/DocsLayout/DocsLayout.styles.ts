@@ -22,3 +22,26 @@ export const Card = styled.div`
   overflow-y: auto;
   transition: box-shadow 0.2s;
 `;
+
+export const LogoContainer = styled.div`
+  display: flex;
+  width: 100%;
+  text-align: left;
+  align-items: center;
+  justify-content: flex-start; /* 좌측 정렬 */
+  margin: 1rem;
+  margin-bottom: 0.5rem;
+
+  /* 로고 링크 밑줄 제거 및 색상 상속 */
+  a {
+    text-decoration: none;
+    color: inherit;
+  }
+`;
+
+export const Copyright = styled.div`
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--main-color-reverse);
+  margin: 0.25rem;
+`;

@@ -1,32 +1,34 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { useLocale } from 'next-intl';
+import React from 'react';
+import { useTranslations } from 'next-intl';
+import { Link } from '@/locales/routing';
 import ICEMarkDown from '@/components/markdown';
-import { Container, MarkdownBox } from './PrivacyLayout.styles';
+import {
+  Container,
+  Copyright,
+  LogoContainer,
+  MarkdownBox,
+} from './PrivacyLayout.styles';
+import Logo from '@/components/common/Icons/Logo/Logo';
 
-const PrivacyLayout: React.FC = () => {
-  const locale = useLocale();
-  const [content, setContent] = useState<string>('');
+interface PrivacyLayoutProps {
+  initialContent: string;
+}
 
-  useEffect(() => {
-    const fetchPrivacyPolicy = async () => {
-      try {
-        const response = await fetch(`/locales/${locale}/markdown/privacy.md`);
-        const text = await response.text();
-        setContent(text);
-      } catch (error) {
-        console.error('Failed to load privacy policy:', error);
-      }
-    };
-
-    fetchPrivacyPolicy();
-  }, [locale]);
+const PrivacyLayout: React.FC<PrivacyLayoutProps> = ({ initialContent }) => {
+  const t = useTranslations();
 
   return (
     <Container>
       <MarkdownBox>
-        <ICEMarkDown defaultText={content} key={'privacyPolicy'} />
+        <LogoContainer>
+          <Link href="/" aria-label={t('home.homepage')}>
+            <Logo showText size={38} textSize={38} />
+          </Link>
+        </LogoContainer>
+        <ICEMarkDown defaultText={initialContent} key={'privacyPolicy'} />
+        <Copyright>{t('copyright')}</Copyright>
       </MarkdownBox>
     </Container>
   );

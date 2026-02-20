@@ -17,12 +17,13 @@ export const ModalContent = styled.div<{ $top: string; $left: string }>`
   top: ${({ $top }) => $top};
   left: ${({ $left }) => $left};
   transform: ${({ $top, $left }) => `translate(-${$top}, -${$left})`};
-  background-color: var(--main-bg-color);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   border-radius: 4px;
   border: 1px solid var(--main-line-color);
   width: 80vw;
   max-width: 800px;
+  background: var(--main-bg-color);
+  color: var(--main-color);
 `;
 
 export const ChildDiv = styled.div`

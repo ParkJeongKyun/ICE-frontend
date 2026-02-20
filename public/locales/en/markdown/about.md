@@ -28,7 +28,7 @@ Stay healthy and happy :)
 - 🔒 Digital Forensics, Information Security, Incident Response, Full-stack Development
 - For more information about the developer, click the "Developer" link above.
 
-## 📝 [Release Notes](/markdown/relase)
+## 📝 [Release Notes](/markdown/release)
 
 You can check the release notes at the "Release Notes" link above.
 

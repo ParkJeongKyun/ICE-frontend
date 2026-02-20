@@ -55,6 +55,32 @@ export async function generateMetadata({
   };
 }
 
-export default function PrivacyPage() {
-  return <PrivacyLayout />;
+import fs from 'fs';
+import path from 'path';
+
+export default async function PrivacyPage({
+  params,
+}: {
+  params: Promise<{ locale: string }> | { locale: string };
+}) {
+  const { locale } = (await params) as { locale: string };
+
+  const filePath = path.join(
+    process.cwd(),
+    'public',
+    'locales',
+    locale,
+    'markdown',
+    'privacy.md'
+  );
+
+  let mdContent = '';
+  try {
+    mdContent = fs.readFileSync(filePath, 'utf8');
+  } catch (err) {
+    console.error('Failed to read privacy.md on server:', err);
+    mdContent = 'Privacy policy is temporarily unavailable.';
+  }
+
+  return <PrivacyLayout initialContent={mdContent} />;
 }
