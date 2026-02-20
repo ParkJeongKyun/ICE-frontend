@@ -9,6 +9,7 @@ import {
   TabBar,
   TabButton,
   TabContents,
+  IntroContainer,
 } from './DocsLayout.styles';
 import PreviewFaqUseCases from '@/components/Home/PreviewFaqUseCases';
 import { useTranslations } from 'next-intl';
@@ -27,15 +28,19 @@ const DocsLayout: React.FC<DocsLayoutProps> = ({ markdownData = {} }) => {
   const tabs = [
     { key: 'intro', label: t('docs.intro') },
     { key: 'about', label: t('docs.about') },
+    { key: 'howToUse', label: t('docs.howToUse') },
     { key: 'release', label: t('docs.release') },
     { key: 'update', label: t('docs.update') },
-    { key: 'howToUse', label: t('docs.howToUse') },
   ];
 
   const renderContent = () => {
     switch (activeTab) {
       case 'intro':
-        return <PreviewFaqUseCases />;
+        return (
+          <IntroContainer>
+            <PreviewFaqUseCases />
+          </IntroContainer>
+        );
       case 'about':
         return <ICEMarkDown defaultText={markdownData.about || ''} />;
       case 'release':

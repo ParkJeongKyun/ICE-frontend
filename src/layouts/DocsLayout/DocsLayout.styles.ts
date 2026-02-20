@@ -14,7 +14,6 @@ export const Container = styled.div`
 export const Card = styled.div`
   display: flex;
   flex-direction: column;
-  padding: 1.25rem;
   max-width: 600px;
   width: 100%;
   height: 100%;
@@ -23,6 +22,10 @@ export const Card = styled.div`
   color: var(--main-color);
   overflow: hidden;
   transition: box-shadow 0.2s;
+`;
+
+export const IntroContainer = styled.div`
+  padding: 1rem;
 `;
 
 export const LogoContainer = styled.div`
@@ -74,6 +77,9 @@ export const TabButton = styled.button<{ $active?: boolean }>`
 
   &:hover {
     color: var(--ice-main-color);
+  }
+  @media (max-width: 580px) {
+    padding: 0;
   }
 `;
 
