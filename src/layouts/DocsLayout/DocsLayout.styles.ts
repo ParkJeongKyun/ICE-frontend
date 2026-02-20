@@ -12,7 +12,6 @@ export const Container = styled.div`
 `;
 
 export const Card = styled.div`
-  margin: 1rem;
   padding: 1.25rem;
   max-width: 500px;
   text-align: left;

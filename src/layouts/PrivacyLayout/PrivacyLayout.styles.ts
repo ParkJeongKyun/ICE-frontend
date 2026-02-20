@@ -12,19 +12,12 @@ export const Container = styled.div`
 `;
 
 export const MarkdownBox = styled.div`
-  margin: 40px 0;
-  border: 1px solid var(--ice-main-color);
-  max-width: 800px;
+  max-width: 500px;
+  text-align: left;
   background: var(--main-bg-color);
   color: var(--main-color);
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1);
-  border-radius: 16px;
-  padding: 40px 32px;
+  border-radius: 5px;
   overflow-y: auto;
-  max-height: 80vh;
   transition: box-shadow 0.2s;
-
-  &:hover {
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.13);
-  }
 `;

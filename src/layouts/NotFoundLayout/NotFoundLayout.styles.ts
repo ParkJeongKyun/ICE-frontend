@@ -22,14 +22,14 @@ export const NotFoundContainer = styled.main`
   }
 
   .left {
-    min-width: 96px;
+    min-width: 150px;
     display: flex;
     align-items: center;
     justify-content: center;
   }
 
   .code {
-    font-size: 3.25rem;
+    font-size: 5rem;
     margin: 0;
     font-weight: 800;
     color: var(--ice-main-color);
