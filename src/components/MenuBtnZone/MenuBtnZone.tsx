@@ -1,7 +1,13 @@
 'use client';
 
-import React, { useEffect, useCallback, useMemo } from 'react';
-import { ChangeEvent, useRef, useState } from 'react';
+import React, {
+  useEffect,
+  useCallback,
+  useMemo,
+  useRef,
+  useState,
+  ChangeEvent,
+} from 'react';
 import styled from 'styled-components';
 import { useTranslations, useLocale } from 'next-intl';
 import MenuBtn from '@/components/common/MenuBtn/MenuBtn';
@@ -9,6 +15,7 @@ import { useProcess } from '@/contexts/ProcessContext/ProcessContext';
 import { useRefs } from '@/contexts/RefContext/RefContext';
 import { useFileProcessor } from '@/hooks/useFileProcessor';
 import { useShowIp } from '@/hooks/useShowIp';
+import { Link } from '@/locales/routing';
 
 export interface MenuBtnZoneRef {
   openBtnClick: () => void;
@@ -34,14 +41,11 @@ const MenuBtnZone: React.FC = () => {
   const handleToolsMenuItemClick = useCallback(
     (action: string) => {
       setShowToolsMenu(false);
-      if (action === 'linknote') {
-        // useLocale을 사용해 로케일을 구합니다
-        window.open(`/${locale}/linknote`, '_blank');
-      } else if (action === 'show-ip') {
+      if (action === 'show-ip') {
         showIp();
       }
     },
-    [locale, showIp]
+    [showIp]
   );
 
   const handleFileChange = useCallback(
@@ -49,10 +53,8 @@ const MenuBtnZone: React.FC = () => {
       const file = e.target.files?.[0];
       if (!file) return;
 
-      // 파일 처리는 훅에게 위임 (비즈니스 로직 분리)
       await processFile(file);
 
-      // 파일 인풋 초기화 로직은 UI 컴포넌트의 책임이므로 여기에 남김
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
@@ -64,7 +66,6 @@ const MenuBtnZone: React.FC = () => {
     window.open(`/${locale}/docs`, '_blank');
   }, [locale]);
 
-  // Register methods into RefContext so parents can use without passing ref
   const menuMethods = useMemo(
     () => ({
       openBtnClick: handleOpenClick,
@@ -121,16 +122,31 @@ const MenuBtnZone: React.FC = () => {
               >
                 {t('menu.showIp')}
               </ToolsMenuItem>
-              <ToolsMenuItem
-                onClick={() => handleToolsMenuItemClick('linknote')}
-              >
-                {t('menu.linknote')}
+
+              <ToolsMenuItem style={{ padding: 0 }}>
+                <StyledLink
+                  href="/linknote"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setShowToolsMenu(false)}
+                >
+                  {t('menu.linknote')}
+                </StyledLink>
               </ToolsMenuItem>
             </ToolsMenuList>
           </ToolsDropdownMenu>
         )}
       </ToolsMenuContainer>
-      <MenuBtn onClick={handleDocsClick} text={t('menu.docs')} />
+
+      <Link
+        href="/docs"
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{ textDecoration: 'none' }}
+      >
+        <MenuBtn onClick={() => {}} text={t('menu.docs')} />
+      </Link>
+
       <MenuBtn onClick={() => openModal('about')} text={t('menu.about')} />
     </Div>
   );
@@ -175,7 +191,6 @@ const ToolsMenuList = styled.ul`
 `;
 
 const ToolsMenuItem = styled.li`
-  padding: 3px 12px;
   cursor: pointer;
   color: var(--main-color);
   background: transparent;
@@ -184,10 +199,22 @@ const ToolsMenuItem = styled.li`
   border-radius: 3px;
   transition: all 0.15s ease;
 
+  padding: ${(props) =>
+    props.style?.padding !== undefined ? props.style.padding : '3px 12px'};
+
   &:hover {
     background: var(--main-hover-color);
     color: var(--ice-main-color);
   }
+`;
+
+const StyledLink = styled(Link)`
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 3px 12px;
+  text-decoration: none;
+  color: inherit;
 `;
 
 export default React.memo(MenuBtnZone);

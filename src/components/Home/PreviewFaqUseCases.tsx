@@ -29,7 +29,7 @@ const PreviewFaqUseCases: React.FC = () => {
         ))}
       </section>
 
-      <section>
+      <section style={{ marginBottom: '5rem' }}>
         <SectionTitle>{t('useCasesTab')}</SectionTitle>
         {useCasesData.map((text, index) => (
           <ListText key={index}>• {text}</ListText>

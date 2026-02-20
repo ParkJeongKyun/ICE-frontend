@@ -75,7 +75,7 @@ export const ContientDiv = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-width: 450px;
+  max-width: 500px;
   text-align: left;
   gap: 1.25rem;
   margin: auto 0;

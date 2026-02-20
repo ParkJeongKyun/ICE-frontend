@@ -1,7 +1,15 @@
 'use client';
 
-import React from 'react';
-import { Container, Card, Copyright, LogoContainer } from './DocsLayout.styles';
+import React, { useState } from 'react';
+import {
+  Container,
+  Card,
+  Copyright,
+  LogoContainer,
+  TabBar,
+  TabButton,
+  TabContents,
+} from './DocsLayout.styles';
 import PreviewFaqUseCases from '@/components/Home/PreviewFaqUseCases';
 import { useTranslations } from 'next-intl';
 import Link from 'next/dist/client/link';
@@ -14,6 +22,33 @@ interface DocsLayoutProps {
 
 const DocsLayout: React.FC<DocsLayoutProps> = ({ markdownData = {} }) => {
   const t = useTranslations();
+  const [activeTab, setActiveTab] = useState<string>('intro');
+
+  const tabs = [
+    { key: 'intro', label: t('docs.intro') },
+    { key: 'about', label: t('docs.about') },
+    { key: 'release', label: t('docs.release') },
+    { key: 'update', label: t('docs.update') },
+    { key: 'howToUse', label: t('docs.howToUse') },
+  ];
+
+  const renderContent = () => {
+    switch (activeTab) {
+      case 'intro':
+        return <PreviewFaqUseCases />;
+      case 'about':
+        return <ICEMarkDown defaultText={markdownData.about || ''} />;
+      case 'release':
+        return <ICEMarkDown defaultText={markdownData.release || ''} />;
+      case 'update':
+        return <ICEMarkDown defaultText={markdownData.update || ''} />;
+      case 'howToUse':
+        return <ICEMarkDown defaultText={markdownData.howToUse || ''} />;
+      default:
+        return null;
+    }
+  };
+
   return (
     <Container>
       <Card>
@@ -22,10 +57,18 @@ const DocsLayout: React.FC<DocsLayoutProps> = ({ markdownData = {} }) => {
             <Logo showText size={38} textSize={38} />
           </Link>
         </LogoContainer>
-        <PreviewFaqUseCases />
-
-        <ICEMarkDown defaultText={markdownData.about || ''} />
-
+        <TabBar>
+          {tabs.map((tab) => (
+            <TabButton
+              key={tab.key}
+              $active={activeTab === tab.key}
+              onClick={() => setActiveTab(tab.key)}
+            >
+              {tab.label}
+            </TabButton>
+          ))}
+        </TabBar>
+        <TabContents>{renderContent()}</TabContents>
         <Copyright>{t('copyright')}</Copyright>
       </Card>
     </Container>

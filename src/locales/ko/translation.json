@@ -74,6 +74,13 @@
     "showIp": "내 IP 보기",
     "fileProcessing": "파일 처리 중입니다"
   },
+  "docs": {
+    "intro": "소개",
+    "about": "정보",
+    "release": "릴리즈 노트",
+    "update": "업데이트 예정",
+    "howToUse": "사용법"
+  },
   "ipInfo": {
     "address": "IP 주소",
     "hostname": "호스트명",

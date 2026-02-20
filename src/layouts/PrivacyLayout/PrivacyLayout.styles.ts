@@ -28,11 +28,10 @@ export const LogoContainer = styled.div`
 `;
 
 export const MarkdownBox = styled.div`
-  max-width: 500px;
+  max-width: 600px;
   text-align: left;
   background: var(--main-bg-color);
   color: var(--main-color);
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1);
   border-radius: 5px;
   transition: box-shadow 0.2s;
 `;
@@ -41,5 +40,7 @@ export const Copyright = styled.div`
   font-size: 0.85rem;
   font-weight: 500;
   color: var(--main-color-reverse);
+  border-top: 1px solid var(--main-line-color);
   margin: 0.25rem;
+  text-align: center;
 `;

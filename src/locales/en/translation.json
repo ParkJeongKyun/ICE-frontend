@@ -74,6 +74,13 @@
     "showIp": "Show My IP",
     "fileProcessing": "Processing file..."
   },
+  "docs": {
+    "intro": "Intro",
+    "about": "About",
+    "release": "Release Notes",
+    "update": "Update Planned",
+    "howToUse": "How to Use"
+  },
   "ipInfo": {
     "address": "IP",
     "hostname": "Hostname",

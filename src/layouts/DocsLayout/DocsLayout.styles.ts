@@ -7,19 +7,21 @@ export const Container = styled.div`
   justify-content: center;
   height: 100%;
   width: 100%;
-  overflow-y: auto;
+  overflow-y: hidden;
   background: var(--main-bg-color);
 `;
 
 export const Card = styled.div`
+  display: flex;
+  flex-direction: column;
   padding: 1.25rem;
-  max-width: 500px;
+  max-width: 600px;
+  width: 100%;
+  height: 100%;
   text-align: left;
   background: var(--main-bg-color);
   color: var(--main-color);
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1);
-  border-radius: 5px;
-  overflow-y: auto;
+  overflow: hidden;
   transition: box-shadow 0.2s;
 `;
 
@@ -42,5 +44,42 @@ export const Copyright = styled.div`
   font-size: 0.85rem;
   font-weight: 500;
   color: var(--main-color-reverse);
+  border-top: 1px solid var(--main-line-color);
   margin: 0.25rem;
+  text-align: center;
+`;
+
+export const TabBar = styled.div`
+  display: flex;
+  gap: 8px;
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+`;
+
+export const TabButton = styled.button<{ $active?: boolean }>`
+  flex: 1 1 0; /* each tab takes equal share */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: none;
+  border: none;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.95rem;
+  color: ${({ $active }) =>
+    $active ? 'var(--ice-main-color)' : 'var(--main-color)'};
+  border-bottom: 2px solid
+    ${({ $active }) => ($active ? 'var(--ice-main-color)' : 'transparent')};
+  cursor: pointer;
+  transition: color 0.15s;
+
+  &:hover {
+    color: var(--ice-main-color);
+  }
+`;
+
+export const TabContents = styled.div`
+  flex: 1 1 auto;
+  overflow-y: auto;
+  /* ensure content fills remaining space without overshoot */
+  min-height: 0;
 `;
