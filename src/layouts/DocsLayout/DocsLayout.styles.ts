@@ -5,8 +5,8 @@ export const Container = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 100vh;
-  width: 100vw;
+  height: 100%;
+  width: 100%;
   overflow-y: auto;
   background: var(--main-bg-color);
 `;
@@ -14,7 +14,6 @@ export const Container = styled.div`
 export const Card = styled.div`
   margin: 1rem;
   padding: 1.25rem;
-  width: 100%;
   max-width: 500px;
   text-align: left;
   background: var(--main-bg-color);

@@ -4,7 +4,7 @@ export const NotFoundContainer = styled.main`
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100vh;
+  height: 100%;
   padding: 40px 16px;
   background: var(--main-bg-color);
   color: var(--main-color);
