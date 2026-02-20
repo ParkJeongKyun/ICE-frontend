@@ -2,6 +2,14 @@
 
 # Introduction
 
+---
+
+✨ This web app **works without installation**,
+and is a **static digital forensics web application**
+that **does not upload files or personal information to the server**.
+
+---
+
 - It is a serverless static web app that runs on your browser. ❄️
 - Files are not saved or uploaded to the server when you open them.
 - We plan to keep updating, so please give us your support!
@@ -25,16 +33,6 @@ Click the "How to Use" link above to see detailed instructions.
 
 I'm **Kyun**, the developer of this site.
 Thank you so much for visiting!
-
-If you encounter any bugs, please contact [dbzoseh84@gmail.com](mailto:dbzoseh84@gmail.com) :)
-
----
-
-✨ This web app **works without installation**,
-and is a **static digital forensics web application**
-that **does not upload files or personal information to the server**.
-
----
 
 I hope it can be a small help to someone.
 Stay healthy and happy :)
