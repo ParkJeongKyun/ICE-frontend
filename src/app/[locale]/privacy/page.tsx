@@ -4,12 +4,12 @@ import { type Locale } from '@/locales/routing';
 
 const DOMAIN = process.env.NEXT_PUBLIC_DOMAIN || 'https://www.ice-forensic.com';
 
-export async function generateMetadata({
-  params,
-}: {
+type Props = {
   params: Promise<{ locale: Locale }>;
-}): Promise<Metadata> {
-  const { locale } = await params;
+};
+
+export async function generateMetadata(props: Props): Promise<Metadata> {
+  const { locale } = await props.params;
   const isKo = locale === 'ko';
 
   const title = isKo ? '개인정보 처리방침' : 'Privacy Policy';
@@ -55,32 +55,19 @@ export async function generateMetadata({
   };
 }
 
-import fs from 'fs';
-import path from 'path';
+import { getMarkdownData } from '@/utils/getMarkdown';
 
-export default async function PrivacyPage({
-  params,
-}: {
-  params: Promise<{ locale: string }> | { locale: string };
-}) {
-  const { locale } = (await params) as { locale: string };
+export default async function PrivacyPage(props: Props) {
+  const params = await props.params;
+  const locale = params.locale;
 
-  const filePath = path.join(
-    process.cwd(),
-    'public',
-    'locales',
-    locale,
-    'markdown',
-    'privacy.md'
+  const md = getMarkdownData(locale, ['privacy']);
+
+  return (
+    <PrivacyLayout
+      initialContent={
+        md['privacy'] || 'Privacy policy is temporarily unavailable.'
+      }
+    />
   );
-
-  let mdContent = '';
-  try {
-    mdContent = fs.readFileSync(filePath, 'utf8');
-  } catch (err) {
-    console.error('Failed to read privacy.md on server:', err);
-    mdContent = 'Privacy policy is temporarily unavailable.';
-  }
-
-  return <PrivacyLayout initialContent={mdContent} />;
 }

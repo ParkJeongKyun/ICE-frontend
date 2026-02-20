@@ -1,15 +1,16 @@
 import type { Metadata } from 'next';
 import DocsLayout from '@/layouts/DocsLayout/DocsLayout';
+import { getMarkdownData } from '@/utils/getMarkdown';
 import { type Locale } from '@/locales/routing';
 
 const DOMAIN = process.env.NEXT_PUBLIC_DOMAIN || 'https://www.ice-forensic.com';
 
-export async function generateMetadata({
-  params,
-}: {
+type Props = {
   params: Promise<{ locale: Locale }>;
-}): Promise<Metadata> {
-  const { locale } = await params;
+};
+
+export async function generateMetadata(props: Props): Promise<Metadata> {
+  const { locale } = await props.params;
   const isKo = locale === 'ko';
 
   const title = isKo ? '문서' : 'Docs';
@@ -37,6 +38,16 @@ export async function generateMetadata({
   };
 }
 
-export default function DocsPage() {
-  return <DocsLayout />;
+export default async function DocsPage(props: Props) {
+  const params = await props.params;
+  const locale = params.locale;
+
+  const markdownData = getMarkdownData(locale, [
+    'about',
+    'release',
+    'update',
+    'howToUse',
+  ]);
+
+  return <DocsLayout markdownData={markdownData} />;
 }

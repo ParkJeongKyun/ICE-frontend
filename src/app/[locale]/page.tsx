@@ -6,12 +6,12 @@ import { type Locale } from '@/locales/routing';
 
 const DOMAIN = process.env.NEXT_PUBLIC_DOMAIN || 'https://www.ice-forensic.com';
 
-export async function generateMetadata({
-  params,
-}: {
+type Props = {
   params: Promise<{ locale: Locale }>;
-}): Promise<Metadata> {
-  const { locale } = await params;
+};
+
+export async function generateMetadata(props: Props): Promise<Metadata> {
+  const { locale } = await props.params;
   const isKo = locale === 'ko';
 
   const title = isKo
@@ -67,35 +67,18 @@ export async function generateMetadata({
   };
 }
 
-import fs from 'fs';
-import path from 'path';
+import { getMarkdownData } from '@/utils/getMarkdown';
 
-export default async function HomePage({
-  params,
-}: {
-  params: Promise<{ locale: string }> | { locale: string };
-}) {
-  const { locale } = (await params) as { locale: string };
+export default async function HomePage(props: Props) {
+  const params = await props.params;
+  const locale = params.locale;
 
-  const mdFiles = ['about', 'release', 'update', 'howToUse'];
-  const markdownData: { [key: string]: string } = {};
-
-  mdFiles.forEach((fname) => {
-    try {
-      const filePath = path.join(
-        process.cwd(),
-        'public',
-        'locales',
-        locale,
-        'markdown',
-        `${fname}.md`
-      );
-      markdownData[fname] = fs.readFileSync(filePath, 'utf8');
-    } catch (err) {
-      // 안전하게 빈 문자열로 처리
-      markdownData[fname] = '';
-    }
-  });
+  const markdownData = getMarkdownData(locale, [
+    'about',
+    'release',
+    'update',
+    'howToUse',
+  ]);
 
   return (
     <>

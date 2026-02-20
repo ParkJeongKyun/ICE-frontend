@@ -6,8 +6,13 @@ import PreviewFaqUseCases from '@/components/Home/PreviewFaqUseCases';
 import { useTranslations } from 'next-intl';
 import Link from 'next/dist/client/link';
 import Logo from '@/components/common/Icons/Logo/Logo';
+import ICEMarkDown from '@/components/markdown';
 
-const DocsLayout: React.FC = () => {
+interface DocsLayoutProps {
+  markdownData?: { [key: string]: string };
+}
+
+const DocsLayout: React.FC<DocsLayoutProps> = ({ markdownData = {} }) => {
   const t = useTranslations();
   return (
     <Container>
@@ -18,6 +23,9 @@ const DocsLayout: React.FC = () => {
           </Link>
         </LogoContainer>
         <PreviewFaqUseCases />
+
+        <ICEMarkDown defaultText={markdownData.about || ''} />
+
         <Copyright>{t('copyright')}</Copyright>
       </Card>
     </Container>
