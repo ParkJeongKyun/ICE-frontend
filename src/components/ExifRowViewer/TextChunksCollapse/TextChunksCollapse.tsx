@@ -153,7 +153,7 @@ const TextChunksCollapse: React.FC = () => {
                   }
                   {typeof chunk.offset === 'number' && (
                     <Tooltip
-                      text={`${t('textChunksViewer.jumpToOffset')} 0x${chunk.offset.toString(16).toUpperCase()} (${chunk.offset})`}
+                      text={`${t('textChunksViewer.jumpToOffset', { target: chunk.offset.toString(16).toUpperCase(), targetDec: chunk.offset, bytes: chunk.length || 0 })}`}
                     >
                       <JumpButton
                         onClick={() =>

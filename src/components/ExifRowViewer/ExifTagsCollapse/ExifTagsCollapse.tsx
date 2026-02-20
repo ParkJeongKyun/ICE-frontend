@@ -143,7 +143,7 @@ const ExifTagsCollapse: React.FC = () => {
                           ? `0x${abs.toString(16).toUpperCase()}`
                           : '-';
                       const headerTooltip = absValid
-                        ? `${t('exifViewer.jumpToTag')} ${absHex} (${abs})`
+                        ? `${t('exifViewer.jumpToTag', { target: absHex, targetDec: abs, bytes: item.isFar ? 4 : item.length || 0 })}`
                         : t('exifViewer.jumpUnavailable');
 
                       return (
@@ -180,8 +180,8 @@ const ExifTagsCollapse: React.FC = () => {
                       const entryAddr = baseOffset + entryOffset;
                       const entryHex = `0x${entryAddr.toString(16).toUpperCase()}`;
                       const realTooltip = item.isFar
-                        ? `${t('exifViewer.jumpToPointerTarget')} ${entryHex} (${entryAddr})`
-                        : `${t('exifViewer.jumpToData')} ${entryHex} (${entryAddr})`;
+                        ? `${t('exifViewer.jumpToPointerTarget', { target: entryHex, targetDec: entryAddr, bytes: item.length || 0 })}`
+                        : `${t('exifViewer.jumpToData', { target: entryHex, targetDec: entryAddr, bytes: item.length || 0 })}`;
 
                       return (
                         <Tooltip text={realTooltip}>

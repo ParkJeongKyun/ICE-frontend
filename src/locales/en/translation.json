@@ -112,8 +112,8 @@
     "bigEndian": "Big Endian",
     "littleEndianTooltip": "Switch to Little Endian",
     "bigEndianTooltip": "Switch to Big Endian",
-    "relativeJumpTooltip": "Relative offset jump: Current(0x{current} / {currentDec}) {operator}{value} → 0x{target} / {targetDec}",
-    "absoluteJumpTooltip": "Absolute offset jump: 0x{target} / {targetDec}",
+    "relativeJumpTooltip": "Relative offset jump: Current(0x{current}({currentDec})) {operator}{value} → 0x{target}({targetDec})",
+    "absoluteJumpTooltip": "Absolute offset jump: 0x{target}({targetDec})",
     "dataTypes": {
       "uint8": "UInt8",
       "int8": "Int8",
@@ -193,21 +193,16 @@
     "ifdOffset": "Offset",
     "ifdTagCount": "Tag Count",
     "ifdNextOffset": "Next IFD Offset",
-    "jumpToOffset": "Jump to",
-    "jumpToTag": "Jump to tag offset",
+    "jumpToOffset": "Jump to: 0x{target}({targetDec}) ({bytes} bytes)",
+    "jumpToTag": "Jump to tag offset: 0x{target}({targetDec}) ({bytes} bytes)",
     "jumpUnavailable": "Jump (unavailable)",
-    "resolvePointer": "Resolve pointer at",
-    "jumpToPointerTarget": "Jump to pointer target",
-    "jumpToData": "Jump to data at",
-    "jumpToRealData": "Jump to",
-    "allTags": "All tags",
-    "noTags": "No tags",
-    "noIfdSelected": "No IFD selected"
+    "jumpToPointerTarget": "Jump to pointer target: 0x{target}({targetDec}) ({bytes} bytes)",
+    "jumpToData": "Jump to data at: 0x{target}({targetDec}) ({bytes} bytes)"
   },
   "textChunksViewer": {
     "ihdrInfo": "IHDR Info",
     "textChunks": "Text Chunks",
-    "jumpToOffset": "Jump to"
+    "jumpToOffset": "Jump to: 0x{target}({targetDec}) ({bytes} bytes)"
   },
   "calculateHash": {
     "title": "Calculate Hash",

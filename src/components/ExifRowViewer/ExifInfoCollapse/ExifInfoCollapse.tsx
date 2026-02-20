@@ -115,7 +115,7 @@ const ExifInfoCollapse: React.FC = () => {
                 {t('exifViewer.byteOrder')}
                 {typeof baseOffset === 'number' && (
                   <Tooltip
-                    text={`${t('exifViewer.jumpToOffset')} 0x${Number(baseOffset).toString(16).toUpperCase()} (2 bytes)`}
+                    text={`${t('exifViewer.jumpToOffset', { target: Number(baseOffset).toString(16).toUpperCase(), targetDec: baseOffset, bytes: 2 })}`}
                   >
                     <JumpButton onClick={() => onJumpToBaseOffset(true)}>
                       <ChevronRightIcon />
@@ -130,7 +130,7 @@ const ExifInfoCollapse: React.FC = () => {
                 {t('exifViewer.baseOffset')}
                 {typeof baseOffset === 'number' && (
                   <Tooltip
-                    text={`${t('exifViewer.jumpToOffset')} 0x${Number(baseOffset).toString(16).toUpperCase()}`}
+                    text={`${t('exifViewer.jumpToOffset', { target: Number(baseOffset).toString(16).toUpperCase(), targetDec: baseOffset, bytes: 1 })}`}
                   >
                     <JumpButton onClick={() => onJumpToBaseOffset(false)}>
                       <ChevronRightIcon />
@@ -145,7 +145,7 @@ const ExifInfoCollapse: React.FC = () => {
                 {t('exifViewer.endOffset')}
                 {typeof exifInfo.endOffset === 'number' && (
                   <Tooltip
-                    text={`${t('exifViewer.jumpToOffset')} 0x${Number(exifInfo.endOffset).toString(16).toUpperCase()}`}
+                    text={`${t('exifViewer.jumpToOffset', { target: Number(exifInfo.endOffset).toString(16).toUpperCase(), targetDec: exifInfo.endOffset, bytes: 1 })}`}
                   >
                     <JumpButton onClick={onJumpToEndOffset}>
                       <ChevronRightIcon />
@@ -164,7 +164,7 @@ const ExifInfoCollapse: React.FC = () => {
                 {t('exifViewer.firstIfdOffset')}
                 {typeof exifInfo.firstIfdOffset === 'number' && (
                   <Tooltip
-                    text={`${t('exifViewer.jumpToOffset')} 0x${(Number(baseOffset) + Number(exifInfo.firstIfdOffset)).toString(16).toUpperCase()}`}
+                    text={`${t('exifViewer.jumpToOffset', { target: (Number(baseOffset) + Number(exifInfo.firstIfdOffset)).toString(16).toUpperCase(), targetDec: Number(baseOffset) + Number(exifInfo.firstIfdOffset), bytes: 1 })}`}
                   >
                     <JumpButton onClick={onJumpToFirstIfdOffset}>
                       <ChevronRightIcon />
