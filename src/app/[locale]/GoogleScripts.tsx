@@ -17,14 +17,6 @@ export default function GoogleScripts() {
           gtag('js', new Date());
           gtag('config', 'G-79876PQVY4');`}
       </Script>
-
-      {/* Google AdSense (옵션) */}
-      <Script
-        id="adsbygoogle-init"
-        strategy="afterInteractive"
-        crossOrigin="anonymous"
-        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9099594574723250"
-      />
     </>
   );
 }
