@@ -3,10 +3,11 @@ import type { Metadata } from 'next';
 const DOMAIN = process.env.NEXT_PUBLIC_DOMAIN || 'https://www.ice-forensic.com';
 
 export const metadata: Metadata = {
-  title: 'ICE Forensic - 무료 온라인 디지털 포렌식 도구',
+  title: 'Online Hex Viewer & Online EXIF Viewer',
   description:
-    '설치 없이 웹에서 바로 사용하는 디지털 포렌식 도구. 헥스 뷰어, EXIF 분석, 해시 계산을 지원합니다.',
+    'Web-based digital forensics tool. Supports Hex Viewer, File Header Analysis, and Image EXIF Metadata Analysis.',
   alternates: {
+    canonical: DOMAIN,
     languages: {
       ko: `${DOMAIN}/ko`,
       en: `${DOMAIN}/en`,
