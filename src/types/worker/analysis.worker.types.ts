@@ -59,7 +59,7 @@ export interface SearchOptions {
 // ============================================================================
 
 export interface WasmSearchResponse {
-  indices: number[];
+  indices: string;
   error?: string;
 }
 
@@ -110,7 +110,7 @@ declare global {
 
   class Go {
     constructor();
-    run(instance: WebAssembly.Instance): void;
+    run(instance: WebAssembly.Instance): Promise<void>;
     importObject: WebAssembly.Imports;
     argv: string[];
     env: Record<string, string>;

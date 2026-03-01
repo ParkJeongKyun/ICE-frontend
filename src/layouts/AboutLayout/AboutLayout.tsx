@@ -57,17 +57,17 @@ const SKILLS = {
 const CAREERS = [
   {
     period: '2025.01 - 2026.03',
-    company: 'Aimos(주) AI 플랫폼 개발팀',
+    company: '아이모스(주) AI 플랫폼 R&D팀',
     position: '프리랜서 개발자',
   },
   {
     period: '2024.07 - 2024.12',
-    company: 'KG ITC',
+    company: '케이디액스랩(주)',
     position: '프리랜서 개발자',
   },
   {
     period: '2022.07 - 2024.06',
-    company: 'NuriggumSoft(주) DX 개발팀',
+    company: '누리꿈소프트(주) DX 개발팀',
     position: '개발자',
   },
   {

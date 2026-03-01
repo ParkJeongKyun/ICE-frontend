@@ -110,12 +110,16 @@ export class WorkerManager {
         case 'ERROR':
           // 모든 워커의 에러가 여기로 통합됨
           const errReq = this.pendingRequests.get(targetId);
+
+          // [수정] 요청 ID가 없더라도(전역 에러) 외부로 ERROR 이벤트를 보냅니다.
+          this.events.emit('ERROR', { code: errorCode || 'WORKER_ERROR' });
+
           if (errReq) {
-            this.events.emit('ERROR', { code: errorCode || 'WORKER_ERROR' });
             errReq.reject(new Error(errorCode || 'Unknown error'));
-            if (targetId) this.pendingRequests.delete(targetId); // undefined 검사
-            this.stopProcessing?.();
+            this.pendingRequests.delete(targetId);
           }
+
+          this.stopProcessing?.();
           break;
       }
     };

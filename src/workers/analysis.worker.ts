@@ -173,18 +173,21 @@ class AnalysisWorker {
         go.importObject
       );
 
-      const wasmReadyPromise = new Promise<void>((resolve) => {
-        self.addEventListener('wasmReady', () => resolve(), { once: true });
+      go.run(result.instance).catch((err: any) => {
+        console.error('[Worker] go.run exited with error:', err);
       });
 
-      go.run(result.instance);
-
-      await Promise.race([
-        wasmReadyPromise,
-        new Promise((_, reject) =>
-          setTimeout(() => reject(new Error('WASM INIT TIMEOUT')), 10000)
-        ),
-      ]);
+      // 2. [수정됨] 이벤트 리스너(Promise.race) 대신 폴링(Polling) 대기
+      // Go의 main()이 js.Global().Set("searchFunc", ...)를 완료할 때까지 기다립니다.
+      let retries = 0;
+      while (!(self as any).searchFunc || !(self as any).exifFunc) {
+        if (retries > 100) {
+          // 100ms * 100 = 10초 타임아웃
+          throw new Error('WASM INIT TIMEOUT: Functions not registered');
+        }
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        retries++;
+      }
 
       // 함수 가져오기
       const globalScope = self as DedicatedWorkerGlobalScope;
@@ -277,6 +280,7 @@ class AnalysisWorker {
       }
 
       self.postMessage({
+        id,
         status: 'SUCCESS',
         taskType: 'PROCESS_EXIF',
         stats: createStats(
@@ -351,12 +355,22 @@ class AnalysisWorker {
         return;
       }
 
-      const results = (result.indices || []).map((idx: number) => ({
+      let parsedIndices: number[] = [];
+      try {
+        if (typeof result.indices === 'string') {
+          parsedIndices = JSON.parse(result.indices);
+        }
+      } catch (e) {
+        console.error('Failed to parse search indices', e);
+      }
+
+      const results = parsedIndices.map((idx: number) => ({
         index: idx,
         offset: pattern.length,
       }));
 
       self.postMessage({
+        id,
         status: 'SUCCESS',
         taskType: type === 'HEX' ? 'SEARCH_HEX' : 'SEARCH_ASCII',
         stats: createStats(
