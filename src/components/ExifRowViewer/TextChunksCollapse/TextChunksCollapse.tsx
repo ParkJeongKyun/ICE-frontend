@@ -10,6 +10,7 @@ import {
   ContentDiv,
   NoDataMessage,
   JumpButton,
+  ScrollableDataDiv,
 } from '../ExifRowViewer.styles';
 import ChevronRightIcon from '@/components/common/Icons/ChevronRightIcon';
 
@@ -165,9 +166,9 @@ const TextChunksCollapse: React.FC = () => {
                     </Tooltip>
                   )}
                 </CellHeaderDiv>
-                <CellBodyDiv style={{ wordBreak: 'break-all', fontSize: 13 }}>
+                <CellBodyDiv>
                   <Tooltip text={t('textChunks.data.description')}>
-                    {chunk.data || '-'}
+                    <ScrollableDataDiv>{chunk.data || '-'}</ScrollableDataDiv>
                   </Tooltip>
                 </CellBodyDiv>
               </ContentDiv>

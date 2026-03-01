@@ -83,3 +83,29 @@ export const NoDataMessage = styled.div`
   opacity: 0.6;
   font-size: 0.75rem;
 `;
+
+export const ScrollableDataDiv = styled.div`
+  width: 100%;
+  max-height: 150px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 5px;
+  word-break: break-all;
+  font-size: 0.75rem;
+  line-height: 1.3;
+  display: block;
+
+  &::-webkit-scrollbar {
+    display: block !important;
+    width: 10px !important;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: var(--scrollbar-color);
+    transition: background-color 0.2s;
+
+    &:hover {
+      background-color: var(--scrollbar-color-hover);
+    }
+  }
+`;

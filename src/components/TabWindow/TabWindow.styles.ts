@@ -18,17 +18,18 @@ export const TabsContainer = styled.div<{ $empty: boolean }>`
     props.$empty ? 'none' : '1px solid var(--main-line-color)'};
 
   /* 스크롤 디자인 */
-  // Chrome, Safari, Edge, Opera
   &::-webkit-scrollbar {
     display: block !important;
-    width: 5px; /* 스크롤바 너비 */
-    height: 5px; /* Scrollbar 높이 */
+    width: 5px;
+    height: 5px;
   }
   &::-webkit-scrollbar-thumb {
-    background-color: rgba(255, 255, 255, 0.3); /* 스크롤바 색상 */
+    cursor: pointer;
+    background-color: var(--scrollbar-color);
+    transition: background-color 0.2s;
+
     &:hover {
-      /* 마우스 호버시 스크롤바 색상 */
-      background-color: var(--main-hover-line-color);
+      background-color: var(--scrollbar-color-hover);
     }
   }
   /* 스크롤 디자인 */

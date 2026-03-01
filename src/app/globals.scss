@@ -28,6 +28,19 @@ body,
   --main-line-color: #345167; // Medium blue-gray line
   --main-disabled-color: #3a4754; // Disabled blue-gray
 
+  --scrollbar-color: rgba(
+    52,
+    81,
+    103,
+    0.5
+  ); // Medium blue-gray line 0.5 opacity
+  --scrollbar-color-hover: rgba(
+    52,
+    81,
+    103,
+    0.9
+  ); // Medium blue-gray line 0.9 opacity
+
   // 강조 색
   --ice-main-color: #60c8ff; // Bright ice blue
   --ice-main-color-error: #e05858; // Cooler red
