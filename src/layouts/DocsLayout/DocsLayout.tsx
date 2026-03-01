@@ -42,13 +42,37 @@ const DocsLayout: React.FC<DocsLayoutProps> = ({ markdownData = {} }) => {
           </IntroContainer>
         );
       case 'about':
-        return <ICEMarkDown defaultText={markdownData.about || ''} />;
+        return (
+          <ICEMarkDown
+            defaultText={markdownData.about || ''}
+            showBackButton={false}
+            onTabChange={setActiveTab}
+          />
+        );
       case 'release':
-        return <ICEMarkDown defaultText={markdownData.release || ''} />;
+        return (
+          <ICEMarkDown
+            defaultText={markdownData.release || ''}
+            showBackButton={false}
+            onTabChange={setActiveTab}
+          />
+        );
       case 'update':
-        return <ICEMarkDown defaultText={markdownData.update || ''} />;
+        return (
+          <ICEMarkDown
+            defaultText={markdownData.update || ''}
+            showBackButton={false}
+            onTabChange={setActiveTab}
+          />
+        );
       case 'howToUse':
-        return <ICEMarkDown defaultText={markdownData.howToUse || ''} />;
+        return (
+          <ICEMarkDown
+            defaultText={markdownData.howToUse || ''}
+            showBackButton={false}
+            onTabChange={setActiveTab}
+          />
+        );
       default:
         return null;
     }

@@ -9,9 +9,16 @@ import { useTranslations } from 'next-intl';
 export interface Props {
   defaultText: string;
   childTexts?: { [key: string]: string };
+  showBackButton?: boolean;
+  onTabChange?: (tabKey: string) => void;
 }
 
-const ICEMarkDown: React.FC<Props> = ({ defaultText, childTexts }) => {
+const ICEMarkDown: React.FC<Props> = ({
+  defaultText,
+  childTexts,
+  showBackButton = true,
+  onTabChange,
+}) => {
   const t = useTranslations();
   const [markdownText, setMarkdownText] = useState<string>(defaultText);
 
@@ -42,7 +49,12 @@ const ICEMarkDown: React.FC<Props> = ({ defaultText, childTexts }) => {
     return href?.startsWith('/markdown/') ? (
       <MarkDownLink
         onClick={() => {
-          setChildText(href.split('/markdown/')[1] || '');
+          const tabKey = href.split('/markdown/')[1] || '';
+          if (onTabChange) {
+            onTabChange(tabKey);
+          } else {
+            setChildText(tabKey);
+          }
         }}
       >
         {children}
@@ -65,7 +77,7 @@ const ICEMarkDown: React.FC<Props> = ({ defaultText, childTexts }) => {
       <MarkDownDiv>
         <Markdown components={components}>{markdownText}</Markdown>
       </MarkDownDiv>
-      {markdownText != defaultText && (
+      {showBackButton && markdownText != defaultText && (
         <FloatingBackBtn onClick={setDefaultText} aria-label={t('common.back')}>
           <BackArrowIcon
             width={18}
