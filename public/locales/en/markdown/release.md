@@ -1,5 +1,11 @@
 ## Release Notes
 
+### v2026.03.01
+
+- Go WASM Enhancements
+- UI/UX Improvements
+- Updated Privacy Policy
+
 ### v2026.02.13
 
 - Added drag & drop file functionality

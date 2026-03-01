@@ -1,6 +1,6 @@
 # Privacy Policy
 
-**Last Updated: February 15, 2026**
+**Last Updated: March 1, 2026**
 
 ---
 
@@ -12,35 +12,38 @@
 
 To provide and maintain our services securely, the following minimal information may be automatically collected during your use of the website:
 
-- **Automatically Collected Data:** IP address, browser type and version, operating system (OS), date/time of visit, and service usage logs.
-- **Analytics Data:** Third-party analytics data (e.g., Google Analytics) to analyze website traffic and usability.
+- **Automatically Collected Data:** Device and environment information such as browser type and version, operating system (OS), and date/time of visit. _(※ IP addresses are not directly collected by us, but are processed according to the policies of our third-party hosting and analytics providers.)_
+- **Statistics and Error Data:** Third-party analytics data (Google Analytics) used for analyzing website traffic, usability, and **service error diagnosis (e.g., error codes, toast message identifiers)**.
 
-> **※ Information We DO NOT Collect:** We do not collect any personal identifiable information (PII) such as names, emails, or **the contents, filenames, or metadata of the files you analyze.**
+**※ Information We DO NOT Collect:** We do not collect any personally identifiable information (PII) such as names or emails, nor **the contents, filenames, or metadata of the files you analyze.** All collected statistics and error data are strictly anonymized and are never combined with your file data.
 
 ## 3. Purpose of Data Processing
 
 The collected information is used strictly for the following purposes:
 
-- To operate, maintain, and improve the user experience (UX) of our services.
-- To prevent unauthorized access, detect security threats, and perform statistical analysis.
+- To operate smoothly, maintain stability, and improve the user experience (UX) of our services.
+- To block abnormal access, respond to security threats, and perform statistical analysis.
 - To comply with legal obligations and resolve disputes.
 
 ## 4. Data Processing and Security (Important)
 
 - **100% Local Browser Processing:** All file data is analyzed entirely within your device's browser using WebAssembly (Wasm) and browser APIs.
 - **No Server-side Processing:** The files you analyze and the resulting data are **never transmitted, stored, or shared** with our servers or any external networks.
+- **Anonymized Statistics Collection:** Event logs collected to improve service quality (such as the frequency of error codes) are transmitted exclusively to third-party analytics tools (Google Analytics) in a strictly anonymized state and are managed completely separate from the original file data processed on your device.
 
 ## 5. Data Retention and Deletion
 
-Automatically collected information, such as access logs, is retained for a **maximum of 3 months** in accordance with relevant telecommunications and privacy laws. After this period, the data is permanently destroyed using technical methods that render it unrecoverable.
+ICE Forensic is provided as a static website hosted on GitHub Pages and does not operate its own web servers or databases. Therefore, **we do not directly collect or store users' website access logs (such as IP addresses)** as stipulated by laws like the Protection of Communications Secrets Act. _(Note: For website hosting and security purposes, our hosting provider, GitHub, may collect standard system logs in accordance with GitHub's Privacy Policy.)_
+
+Anonymized statistics and error data (such as `message_code`) collected via third-party analytics tools (Google Analytics) for service improvement and error diagnosis are retained for a **maximum of 14 months**. The retention period is renewed upon new activity from the same browser. Once the retention period expires, the data is permanently destroyed in an unrecoverable manner according to the policy of the respective service.
 
 ## 6. Use of Cookies and Local Storage
 
-ICE Forensic uses cookies and local storage to provide a better, customized service environment.
+ICE Forensic uses cookies and local storage to provide a customized environment and improve service quality.
 
-- **Local Storage:** Used to save your browser preferences (e.g., dark mode, UI layout settings). This data is stored locally on your device and is **not transmitted to our servers.**
-- **Cookies:** Used for website visitor statistics (Google Analytics) and to prevent abnormal access.
-- **Opting Out:** You can configure your web browser to block cookies or manually clear your local storage data. However, doing so may reset your UI preferences or limit the availability of certain convenience features.
+- **Local Storage:** Used to save your browser preferences (e.g., dark mode, UI layout settings). This data is stored locally on your device and is not transmitted to our servers.
+- **Cookies:** Used for website visitor statistics, **measuring the frequency of errors in specific features**, and preventing abnormal access via third-party analytics tools (Google Analytics).
+- **Opting Out:** You can configure your web browser to block cookies or manually clear your local storage data. However, doing so may reset your environment preferences or limit the availability of certain convenience features.
 
 ## 7. User Rights
 
