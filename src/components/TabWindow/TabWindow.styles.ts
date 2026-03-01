@@ -44,11 +44,9 @@ export const Tab = styled.div<{ $active: boolean }>`
   padding: 0px 5px 0px 15px;
   border-right: 1px solid var(--main-line-color);
   cursor: pointer;
-  /* border-bottom 제거 */
-  /* color 스타일은 그대로 */
+  position: relative;
   color: ${(props) =>
     props.$active ? 'var(--ice-main-color)' : 'var(--main-color)'};
-  position: relative; /* ::after 위치 기준 */
   &:hover {
     color: var(--ice-main-color);
     background-color: var(--main-hover-color);
@@ -140,4 +138,11 @@ export const TabWrapper = styled.div<{
       z-index: 1200;
     }
   `}
+`;
+
+export const TabLabel = styled.div`
+  max-width: 250px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;

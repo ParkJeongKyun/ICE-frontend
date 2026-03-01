@@ -8,6 +8,7 @@ import React, {
 import {
   CloseBtn,
   Tab,
+  TabLabel,
   TabContentContainer,
   TabWindowContainer,
   TabsContainer,
@@ -223,7 +224,7 @@ const TabWindow: React.FC = () => {
             onClick={() => handleTabClick(tabKey)}
             tabIndex={0}
           >
-            {item.window.label}
+            <TabLabel>{item.window.label}</TabLabel>
             <CloseBtn
               $active={tabKey === activeKey}
               $disabled={isProcessing}
