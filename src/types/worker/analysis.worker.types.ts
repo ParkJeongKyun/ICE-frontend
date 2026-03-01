@@ -90,30 +90,3 @@ export type WasmExifFunction = (data: File) => WasmExifResponse;
 
 // PNG 메타데이터 함수 (EXIF와 동일하게 JSON 문자열 반환)
 export type WasmTextChunkFunction = (data: File) => WasmTextChunkResponse;
-
-// ============================================================================
-// Global Types (Worker 내부 참조용)
-// ============================================================================
-
-declare global {
-  interface DedicatedWorkerGlobalScope {
-    readBlockSync(
-      file: File,
-      offset: number,
-      length: number
-    ): Uint8Array | null;
-    Go: typeof Go;
-    searchFunc: WasmSearchFunction;
-    exifFunc: WasmExifFunction;
-    textChunkFunc: WasmTextChunkFunction;
-  }
-
-  class Go {
-    constructor();
-    run(instance: WebAssembly.Instance): Promise<void>;
-    importObject: WebAssembly.Imports;
-    argv: string[];
-    env: Record<string, string>;
-    exit(code: number): void;
-  }
-}

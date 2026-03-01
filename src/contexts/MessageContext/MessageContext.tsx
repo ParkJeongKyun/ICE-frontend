@@ -130,7 +130,13 @@ export const MessageProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     const handler = (payload: any) => {
       showMessage(payload.code, payload.message, payload.stats);
+
+      // 개발 환경이 아닐 때만 GA 전송
+      if (process.env.NODE_ENV !== 'development' && window.gtag) {
+        window.gtag('event', 'app_message', { message_code: payload.code });
+      }
     };
+
     eventBus.on('toast', handler);
     return () => eventBus.off('toast', handler);
   }, [showMessage]);
