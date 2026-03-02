@@ -3,6 +3,7 @@
 import React from 'react';
 import { useTranslations } from 'next-intl';
 import { PreviewBox, SectionTitle, FaqBox, ListText } from './Home.styles';
+import SponsorButton from '@/components/SponsorButton/SponsorButton';
 
 const PreviewFaqUseCases: React.FC = () => {
   const t = useTranslations();
@@ -18,6 +19,7 @@ const PreviewFaqUseCases: React.FC = () => {
           alt="ICE-PNG Forensic Interface Preview"
         />
       </PreviewBox>
+      <SponsorButton />
 
       <section>
         <SectionTitle>{t('faqTab')}</SectionTitle>

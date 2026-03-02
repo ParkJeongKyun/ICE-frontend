@@ -219,5 +219,10 @@
     "calculateTooltip": "{type} 해시 계산",
     "cancelTooltip": "해시 계산 취소"
   },
-  "copyright": "© 2022 박정균 (dbzoseh84@gmail.com). 모든 권리 보유."
+  "copyright": "© 2022 박정균 (dbzoseh84@gmail.com). 모든 권리 보유.",
+  "sponsor": {
+    "button": "스폰서",
+    "description": "우리의 오픈소스를 응원해주세요 ☕",
+    "ariaLabel": "GitHub에서 스폰서 되기"
+  }
 }

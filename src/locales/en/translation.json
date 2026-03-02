@@ -219,5 +219,10 @@
     "calculateTooltip": "Calculate {type} hash",
     "cancelTooltip": "Cancel hash calculation"
   },
-  "copyright": "© 2022 ParkJeong-kyun (dbzoseh84@gmail.com). All rights reserved."
+  "copyright": "© 2022 ParkJeong-kyun (dbzoseh84@gmail.com). All rights reserved.",
+  "sponsor": {
+    "button": "Sponsor",
+    "description": "Support our work & fuel open-source dreams ☕",
+    "ariaLabel": "Sponsor us on GitHub"
+  }
 }
