@@ -9,6 +9,7 @@ import {
   TabBar,
   TabButton,
   TabContents,
+  TabContent,
   IntroContainer,
 } from './DocsLayout.styles';
 import PreviewFaqUseCases from '@/components/Home/PreviewFaqUseCases';
@@ -33,51 +34,6 @@ const DocsLayout: React.FC<DocsLayoutProps> = ({ markdownData = {} }) => {
     { key: 'update', label: t('docs.update') },
   ];
 
-  const renderContent = () => {
-    switch (activeTab) {
-      case 'intro':
-        return (
-          <IntroContainer>
-            <PreviewFaqUseCases />
-          </IntroContainer>
-        );
-      case 'about':
-        return (
-          <ICEMarkDown
-            defaultText={markdownData.about || ''}
-            showBackButton={false}
-            onTabChange={setActiveTab}
-          />
-        );
-      case 'release':
-        return (
-          <ICEMarkDown
-            defaultText={markdownData.release || ''}
-            showBackButton={false}
-            onTabChange={setActiveTab}
-          />
-        );
-      case 'update':
-        return (
-          <ICEMarkDown
-            defaultText={markdownData.update || ''}
-            showBackButton={false}
-            onTabChange={setActiveTab}
-          />
-        );
-      case 'howToUse':
-        return (
-          <ICEMarkDown
-            defaultText={markdownData.howToUse || ''}
-            showBackButton={false}
-            onTabChange={setActiveTab}
-          />
-        );
-      default:
-        return null;
-    }
-  };
-
   return (
     <Container>
       <Card>
@@ -97,7 +53,41 @@ const DocsLayout: React.FC<DocsLayoutProps> = ({ markdownData = {} }) => {
             </TabButton>
           ))}
         </TabBar>
-        <TabContents>{renderContent()}</TabContents>
+        <TabContents>
+          <TabContent $active={activeTab === 'intro'}>
+            <IntroContainer>
+              <PreviewFaqUseCases />
+            </IntroContainer>
+          </TabContent>
+          <TabContent $active={activeTab === 'about'}>
+            <ICEMarkDown
+              defaultText={markdownData.about || ''}
+              showBackButton={false}
+              onTabChange={setActiveTab}
+            />
+          </TabContent>
+          <TabContent $active={activeTab === 'release'}>
+            <ICEMarkDown
+              defaultText={markdownData.release || ''}
+              showBackButton={false}
+              onTabChange={setActiveTab}
+            />
+          </TabContent>
+          <TabContent $active={activeTab === 'update'}>
+            <ICEMarkDown
+              defaultText={markdownData.update || ''}
+              showBackButton={false}
+              onTabChange={setActiveTab}
+            />
+          </TabContent>
+          <TabContent $active={activeTab === 'howToUse'}>
+            <ICEMarkDown
+              defaultText={markdownData.howToUse || ''}
+              showBackButton={false}
+              onTabChange={setActiveTab}
+            />
+          </TabContent>
+        </TabContents>
         <Copyright>{t('copyright')}</Copyright>
       </Card>
     </Container>
