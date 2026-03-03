@@ -23,6 +23,12 @@ const PreviewFaqUseCases: React.FC = () => {
   return (
     <>
       <TopBox>
+        <PreviewBox>
+          <img
+            src="/images/sample/sample.png"
+            alt="ICE-PNG Forensic Interface Preview"
+          />
+        </PreviewBox>
         <GitHubBox>
           <GitHubFilledIcon width={18} height={18} className="github-logo" />
           <div className="divider" />
@@ -30,12 +36,6 @@ const PreviewFaqUseCases: React.FC = () => {
           <div className="divider" />
           <ReportButton />
         </GitHubBox>
-        <PreviewBox>
-          <img
-            src="/images/sample/sample.png"
-            alt="ICE-PNG Forensic Interface Preview"
-          />
-        </PreviewBox>
       </TopBox>
 
       <section>
