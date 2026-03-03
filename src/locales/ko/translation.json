@@ -245,5 +245,10 @@
     "button": "스폰서",
     "description": "우리의 오픈소스를 응원해주세요 ☕",
     "ariaLabel": "GitHub에서 스폰서 되기"
+  },
+  "report": {
+    "button": "리포트",
+    "description": "버그 제보 및 기능 요청",
+    "ariaLabel": "GitHub에서 이슈 등록하기"
   }
 }

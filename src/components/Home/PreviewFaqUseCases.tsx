@@ -4,6 +4,7 @@ import React from 'react';
 import { useTranslations } from 'next-intl';
 import { PreviewBox, SectionTitle, FaqBox, ListText } from './Home.styles';
 import SponsorButton from '@/components/SponsorButton/SponsorButton';
+import ReportButton from '@/components/ReportButton/ReportButton';
 
 const PreviewFaqUseCases: React.FC = () => {
   const t = useTranslations();
@@ -20,6 +21,7 @@ const PreviewFaqUseCases: React.FC = () => {
         />
       </PreviewBox>
       <SponsorButton />
+      <ReportButton />
 
       <section>
         <SectionTitle>{t('faqTab')}</SectionTitle>
