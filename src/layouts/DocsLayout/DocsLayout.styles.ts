@@ -79,7 +79,7 @@ export const TabButton = styled.button<{ $active?: boolean }>`
     color: var(--ice-main-color);
   }
   @media (max-width: 580px) {
-    padding: 0;
+    padding: 0.5rem 0rem;
   }
 `;
 

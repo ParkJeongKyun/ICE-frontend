@@ -51,7 +51,7 @@ export const RightSection = styled.div`
     width: 100%;
     height: auto;
     overflow-y: visible;
-    padding: 3rem 1rem; /* 패딩 축소 */
+    padding: 1.5rem 1rem; /* 패딩 축소 */
     box-sizing: border-box;
   }
 `;
@@ -67,7 +67,7 @@ export const ContentWrapper = styled.div`
 
   @media (max-width: 1024px) {
     min-height: auto;
-    padding: 1rem 0;
+    padding: 0;
   }
 `;
 
@@ -241,7 +241,7 @@ export const GitHubBox = styled.div`
 
   .github-logo {
     flex-shrink: 0;
-    color: var(--main-color);
+    color: var(--ice-main-color);
     opacity: 0.6;
     margin: 0 0.25rem;
   }
