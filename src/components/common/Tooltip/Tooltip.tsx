@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import {
   useFloating,
   autoUpdate,
@@ -6,27 +6,24 @@ import {
   flip,
   shift,
   useHover,
-  useClick,
+  useFocus,
   useDismiss,
   useRole,
   useInteractions,
   FloatingPortal,
   useTransitionStatus,
 } from '@floating-ui/react';
-import { isMobile } from 'react-device-detect';
 
 interface TooltipProps {
   text: string;
   children: React.ReactNode;
   placement?: 'top' | 'bottom' | 'left' | 'right';
-  duration?: number; // 자동 닫힘 시간 (ms)
 }
 
 const Tooltip: React.FC<TooltipProps> = ({
   text,
   children,
   placement = 'bottom',
-  duration = 0,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -41,23 +38,20 @@ const Tooltip: React.FC<TooltipProps> = ({
     middleware: [offset(2), flip(), shift({ padding: 8 })],
   });
 
-  // 상호작용 정의
+  // 상호작용 정의 (기기 구분 없음)
   const hover = useHover(context, {
     move: false,
-    enabled: !isMobile, // PC에서만 호버 작동
     delay: { open: 200 },
   });
 
-  const click = useClick(context, {
-    enabled: isMobile, // 모바일에서만 클릭(토글) 작동
-    toggle: true, // 다시 누르면 닫힘 (기본값)
-  });
-  const dismiss = useDismiss(context); // 바깥 누르면 닫힘
+  const focus = useFocus(context);
+
+  const dismiss = useDismiss(context);
   const role = useRole(context, { role: 'tooltip' });
 
   const { getReferenceProps, getFloatingProps } = useInteractions([
     hover,
-    click,
+    focus,
     dismiss,
     role,
   ]);
@@ -72,6 +66,7 @@ const Tooltip: React.FC<TooltipProps> = ({
         ref={refs.setReference}
         {...getReferenceProps()}
         style={{ display: 'inline-block', cursor: 'pointer' }}
+        tabIndex={0}
       >
         {children}
       </div>

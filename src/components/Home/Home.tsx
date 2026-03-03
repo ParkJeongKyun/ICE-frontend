@@ -20,13 +20,11 @@ import {
 import PreviewFaqUseCases from './PreviewFaqUseCases';
 import Logo from '../common/Icons/Logo/Logo';
 import { useTranslations, useLocale } from 'next-intl';
-import { useIsMobile } from '@/hooks/useIsMobile';
 
 const Home: React.FC = () => {
   const { menuBtnZoneRef } = useRefs();
   const t = useTranslations();
   const locale = useLocale();
-  const isMobileView = useIsMobile();
 
   return (
     <HomeDiv>
@@ -37,10 +35,7 @@ const Home: React.FC = () => {
               <Title>
                 <Logo showText size={36} textSize={36} />
                 <Version>
-                  <span>
-                    {process.env.NEXT_PUBLIC_APP_VERSION}
-                    {isMobileView && '_Mobile'}
-                  </span>
+                  <span>{process.env.NEXT_PUBLIC_APP_VERSION}</span>
                 </Version>
               </Title>
               <SubTitleDiv>

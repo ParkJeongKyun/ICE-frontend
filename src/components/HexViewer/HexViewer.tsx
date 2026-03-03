@@ -7,7 +7,6 @@ import React, {
   useCallback,
   useReducer,
 } from 'react';
-import { isMobile } from 'react-device-detect';
 
 // Contexts
 import {
@@ -311,9 +310,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
     const dpr = getDevicePixelRatio();
     const observer = new window.ResizeObserver((entries) => {
       for (const entry of entries) {
-        const width = isMobile
-          ? MIN_HEX_WIDTH * dpr
-          : Math.max(entry.contentRect.width, MIN_HEX_WIDTH) * dpr;
+        const width = Math.max(entry.contentRect.width, MIN_HEX_WIDTH) * dpr;
         const height = Math.floor(entry.contentRect.height);
         setCanvasSize((prev) =>
           prev.width !== width || prev.height !== height

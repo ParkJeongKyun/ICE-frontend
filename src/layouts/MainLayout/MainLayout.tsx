@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import {
-  FlexGrow,
   IceContent,
   IceCopyRight,
   IceFooter,
@@ -13,8 +12,6 @@ import {
   IceLeftSider,
   IceMainLayout,
   VisuallyHiddenH1,
-  IceMobileContent,
-  IceMobileLayout,
   IceRightSider,
   ProcessInfo,
   SelectInfo,
@@ -25,7 +22,8 @@ import {
   IceHeaderLeftSider,
   IceMobileTabBar,
   IceMobileTabButton,
-  IceMobileTabPanel,
+  DesktopOnly,
+  MobileOnly,
 } from './MainLayout.styles';
 import MenuBtnZone from '@/components/MenuBtnZone/MenuBtnZone';
 import TabWindow from '@/components/TabWindow/TabWindow';
@@ -48,7 +46,6 @@ import OffsetNavigator from '@/components/OffsetNavigator/OffsetNavigator';
 import LanguageSwitcher from '@/components/common/LanguageSwitcher/LanguageSwitcher';
 import InfoPanel from './SidePanels/InfoPanel';
 import ToolsPanel from './SidePanels/ToolsPanel';
-import { useIsMobile } from '@/hooks/useIsMobile';
 import { useProgress } from '@/hooks/useProgress';
 import PrivacyBtn from '@/components/common/Btn/PrivacyBtn';
 
@@ -61,7 +58,6 @@ const MainLayout: React.FC = () => {
   const { isProcessing } = useProcess();
   const { progress } = useProgress();
   const [mobileTab, setMobileTab] = useState<'info' | 'tools'>('info');
-  const isMobileView = useIsMobile();
 
   const {
     isDragging: isLeftSideDragging,
@@ -122,11 +118,13 @@ const MainLayout: React.FC = () => {
   return (
     <IceMainLayout $isResizing={isLeftSideDragging || isRightSideDragging}>
       <VisuallyHiddenH1>{t('home.h1Title')}</VisuallyHiddenH1>
-      <IceHeader $isMobile={isMobileView} $isProcessing={isProcessing}>
-        <IceHeaderLeftSider $isMobile={isMobileView}>
+      <IceHeader $isProcessing={isProcessing}>
+        <IceHeaderLeftSider>
           <Logo showText />
           <MenuBtnZone />
-          {!isMobileView && <LanguageSwitcher />}
+          <DesktopOnly>
+            <LanguageSwitcher />
+          </DesktopOnly>
         </IceHeaderLeftSider>
         <OffsetNavigator />
         {isProcessing && (
@@ -141,91 +139,69 @@ const MainLayout: React.FC = () => {
         )}
       </IceHeader>
 
-      {isMobileView ? (
-        <IceMobileLayout>
-          <IceMobileContent>
-            {isEmpty ? <Home /> : <TabWindow />}
-          </IceMobileContent>
-          {!isEmpty && (
-            <>
-              <IceMobileTabBar>
-                <IceMobileTabButton
-                  $active={mobileTab === 'info'}
-                  onClick={() => setMobileTab('info')}
-                >
-                  {t('mobile.tabs.info')}
-                </IceMobileTabButton>
-                <IceMobileTabButton
-                  $active={mobileTab === 'tools'}
-                  onClick={() => setMobileTab('tools')}
-                >
-                  {t('mobile.tabs.tools')}
-                </IceMobileTabButton>
-              </IceMobileTabBar>
+      <IceLayout>
+        <IceLeftSider
+          style={{ width: `${leftSidePosition}px` }}
+          $isCollapsed={leftSidePosition < MIN_SIDER_WIDTH}
+          $isEmpty={isEmpty}
+          $mobileActive={mobileTab === 'info'}
+        >
+          <InfoPanel />
+        </IceLeftSider>
+        <Separator
+          {...leftSideSepProps}
+          $isResizing={isLeftSideDragging}
+          style={{ display: isEmpty ? 'none' : 'block' }}
+        />
 
-              {/* 항상 마운트되게 변경: 검색(OffsetNavigator) 동작을 위해 Searcher의 ref가 필요합니다 */}
-              <IceMobileTabPanel $active={mobileTab === 'info'}>
-                <InfoPanel />
-              </IceMobileTabPanel>
+        <IceContent>{isEmpty ? <Home /> : <TabWindow />}</IceContent>
 
-              <IceMobileTabPanel $active={mobileTab === 'tools'}>
-                <ToolsPanel />
-              </IceMobileTabPanel>
-            </>
-          )}
-        </IceMobileLayout>
-      ) : (
-        <IceLayout>
-          <IceLeftSider
-            style={{
-              width: `${leftSidePosition}px`,
-              display:
-                leftSidePosition < MIN_SIDER_WIDTH || isEmpty
-                  ? 'none'
-                  : 'block',
-            }}
-          >
-            <InfoPanel />
-          </IceLeftSider>
-          <Separator
-            {...leftSideSepProps}
-            $isResizing={isLeftSideDragging}
-            style={{ display: isEmpty ? 'none' : 'block' }}
-          />
+        <Separator
+          {...rightSideSepProps}
+          $reverse={true}
+          $isResizing={isRightSideDragging}
+          style={{ display: isEmpty ? 'none' : 'block' }}
+        />
+        <IceRightSider
+          style={{ width: `${rightSidePosition}px` }}
+          $isCollapsed={rightSidePosition < MIN_SIDER_WIDTH}
+          $isEmpty={isEmpty}
+          $mobileActive={mobileTab === 'tools'}
+        >
+          <ToolsPanel />
+        </IceRightSider>
 
-          <FlexGrow>
-            <IceContent>{isEmpty ? <Home /> : <TabWindow />}</IceContent>
-            <Separator
-              {...rightSideSepProps}
-              $reverse={true}
-              $isResizing={isRightSideDragging}
-              style={{ display: isEmpty ? 'none' : 'block' }}
-            />
-            <IceRightSider
-              style={{
-                width: `${rightSidePosition}px`,
-                display:
-                  rightSidePosition < MIN_SIDER_WIDTH || isEmpty
-                    ? 'none'
-                    : 'block',
-              }}
+        {!isEmpty && (
+          <IceMobileTabBar>
+            <IceMobileTabButton
+              $active={mobileTab === 'info'}
+              onClick={() => setMobileTab('info')}
             >
-              <ToolsPanel />
-            </IceRightSider>
-          </FlexGrow>
-        </IceLayout>
-      )}
+              {t('mobile.tabs.info')}
+            </IceMobileTabButton>
+            <IceMobileTabButton
+              $active={mobileTab === 'tools'}
+              onClick={() => setMobileTab('tools')}
+            >
+              {t('mobile.tabs.tools')}
+            </IceMobileTabButton>
+          </IceMobileTabBar>
+        )}
+      </IceLayout>
 
-      <IceFooter $isMobile={isMobileView}>
+      <IceFooter>
         <SelectInfo>
           {selectionInfo ? (
-            isMobileView ? (
-              <div>
-                <SelectLabel>{t('footer.offset')}:</SelectLabel>
-                {showHex(selectionInfo.minOffset)}
-              </div>
-            ) : (
-              <>
+            <>
+              {/* 모바일: offset만 표시 */}
+              <MobileOnly>
+                <div>
+                  <SelectLabel>{t('footer.offset')}:</SelectLabel>
+                  {showHex(selectionInfo.minOffset)}
+                </div>
+              </MobileOnly>
+              {/* PC: selection, offset, range 모두 표시 */}
+              <DesktopOnly>
                 <div>
                   <SelectLabel>{t('footer.selection')}:</SelectLabel>
                   {showHex(selectionInfo.length)}
@@ -239,8 +215,8 @@ const MainLayout: React.FC = () => {
                   {showHex(selectionInfo.minOffset)}-
                   {showHex(selectionInfo.maxOffset)}
                 </div>
-              </>
-            )
+              </DesktopOnly>
+            </>
           ) : (
             <IceCopyRight>{t('copyright')}</IceCopyRight>
           )}
@@ -261,7 +237,9 @@ const MainLayout: React.FC = () => {
               tooltip={t('footer.encoding')}
             />
           )}
-          {isMobileView && <LanguageSwitcher />}
+          <MobileOnly>
+            <LanguageSwitcher />
+          </MobileOnly>
           <PrivacyBtn />
           <MessageHistory />
         </IceFooterRight>
