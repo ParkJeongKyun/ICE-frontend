@@ -76,7 +76,6 @@ export default async function HomePage(props: Props) {
   const markdownData = getMarkdownData(locale, [
     'about',
     'release',
-    'update',
     'howToUse',
   ]);
 

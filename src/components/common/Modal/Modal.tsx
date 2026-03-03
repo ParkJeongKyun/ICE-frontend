@@ -48,7 +48,6 @@ const Modal: React.FC<ModalProps> = ({
         childFiles: {
           howToUse: 'howToUse',
           release: 'release',
-          update: 'update',
         },
       },
     }),

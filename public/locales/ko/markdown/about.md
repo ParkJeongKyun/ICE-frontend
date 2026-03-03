@@ -60,11 +60,6 @@
 - Next.js
 - WebAssembly
 
-## 🚀 [업데이트 예정](/markdown/update)
-
-앞으로의 업데이트가 궁금하시다면
-위 "업데이트 예정" 링크를 클릭해 주세요.
-
 ## 💻 소스 코드
 
 - [Github](https://github.com/ParkJeongKyun/ICE-frontend)

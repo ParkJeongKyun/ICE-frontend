@@ -89,3 +89,7 @@ export const TabContents = styled.div`
   /* ensure content fills remaining space without overshoot */
   min-height: 0;
 `;
+
+export const TabContent = styled.div<{ $active?: boolean }>`
+  display: ${({ $active }) => ($active ? 'block' : 'none')};
+`;
