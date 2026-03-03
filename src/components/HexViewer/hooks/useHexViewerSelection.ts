@@ -6,12 +6,10 @@ import {
 } from '@/contexts/TabDataContext/TabDataContext';
 import eventBus from '@/types/eventBus';
 import {
-  LAYOUT,
-  HEX_START_X,
-  ASCII_START_X,
   MAX_COPY_SIZE,
   COPY_CHUNK_SIZE,
-} from '@/constants/hexViewer';
+} from '@/components/HexViewer/hexViewerConstants';
+import type { LayoutConfig } from '@/components/HexViewer/hexViewerConstants';
 
 interface ContextMenuState {
   x: number;
@@ -24,6 +22,7 @@ interface UseHexViewerSelectionProps {
   rowCount: number;
   selectionPreviewRef?: RefObject<SelectionState | null>;
   onPreviewChange?: () => void;
+  layoutConfig: LayoutConfig;
 }
 
 export const useHexViewerSelection = ({
@@ -32,10 +31,20 @@ export const useHexViewerSelection = ({
   rowCount,
   selectionPreviewRef,
   onPreviewChange,
+  layoutConfig,
 }: UseHexViewerSelectionProps) => {
   const { activeKey, activeData } = useTab();
   const { selectionStates, setSelectionStates } = useSelection();
   const file = activeData?.file;
+
+  const {
+    bytesPerRow,
+    rowHeight,
+    hexByteWidth,
+    asciiCharWidth,
+    HEX_START_X,
+    ASCII_START_X,
+  } = layoutConfig;
 
   // [Fix] useRef 대신 useState 사용 (UI 렌더링 트리거)
   const [contextMenu, setContextMenu] = useState<ContextMenuState | null>(null);
@@ -81,32 +90,29 @@ export const useHexViewerSelection = ({
   // --- Helper: Mouse to Index ---
   const getByteIndexFromMouse = useCallback(
     (x: number, y: number): number | null => {
-      const row = firstRowRef.current + Math.floor(y / LAYOUT.rowHeight);
+      const row = firstRowRef.current + Math.floor(y / rowHeight);
       if (row < 0 || row >= rowCount) return null;
 
-      if (
-        x >= HEX_START_X &&
-        x < HEX_START_X + LAYOUT.bytesPerRow * LAYOUT.hexByteWidth
-      ) {
-        const col = Math.floor((x - HEX_START_X) / LAYOUT.hexByteWidth);
-        if (col < 0 || col >= LAYOUT.bytesPerRow) return null;
-        const idx = row * LAYOUT.bytesPerRow + col;
+      if (x >= HEX_START_X && x < HEX_START_X + bytesPerRow * hexByteWidth) {
+        const col = Math.floor((x - HEX_START_X) / hexByteWidth);
+        if (col < 0 || col >= bytesPerRow) return null;
+        const idx = row * bytesPerRow + col;
         return idx < fileSize ? idx : null;
       }
 
       if (
         x >= ASCII_START_X &&
-        x < ASCII_START_X + LAYOUT.bytesPerRow * LAYOUT.asciiCharWidth
+        x < ASCII_START_X + bytesPerRow * asciiCharWidth
       ) {
-        const col = Math.floor((x - ASCII_START_X) / LAYOUT.asciiCharWidth);
-        if (col < 0 || col >= LAYOUT.bytesPerRow) return null;
-        const idx = row * LAYOUT.bytesPerRow + col;
+        const col = Math.floor((x - ASCII_START_X) / asciiCharWidth);
+        if (col < 0 || col >= bytesPerRow) return null;
+        const idx = row * bytesPerRow + col;
         return idx < fileSize ? idx : null;
       }
 
       return null;
     },
-    [fileSize, rowCount, firstRowRef]
+    [fileSize, rowCount, firstRowRef, layoutConfig]
   );
 
   // --- Effect: Read Selected Bytes ---
@@ -336,17 +342,16 @@ export const useHexViewerSelection = ({
       const cursor = selection.cursor ?? 0;
       let newCursor = cursor;
       const keyActions: Record<string, () => void> = {
-        ArrowUp: () => (newCursor = Math.max(0, cursor - LAYOUT.bytesPerRow)),
+        ArrowUp: () => (newCursor = Math.max(0, cursor - bytesPerRow)),
         ArrowDown: () =>
-          (newCursor = Math.min(fileSize - 1, cursor + LAYOUT.bytesPerRow)),
+          (newCursor = Math.min(fileSize - 1, cursor + bytesPerRow)),
         ArrowLeft: () => (newCursor = Math.max(0, cursor - 1)),
         ArrowRight: () => (newCursor = Math.min(fileSize - 1, cursor + 1)),
-        Home: () =>
-          (newCursor = Math.max(0, cursor - (cursor % LAYOUT.bytesPerRow))),
+        Home: () => (newCursor = Math.max(0, cursor - (cursor % bytesPerRow))),
         End: () =>
           (newCursor = Math.min(
             fileSize - 1,
-            cursor + (LAYOUT.bytesPerRow - 1 - (cursor % LAYOUT.bytesPerRow))
+            cursor + (bytesPerRow - 1 - (cursor % bytesPerRow))
           )),
       };
       keyActions[key]?.();

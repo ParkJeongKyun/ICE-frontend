@@ -1,5 +1,10 @@
 import styled from 'styled-components';
 
+// 브레이크포인트 변수
+export const BREAKPOINTS = {
+  mobile: '1024px',
+};
+
 // 메인 레이아웃
 export const IceMainLayout = styled.div<{ $isResizing: boolean }>`
   width: 100%;
@@ -29,7 +34,6 @@ export const VisuallyHiddenH1 = styled.h1`
 
 // 헤더
 export const IceHeader = styled.div<{
-  $isMobile?: boolean;
   $isProcessing?: boolean;
 }>`
   display: flex;
@@ -71,27 +75,21 @@ export const IceHeader = styled.div<{
   `}
 
   /* 모바일 버전용 */
-  ${(props) =>
-    props.$isMobile &&
-    `
-      gap: 4px;
-      padding: 2px 6px;
-    `}
+  @media (max-width: ${BREAKPOINTS.mobile}) {
+    gap: 4px;
+    padding: 2px 6px;
+  }
 `;
 
-export const IceHeaderLeftSider = styled.div<{
-  $isMobile?: boolean;
-}>`
+export const IceHeaderLeftSider = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
 
   /* 모바일 버전용 */
-  ${(props) =>
-    props.$isMobile &&
-    `
-      gap: 4px;
-    `}
+  @media (max-width: ${BREAKPOINTS.mobile}) {
+    gap: 4px;
+  }
 `;
 
 // 진행률 바 (헤더 내부에서 사용)
@@ -120,7 +118,7 @@ export const IceHeaderProgressBar = styled.div<{
 `;
 
 // 푸터
-export const IceFooter = styled.div<{ $isMobile?: boolean }>`
+export const IceFooter = styled.div`
   display: flex;
   align-items: stretch;
   gap: 8px;
@@ -133,13 +131,11 @@ export const IceFooter = styled.div<{ $isMobile?: boolean }>`
   user-select: none;
   position: relative;
 
-  ${(props) =>
-    props.$isMobile &&
-    `
-      padding: 0px 6px;
-      font-size: 0.65rem;
-      gap: 4px;
-    `}
+  @media (max-width: ${BREAKPOINTS.mobile}) {
+    padding: 0px 6px;
+    font-size: 0.65rem;
+    gap: 4px;
+  }
 `;
 
 export const ProcessInfo = styled.div`
@@ -203,14 +199,19 @@ export const IceCopyRight = styled.div`
   white-space: nowrap;
 `;
 
-// 중간 컨텐츠 레이아웃
+// 중간 컨텐츠 레이아웃 (PC: 가로 3단, 모바일: 세로 단일)
 export const IceLayout = styled.div`
   display: flex;
+  flex-direction: row;
   flex: 1;
   height: 100%;
   background-color: var(--main-bg-color);
   color: var(--main-color);
-  overflow: hidden; /* 스크롤 숨기기 */
+  overflow: hidden;
+
+  @media (max-width: ${BREAKPOINTS.mobile}) {
+    flex-direction: column;
+  }
 `;
 
 // 크기 조절 바
@@ -250,73 +251,99 @@ export const Separator = styled.div<{
       z-index: -1; /* Ensure the pseudo-element is behind the actual separator */
     }
   `}
+
+  /* 모바일에서는 리사이저 숨김 */
+  @media (max-width: ${BREAKPOINTS.mobile}) {
+    display: none !important;
+  }
 `;
 
-// 왼쪽 사이드바
-export const IceLeftSider = styled.div`
+// 왼쪽 사이드바 (PC: 고정 너비 사이드바, 모바일: 탭으로 전환)
+export const IceLeftSider = styled.div<{
+  $isCollapsed?: boolean;
+  $isEmpty?: boolean;
+  $mobileActive?: boolean;
+}>`
   display: grid;
   background-color: var(--main-bg-color);
   color: var(--main-color);
   overflow: hidden;
   overflow-y: auto;
   flex-shrink: 0;
+
+  /* PC: 접힘/빈 상태일 때 숨김 */
+  ${(props) => (props.$isCollapsed || props.$isEmpty) && 'display: none;'}
+
+  @media (max-width: ${BREAKPOINTS.mobile}) {
+    width: 100% !important;
+    order: 3;
+    height: 65%;
+    flex-shrink: 0;
+    overflow: auto;
+    border-top: 1px solid var(--main-line-color);
+    display: ${(props) =>
+      props.$mobileActive && !props.$isEmpty ? 'grid' : 'none'} !important;
+  }
 `;
 
-// 크기조절을 위한 div
-export const FlexGrow = styled.div`
-  display: flex;
-  flex-grow: 1;
-  overflow: hidden;
-`;
-
-// 중간 부분
+// 중간 부분 (PC: flex:1로 남은 공간 차지, 모바일: 상단 고정)
 export const IceContent = styled.div`
   display: flex;
   flex: 1;
   background-color: var(--main-bg-color);
   color: var(--main-color);
   overflow: hidden;
+
+  @media (max-width: ${BREAKPOINTS.mobile}) {
+    order: 1;
+    min-height: 0;
+    flex: 1; /* 모바일에서도 남은 세로 공간을 꽉 채우도록 보장 */
+  }
 `;
 
-// 오른쪽 사이드바
-export const IceRightSider = styled.div`
+// 오른쪽 사이드바 (PC: 고정 너비 사이드바, 모바일: 탭으로 전환)
+export const IceRightSider = styled.div<{
+  $isCollapsed?: boolean;
+  $isEmpty?: boolean;
+  $mobileActive?: boolean;
+}>`
   display: grid;
   background-color: var(--main-bg-color);
   color: var(--main-color);
   overflow: auto;
   flex-shrink: 0;
+
+  /* PC: 접힘/빈 상태일 때 숨김 */
+  ${(props) => (props.$isCollapsed || props.$isEmpty) && 'display: none;'}
+
+  @media (max-width: ${BREAKPOINTS.mobile}) {
+    width: 100% !important;
+    order: 3;
+    height: 65%;
+    flex-shrink: 0;
+    overflow: auto;
+    border-top: 1px solid var(--main-line-color);
+    display: ${(props) =>
+      props.$mobileActive && !props.$isEmpty ? 'grid' : 'none'} !important;
+  }
 `;
 
-// 모바일 레이아웃
-export const IceMobileLayout = styled.div`
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  min-height: 0;
-  background-color: var(--main-bg-color);
-  color: var(--main-color);
-  overflow: hidden; /* 스크롤 숨기기 */
-`;
-
-// 모바일
-export const IceMobileContent = styled.div`
-  display: flex;
-  flex-grow: 1;
-  flex: 1; /* 남은 공간 모두 차지 */
-  min-height: 0; /* 콘텐츠가 넘쳐도 부모를 늘리지 않음 */
-  background-color: var(--main-bg-color);
-  color: var(--main-color);
-`;
-
+// 모바일 탭 바 (PC에서는 숨김, 모바일에서만 표시)
 export const IceMobileTabBar = styled.div`
-  display: flex;
-  gap: 0;
-  padding: 0;
-  height: 25px;
-  background-color: var(--main-bg-color);
-  border-top: 1px solid var(--main-line-color);
-  align-items: stretch;
-  justify-content: stretch;
+  display: none;
+
+  @media (max-width: ${BREAKPOINTS.mobile}) {
+    display: flex;
+    order: 2;
+    gap: 0;
+    padding: 0;
+    height: 25px;
+    flex-shrink: 0;
+    background-color: var(--main-bg-color);
+    border-top: 1px solid var(--main-line-color);
+    align-items: stretch;
+    justify-content: stretch;
+  }
 `;
 
 export const IceMobileTabButton = styled.button<{ $active?: boolean }>`
@@ -364,17 +391,6 @@ export const IceMobileTabButton = styled.button<{ $active?: boolean }>`
   }
 `;
 
-export const IceMobileTabPanel = styled.div.attrs<{ $active?: boolean }>(
-  (props) => ({
-    'aria-hidden': !props.$active,
-  })
-)<{ $active?: boolean }>`
-  display: ${({ $active }) => ($active ? 'block' : 'none')};
-  height: 65%;
-  overflow: auto;
-  border-top: 1px solid var(--main-line-color);
-`;
-
 export const IceFooterRight = styled.div`
   display: flex;
   align-items: stretch;
@@ -382,4 +398,22 @@ export const IceFooterRight = styled.div`
   font-weight: 500;
   flex-shrink: 0;
   position: relative;
+`;
+
+// 인라인 요소용: PC에서만 보임
+export const DesktopOnly = styled.span`
+  display: contents;
+
+  @media (max-width: ${BREAKPOINTS.mobile}) {
+    display: none !important;
+  }
+`;
+
+// 인라인 요소용: 모바일에서만 보임
+export const MobileOnly = styled.span`
+  display: none !important;
+
+  @media (max-width: ${BREAKPOINTS.mobile}) {
+    display: contents !important;
+  }
 `;

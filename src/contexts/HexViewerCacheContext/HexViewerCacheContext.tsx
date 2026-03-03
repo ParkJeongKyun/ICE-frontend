@@ -6,7 +6,7 @@ import React, {
   useCallback,
   ReactNode,
 } from 'react';
-import { CHUNK_SIZE } from '@/constants/hexViewer';
+import { CHUNK_SIZE } from '@/components/HexViewer/hexViewerConstants';
 
 interface HexViewerCacheContextType {
   chunkCacheRef: React.RefObject<Map<number, Uint8Array>>;

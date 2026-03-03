@@ -11,7 +11,6 @@ import {
   CloseButton,
 } from './MessageModal.styles';
 import XIcon from '@/components/common/Icons/XIcon';
-import { isMobile } from 'react-device-detect';
 import { formatBytes, formatSpeed, formatTime } from '@/utils/formatters';
 import { MESSAGE_TYPE_ICONS } from '@/utils/messageStyles';
 
@@ -29,7 +28,7 @@ const MessageModal: React.FC = () => {
   if (currentMessages.length === 0) return null;
 
   return (
-    <MessageModalContainer $isMobile={isMobile}>
+    <MessageModalContainer>
       {currentMessages.map((message) => {
         const Icon = MESSAGE_TYPE_ICONS[message.type];
         const { stats } = message;
@@ -37,8 +36,8 @@ const MessageModal: React.FC = () => {
         return (
           <MessageBox
             key={message.id}
-            $isMobile={isMobile}
             $type={message.type}
+            onClick={() => handleClose(message.id)}
           >
             <MessageIcon $type={message.type}>
               <Icon width={20} height={20} />
@@ -60,7 +59,13 @@ const MessageModal: React.FC = () => {
                 </MessageText>
               )}
             </MessageContent>
-            <CloseButton onClick={() => handleClose(message.id)}>
+            <CloseButton
+              onClick={(e) => {
+                e.stopPropagation();
+                handleClose(message.id);
+              }}
+              aria-label="Close message"
+            >
               <XIcon width={16} height={16} />
             </CloseButton>
           </MessageBox>

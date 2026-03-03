@@ -2,7 +2,7 @@ import { RefObject, useCallback, useRef } from 'react';
 import { useTab } from '@/contexts/TabDataContext/TabDataContext';
 import { useWorker } from '@/contexts/WorkerContext/WorkerContext';
 import eventBus from '@/types/eventBus';
-import { CHUNK_SIZE, LAYOUT } from '@/constants/hexViewer';
+import { CHUNK_SIZE } from '@/components/HexViewer/hexViewerConstants';
 
 interface UseHexViewerWorkerProps {
   chunkCacheRef: RefObject<Map<number, Uint8Array>>;
@@ -11,6 +11,7 @@ interface UseHexViewerWorkerProps {
   isInitialLoadingRef: RefObject<boolean>;
   visibleRows: number;
   checkCacheSize: () => void;
+  bytesPerRow: number;
 }
 
 export const useHexViewerWorker = ({
@@ -20,6 +21,7 @@ export const useHexViewerWorker = ({
   isInitialLoadingRef,
   visibleRows,
   checkCacheSize,
+  bytesPerRow,
 }: UseHexViewerWorkerProps) => {
   const { activeData } = useTab();
   const { chunkWorker } = useWorker();
@@ -39,9 +41,9 @@ export const useHexViewerWorker = ({
     ) => {
       if (!chunkWorker) return;
 
-      const startByte = startRow * LAYOUT.bytesPerRow;
+      const startByte = startRow * bytesPerRow;
       const endByte = Math.min(
-        startByte + currentVisibleRows * LAYOUT.bytesPerRow,
+        startByte + currentVisibleRows * bytesPerRow,
         currentFileSize
       );
       const startChunk = Math.floor(startByte / CHUNK_SIZE);

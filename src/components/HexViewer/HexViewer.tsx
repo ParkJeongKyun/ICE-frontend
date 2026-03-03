@@ -2,12 +2,12 @@ import React, {
   useRef,
   useEffect,
   useState,
+  useMemo,
   useImperativeHandle,
   forwardRef,
   useCallback,
   useReducer,
 } from 'react';
-import { isMobile } from 'react-device-detect';
 
 // Contexts
 import {
@@ -38,10 +38,10 @@ import {
 // Constants & Utils
 import {
   CHUNK_REQUEST_DEBOUNCE,
-  LAYOUT,
-  MIN_HEX_WIDTH,
   COLOR_KEYS,
-} from '@/constants/hexViewer';
+  getLayoutConfig,
+  DEFAULT_LAYOUT,
+} from '@/components/HexViewer/hexViewerConstants';
 import { getDevicePixelRatio } from '@/utils/hexViewer';
 
 // Hooks
@@ -60,8 +60,6 @@ export interface HexViewerRef {
   scrollToIndex: (index: number, offset: number) => void;
 }
 
-const { bytesPerRow, rowHeight } = LAYOUT;
-
 const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
   props,
   ref
@@ -76,15 +74,34 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
   const { chunkCacheRef, requestedChunksRef, getByte, checkCacheSize } =
     useHexViewerCacheContext();
 
+  // ==================================================================================
+  // 2. Layout Config (Dynamic based on viewport width)
+  // ==================================================================================
+  const [isMeasured, setIsMeasured] = useState(false);
+  const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 }); // logical CSS pixels
+  const [windowWidth, setWindowWidth] = useState(0);
+
+  useEffect(() => {
+    const update = () => setWindowWidth(window.innerWidth);
+    update();
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, []);
+
+  const layoutConfig = useMemo(
+    () => (windowWidth > 0 ? getLayoutConfig(windowWidth) : DEFAULT_LAYOUT),
+    [windowWidth]
+  );
+  const { bytesPerRow, rowHeight, headerHeight, MIN_HEX_WIDTH } = layoutConfig;
+
   // Derived States
   const file = activeData?.file;
   const fileSize = file?.size || 0;
   const rowCount = Math.ceil(fileSize / bytesPerRow);
 
   // ==================================================================================
-  // 2. Refs & Local States
+  // 3. Refs & Local States
   // ==================================================================================
-  const [canvasSize, setCanvasSize] = useState({ width: 800, height: 400 });
 
   // DOM Refs
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -129,13 +146,14 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
   >(null);
 
   // Calculated Values
-  const visibleRows = Math.floor(
-    (canvasSize.height - LAYOUT.headerHeight) / rowHeight
+  const visibleRows = Math.max(
+    0,
+    Math.floor((canvasSize.height - headerHeight) / rowHeight)
   );
   const maxFirstRow = Math.max(0, rowCount - visibleRows);
 
   // ==================================================================================
-  // 3. Helper Functions
+  // 4. Helper Functions
   // ==================================================================================
 
   // A. React Render Trigger (Throttled)
@@ -168,7 +186,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
   }, [handleDragRepaint, throttledRender]);
 
   // ==================================================================================
-  // 4. Custom Hooks Initialization
+  // 5. Custom Hooks Initialization
   // ==================================================================================
 
   // Rendering
@@ -182,6 +200,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
     isInitialLoadingRef,
     hasValidDataRef,
     selectionPreviewRef,
+    layoutConfig,
   });
 
   useEffect(() => {
@@ -196,6 +215,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
     isInitialLoadingRef,
     visibleRows,
     checkCacheSize,
+    bytesPerRow,
   });
 
   const requestChunksRef = useRef(requestChunks);
@@ -222,6 +242,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
     rowCount,
     selectionPreviewRef,
     onPreviewChange: handleDragRepaint,
+    layoutConfig,
   });
 
   // Vertical Scroll
@@ -245,6 +266,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
     canvasHeight: canvasSize.height,
     requestChunks,
     firstRowRef,
+    rowHeight,
   });
 
   // Horizontal Scroll
@@ -256,10 +278,10 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
     handleScrollbarMouseDown: handleHorizontalScrollbarMouseDown,
     handleScrollbarTouchStart: handleHorizontalScrollbarTouchStart,
     scrollbarDragEffect: horizontalScrollbarDragEffect,
-  } = useHexViewerXScroll({ containerRef });
+  } = useHexViewerXScroll({ containerRef, minHexWidth: MIN_HEX_WIDTH });
 
   // ==================================================================================
-  // 5. Effects (Lifecycle & Updates)
+  // 6. Effects (Lifecycle & Updates)
   // ==================================================================================
 
   // Update Stable Refs
@@ -308,24 +330,22 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
   // Resize Observer (with forced repaint)
   useEffect(() => {
     if (!containerRef.current) return;
-    const dpr = getDevicePixelRatio();
     const observer = new window.ResizeObserver((entries) => {
       for (const entry of entries) {
-        const width = isMobile
-          ? MIN_HEX_WIDTH * dpr
-          : Math.max(entry.contentRect.width, MIN_HEX_WIDTH) * dpr;
+        const width = Math.floor(entry.contentRect.width);
         const height = Math.floor(entry.contentRect.height);
         setCanvasSize((prev) =>
           prev.width !== width || prev.height !== height
             ? { width, height }
             : prev
         );
+        if (!isMeasured) setIsMeasured(true);
         handleDragRepaint();
       }
     });
     observer.observe(containerRef.current);
     return () => observer.disconnect();
-  }, [handleDragRepaint]);
+  }, [handleDragRepaint, isMeasured]);
 
   useEffect(() => scrollbarDragEffect(), [scrollbarDragEffect]);
   useEffect(
@@ -376,9 +396,14 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
 
   // Sync Header & Canvas Size
   useEffect(() => {
-    canvasSizeRef.current = canvasSize;
+    const dpr = getDevicePixelRatio();
+    const logicalWidth = Math.max(canvasSize.width, MIN_HEX_WIDTH);
+    canvasSizeRef.current = {
+      width: logicalWidth * dpr,
+      height: canvasSize.height * dpr,
+    };
     renderHeader();
-  }, [canvasSize, renderHeader]);
+  }, [canvasSize, MIN_HEX_WIDTH, renderHeader]);
 
   // Main Render Trigger (React State Updates)
   useEffect(() => {
@@ -532,12 +557,23 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
     ]
   );
 
+  const dpr = getDevicePixelRatio();
+  const canvasLogicalWidth = Math.max(canvasSize.width, MIN_HEX_WIDTH);
+  const canvasPhysicalWidth = canvasLogicalWidth * dpr;
+  const canvasDataHeight = canvasSize.height - headerHeight;
+  const headerPhysicalHeight = headerHeight * dpr;
+  const canvasPhysicalHeight = canvasDataHeight * dpr;
+
   return (
     <HexViewerContainer
       onWheel={handleWheel}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
+      style={{
+        opacity: isMeasured ? 1 : 0,
+        transition: 'opacity 0.15s ease-in',
+      }}
     >
       <CanvasContainer
         ref={containerRef}
@@ -547,20 +583,20 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
         <CanvasArea style={{ minWidth: `${MIN_HEX_WIDTH}px` }}>
           <HeaderCanvas
             ref={headerCanvasRef}
-            width={canvasSize.width}
-            height={LAYOUT.headerHeight}
+            width={canvasPhysicalWidth}
+            height={headerPhysicalHeight}
             style={{
-              width: `${canvasSize.width / getDevicePixelRatio()}px`,
-              height: `${LAYOUT.headerHeight}px`,
+              width: `${canvasLogicalWidth}px`,
+              height: `${headerHeight}px`,
             }}
           />
           <StyledCanvas
             ref={canvasRef}
-            width={canvasSize.width}
-            height={canvasSize.height - LAYOUT.headerHeight}
+            width={canvasPhysicalWidth}
+            height={canvasPhysicalHeight}
             style={{
-              width: `${canvasSize.width / getDevicePixelRatio()}px`,
-              height: `${canvasSize.height - LAYOUT.headerHeight}px`,
+              width: `${canvasLogicalWidth}px`,
+              height: `${canvasDataHeight}px`,
             }}
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}

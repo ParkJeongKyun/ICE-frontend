@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 import { MessageType } from '@/contexts/MessageContext/MessageContext';
 import { getMessageTypeColor } from '@/utils/messageStyles';
+import { BREAKPOINTS } from '@/layouts/MainLayout/MainLayout.styles';
 
 export const HistoryButton = styled.button<{ $hasUnread: boolean }>`
   position: relative;
@@ -32,7 +33,7 @@ export const HistoryBadge = styled.span`
   border-radius: 50%;
 `;
 
-export const HistoryOverlay = styled.div<{ $isMobile: boolean }>`
+export const HistoryOverlay = styled.div`
   position: fixed;
   top: 0;
   left: 0;
@@ -40,7 +41,11 @@ export const HistoryOverlay = styled.div<{ $isMobile: boolean }>`
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.3);
   z-index: 1100;
-  display: ${({ $isMobile }) => ($isMobile ? 'block' : 'none')};
+  display: none;
+
+  @media (max-width: ${BREAKPOINTS.mobile}) {
+    display: block;
+  }
 `;
 
 export const HistoryPanel = styled.div<{ $isOpen: boolean }>`
@@ -58,7 +63,7 @@ export const HistoryPanel = styled.div<{ $isOpen: boolean }>`
   flex-direction: column;
   overflow: hidden;
 
-  @media (max-width: 768px) {
+  @media (max-width: ${BREAKPOINTS.mobile}) {
     position: fixed;
     bottom: 60px;
     left: 10px;
@@ -143,7 +148,7 @@ export const HistoryItemHeader = styled.div`
   cursor: pointer;
   align-items: center;
 
-  @media (max-width: 768px) {
+  @media (max-width: ${BREAKPOINTS.mobile}) {
     padding: 6px;
     gap: 6px;
   }
@@ -168,7 +173,7 @@ export const HistoryItemBody = styled.div`
   flex-direction: column;
   gap: 6px;
 
-  @media (max-width: 768px) {
+  @media (max-width: ${BREAKPOINTS.mobile}) {
     padding: 0 6px 6px 6px;
   }
 `;

@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { isMobile } from 'react-device-detect';
+import { BREAKPOINTS } from '@/layouts/MainLayout/MainLayout.styles';
 
 // 최상위 컨테이너
 export const HexViewerContainer = styled.div`
@@ -28,7 +28,7 @@ export const CanvasContainer = styled.div`
     display: none;
   }
   scrollbar-width: none;
-  
+
   &:focus {
     outline: none;
   }
@@ -71,7 +71,7 @@ export const StyledCanvas = styled.canvas`
   -moz-user-select: none;
   -ms-user-select: none;
   touch-action: pan-x;
-  
+
   &:focus {
     outline: none;
   }
@@ -79,7 +79,7 @@ export const StyledCanvas = styled.canvas`
 
 // 가상 수평 스크롤바
 export const HorizontalScrollbar = styled.div`
-  height: ${isMobile ? '15px' : '10px'};
+  height: 10px;
   width: 100%;
   background-color: transparent;
   display: flex;
@@ -90,6 +90,10 @@ export const HorizontalScrollbar = styled.div`
   left: 0;
   z-index: 300;
   pointer-events: all;
+
+  @media (max-width: ${BREAKPOINTS.mobile}) {
+    height: 15px;
+  }
 `;
 
 // 수평 스크롤바 썸
@@ -120,7 +124,7 @@ export const HorizontalScrollbarThumb = styled.div.attrs<{
 
 // 가상 스크롤바
 export const VirtualScrollbar = styled.div`
-  width: ${isMobile ? '15px' : '12px'};
+  width: 12px;
   height: 100%;
   background-color: transparent;
   display: flex;
@@ -131,6 +135,10 @@ export const VirtualScrollbar = styled.div`
   top: 0;
   z-index: 300;
   pointer-events: all;
+
+  @media (max-width: ${BREAKPOINTS.mobile}) {
+    width: 15px;
+  }
 `;
 
 // 스크롤바 썸

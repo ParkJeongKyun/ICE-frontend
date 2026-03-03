@@ -38,7 +38,6 @@ import BellIcon from '@/components/common/Icons/BellIcon';
 import InfoIcon from '@/components/common/Icons/InfoIcon';
 import TrashIcon from '@/components/common/Icons/TrashIcon';
 import ChevronDownIcon from '@/components/common/Icons/ChevronDownIcon';
-import { isMobile } from 'react-device-detect';
 import { MESSAGE_TYPE_ICONS } from '@/utils/messageStyles';
 
 const MessageHistory: React.FC = () => {
@@ -75,7 +74,7 @@ const MessageHistory: React.FC = () => {
         {unreadCount > 0 && <HistoryBadge />}
       </HistoryButton>
 
-      {isOpen && <HistoryOverlay $isMobile={isMobile} onClick={handleClose} />}
+      {isOpen && <HistoryOverlay onClick={handleClose} />}
 
       <HistoryPanel $isOpen={isOpen}>
         <HistoryHeader>

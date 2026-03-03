@@ -1,38 +1,37 @@
 import styled, { keyframes } from 'styled-components';
 import { MessageType } from '@/contexts/MessageContext/MessageContext';
 import { getMessageTypeColor } from '@/utils/messageStyles';
+import { BREAKPOINTS } from '@/layouts/MainLayout/MainLayout.styles';
 
-const fadeIn = keyframes`
+const slideUp = keyframes`
   from {
     opacity: 0;
+    transform: translateY(15px);
   }
   to {
     opacity: 1;
+    transform: translateY(0);
   }
 `;
 
-export const MessageModalContainer = styled.div<{ $isMobile: boolean }>`
+export const MessageModalContainer = styled.div`
   position: fixed;
-  top: 35px;
+  bottom: 40px;
   right: 40px;
   z-index: 10000;
   display: flex;
-  flex-direction: column;
+  flex-direction: column-reverse;
   gap: 12px;
   pointer-events: none;
 
-  /* 모바일 버전용 */
-  ${(props) =>
-    props.$isMobile &&
-    `
-      bottom: auto;
-      right: 10px;
-      left: 10px;
-    `}
+  @media (max-width: ${BREAKPOINTS.mobile}) {
+    bottom: 65px;
+    right: 16px;
+    left: 16px;
+  }
 `;
 
 export const MessageBox = styled.div<{
-  $isMobile: boolean;
   $type: MessageType;
 }>`
   position: relative;
@@ -48,16 +47,14 @@ export const MessageBox = styled.div<{
   gap: 12px;
   align-items: flex-start;
   pointer-events: auto;
-  animation: ${fadeIn} 0.15s ease-out;
+  cursor: pointer;
+  animation: ${slideUp} 0.2s ease-out;
 
-  /* 모바일 버전용 */
-  ${(props) =>
-    props.$isMobile &&
-    `
-      min-width: auto;
-      max-width: none;
-      padding: 12px;
-    `}
+  @media (max-width: ${BREAKPOINTS.mobile}) {
+    min-width: auto;
+    max-width: none;
+    padding: 12px;
+  }
 `;
 
 export const MessageIcon = styled.div<{ $type: MessageType }>`

@@ -2,8 +2,17 @@
 
 import React from 'react';
 import { useTranslations } from 'next-intl';
-import { PreviewBox, SectionTitle, FaqBox, ListText } from './Home.styles';
+import {
+  PreviewBox,
+  SectionTitle,
+  FaqBox,
+  ListText,
+  TopBox,
+  GitHubBox,
+} from './Home.styles';
 import SponsorButton from '@/components/SponsorButton/SponsorButton';
+import ReportButton from '@/components/ReportButton/ReportButton';
+import GitHubFilledIcon from '../common/Icons/GitHubFilledIcon';
 
 const PreviewFaqUseCases: React.FC = () => {
   const t = useTranslations();
@@ -13,13 +22,21 @@ const PreviewFaqUseCases: React.FC = () => {
 
   return (
     <>
-      <PreviewBox>
-        <img
-          src="/images/sample/sample.png"
-          alt="ICE-PNG Forensic Interface Preview"
-        />
-      </PreviewBox>
-      <SponsorButton />
+      <TopBox>
+        <PreviewBox>
+          <img
+            src="/images/sample/sample.png"
+            alt="ICE-PNG Forensic Interface Preview"
+          />
+        </PreviewBox>
+        <GitHubBox>
+          <GitHubFilledIcon width={18} height={18} className="github-logo" />
+          <div className="divider" />
+          <SponsorButton />
+          <div className="divider" />
+          <ReportButton />
+        </GitHubBox>
+      </TopBox>
 
       <section>
         <SectionTitle>{t('faqTab')}</SectionTitle>
@@ -31,7 +48,7 @@ const PreviewFaqUseCases: React.FC = () => {
         ))}
       </section>
 
-      <section style={{ marginBottom: '5rem' }}>
+      <section style={{ marginBottom: '4rem' }}>
         <SectionTitle>{t('useCasesTab')}</SectionTitle>
         {useCasesData.map((text, index) => (
           <ListText key={index}>• {text}</ListText>

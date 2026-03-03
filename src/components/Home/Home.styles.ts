@@ -51,7 +51,7 @@ export const RightSection = styled.div`
     width: 100%;
     height: auto;
     overflow-y: visible;
-    padding: 3rem 1rem; /* 패딩 축소 */
+    padding: 1.5rem 1rem; /* 패딩 축소 */
     box-sizing: border-box;
   }
 `;
@@ -67,7 +67,7 @@ export const ContentWrapper = styled.div`
 
   @media (max-width: 1024px) {
     min-height: auto;
-    padding: 1rem 0;
+    padding: 0;
   }
 `;
 
@@ -219,14 +219,61 @@ export const FaqBox = styled.div`
   }
 `;
 
+export const TopBox = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+`;
+
+export const GitHubBox = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--ice-main-color);
+  border-radius: 0.25rem;
+  background: var(--main-bg-color);
+  padding: 0.25rem;
+
+  .github-logo {
+    flex-shrink: 0;
+    color: var(--ice-main-color);
+    opacity: 0.6;
+    margin: 0 0.25rem;
+  }
+
+  .divider {
+    width: 1px;
+    height: 1.25rem;
+    background: var(--ice-main-color);
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 380px) {
+    .github-logo,
+    .divider {
+      display: none;
+    }
+
+    > a {
+      flex: 1 1 100%;
+      justify-content: center;
+    }
+  }
+`;
+
 export const PreviewBox = styled.div`
   width: 100%;
   aspect-ratio: 16 / 9;
   background-color: #000;
-  border-radius: 2.5px;
+  border-radius: 0.25rem;
   overflow: hidden;
   border: 1px solid var(--main-line-color);
-  margin-bottom: 2rem;
+  margin-bottom: 0.5rem;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 
   img {
