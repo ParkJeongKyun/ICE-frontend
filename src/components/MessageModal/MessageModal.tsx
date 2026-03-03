@@ -34,7 +34,11 @@ const MessageModal: React.FC = () => {
         const { stats } = message;
 
         return (
-          <MessageBox key={message.id} $type={message.type}>
+          <MessageBox
+            key={message.id}
+            $type={message.type}
+            onClick={() => handleClose(message.id)}
+          >
             <MessageIcon $type={message.type}>
               <Icon width={20} height={20} />
             </MessageIcon>
@@ -55,7 +59,13 @@ const MessageModal: React.FC = () => {
                 </MessageText>
               )}
             </MessageContent>
-            <CloseButton onClick={() => handleClose(message.id)}>
+            <CloseButton
+              onClick={(e) => {
+                e.stopPropagation();
+                handleClose(message.id);
+              }}
+              aria-label="Close message"
+            >
               <XIcon width={16} height={16} />
             </CloseButton>
           </MessageBox>
