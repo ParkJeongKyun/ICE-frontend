@@ -1,12 +1,13 @@
 import { useCallback, useRef, useState, RefObject, useEffect } from 'react';
-import { UPDATE_INTERVAL, MIN_HEX_WIDTH } from '@/constants/hexViewer';
 
 interface UseHexViewerXScrollProps {
   containerRef: RefObject<HTMLDivElement | null>;
+  minHexWidth: number;
 }
 
 export const useHexViewerXScroll = ({
   containerRef,
+  minHexWidth,
 }: UseHexViewerXScrollProps) => {
   // ===== States =====
   const [scrollbarDragging, setScrollbarDragging] = useState(false);
@@ -26,21 +27,32 @@ export const useHexViewerXScroll = ({
     const containerWidth = container.clientWidth;
     const scrollLeft = container.scrollLeft;
 
-    if (MIN_HEX_WIDTH <= containerWidth) {
+    if (minHexWidth <= containerWidth) {
       setScrollbarState({ width: 0, left: 0 });
       return;
     }
 
-    const maxScrollLeft = MIN_HEX_WIDTH - containerWidth;
-    const scrollbarWidth = Math.max(30, (containerWidth / MIN_HEX_WIDTH) * containerWidth);
+    const maxScrollLeft = minHexWidth - containerWidth;
+    const scrollbarWidth = Math.max(
+      30,
+      (containerWidth / minHexWidth) * containerWidth
+    );
     const maxScrollbarLeft = containerWidth - scrollbarWidth;
-    const scrollbarLeft = Math.min((scrollLeft / maxScrollLeft) * maxScrollbarLeft, maxScrollbarLeft);
+    const scrollbarLeft = Math.min(
+      (scrollLeft / maxScrollLeft) * maxScrollbarLeft,
+      maxScrollbarLeft
+    );
 
     setScrollbarState({
       width: scrollbarWidth,
       left: scrollbarLeft,
     });
-  }, [containerRef]);
+  }, [containerRef, minHexWidth]);
+
+  // 🐛 Fix: minHexWidth(레이아웃) 변경 시 즉시 스크롤바 갱신
+  useEffect(() => {
+    updateScrollbarState();
+  }, [minHexWidth, updateScrollbarState]);
 
   // ===== Scroll Event Listener =====
   useEffect(() => {
@@ -48,9 +60,7 @@ export const useHexViewerXScroll = ({
     if (!container) return;
 
     const handleScroll = () => {
-      if (rafIdRef.current !== null) {
-        cancelAnimationFrame(rafIdRef.current);
-      }
+      if (rafIdRef.current !== null) return; // RAF 중복 방지
 
       rafIdRef.current = requestAnimationFrame(() => {
         updateScrollbarState();
@@ -74,8 +84,8 @@ export const useHexViewerXScroll = ({
 
     const observer = new ResizeObserver(() => {
       updateScrollbarState();
-      
-      if (MIN_HEX_WIDTH <= container.clientWidth && container.scrollLeft !== 0) {
+
+      if (minHexWidth <= container.clientWidth && container.scrollLeft !== 0) {
         container.scrollLeft = 0;
       }
     });
@@ -84,7 +94,7 @@ export const useHexViewerXScroll = ({
     updateScrollbarState();
 
     return () => observer.disconnect();
-  }, [containerRef, updateScrollbarState]);
+  }, [containerRef, updateScrollbarState, minHexWidth]);
 
   // ===== Scrollbar Drag =====
   const handleScrollbarStart = useCallback(
@@ -129,30 +139,34 @@ export const useHexViewerXScroll = ({
     if (!scrollbarDragging) return;
 
     let rafId: number | null = null;
-    let lastUpdate = 0;
 
     const updateScroll = (deltaX: number) => {
-      const now = Date.now();
-      if (now - lastUpdate < UPDATE_INTERVAL) return;
-
-      if (rafId !== null) cancelAnimationFrame(rafId);
+      if (rafId !== null) return;
 
       rafId = requestAnimationFrame(() => {
         const container = containerRef.current;
-        if (!container) return;
+        if (!container) {
+          rafId = null;
+          return;
+        }
 
         const containerWidth = container.clientWidth;
-        const maxScrollLeft = MIN_HEX_WIDTH - containerWidth;
+        const maxScrollLeft = minHexWidth - containerWidth;
         const scrollbarWidth = scrollbarState.width;
         const totalScrollable = containerWidth - scrollbarWidth;
 
-        if (totalScrollable <= 0) return;
-        
+        if (totalScrollable <= 0) {
+          rafId = null;
+          return;
+        }
+
         const scrollDelta = (deltaX / totalScrollable) * maxScrollLeft;
-        const nextScroll = Math.max(0, Math.min(dragStartScrollRef.current + scrollDelta, maxScrollLeft));
+        const nextScroll = Math.max(
+          0,
+          Math.min(dragStartScrollRef.current + scrollDelta, maxScrollLeft)
+        );
 
         container.scrollLeft = nextScroll;
-        lastUpdate = now;
         rafId = null;
       });
     };
@@ -187,7 +201,13 @@ export const useHexViewerXScroll = ({
       window.removeEventListener('touchmove', handleTouchMove);
       window.removeEventListener('touchend', handleEnd);
     };
-  }, [scrollbarDragging, scrollbarState.width, containerRef, handleScrollbarEnd]);
+  }, [
+    scrollbarDragging,
+    scrollbarState.width,
+    containerRef,
+    handleScrollbarEnd,
+    minHexWidth,
+  ]);
 
   return {
     shouldShowScrollbar: scrollbarState.width > 0,

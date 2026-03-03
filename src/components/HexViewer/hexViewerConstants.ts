@@ -1,4 +1,3 @@
-import { isMobile } from 'react-device-detect';
 /**
  * HexViewer 관련 상수
  */
@@ -22,7 +21,7 @@ export const UPDATE_INTERVAL = 50;
 export const CHUNK_REQUEST_DEBOUNCE = 50;
 
 // 데스크톱 레이아웃
-export const DESKTOP_LAYOUT = {
+const DESKTOP_LAYOUT = {
   containerPadding: 10,
   gap: 10,
   bytesPerRow: 16,
@@ -35,7 +34,7 @@ export const DESKTOP_LAYOUT = {
 } as const;
 
 // 모바일 레이아웃
-export const MOBILE_LAYOUT = {
+const MOBILE_LAYOUT = {
   containerPadding: 5,
   gap: 4,
   bytesPerRow: 16,
@@ -47,22 +46,37 @@ export const MOBILE_LAYOUT = {
   asciiCharWidth: 7,
 } as const;
 
-// 현재 레이아웃
-export const LAYOUT = isMobile ? MOBILE_LAYOUT : DESKTOP_LAYOUT;
+// 컨테이너 너비에 따라 동적 레이아웃 반환
+export const getLayoutConfig = (containerWidth: number) => {
+  const layout =
+    containerWidth > 0 && containerWidth < 768 ? MOBILE_LAYOUT : DESKTOP_LAYOUT;
 
-// 계산된 위치
-export const OFFSET_START_X = LAYOUT.containerPadding;
-export const HEX_START_X = OFFSET_START_X + LAYOUT.offsetWidth + LAYOUT.gap;
-export const ASCII_START_X =
-  HEX_START_X + LAYOUT.bytesPerRow * LAYOUT.hexByteWidth + LAYOUT.gap;
+  const OFFSET_START_X = layout.containerPadding;
+  const HEX_START_X = OFFSET_START_X + layout.offsetWidth + layout.gap;
+  const ASCII_START_X =
+    HEX_START_X + layout.bytesPerRow * layout.hexByteWidth + layout.gap;
 
-// 최소 너비
-export const MIN_HEX_WIDTH =
-  LAYOUT.containerPadding * 2 +
-  LAYOUT.offsetWidth +
-  LAYOUT.gap * 2 +
-  LAYOUT.bytesPerRow * LAYOUT.hexByteWidth +
-  LAYOUT.bytesPerRow * LAYOUT.asciiCharWidth;
+  const MIN_HEX_WIDTH =
+    layout.containerPadding * 2 +
+    layout.offsetWidth +
+    layout.gap * 2 +
+    layout.bytesPerRow * layout.hexByteWidth +
+    layout.bytesPerRow * layout.asciiCharWidth;
+
+  return {
+    ...layout,
+    OFFSET_START_X,
+    HEX_START_X,
+    ASCII_START_X,
+    MIN_HEX_WIDTH,
+  };
+};
+
+// 타입 추론용
+export type LayoutConfig = ReturnType<typeof getLayoutConfig>;
+
+// 초기값 (측정 전 사용)
+export const DEFAULT_LAYOUT = getLayoutConfig(0);
 
 // 색상 키
 export const COLOR_KEYS = {

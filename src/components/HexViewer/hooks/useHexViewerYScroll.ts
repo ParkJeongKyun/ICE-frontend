@@ -2,7 +2,7 @@ import { useCallback, useRef, useState, useMemo, RefObject } from 'react';
 import { useTab } from '@/contexts/TabDataContext/TabDataContext';
 import { useScroll } from '@/contexts/TabDataContext/TabDataContext';
 import { useWorker } from '@/contexts/WorkerContext/WorkerContext';
-import { UPDATE_INTERVAL, LAYOUT } from '@/constants/hexViewer';
+import { UPDATE_INTERVAL } from '@/components/HexViewer/hexViewerConstants';
 import { calculateScrollbarTop } from '@/utils/hexViewer';
 
 interface UseHexViewerYScrollProps {
@@ -17,6 +17,7 @@ interface UseHexViewerYScrollProps {
     currentVisibleRows: number
   ) => void;
   firstRowRef: RefObject<number>;
+  rowHeight: number;
 }
 
 export const useHexViewerYScroll = ({
@@ -26,6 +27,7 @@ export const useHexViewerYScroll = ({
   canvasHeight,
   requestChunks,
   firstRowRef,
+  rowHeight,
 }: UseHexViewerYScrollProps) => {
   const { activeKey, activeData } = useTab();
   const { scrollPositions, setScrollPositions } = useScroll();
@@ -113,7 +115,7 @@ export const useHexViewerYScroll = ({
         touchStartRowRef.current !== null
       ) {
         const deltaY = e.touches[0].clientY - touchStartYRef.current;
-        const rowDelta = -Math.round(deltaY / LAYOUT.rowHeight);
+        const rowDelta = -Math.round(deltaY / rowHeight);
         const nextRow = Math.max(
           0,
           Math.min(touchStartRowRef.current + rowDelta, maxFirstRow)

@@ -6,12 +6,7 @@ import {
 import { useSelection } from '@/contexts/TabDataContext/TabDataContext';
 import { getDevicePixelRatio } from '@/utils/hexViewer';
 import { byteToHex, byteToChar } from '@/utils/encoding';
-import {
-  LAYOUT,
-  OFFSET_START_X,
-  HEX_START_X,
-  ASCII_START_X,
-} from '@/constants/hexViewer';
+import type { LayoutConfig } from '@/components/HexViewer/hexViewerConstants';
 
 interface UseHexViewerRenderProps {
   canvasRef: RefObject<HTMLCanvasElement | null>;
@@ -33,6 +28,7 @@ interface UseHexViewerRenderProps {
   hasValidDataRef: RefObject<boolean>;
   // Optional preview selection for high-frequency drags (Ref + RAF)
   selectionPreviewRef?: RefObject<SelectionState | null>;
+  layoutConfig: LayoutConfig;
 }
 
 export const useHexViewerRender = ({
@@ -45,13 +41,26 @@ export const useHexViewerRender = ({
   isInitialLoadingRef,
   hasValidDataRef,
   selectionPreviewRef,
+  layoutConfig,
 }: UseHexViewerRenderProps) => {
   const { encoding, activeData } = useTab();
   const { activeSelectionState } = useSelection();
 
   const file = activeData?.file;
   const fileSize = file?.size || 0;
-  const rowCount = Math.ceil(fileSize / LAYOUT.bytesPerRow);
+  const {
+    bytesPerRow,
+    rowHeight,
+    headerHeight,
+    font,
+    offsetWidth,
+    hexByteWidth,
+    asciiCharWidth,
+    OFFSET_START_X,
+    HEX_START_X,
+    ASCII_START_X,
+  } = layoutConfig;
+  const rowCount = Math.ceil(fileSize / bytesPerRow);
 
   const offscreenCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -67,11 +76,11 @@ export const useHexViewerRender = ({
 
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.fillStyle = colors.BG;
-    ctx.fillRect(0, 0, headerCanvas.width, LAYOUT.headerHeight);
+    ctx.fillRect(0, 0, headerCanvas.width, headerCanvas.height);
 
     ctx.save();
-    ctx.scale(dpr, 1);
-    ctx.font = LAYOUT.font;
+    ctx.scale(dpr, dpr);
+    ctx.font = font;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillStyle = colors.OFFSET;
@@ -79,27 +88,26 @@ export const useHexViewerRender = ({
     // Offset 헤더
     ctx.fillText(
       'Offset(h)',
-      OFFSET_START_X + LAYOUT.offsetWidth / 2,
-      LAYOUT.headerHeight / 2
+      OFFSET_START_X + offsetWidth / 2,
+      headerHeight / 2
     );
 
     // HEX 헤더 (00 01 02 ... 0F)
-    for (let i = 0; i < LAYOUT.bytesPerRow; i++) {
-      const x = HEX_START_X + i * LAYOUT.hexByteWidth + LAYOUT.hexByteWidth / 2;
+    for (let i = 0; i < bytesPerRow; i++) {
+      const x = HEX_START_X + i * hexByteWidth + hexByteWidth / 2;
       ctx.fillText(
         i.toString(16).padStart(2, '0').toUpperCase(),
         x,
-        LAYOUT.headerHeight / 2
+        headerHeight / 2
       );
     }
 
     // ASCII 헤더
-    const asciiHeaderX =
-      ASCII_START_X + (LAYOUT.bytesPerRow * LAYOUT.asciiCharWidth) / 2;
-    ctx.fillText('Decoded text', asciiHeaderX, LAYOUT.headerHeight / 2);
+    const asciiHeaderX = ASCII_START_X + (bytesPerRow * asciiCharWidth) / 2;
+    ctx.fillText('Decoded text', asciiHeaderX, headerHeight / 2);
 
     ctx.restore();
-  }, [headerCanvasRef, colorsRef, canvasSizeRef]);
+  }, [headerCanvasRef, colorsRef, canvasSizeRef, layoutConfig]);
 
   const directRender = useCallback(() => {
     const ctx = canvasRef.current?.getContext('2d', { alpha: false });
@@ -112,7 +120,10 @@ export const useHexViewerRender = ({
     const offscreenCanvas = offscreenCanvasRef.current;
     const currentCanvasSize = canvasSizeRef.current;
 
-    const renderHeight = currentCanvasSize.height - LAYOUT.headerHeight;
+    const colors = colorsRef.current;
+    const dpr = getDevicePixelRatio();
+
+    const renderHeight = currentCanvasSize.height - headerHeight * dpr;
 
     if (
       offscreenCanvas.width !== currentCanvasSize.width ||
@@ -125,9 +136,6 @@ export const useHexViewerRender = ({
     const offCtx = offscreenCanvas.getContext('2d', { alpha: false });
     if (!offCtx) return;
 
-    const colors = colorsRef.current;
-    const dpr = getDevicePixelRatio();
-
     offCtx.setTransform(1, 0, 0, 1, 0, 0);
     offCtx.fillStyle = colors.BG;
     offCtx.fillRect(0, 0, currentCanvasSize.width, renderHeight);
@@ -135,8 +143,8 @@ export const useHexViewerRender = ({
     // ✅ 파일 사이즈가 0인 경우 첫 번째 오프셋만 표시
     if (fileSize === 0) {
       offCtx.save();
-      offCtx.scale(dpr, 1);
-      offCtx.font = LAYOUT.font;
+      offCtx.scale(dpr, dpr);
+      offCtx.font = font;
       offCtx.textAlign = 'center';
       offCtx.textBaseline = 'middle';
 
@@ -144,8 +152,8 @@ export const useHexViewerRender = ({
       offCtx.fillStyle = colors.OFFSET;
       offCtx.fillText(
         '00000000',
-        OFFSET_START_X + LAYOUT.offsetWidth / 2,
-        LAYOUT.rowHeight / 2
+        OFFSET_START_X + offsetWidth / 2,
+        rowHeight / 2
       );
 
       offCtx.restore();
@@ -156,12 +164,12 @@ export const useHexViewerRender = ({
     }
 
     offCtx.save();
-    offCtx.scale(dpr, 1);
-    offCtx.font = LAYOUT.font;
+    offCtx.scale(dpr, dpr);
+    offCtx.font = font;
     offCtx.textAlign = 'center';
     offCtx.textBaseline = 'middle';
 
-    const renderRows = Math.ceil(renderHeight / LAYOUT.rowHeight) + 1;
+    const renderRows = Math.ceil(renderHeight / (rowHeight * dpr)) + 1;
     const currentFirstRow = firstRowRef.current;
     // If a preview selection exists (during dragging), prefer it for rendering
     const currentSelectionRange =
@@ -177,48 +185,41 @@ export const useHexViewerRender = ({
       row < Math.min(rowCount, currentFirstRow + renderRows);
       row++, drawRow++
     ) {
-      const y = drawRow * LAYOUT.rowHeight;
-      const offset = row * LAYOUT.bytesPerRow;
-      const offsetStart = row * LAYOUT.bytesPerRow;
-      const offsetEnd = Math.min(
-        offsetStart + LAYOUT.bytesPerRow - 1,
-        fileSize - 1
-      );
+      const y = drawRow * rowHeight;
+      const offset = row * bytesPerRow;
+      const offsetStart = row * bytesPerRow;
+      const offsetEnd = Math.min(offsetStart + bytesPerRow - 1, fileSize - 1);
       const selStart = currentSelectionRange.start;
       const selEnd = currentSelectionRange.end;
 
       offCtx.fillStyle = colors.OFFSET;
       offCtx.fillText(
         offset.toString(16).padStart(8, '0').toUpperCase(),
-        OFFSET_START_X + LAYOUT.offsetWidth / 2,
-        y + LAYOUT.rowHeight / 2
+        OFFSET_START_X + offsetWidth / 2,
+        y + rowHeight / 2
       );
 
-      for (let i = 0; i < LAYOUT.bytesPerRow; i++) {
+      for (let i = 0; i < bytesPerRow; i++) {
         const idx = offset + i;
         if (idx >= fileSize) break;
 
         const byte = getByte(idx);
 
         if (byte === null || byte === undefined) {
-          const xHex =
-            HEX_START_X + i * LAYOUT.hexByteWidth + LAYOUT.hexByteWidth / 2;
+          const xHex = HEX_START_X + i * hexByteWidth + hexByteWidth / 2;
           offCtx.fillStyle = 'rgba(128, 128, 128, 0.15)';
           offCtx.fillRect(
-            xHex - LAYOUT.hexByteWidth / 2 + 1,
+            xHex - hexByteWidth / 2 + 1,
             y + 2,
-            LAYOUT.hexByteWidth - 2,
-            LAYOUT.rowHeight - 4
+            hexByteWidth - 2,
+            rowHeight - 4
           );
-          const xAsc =
-            ASCII_START_X +
-            i * LAYOUT.asciiCharWidth +
-            LAYOUT.asciiCharWidth / 2;
+          const xAsc = ASCII_START_X + i * asciiCharWidth + asciiCharWidth / 2;
           offCtx.fillRect(
-            xAsc - LAYOUT.asciiCharWidth / 2 + 1,
+            xAsc - asciiCharWidth / 2 + 1,
             y + 2,
-            LAYOUT.asciiCharWidth - 2,
-            LAYOUT.rowHeight - 4
+            asciiCharWidth - 2,
+            rowHeight - 4
           );
           continue;
         }
@@ -232,16 +233,15 @@ export const useHexViewerRender = ({
           idx <= Math.max(selStart, selEnd);
 
         // HEX 영역
-        const xHex =
-          HEX_START_X + i * LAYOUT.hexByteWidth + LAYOUT.hexByteWidth / 2;
-        const yHex = y + LAYOUT.rowHeight / 2;
+        const xHex = HEX_START_X + i * hexByteWidth + hexByteWidth / 2;
+        const yHex = y + rowHeight / 2;
         if (isSel) {
           offCtx.fillStyle = colors.SELECTED_BG;
           offCtx.fillRect(
-            xHex - LAYOUT.hexByteWidth / 2 + 1,
+            xHex - hexByteWidth / 2 + 1,
             y + 2,
-            LAYOUT.hexByteWidth - 2,
-            LAYOUT.rowHeight - 4
+            hexByteWidth - 2,
+            rowHeight - 4
           );
           offCtx.fillStyle = colors.SELECTED_TEXT;
         } else {
@@ -250,17 +250,16 @@ export const useHexViewerRender = ({
         offCtx.fillText(byteToHex(byte), xHex, yHex);
 
         // ASCII 영역
-        const xAsc =
-          ASCII_START_X + i * LAYOUT.asciiCharWidth + LAYOUT.asciiCharWidth / 2;
-        const yAsc = y + LAYOUT.rowHeight / 2;
+        const xAsc = ASCII_START_X + i * asciiCharWidth + asciiCharWidth / 2;
+        const yAsc = y + rowHeight / 2;
         const char = byteToChar(byte, encoding);
         if (isSel) {
           offCtx.fillStyle = colors.SELECTED_BG;
           offCtx.fillRect(
-            xAsc - LAYOUT.asciiCharWidth / 2 + 1,
+            xAsc - asciiCharWidth / 2 + 1,
             y + 2,
-            LAYOUT.asciiCharWidth - 2,
-            LAYOUT.rowHeight - 4
+            asciiCharWidth - 2,
+            rowHeight - 4
           );
           offCtx.fillStyle = colors.SELECTED_TEXT;
         } else {
@@ -287,6 +286,7 @@ export const useHexViewerRender = ({
     activeSelectionState,
     encoding,
     canvasSizeRef,
+    layoutConfig,
   ]);
 
   return { directRender, renderHeader };
