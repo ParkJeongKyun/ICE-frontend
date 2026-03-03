@@ -60,10 +60,6 @@ You can check the release notes at the "Release Notes" link above.
 - Next.js
 - WebAssembly
 
-## 🚀 [Upcoming Updates](/markdown/update)
-
-Click the "Upcoming Updates" link above to see what's coming.
-
 ## 💻 Source Code
 
 - [Github](https://github.com/ParkJeongKyun/ICE-frontend)

@@ -45,7 +45,6 @@ export default async function DocsPage(props: Props) {
   const markdownData = getMarkdownData(locale, [
     'about',
     'release',
-    'update',
     'howToUse',
   ]);
 
