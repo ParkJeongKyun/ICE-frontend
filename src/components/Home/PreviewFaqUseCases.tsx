@@ -2,9 +2,17 @@
 
 import React from 'react';
 import { useTranslations } from 'next-intl';
-import { PreviewBox, SectionTitle, FaqBox, ListText } from './Home.styles';
+import {
+  PreviewBox,
+  SectionTitle,
+  FaqBox,
+  ListText,
+  TopBox,
+  GitHubBox,
+} from './Home.styles';
 import SponsorButton from '@/components/SponsorButton/SponsorButton';
 import ReportButton from '@/components/ReportButton/ReportButton';
+import GitHubFilledIcon from '../common/Icons/GitHubFilledIcon';
 
 const PreviewFaqUseCases: React.FC = () => {
   const t = useTranslations();
@@ -14,14 +22,21 @@ const PreviewFaqUseCases: React.FC = () => {
 
   return (
     <>
-      <PreviewBox>
-        <img
-          src="/images/sample/sample.png"
-          alt="ICE-PNG Forensic Interface Preview"
-        />
-      </PreviewBox>
-      <SponsorButton />
-      <ReportButton />
+      <TopBox>
+        <GitHubBox>
+          <GitHubFilledIcon width={18} height={18} className="github-logo" />
+          <div className="divider" />
+          <SponsorButton />
+          <div className="divider" />
+          <ReportButton />
+        </GitHubBox>
+        <PreviewBox>
+          <img
+            src="/images/sample/sample.png"
+            alt="ICE-PNG Forensic Interface Preview"
+          />
+        </PreviewBox>
+      </TopBox>
 
       <section>
         <SectionTitle>{t('faqTab')}</SectionTitle>
