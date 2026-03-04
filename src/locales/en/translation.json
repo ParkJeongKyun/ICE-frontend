@@ -243,12 +243,12 @@
   "copyright": "© 2022 ParkJeong-kyun (dbzoseh84@gmail.com). All rights reserved.",
   "sponsor": {
     "button": "Sponsor",
-    "description": "Support our work & fuel open-source dreams ☕",
+    "description": "Buy us a coffee ☕",
     "ariaLabel": "Sponsor us on GitHub"
   },
   "report": {
     "button": "Report",
-    "description": "Report a bug or request a feature",
+    "description": "Report bugs or ideas 💡",
     "ariaLabel": "Report an issue on GitHub"
   }
 }
