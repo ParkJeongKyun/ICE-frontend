@@ -14,14 +14,5 @@
   "urlPlaceholder": "Enter URL",
   "editorPlaceholder": "Type here...",
   "contentTooLongError": "Content is too long. URL length exceeded.",
-  "saveFailed": "Failed to save changes",
-  "guide": {
-    "title": "📝 Get Started with LinkNote",
-    "steps": [
-      "Click the <b>pencil button</b> in the bottom right to switch to <b>edit mode</b>.",
-      "<b>Markdown</b> syntax is supported.",
-      "Use the <b>share button</b> to copy or directly share your note.",
-      "Your content is <b>automatically</b> saved to the <b>URL</b>."
-    ]
-  }
+  "saveFailed": "Failed to save changes"
 }

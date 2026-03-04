@@ -1,313 +1,276 @@
 import styled, { css } from 'styled-components';
 
-const ButtonBase = css`
-  padding: 8px 8px;
-  background: none;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition:
-    opacity 0.3s,
-    transform 0.2s;
-  opacity: 0.8;
-  position: relative;
-  font-family: monospace;
-
-  &:hover {
-    opacity: 1;
-    transform: translateY(-1px);
-  }
-  &:active {
-    transform: translateY(0);
-  }
+export const LayoutWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: var(--main-bg-color);
+  color: var(--main-color);
 `;
 
-const TooltipBase = css`
-  font-family: monospace;
-  position: absolute;
-  bottom: 110%;
-  left: 50%;
-  transform: translateX(-50%);
-  white-space: nowrap;
-  padding: 0.3rem 0.7rem;
-  font-size: 0.8rem;
-  z-index: 2000;
-  pointer-events: none;
-  background: var(--main-bg-color);
-  color: var(--ice-main-color);
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  opacity: 0;
-  visibility: hidden;
-  transition:
-    opacity 0.18s,
-    visibility 0.18s;
+// 1. 헤더: 선을 연하게 빼고 높이를 살짝 키워 개방감 확보
+export const TopToolbar = styled.header`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 20px;
+  height: 48px;
+  background-color: var(--main-bg-color);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05); /* 아주 연한 선 */
+  z-index: 100;
+  flex-shrink: 0;
+  user-select: none;
+`;
+
+export const ToolbarLeft = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+  min-width: 0;
+`;
+
+export const ToolbarTitle = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: 'Pretendard', sans-serif;
+  font-weight: 700;
+  font-size: 8px;
+  line-height: 1.5;
+  flex-shrink: 0;
+  cursor: default;
+  transition: opacity 0.2s;
+
+  svg {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    color: var(--ice-main-color);
+  }
 
   &::after {
     content: '';
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    border-width: 6px;
-    border-style: solid;
-    border-color: var(--main-bg-color) transparent transparent transparent;
     display: block;
+    width: 1px;
+    height: 14px;
+    background-color: var(--main-line-color);
+    margin-left: 8px;
   }
 `;
 
-export const MainContainer = styled.div`
-  .milkdown {
-    /* Font Families */
-    --crepe-font-title: monospace;
-    --crepe-font-default: monospace;
-    --crepe-font-code: monospace;
-    .editor {
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 1rem;
-      p {
-        margin: 0;
-        line-height: 1;
-      }
-      li {
-        margin: 0;
-        gap: 0.25rem;
-      }
-      th,
-      td {
-        padding: 0.25em;
-      }
-      .list-item {
-        align-items: center;
-      }
-      .paragraph {
-        margin: 1rem 0;
-      }
-      .heading {
-        font-weight: 600;
-        margin: 1.5rem 0 1rem;
-      }
-      .bullet-list {
-        padding-left: 1.5rem;
-      }
-      .ordered-list {
-        padding-left: 1.5rem;
-      }
-      .milkdown-code-block {
-        padding: 0;
-      }
-    }
-  }
-`;
+export const LogoButton = styled.button`
+  display: flex;
+  align-items: center;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: opacity 0.2s;
 
-export const ButtonZone = styled.div`
-  font-family: monospace;
-  position: fixed;
-  bottom: 2%;
-  right: 4%;
-  z-index: 1000;
-  opacity: 0.5;
-  transition: opacity 0.3s;
   &:hover {
-    opacity: 1;
-  }
-  .btn-tooltip-wrap {
-    position: relative;
-    display: inline-block;
+    opacity: 0.8;
   }
 `;
 
-export const ToggleButton = styled.button<{
-  $isReadOnly: boolean;
-  $pulse?: boolean;
-}>`
-  ${ButtonBase}
-  color: ${({ $isReadOnly }) =>
-    $isReadOnly ? 'var(--ice-main-color-success)' : 'var(--ice-main-color)'};
-  ${({ $pulse }) => $pulse && pulse}
+export const ToolbarStatus = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Pretendard', sans-serif;
+  font-size: 0.8rem;
+  color: var(--main-color);
+  opacity: 0.5;
+  min-width: 0;
 
-  svg {
-    stroke: ${({ $isReadOnly }) =>
-      $isReadOnly ? 'var(--ice-main-color-success)' : 'var(--ice-main-color)'};
-    fill: ${({ $isReadOnly }) =>
-      $isReadOnly ? 'var(--ice-main-color-success)' : 'var(--ice-main-color)'};
-  }
-
-  &:hover .btn-tooltip,
-  &:focus .btn-tooltip,
-  &:active .btn-tooltip {
-    opacity: 1;
-    visibility: visible;
-    pointer-events: none;
-  }
-
-  .btn-tooltip {
-    ${TooltipBase}
+  span {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 `;
 
-export const ShareButton = styled.button<{ $pulse?: boolean }>`
-  ${ButtonBase}
-  color: var(--ice-main-color);
-  margin-left: 8px;
-  ${({ $pulse }) => $pulse && pulse}
-
-  svg {
-    stroke: var(--ice-main-color);
-    fill: var(--ice-main-color);
-  }
-
-  &:hover .btn-tooltip,
-  &:focus .btn-tooltip,
-  &:active .btn-tooltip {
-    opacity: 1;
-    visibility: visible;
-    pointer-events: none;
-  }
-
-  .btn-tooltip {
-    ${TooltipBase}
-  }
+export const ToolbarRight = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
 `;
 
-export const Toast = styled.div<{ $show: boolean }>`
-  position: fixed;
-  top: 2%;
-  left: 4%;
-  font-size: 1rem;
-  font-family: monospace;
-  background: var(--main-bg-color);
-  color: var(--ice-main-color);
-  padding: 0.25rem 0.7rem;
-  border-radius: 8px;
-  opacity: ${({ $show }) => ($show ? 0.95 : 0)};
-  visibility: ${({ $show }) => ($show ? 'visible' : 'hidden')};
-  transition:
-    opacity 0.18s,
-    visibility 0.18s;
-  z-index: 1000;
-  pointer-events: none;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-`;
-
-export const ErrorMessage = styled.div`
-  position: fixed;
-  font-size: 1rem;
-  font-family: monospace;
-  top: 2%;
-  left: 4%;
-  border: 1px solid var(--ice-main-color-error);
-  background-color: var(--main-bg-color);
-  color: var(--ice-main-color-error);
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  z-index: 1001;
-`;
-
-export const StatusIndicator = styled.div<{ $saving: boolean }>`
-  position: fixed;
-  top: 2%;
-  right: 4%;
-  z-index: 999;
-  pointer-events: none;
+// 2. 미니멀 고스트 버튼 (Notion 스타일)
+const GhostButton = css`
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: var(--main-color);
+  font-family: 'Pretendard', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
 
   svg {
     width: 16px;
     height: 16px;
-    color: var(--ice-main-color);
-    opacity: 0.15;
-    transition: opacity 0.3s ease;
-    ${({ $saving }) =>
-      $saving &&
-      `
-      opacity: 0.45;
-      animation: subtlePulse 3s ease-in-out infinite;
-    `}
-  }
-
-  @keyframes subtlePulse {
-    0%,
-    100% {
-      opacity: 0.2;
-      transform: scale(0.98);
-    }
-    50% {
-      opacity: 0.5;
-      transform: scale(1.01);
-    }
-  }
-`;
-
-export const LastModifiedTime = styled.div`
-  position: fixed;
-  bottom: 2%;
-  left: 4%;
-  font-size: 0.8rem;
-  color: var(--main-color-reverse);
-  padding: 0;
-  z-index: 999;
-  opacity: 0.4;
-  font-weight: 400;
-  transition: opacity 0.3s;
-  &:hover {
     opacity: 1;
+    color: var(--ice-main-color) !important;
+    fill: var(--ice-main-color) !important;
+    stroke: var(--ice-main-color) !important;
+  }
+
+  &:hover {
+    background-color: rgba(
+      255,
+      255,
+      255,
+      0.08
+    ); /* 마우스 올릴 때만 은은한 배경 */
+    color: var(--ice-main-color);
+    svg {
+      opacity: 1;
+      color: var(--ice-main-color);
+    }
+  }
+
+  @media (max-width: 768px) {
+    padding: 6px 8px;
+    span {
+      display: none;
+    }
   }
 `;
 
-export const GuideBox = styled.div`
-  position: fixed;
-  top: 25%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 90vw;
-  max-width: 500px;
-  padding: 1.2rem 1rem 1.3rem 1rem;
-  color: var(--ice-main-color-success);
-  border-radius: 10px;
-  font-family: monospace;
-  font-size: 1.02rem;
-  text-align: left;
-  opacity: 0.96;
-  border: 1.5px dashed var(--ice-main-color-success);
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.04);
-  z-index: 2001;
-
-  b {
+export const ToggleButton = styled.button<{ $isReadOnly: boolean }>`
+  ${GhostButton}
+  /* 읽기/쓰기 모드에 따라 미세한 색상 포인트 */
+  ${({ $isReadOnly }) =>
+    !$isReadOnly &&
+    `
+    background-color: rgba(0, 180, 255, 0.05);
     color: var(--ice-main-color);
-    font-weight: 700;
-    font-size: 0.9rem;
+    svg { opacity: 1; color: var(--ice-main-color); }
+  `}
+`;
+
+export const ShareButton = styled.button`
+  ${GhostButton}
+`;
+
+export const EditorArea = styled.main`
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+  width: 100%;
+
+  &::-webkit-scrollbar {
+    display: block !important;
+    width: 10px !important;
   }
 
-  ul {
-    margin: 0.7em 0 0 1.2em;
-    padding: 0;
-    font-size: 0.9rem;
-    li {
-      margin-bottom: 0.25em;
-      line-height: 1.7;
-      &::marker {
-        color: var(--ice-main-color-success);
+  &::-webkit-scrollbar-thumb {
+    background-color: var(--scrollbar-color);
+    transition: background-color 0.2s;
+
+    &:hover {
+      background-color: var(--scrollbar-color-hover);
+    }
+  }
+
+  &::-webkit-scrollbar-track {
+    background-color: transparent;
+  }
+`;
+
+// 3. 종이(Paper) 감성의 에디터 컨테이너
+export const MainContainer = styled.div`
+  max-width: 760px; /* 글 읽기 가장 편안한 황금 너비 */
+  margin: 0 auto;
+  padding: 60px 24px 120px;
+  width: 100%;
+  box-sizing: border-box;
+
+  .milkdown {
+    text-align: left;
+    --crepe-font-title: 'Pretendard', -apple-system, sans-serif;
+    --crepe-font-default: 'Pretendard', -apple-system, sans-serif;
+    --crepe-font-code: 'Menlo', monospace;
+
+    .editor {
+      padding: 0;
+
+      p {
+        font-size: 1.05rem; /* 시원시원한 본문 크기 */
+        line-height: 1.7; /* 넉넉한 줄간격 */
+        color: rgba(255, 255, 255, 0.85); /* 눈이 편안한 텍스트 컬러 */
+        word-break: break-word;
+      }
+
+      .heading {
+        color: var(--ice-main-color);
+        font-weight: 700;
+        letter-spacing: -0.5px;
+        margin-top: 1.5em;
+      }
+
+      /* 코드블록도 깔끔하게 */
+      .milkdown-code-block {
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 8px;
+        font-size: 0.9rem;
       }
     }
   }
 `;
 
-// 버튼 강조 애니메이션
-export const pulse = css`
-  animation: pulseBtn 4s cubic-bezier(0.4, 0, 0.6, 1) 100;
-  @keyframes pulseBtn {
-    0% {
-      box-shadow: 0 0 0 0 rgba(0, 180, 255, 0.25);
-    }
-    70% {
-      box-shadow: 0 0 0 8px rgba(0, 180, 255, 0);
-    }
+// 4. 모서리가 둥근 세련된 토스트
+export const Toast = styled.div<{ $show: boolean }>`
+  position: fixed;
+  bottom: 40px;
+  right: 40px;
+  background-color: var(--main-bg-color);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--ice-main-color);
+  padding: 12px 24px;
+  font-family: 'Pretendard', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  border-radius: 30px; /* 캡슐 형태 */
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  z-index: 2000;
+  opacity: ${({ $show }) => ($show ? 1 : 0)};
+  transform: translateY(${({ $show }) => ($show ? '0' : '20px')});
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+`;
+
+export const StatusIndicator = styled.div`
+  display: flex;
+  align-items: center;
+  color: var(--ice-main-color);
+  animation: pulse 1.5s infinite;
+
+  svg {
+    width: 14px;
+    height: 14px;
+    color: var(--ice-main-color);
+  }
+
+  @keyframes pulse {
+    0%,
     100% {
-      box-shadow: 0 0 0 0 rgba(0, 180, 255, 0);
+      opacity: 0.4;
+    }
+    50% {
+      opacity: 1;
     }
   }
 `;
