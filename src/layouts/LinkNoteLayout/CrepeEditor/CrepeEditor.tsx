@@ -5,7 +5,7 @@ import { Milkdown, MilkdownProvider, useEditor } from '@milkdown/react';
 import '@milkdown/crepe/theme/common/style.css';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { useRouter } from 'next/navigation';
+import { Link } from '@/locales/routing';
 import LZString from 'lz-string';
 import EditIcon from '@/components/common/Icons/EditIcon';
 import ReadIcon from '@/components/common/Icons/ReadIcon';
@@ -69,7 +69,6 @@ const MinimizeIcon = () => (
 
 const EditorCore: React.FC = () => {
   const t = useTranslations('linknote');
-  const router = useRouter(); // ★ Next.js 라우터
   const [isReadOnly, setIsReadOnly] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false); // ★ 전체화면 상태
   const [initialContent, setInitialContent] = useState('');
@@ -353,18 +352,12 @@ const EditorCore: React.FC = () => {
 
   return (
     <LayoutWrapper>
-      {/* ★ 조건부 렌더링 대신 CSS prop으로 슬라이드 업 애니메이션 제어 (Reflow 방지) */}
       <TopToolbar $isFullscreen={isFullscreen}>
         <ToolbarLeft>
           <ToolbarTitle>
-            {/* ★ window.location.href 대신 router.push로 SPA 부드러운 전환 */}
-            <LogoButton
-              as="div"
-              onClick={() => router.push('/')}
-              style={{ cursor: 'pointer' }}
-            >
+            <Link href="/" aria-label={t('homepage')}>
               <Logo showText />
-            </LogoButton>
+            </Link>
             {t('appName')}
           </ToolbarTitle>
 
