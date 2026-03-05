@@ -1,6 +1,8 @@
 'use client';
 
 import dynamic from 'next/dynamic';
+import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import {
   LayoutWrapper,
   TopToolbar,
@@ -11,70 +13,96 @@ import {
 } from './LinkNoteLayout.styles';
 import Logo from '@/components/common/Icons/Logo/Logo';
 
-const LoadingUI = () => (
-  <LayoutWrapper>
-    <TopToolbar>
-      <ToolbarLeft>
-        <ToolbarTitle onClick={() => (window.location.href = '/')}>
-          <Logo showText />
-          LinkNote
-        </ToolbarTitle>
-      </ToolbarLeft>
-    </TopToolbar>
-    <EditorArea>
-      <MainContainer
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          paddingTop: '60px',
-        }}
-      >
-        <div
+const LoadingUI = () => {
+  const router = useRouter();
+  const t = useTranslations('linknote');
+
+  return (
+    <LayoutWrapper>
+      <TopToolbar>
+        <ToolbarLeft>
+          <ToolbarTitle>
+            <div
+              onClick={() => router.push('/')}
+              style={{ cursor: 'pointer', display: 'flex' }}
+            >
+              <Logo showText />
+            </div>
+            {t('appName')}
+          </ToolbarTitle>
+        </ToolbarLeft>
+      </TopToolbar>
+      <EditorArea>
+        <MainContainer
           style={{
-            padding: '40px',
-            opacity: 0.6,
-            animation: 'pulse 1.5s infinite',
-            width: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            paddingTop: '32px', // ★ 변경된 32px 상단 패딩에 정확히 일치시킴
           }}
         >
           <div
             style={{
-              height: '20px',
-              background: 'var(--main-line-color)',
-              width: '60%',
-              marginBottom: '24px',
-              borderRadius: '2px',
+              padding: '24px', // 애니메이션 박스 패딩 살짝 줄임
+              opacity: 0.6,
+              animation: 'pulse 1.5s infinite',
+              width: '100%',
             }}
-          />
-          <div
-            style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}
           >
             <div
               style={{
-                height: '14px',
+                height: '20px',
                 background: 'var(--main-line-color)',
-                width: '100%',
+                width: '60%',
+                marginBottom: '24px',
                 borderRadius: '2px',
               }}
             />
             <div
-              style={{
-                height: '14px',
-                background: 'var(--main-line-color)',
-                width: '95%',
-                borderRadius: '2px',
-              }}
-            />
+              style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}
+            >
+              <div
+                style={{
+                  height: '14px',
+                  background: 'var(--main-line-color)',
+                  width: '100%',
+                  borderRadius: '2px',
+                }}
+              />
+              <div
+                style={{
+                  height: '14px',
+                  background: 'var(--main-line-color)',
+                  width: '95%',
+                  borderRadius: '2px',
+                }}
+              />
+              <div
+                style={{
+                  height: '14px',
+                  background: 'var(--main-line-color)',
+                  width: '92%',
+                  borderRadius: '2px',
+                }}
+              />
+              <div
+                style={{
+                  height: '14px',
+                  background: 'var(--main-line-color)',
+                  width: '92%',
+                  borderRadius: '2px',
+                }}
+              />
+            </div>
           </div>
-        </div>
-      </MainContainer>
-    </EditorArea>
-  </LayoutWrapper>
-);
+        </MainContainer>
+      </EditorArea>
+    </LayoutWrapper>
+  );
+};
 
 const DynamicCrepeEditor = dynamic(
-  () => import('@/components/CrepeEditor/CrepeEditor'),
+  () => import('@/layouts/LinkNoteLayout/CrepeEditor/CrepeEditor'),
   { ssr: false, loading: () => <LoadingUI /> }
 );
 

@@ -3,24 +3,33 @@ import styled, { css } from 'styled-components';
 export const LayoutWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 100%;
   background-color: var(--main-bg-color);
   color: var(--main-color);
 `;
 
-// 1. 헤더: 선을 연하게 빼고 높이를 살짝 키워 개방감 확보
-export const TopToolbar = styled.header`
+// 1. 헤더: 전체화면 시 CSS 애니메이션으로 부드럽게 숨김
+export const TopToolbar = styled.header<{ $isFullscreen?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  padding: 0 20px;
-  height: 48px;
+  padding: 0px 10px;
   background-color: var(--main-bg-color);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05); /* 아주 연한 선 */
+  border-bottom: 1px solid var(--main-line-color);
   z-index: 100;
   flex-shrink: 0;
   user-select: none;
+  overflow: hidden;
+
+  /* ★ CSS 애니메이션으로 전체화면 상태 제어 (DOM 유지, Reflow 방지) */
+  height: ${({ $isFullscreen }) => ($isFullscreen ? '0' : '40px')};
+  opacity: ${({ $isFullscreen }) => ($isFullscreen ? '0' : '1')};
+  transform: translateY(
+    ${({ $isFullscreen }) => ($isFullscreen ? '-10px' : '0')}
+  );
+  pointer-events: ${({ $isFullscreen }) => ($isFullscreen ? 'none' : 'auto')};
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 `;
 
 export const ToolbarLeft = styled.div`
@@ -191,9 +200,10 @@ export const EditorArea = styled.main`
 
 // 3. 종이(Paper) 감성의 에디터 컨테이너
 export const MainContainer = styled.div`
-  max-width: 760px; /* 글 읽기 가장 편안한 황금 너비 */
+  max-width: 760px;
   margin: 0 auto;
-  padding: 60px 24px 120px;
+  /* ★ 상하 패딩을 절반 수준으로 대폭 축소하여 화면을 넓게 씁니다 */
+  padding: 32px 24px 64px;
   width: 100%;
   box-sizing: border-box;
 
@@ -202,6 +212,24 @@ export const MainContainer = styled.div`
     --crepe-font-title: 'Pretendard', -apple-system, sans-serif;
     --crepe-font-default: 'Pretendard', -apple-system, sans-serif;
     --crepe-font-code: 'Menlo', monospace;
+
+    /* ★ 1. 실제 DOM 기반 업로드 UI 완전 제거 */
+    .placeholder label.uploader,
+    .placeholder input[type='file'],
+    .placeholder span.text {
+      display: none !important;
+      pointer-events: none !important;
+    }
+    /* milkdown-image-block 커스텀 엘리먼트 자체를 숨겨 빈 껍데기까지 제거 */
+    milkdown-image-block {
+      display: none !important;
+    }
+
+    /* ★ 2. 슬래시(/) 및 플러스(+) 메뉴에서 '이미지' 아이템 숨김 */
+    [role='menuitem'][data-id='image'],
+    .milkdown-slash-menu [data-id='image'] {
+      display: none !important;
+    }
 
     .editor {
       padding: 0;
@@ -232,10 +260,55 @@ export const MainContainer = styled.div`
 `;
 
 // 4. 모서리가 둥근 세련된 토스트
-export const Toast = styled.div<{ $show: boolean }>`
+// ★ 플로팅 닫기 버튼 (우측 하단에 떠 있는 원형 버튼)
+export const FloatingButton = styled.button<{ $show: boolean }>`
   position: fixed;
   bottom: 40px;
   right: 40px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background-color: var(--main-bg-color);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--main-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+
+  /* 부드러운 애니메이션 적용 */
+  opacity: ${({ $show }) => ($show ? 1 : 0)};
+  visibility: ${({ $show }) => ($show ? 'visible' : 'hidden')};
+  transform: translateY(${({ $show }) => ($show ? '0' : '20px')})
+    scale(${({ $show }) => ($show ? 1 : 0.95)});
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+
+  &:hover {
+    color: var(--ice-main-color);
+    border-color: var(--ice-main-color);
+    transform: translateY(-2px);
+  }
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  @media (max-width: 768px) {
+    bottom: 24px;
+    right: 24px;
+  }
+`;
+
+export const Toast = styled.div<{ $show: boolean }>`
+  position: fixed;
+  bottom: 40px;
+  /* ★ 토스트를 하단 중앙으로 이동시켜 플로팅 버튼과 겹치지 않게 수정 */
+  left: 50%;
+  transform: translateX(-50%)
+    translateY(${({ $show }) => ($show ? '0' : '20px')});
   background-color: var(--main-bg-color);
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: var(--ice-main-color);
@@ -243,11 +316,10 @@ export const Toast = styled.div<{ $show: boolean }>`
   font-family: 'Pretendard', sans-serif;
   font-size: 0.85rem;
   font-weight: 500;
-  border-radius: 30px; /* 캡슐 형태 */
+  border-radius: 30px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
   z-index: 2000;
   opacity: ${({ $show }) => ($show ? 1 : 0)};
-  transform: translateY(${({ $show }) => ($show ? '0' : '20px')});
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   pointer-events: none;
 `;
