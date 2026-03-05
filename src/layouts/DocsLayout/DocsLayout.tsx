@@ -14,7 +14,7 @@ import {
 } from './DocsLayout.styles';
 import PreviewFaqUseCases from '@/components/Home/PreviewFaqUseCases';
 import { useTranslations } from 'next-intl';
-import Link from 'next/dist/client/link';
+import { Link } from '@/locales/routing';
 import Logo from '@/components/common/Icons/Logo/Logo';
 import ICEMarkDown from '@/components/markdown';
 
