@@ -10,7 +10,7 @@ import {
   EditorArea,
   MainContainer,
 } from './LinkNoteLayout.styles';
-import Link from 'next/dist/client/link';
+import { Link } from '@/locales/routing';
 import Logo from '@/components/common/Icons/Logo/Logo';
 
 const LoadingUI = () => {
