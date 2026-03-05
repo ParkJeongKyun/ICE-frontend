@@ -1,7 +1,6 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import {
   LayoutWrapper,
@@ -11,10 +10,10 @@ import {
   EditorArea,
   MainContainer,
 } from './LinkNoteLayout.styles';
+import Link from 'next/dist/client/link';
 import Logo from '@/components/common/Icons/Logo/Logo';
 
 const LoadingUI = () => {
-  const router = useRouter();
   const t = useTranslations('linknote');
 
   return (
@@ -22,12 +21,9 @@ const LoadingUI = () => {
       <TopToolbar>
         <ToolbarLeft>
           <ToolbarTitle>
-            <div
-              onClick={() => router.push('/')}
-              style={{ cursor: 'pointer', display: 'flex' }}
-            >
+            <Link href="/" aria-label={t('homepage')}>
               <Logo showText />
-            </div>
+            </Link>
             {t('appName')}
           </ToolbarTitle>
         </ToolbarLeft>
