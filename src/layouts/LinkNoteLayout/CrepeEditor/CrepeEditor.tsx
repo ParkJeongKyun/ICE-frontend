@@ -39,7 +39,7 @@ interface NoteData {
   lm?: string;
 }
 
-const MAX_URL_LENGTH = 32000;
+const MAX_URL_LENGTH = 8000;
 const SAVE_DEBOUNCE_TIME = 1500;
 
 // ★ 전체화면 진입 아이콘
