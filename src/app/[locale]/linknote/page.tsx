@@ -124,8 +124,8 @@ export default async function LinkNotePage(props: Props) {
         </h1>
         <p>
           {isKo
-            ? 'ICE LinkNote는 서버에 어떠한 데이터도 남기지 않고, 작성하신 텍스트를 LZString으로 압축하여 URL 자체에 저장하는 무설치 마크다운 메모장입니다.'
-            : 'ICE LinkNote is an installation-free Markdown notepad that leaves no data on the server, compressing your text with LZString and storing it directly in the URL.'}
+            ? 'ICE LinkNote는 서버에 어떠한 데이터도 남기지 않고, 작성하신 텍스트를 pako(deflate)로 압축하여 URL 자체에 저장하는 무설치 마크다운 메모장입니다.'
+            : 'ICE LinkNote is an installation-free Markdown notepad that leaves no data on the server, compressing your text with pako (deflate) and storing it directly in the URL.'}
         </p>
         <h2>{isKo ? '주요 기능 및 장점' : 'Key Features and Benefits'}</h2>
         <ul>

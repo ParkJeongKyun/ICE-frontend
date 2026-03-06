@@ -324,6 +324,66 @@ export const Toast = styled.div<{ $show: boolean }>`
   pointer-events: none;
 `;
 
+export const BottomBar = styled.div<{
+  $warn: boolean;
+  $isFullscreen?: boolean;
+}>`
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 6px 0 14px;
+  border-top: 1px solid var(--main-line-color);
+  background-color: var(--main-bg-color);
+  font-family: 'Pretendard', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  color: ${({ $warn }) => ($warn ? '#ff5555' : 'var(--main-color)')};
+  user-select: none;
+  overflow: hidden;
+
+  height: ${({ $isFullscreen }) => ($isFullscreen ? '0' : '32px')};
+  opacity: ${({ $warn, $isFullscreen }) =>
+    $isFullscreen ? 0 : $warn ? 1 : 0.55};
+  transform: translateY(
+    ${({ $isFullscreen }) => ($isFullscreen ? '10px' : '0')}
+  );
+  pointer-events: ${({ $isFullscreen }) => ($isFullscreen ? 'none' : 'auto')};
+  transition:
+    height 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+    color 0.2s;
+`;
+
+export const BottomBarButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  color: var(--main-color);
+  cursor: pointer;
+  opacity: 0.55;
+  transition:
+    opacity 0.15s,
+    color 0.15s;
+  flex-shrink: 0;
+
+  svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  &:hover {
+    opacity: 1;
+    color: var(--ice-main-color);
+  }
+`;
+
 export const StatusIndicator = styled.div`
   display: flex;
   align-items: center;

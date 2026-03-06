@@ -1,19 +1,21 @@
-import LZString from 'lz-string';
+import pako from 'pako';
+import { fromByteArray } from 'base64-js';
 
 interface NoteData {
-  c?: string; // 내용
-  lm?: string; // 마지막 수정 시간
+  c?: string;
+  lm?: string;
 }
 
 export const createNoteUrl = (content: string): string => {
   const data: NoteData = {
-    c: content, // 단축 키 사용
-    lm: new Date().toISOString(), // 현재 날짜를 마지막 수정 시간으로 추가
+    c: content,
+    lm: new Date().toISOString(),
   };
 
   const jsonString = JSON.stringify(data);
-  const compressed = LZString.compressToEncodedURIComponent(jsonString);
+  const compressed = pako.deflate(new TextEncoder().encode(jsonString));
+  const safeUrlString = encodeURIComponent(fromByteArray(compressed));
 
   const baseUrl = window.location.origin + window.location.pathname;
-  return `${baseUrl}?data=${compressed}`;
+  return `${baseUrl}?data=${safeUrlString}`;
 };

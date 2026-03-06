@@ -94,7 +94,8 @@ Sites and libraries that helped with site development. Thank you!
 - [React Markdown - Markdown Renderer](https://github.com/remarkjs/react-markdown)
 - [mitt - Lightweight Event Emitter](https://github.com/developit/mitt)
 - [Day.js - Date and Time Library](https://day.js.org/)
-- [lz-string - String Compression Library](https://github.com/pieroxy/lz-string)
+- [pako - zlib/deflate Compression Library](https://github.com/nodeca/pako)
+- [base64-js - Base64 Encoding/Decoding Library](https://github.com/beatgammit/base64-js)
 - [Google Analytics - Web Analytics Service](https://analytics.google.com/analytics/web/)
 - [ipinfo.io - IP Address Information Lookup API](https://ipinfo.io)
 
