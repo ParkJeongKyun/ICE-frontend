@@ -6,7 +6,8 @@ import '@milkdown/crepe/theme/common/style.css';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/locales/routing';
-import LZString from 'lz-string';
+import pako from 'pako';
+import { toByteArray } from 'base64-js';
 import EditIcon from '@/components/common/Icons/EditIcon';
 import ReadIcon from '@/components/common/Icons/ReadIcon';
 import ShareIcon from '@/components/common/Icons/ShareIcon';
@@ -29,6 +30,8 @@ import {
   FloatingButton,
   Toast,
   StatusIndicator,
+  BottomBar,
+  BottomBarButton,
 } from '@/layouts/LinkNoteLayout/LinkNoteLayout.styles';
 
 interface NoteData {
@@ -36,7 +39,7 @@ interface NoteData {
   lm?: string;
 }
 
-const MAX_URL_LENGTH = 8000;
+const MAX_URL_LENGTH = 32000;
 const SAVE_DEBOUNCE_TIME = 1500;
 
 // ★ 전체화면 진입 아이콘
@@ -70,6 +73,7 @@ const MinimizeIcon = () => (
 const EditorCore: React.FC = () => {
   const t = useTranslations('linknote');
   const [isReadOnly, setIsReadOnly] = useState(true);
+  const [urlLength, setUrlLength] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false); // ★ 전체화면 상태
   const [initialContent, setInitialContent] = useState('');
   const [initialLastModified, setInitialLastModified] = useState('');
@@ -101,20 +105,23 @@ const EditorCore: React.FC = () => {
 
   // URL에서 노트 데이터 추출 함수
   const getNoteDataFromUrl = () => {
+    setUrlLength(window.location.href.length);
+
     const urlParams = new URLSearchParams(window.location.search);
     const compressedData = urlParams.get('data');
 
     if (!compressedData) return { content: '', lastModified: '' };
 
     try {
-      const decompressed =
-        LZString.decompressFromEncodedURIComponent(compressedData);
-      if (!decompressed) return { content: '', lastModified: '' };
+      const decodedUrl = decodeURIComponent(compressedData);
+      const compressed = toByteArray(decodedUrl);
+      const jsonString = new TextDecoder().decode(pako.inflate(compressed));
 
-      const data: NoteData = JSON.parse(decompressed);
+      const parsedData: NoteData = JSON.parse(jsonString);
+
       return {
-        content: data.c || '',
-        lastModified: data.lm || '',
+        content: parsedData.c || '',
+        lastModified: parsedData.lm || '',
       };
     } catch {
       showToast(t('invalidData'));
@@ -237,6 +244,7 @@ const EditorCore: React.FC = () => {
                 }
 
                 window.history.replaceState({}, '', newUrl);
+                setUrlLength(newUrl.length);
                 setLastModified(new Date().toISOString());
                 hideStatusTimeoutRef.current = setTimeout(
                   () => setIsSaving(false),
@@ -372,15 +380,6 @@ const EditorCore: React.FC = () => {
         </ToolbarLeft>
 
         <ToolbarRight>
-          <Tooltip text={t('fullscreen')} placement="bottom">
-            <ShareButton
-              onClick={() => setIsFullscreen(true)}
-              aria-label="Fullscreen"
-            >
-              <MaximizeIcon />
-            </ShareButton>
-          </Tooltip>
-
           <Tooltip
             text={isReadOnly ? t('editMode') : t('readMode')}
             placement="bottom"
@@ -410,6 +409,25 @@ const EditorCore: React.FC = () => {
           </div>
         </MainContainer>
       </EditorArea>
+
+      <BottomBar
+        $warn={urlLength > MAX_URL_LENGTH * 0.9}
+        $isFullscreen={isFullscreen}
+      >
+        <span>
+          {urlLength > 0
+            ? `${urlLength.toLocaleString()} / ${MAX_URL_LENGTH.toLocaleString()} bytes`
+            : ''}
+        </span>
+        <Tooltip text={t('fullscreen')} placement="top">
+          <BottomBarButton
+            onClick={() => setIsFullscreen(true)}
+            aria-label="Fullscreen"
+          >
+            <MaximizeIcon />
+          </BottomBarButton>
+        </Tooltip>
+      </BottomBar>
 
       {/* ★ 우측 하단에 떠있는 전체화면 취소 플로팅 버튼 (isFullscreen === true 일 때만 등장) */}
       <Tooltip text={t('exitFullscreen')} placement="left">

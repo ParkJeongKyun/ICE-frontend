@@ -94,7 +94,8 @@
 - [React Markdown - 마크다운 렌더러](https://github.com/remarkjs/react-markdown)
 - [mitt - 경량 이벤트 에미터](https://github.com/developit/mitt)
 - [Day.js - 날짜/시간 처리 라이브러리](https://day.js.org/)
-- [lz-string - 문자열 압축 라이브러리](https://github.com/pieroxy/lz-string)
+- [pako - zlib/deflate 압축 라이브러리](https://github.com/nodeca/pako)
+- [base64-js - Base64 인코딩/디코딩 라이브러리](https://github.com/beatgammit/base64-js)
 - [Google Analytics - 웹 로그 분석 서비스](https://analytics.google.com/analytics/web/)
 - [ipinfo.io - IP 주소 정보 조회 API](https://ipinfo.io)
 
