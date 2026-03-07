@@ -34,8 +34,8 @@ export const AnimatedBg = styled.div`
 // 전체 배경 및 폰트
 export const MainContainer = styled.div`
   min-height: 100vh;
-  background: #181a20;
-  color: #e6e8ef;
+  background: var(--main-bg-color);
+  color: var(--main-color);
   overflow-x: hidden;
   word-break: break-word;
   overflow-wrap: anywhere;
@@ -62,7 +62,8 @@ export const SectionBlock = styled.section`
   max-width: 600px;
   margin: 0 auto;
   padding: 2.5rem 1.2rem 1.5rem 1.2rem;
-  border-bottom: 1px solid rgba(120, 130, 180, 0.08);
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--main-line-color) 15%, transparent);
   box-sizing: border-box;
   word-break: break-word;
   overflow-wrap: anywhere;
@@ -78,14 +79,14 @@ export const SectionBlock = styled.section`
 export const SponsorNote = styled.p`
   margin: 0 0 0.6rem;
   font-size: 0.92em;
-  color: #b3b8d4;
+  color: var(--main-color-reverse);
   line-height: 1.6;
 `;
 
 export const SponsorNoteSub = styled.span`
   display: block;
   font-size: 0.88em;
-  color: #8e95b6;
+  color: var(--main-disabled-color);
   margin-top: 0.2em;
 `;
 
@@ -101,7 +102,7 @@ export const SectionTitle = styled.h2`
   font-size: 1.08rem;
   font-weight: 700;
   margin: 0 0 0.7rem 0;
-  color: #a5b4fc;
+  color: var(--ice-main-color);
   text-align: left;
   letter-spacing: -0.01em;
 `;
@@ -120,7 +121,7 @@ export const List = styled.ul`
 export const ListItem = styled.li`
   padding: 0.22rem 0 0.22rem 0.1rem;
   font-size: 1.01rem;
-  color: #e6e8ef;
+  color: var(--main-color);
   background: none;
   display: flex;
   align-items: flex-start;
@@ -129,7 +130,7 @@ export const ListItem = styled.li`
   overflow-wrap: anywhere;
 
   strong {
-    color: #a5b4fc;
+    color: var(--ice-main-color);
     font-weight: 600;
     margin-right: 0.3em;
     font-size: 1em;
@@ -163,8 +164,10 @@ export const ScrollIndicator = styled.div`
     margin-top: 4px;
     display: block;
     animation: bounceDown 1.6s infinite;
-    stroke: #a5b4fc;
-    filter: drop-shadow(0 0 4px #7f53ac88);
+    stroke: var(--ice-main-color);
+    filter: drop-shadow(
+      0 0 4px color-mix(in srgb, var(--ice-main-color) 53%, transparent)
+    );
   }
 
   @keyframes bounceDown {
