@@ -401,21 +401,3 @@ export const IceFooterRight = styled.div`
   flex-shrink: 0;
   position: relative;
 `;
-
-// 인라인 요소용: PC에서만 보임
-export const DesktopOnly = styled.span`
-  display: contents;
-
-  @media (max-width: ${BREAKPOINTS.mobile}) {
-    display: none !important;
-  }
-`;
-
-// 인라인 요소용: 모바일에서만 보임
-export const MobileOnly = styled.span`
-  display: none !important;
-
-  @media (max-width: ${BREAKPOINTS.mobile}) {
-    display: contents !important;
-  }
-`;
