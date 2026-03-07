@@ -6,15 +6,18 @@ export const NavigatorContainer = styled.div`
   gap: 0px;
   padding: 0px;
   height: 100%;
-  flex-shrink: 1;
-  margin-left: auto;
-  min-width: 0;
+  flex: 1;
+  min-width: 60px;
+  max-width: 180px;
+  margin-left: 4px;
+  overflow: hidden;
 `;
 
 export const NavigatorInput = styled.input`
   flex: 1;
-  min-width: 30px;
+  min-width: 20px;
   max-width: 120px;
+  width: 100%;
   color: var(--main-color);
   background-color: var(--main-bg-color);
   border: none;
@@ -26,6 +29,11 @@ export const NavigatorInput = styled.input`
   &:hover {
     outline: none;
     background-color: var(--main-hover-color-primary);
+  }
+
+  &::placeholder {
+    font-size: 0.65rem;
+    opacity: 0.5;
   }
 `;
 
