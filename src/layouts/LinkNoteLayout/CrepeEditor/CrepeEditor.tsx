@@ -403,7 +403,12 @@ const EditorCore: React.FC = () => {
       </TopToolbar>
 
       <EditorArea ref={editorAreaRef}>
-        <MainContainer>
+        <MainContainer
+          spellCheck={false}
+          autoCorrect="off"
+          autoCapitalize="off"
+          inputMode="text"
+        >
           <div style={{ position: 'relative', zIndex: 1 }}>
             <Milkdown />
           </div>
