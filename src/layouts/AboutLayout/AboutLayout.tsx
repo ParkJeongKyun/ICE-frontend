@@ -148,7 +148,7 @@ const About: React.FC = () => {
     <MainContainer>
       <HeroSection>
         <AnimatedBg />
-        <Lanyard position={[0, 0, 13]} gravity={[0, -40, 0]} />
+        <Lanyard />
         <ScrollIndicator>
           <svg className="arrow" viewBox="0 0 24 24" fill="none">
             <path
