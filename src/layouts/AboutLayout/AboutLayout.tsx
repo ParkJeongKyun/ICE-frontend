@@ -82,13 +82,13 @@ const CAREERS = [
 
 const PROJECTS = [
   {
-    name: '철 스크랩 Aimos 운영시스템',
+    name: 'AIMOS - 철 스크랩 AI 검수 시스템',
     client: '대한제강, LG CNS, Aimos',
     role: '시스템 개발 및 운영',
     period: '2023.06 - 2026.03',
   },
   {
-    name: '현대제철 야드비상조업',
+    name: '현대제철 야드비상조업 시스템',
     client: '현대제철, 현대ITC',
     role: 'JSP 웹 개발',
     period: '2023.06 - 2023.12',
@@ -128,8 +128,8 @@ function TagList({ items }: { items: string[] }) {
         <span
           key={item}
           style={{
-            background: '#23243a',
-            color: '#a5b4fc',
+            background: 'var(--main-hover-color)',
+            color: 'var(--ice-main-color)',
             borderRadius: '0.5em',
             padding: '0.18em 0.7em',
             fontSize: '0.98em',
@@ -176,11 +176,11 @@ const About: React.FC = () => {
                 <strong>{t('dateOfBirth')}</strong> 2001년 2월 23일{' '}
                 <span
                   style={{
-                    color: '#a5b4fc',
+                    color: 'var(--ice-main-color)',
                     marginLeft: 8,
                   }}
                 >
-                  (만 {CURRENT_AGE}
+                  ({CURRENT_AGE}
                   {t('age')})
                 </span>
               </ListItem>
@@ -189,7 +189,7 @@ const About: React.FC = () => {
                 <a
                   href="mailto:dbzoseh84@gmail.com"
                   style={{
-                    color: '#a5b4fc',
+                    color: 'var(--ice-main-color)',
                     textDecoration: 'underline',
                   }}
                 >
@@ -228,7 +228,7 @@ const About: React.FC = () => {
                     {edu.major && (
                       <span
                         style={{
-                          color: '#a5b4fc',
+                          color: 'var(--ice-main-color)',
                           fontWeight: 400,
                         }}
                       >
@@ -240,7 +240,7 @@ const About: React.FC = () => {
                   <span
                     style={{
                       fontSize: '0.97em',
-                      color: '#b3b8d4',
+                      color: 'var(--main-color-reverse)',
                       marginTop: 2,
                     }}
                   >
@@ -266,7 +266,7 @@ const About: React.FC = () => {
                   <strong>{MILITARY.service}</strong>
                   <span
                     style={{
-                      color: '#a5b4fc',
+                      color: 'var(--ice-main-color)',
                       fontWeight: 400,
                     }}
                   >
@@ -277,7 +277,7 @@ const About: React.FC = () => {
                 <span
                   style={{
                     fontSize: '0.97em',
-                    color: '#b3b8d4',
+                    color: 'var(--main-color-reverse)',
                     marginTop: 2,
                   }}
                 >
@@ -315,7 +315,7 @@ const About: React.FC = () => {
                     <strong>{career.company}</strong>
                     <span
                       style={{
-                        color: '#a5b4fc',
+                        color: 'var(--ice-main-color)',
                         fontWeight: 400,
                       }}
                     >
@@ -326,7 +326,7 @@ const About: React.FC = () => {
                   <span
                     style={{
                       fontSize: '0.97em',
-                      color: '#b3b8d4',
+                      color: 'var(--main-color-reverse)',
                       marginTop: 2,
                     }}
                   >
@@ -353,7 +353,7 @@ const About: React.FC = () => {
                     <strong>{project.name}</strong>
                     <span
                       style={{
-                        color: '#a5b4fc',
+                        color: 'var(--ice-main-color)',
                         fontWeight: 400,
                       }}
                     >
@@ -364,7 +364,7 @@ const About: React.FC = () => {
                   <span
                     style={{
                       fontSize: '0.97em',
-                      color: '#b3b8d4',
+                      color: 'var(--main-color-reverse)',
                       marginTop: 2,
                     }}
                   >
@@ -373,7 +373,7 @@ const About: React.FC = () => {
                   <span
                     style={{
                       fontSize: '0.95em',
-                      color: '#8e95b6',
+                      color: 'var(--main-disabled-color)',
                       marginTop: 1,
                     }}
                   >

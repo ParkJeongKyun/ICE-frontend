@@ -22,8 +22,6 @@ import {
   IceHeaderLeftSider,
   IceMobileTabBar,
   IceMobileTabButton,
-  DesktopOnly,
-  MobileOnly,
 } from './MainLayout.styles';
 import MenuBtnZone from '@/components/MenuBtnZone/MenuBtnZone';
 import TabWindow from '@/components/TabWindow/TabWindow';
@@ -191,29 +189,19 @@ const MainLayout: React.FC = () => {
         <SelectInfo>
           {selectionInfo ? (
             <>
-              {/* 모바일: offset만 표시 */}
-              <MobileOnly>
-                <div>
-                  <SelectLabel>{t('footer.offset')}:</SelectLabel>
-                  {showHex(selectionInfo.minOffset)}
-                </div>
-              </MobileOnly>
-              {/* PC: selection, offset, range 모두 표시 */}
-              <DesktopOnly>
-                <div>
-                  <SelectLabel>{t('footer.selection')}:</SelectLabel>
-                  {showHex(selectionInfo.length)}
-                </div>
-                <div>
-                  <SelectLabel>{t('footer.offset')}:</SelectLabel>
-                  {showHex(selectionInfo.minOffset)}
-                </div>
-                <div>
-                  <SelectLabel>{t('footer.range')}:</SelectLabel>
-                  {showHex(selectionInfo.minOffset)}-
-                  {showHex(selectionInfo.maxOffset)}
-                </div>
-              </DesktopOnly>
+              <div>
+                <SelectLabel>{t('footer.selection')}:</SelectLabel>
+                {showHex(selectionInfo.length)}
+              </div>
+              <div>
+                <SelectLabel>{t('footer.offset')}:</SelectLabel>
+                {showHex(selectionInfo.minOffset)}
+              </div>
+              <div>
+                <SelectLabel>{t('footer.range')}:</SelectLabel>
+                {showHex(selectionInfo.minOffset)}-
+                {showHex(selectionInfo.maxOffset)}
+              </div>
             </>
           ) : (
             <IceCopyRight>{t('copyright')}</IceCopyRight>

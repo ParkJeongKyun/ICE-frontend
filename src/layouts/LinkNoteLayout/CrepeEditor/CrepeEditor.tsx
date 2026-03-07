@@ -408,6 +408,7 @@ const EditorCore: React.FC = () => {
           autoCorrect="off"
           autoCapitalize="off"
           inputMode="text"
+          suppressContentEditableWarning={true}
         >
           <div style={{ position: 'relative', zIndex: 1 }}>
             <Milkdown />
