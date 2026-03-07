@@ -178,6 +178,7 @@ export const EditorArea = styled.main`
   overflow-x: hidden;
   position: relative;
   width: 100%;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 
   &::-webkit-scrollbar {
     display: block !important;
@@ -255,6 +256,30 @@ export const MainContainer = styled.div`
         border-radius: 8px;
         font-size: 0.9rem;
       }
+    }
+
+    /* 모바일 편집 중 불필요한 공백 노드로 인한 줄간격 불일치 방지 */
+    p,
+    li,
+    ul,
+    ol {
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+
+    li {
+      line-height: 1.6 !important;
+      margin-bottom: 0 !important;
+    }
+
+    li > p {
+      display: inline !important;
+    }
+
+    ul,
+    ol {
+      padding-left: 1.5rem !important;
+      margin: 0.5rem 0 !important;
     }
   }
 `;
@@ -338,7 +363,8 @@ export const BottomBar = styled.div<{
   font-family: 'Pretendard', sans-serif;
   font-size: 12px;
   font-weight: 500;
-  color: ${({ $warn }) => ($warn ? '#ff5555' : 'var(--main-color)')};
+  color: ${({ $warn }) =>
+    $warn ? 'var(--ice-main-color-error)' : 'var(--main-color)'};
   user-select: none;
   overflow: hidden;
 

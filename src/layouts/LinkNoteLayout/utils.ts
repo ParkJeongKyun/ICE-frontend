@@ -16,6 +16,9 @@ export const createNoteUrl = (content: string): string => {
   const compressed = pako.deflate(new TextEncoder().encode(jsonString));
   const safeUrlString = encodeURIComponent(fromByteArray(compressed));
 
-  const baseUrl = window.location.origin + window.location.pathname;
+  const baseUrl =
+    typeof window !== 'undefined'
+      ? window.location.origin + window.location.pathname
+      : '';
   return `${baseUrl}?data=${safeUrlString}`;
 };
