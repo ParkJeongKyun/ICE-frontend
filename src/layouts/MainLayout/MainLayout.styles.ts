@@ -85,6 +85,8 @@ export const IceHeaderLeftSider = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-shrink: 0; /* 절대 잘리지 않음 */
+  min-width: 0;
 
   /* 모바일 버전용 */
   @media (max-width: ${BREAKPOINTS.mobile}) {

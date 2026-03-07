@@ -1,297 +1,127 @@
-/* eslint-disable react/no-unknown-property */
 'use client';
-import { useEffect, useRef, useState } from 'react';
-import { Canvas, extend, useFrame } from '@react-three/fiber';
+
+import React, { useRef, useState } from 'react';
 import {
-  useGLTF,
-  useTexture,
-  Environment,
-  Lightformer,
-} from '@react-three/drei';
-import {
-  BallCollider,
-  CuboidCollider,
-  Physics,
-  RigidBody,
-  useRopeJoint,
-  useSphericalJoint,
-  RigidBodyProps,
-} from '@react-three/rapier';
-import { MeshLineGeometry, MeshLineMaterial } from 'meshline';
-import * as THREE from 'three';
+  motion,
+  useMotionValue,
+  useSpring,
+  useTransform,
+  useMotionTemplate,
+} from 'framer-motion';
+import { LanyardWrapper, Card, CardFront, CardBack } from './Lanyard.styles';
 
-import { LanyardWrapper } from './Lanyard.styles';
+export default function Lanyard() {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [isFlipped, setIsFlipped] = useState(false);
 
-// Public 폴더에서 불러올 파일 경로
-const CARD_GLB = '/lanyard/card.glb';
-const LANYARD_PNG = '/lanyard/lanyard.png';
+  const mouseX = useMotionValue(0.5);
+  const mouseY = useMotionValue(0.5);
 
-extend({ MeshLineGeometry, MeshLineMaterial });
+  const springConfig = { stiffness: 300, damping: 30 };
+  const springX = useSpring(mouseX, springConfig);
+  const springY = useSpring(mouseY, springConfig);
 
-interface LanyardProps {
-  position?: [number, number, number];
-  gravity?: [number, number, number];
-  fov?: number;
-  transparent?: boolean;
-}
+  const tiltX = useTransform(springY, [0, 1], ['15deg', '-15deg']);
+  const tiltY = useTransform(springX, [0, 1], ['-15deg', '15deg']);
 
-export default function Lanyard({
-  position = [0, 0, 30],
-  gravity = [0, -40, 0],
-  fov = 20,
-  transparent = true,
-}: LanyardProps) {
-  const [isMobile, setIsMobile] = useState<boolean>(
-    () => typeof window !== 'undefined' && window.innerWidth < 768
-  );
+  const glareX = useTransform(springX, [0, 1], [0, 100]);
+  const glareY = useTransform(springY, [0, 1], [0, 100]);
+  const glareBackground = useMotionTemplate`radial-gradient(
+    circle at ${glareX}% ${glareY}%, 
+    rgba(255, 255, 255, 0.8) 0%, 
+    rgba(255, 255, 255, 0.2) 20%, 
+    transparent 80%
+  )`;
 
-  useEffect(() => {
-    const handleResize = (): void => setIsMobile(window.innerWidth < 768);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  const shadowX = useTransform(springX, [0, 1], [25, -25]);
+  const shadowY = useTransform(springY, [0, 1], [25, -25]);
+  const boxShadow = useMotionTemplate`${shadowX}px ${shadowY}px 40px rgba(0, 0, 0, 0.5)`;
+
+  const glareOpacity = useTransform([springX, springY], ([x, y]: number[]) => {
+    const dist = Math.sqrt(Math.pow(x - 0.5, 2) + Math.pow(y - 0.5, 2));
+    return dist * 1.2;
+  });
+
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    mouseX.set((e.clientX - rect.left) / rect.width);
+    mouseY.set((e.clientY - rect.top) / rect.height);
+  };
+
+  const handlePointerLeave = () => {
+    mouseX.set(0.5);
+    mouseY.set(0.5);
+  };
 
   return (
     <LanyardWrapper>
-      <Canvas
-        camera={{ position, fov }}
-        dpr={[1, isMobile ? 1.5 : 2]}
-        gl={{ alpha: transparent }}
-        onCreated={({ gl }) =>
-          gl.setClearColor(new THREE.Color(0x000000), transparent ? 0 : 1)
-        }
+      <div
+        ref={cardRef}
+        onPointerMove={handlePointerMove}
+        onPointerLeave={handlePointerLeave}
+        onClick={() => setIsFlipped((prev) => !prev)}
+        style={{
+          perspective: 1500,
+          width: '280px',
+          height: '423px',
+          cursor: 'pointer',
+          touchAction: 'none',
+        }}
       >
-        <ambientLight intensity={Math.PI} />
-        <Physics gravity={gravity} timeStep={isMobile ? 1 / 30 : 1 / 60}>
-          <Band isMobile={isMobile} />
-        </Physics>
-        <Environment blur={0.75}>
-          <Lightformer
-            intensity={2}
-            color="white"
-            position={[0, -1, 5]}
-            rotation={[0, 0, Math.PI / 3]}
-            scale={[100, 0.1, 1]}
-          />
-          <Lightformer
-            intensity={2}
-            color="white"
-            position={[-1, -1, 1]}
-            rotation={[0, 0, Math.PI / 3]}
-            scale={[100, 0.1, 1]}
-          />
-          <Lightformer
-            intensity={2}
-            color="white"
-            position={[1, 1, 1]}
-            rotation={[0, 0, Math.PI / 3]}
-            scale={[100, 0.1, 1]}
-          />
-          <Lightformer
-            intensity={3}
-            color="white"
-            position={[-10, 0, 14]}
-            rotation={[0, Math.PI / 2, Math.PI / 3]}
-            scale={[100, 10, 1]}
-          />
-        </Environment>
-      </Canvas>
-    </LanyardWrapper>
-  );
-}
-
-interface BandProps {
-  maxSpeed?: number;
-  minSpeed?: number;
-  isMobile?: boolean;
-}
-
-function Band({ maxSpeed = 50, minSpeed = 0, isMobile = false }: BandProps) {
-  // Using "any" for refs since the exact types depend on Rapier's internals
-  const band = useRef<any>(null);
-  const fixed = useRef<any>(null);
-  const j1 = useRef<any>(null);
-  const j2 = useRef<any>(null);
-  const j3 = useRef<any>(null);
-  const card = useRef<any>(null);
-
-  const vec = new THREE.Vector3();
-  const ang = new THREE.Vector3();
-  const rot = new THREE.Vector3();
-  const dir = new THREE.Vector3();
-
-  const segmentProps: any = {
-    type: 'dynamic' as RigidBodyProps['type'],
-    canSleep: true,
-    colliders: false,
-    angularDamping: 4,
-    linearDamping: 4,
-  };
-
-  const { nodes, materials } = useGLTF(CARD_GLB) as any;
-  const texture = useTexture(LANYARD_PNG) as THREE.Texture;
-  const [curve] = useState(
-    () =>
-      new THREE.CatmullRomCurve3([
-        new THREE.Vector3(),
-        new THREE.Vector3(),
-        new THREE.Vector3(),
-        new THREE.Vector3(),
-      ])
-  );
-  const [dragged, drag] = useState<false | THREE.Vector3>(false);
-  const [hovered, hover] = useState(false);
-
-  useRopeJoint(fixed, j1, [[0, 0, 0], [0, 0, 0], 1]);
-  useRopeJoint(j1, j2, [[0, 0, 0], [0, 0, 0], 1]);
-  useRopeJoint(j2, j3, [[0, 0, 0], [0, 0, 0], 1]);
-  useSphericalJoint(j3, card, [
-    [0, 0, 0],
-    [0, 1.45, 0],
-  ]);
-
-  useEffect(() => {
-    if (hovered) {
-      document.body.style.cursor = dragged ? 'grabbing' : 'grab';
-      return () => {
-        document.body.style.cursor = 'auto';
-      };
-    }
-  }, [hovered, dragged]);
-
-  useFrame((state, delta) => {
-    if (dragged && typeof dragged !== 'boolean') {
-      vec.set(state.pointer.x, state.pointer.y, 0.5).unproject(state.camera);
-      dir.copy(vec).sub(state.camera.position).normalize();
-      vec.add(dir.multiplyScalar(state.camera.position.length()));
-      [card, j1, j2, j3, fixed].forEach((ref) => ref.current?.wakeUp());
-      card.current?.setNextKinematicTranslation({
-        x: vec.x - dragged.x,
-        y: vec.y - dragged.y,
-        z: vec.z - dragged.z,
-      });
-    }
-    if (fixed.current) {
-      [j1, j2].forEach((ref) => {
-        if (!ref.current.lerped)
-          ref.current.lerped = new THREE.Vector3().copy(
-            ref.current.translation()
-          );
-        const clampedDistance = Math.max(
-          0.1,
-          Math.min(1, ref.current.lerped.distanceTo(ref.current.translation()))
-        );
-        ref.current.lerped.lerp(
-          ref.current.translation(),
-          delta * (minSpeed + clampedDistance * (maxSpeed - minSpeed))
-        );
-      });
-      curve.points[0].copy(j3.current.translation());
-      curve.points[1].copy(j2.current.lerped);
-      curve.points[2].copy(j1.current.lerped);
-      curve.points[3].copy(fixed.current.translation());
-      band.current.geometry.setPoints(curve.getPoints(isMobile ? 16 : 32));
-      ang.copy(card.current.angvel());
-      rot.copy(card.current.rotation());
-      card.current.setAngvel({ x: ang.x, y: ang.y - rot.y * 0.25, z: ang.z });
-    }
-  });
-
-  curve.curveType = 'chordal';
-  texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-
-  return (
-    <>
-      <group position={[0, 4, 0]}>
-        <RigidBody
-          ref={fixed}
-          {...segmentProps}
-          type={'fixed' as RigidBodyProps['type']}
-        />
-        <RigidBody
-          position={[0.5, 0, 0]}
-          ref={j1}
-          {...segmentProps}
-          type={'dynamic' as RigidBodyProps['type']}
+        <motion.div
+          animate={{ rotateY: isFlipped ? 180 : 0 }}
+          transition={{
+            duration: 0.6,
+            type: 'spring',
+            stiffness: 260,
+            damping: 20,
+          }}
+          style={{
+            width: '100%',
+            height: '100%',
+            transformStyle: 'preserve-3d',
+          }}
         >
-          <BallCollider args={[0.1]} />
-        </RigidBody>
-        <RigidBody
-          position={[1, 0, 0]}
-          ref={j2}
-          {...segmentProps}
-          type={'dynamic' as RigidBodyProps['type']}
-        >
-          <BallCollider args={[0.1]} />
-        </RigidBody>
-        <RigidBody
-          position={[1.5, 0, 0]}
-          ref={j3}
-          {...segmentProps}
-          type={'dynamic' as RigidBodyProps['type']}
-        >
-          <BallCollider args={[0.1]} />
-        </RigidBody>
-        <RigidBody
-          position={[2, 0, 0]}
-          ref={card}
-          {...segmentProps}
-          type={
-            dragged
-              ? ('kinematicPosition' as RigidBodyProps['type'])
-              : ('dynamic' as RigidBodyProps['type'])
-          }
-        >
-          <CuboidCollider args={[0.8, 1.125, 0.01]} />
-          <group
-            scale={2.25}
-            position={[0, -1.2, -0.05]}
-            onPointerOver={() => hover(true)}
-            onPointerOut={() => hover(false)}
-            onPointerUp={(e: any) => {
-              e.target.releasePointerCapture(e.pointerId);
-              drag(false);
-            }}
-            onPointerDown={(e: any) => {
-              e.target.setPointerCapture(e.pointerId);
-              drag(
-                new THREE.Vector3()
-                  .copy(e.point)
-                  .sub(vec.copy(card.current.translation()))
-              );
+          <motion.div
+            style={{
+              width: '100%',
+              height: '100%',
+              transformStyle: 'preserve-3d',
+              borderRadius: '16px',
+              rotateX: tiltX,
+              rotateY: tiltY,
+              boxShadow: boxShadow,
             }}
           >
-            <mesh geometry={nodes.card.geometry}>
-              <meshPhysicalMaterial
-                map={materials.base.map}
-                map-anisotropy={16}
-                clearcoat={isMobile ? 0 : 1}
-                clearcoatRoughness={0.15}
-                roughness={0.9}
-                metalness={0.8}
-              />
-            </mesh>
-            <mesh
-              geometry={nodes.clip.geometry}
-              material={materials.metal}
-              material-roughness={0.3}
-            />
-            <mesh geometry={nodes.clamp.geometry} material={materials.metal} />
-          </group>
-        </RigidBody>
-      </group>
-      <mesh ref={band}>
-        <meshLineGeometry />
-        <meshLineMaterial
-          color="white"
-          depthTest={false}
-          resolution={isMobile ? [1000, 2000] : [1000, 1000]}
-          useMap
-          map={texture}
-          repeat={[-4, 1]}
-          lineWidth={1}
-        />
-      </mesh>
-    </>
+            <Card>
+              <CardFront>
+                <img
+                  src="/lanyard/card_front.png"
+                  alt="Card Front"
+                  className="card-image"
+                />
+                <motion.div
+                  style={{ background: glareBackground, opacity: glareOpacity }}
+                  className="glare"
+                />
+              </CardFront>
+
+              <CardBack>
+                <img
+                  src="/lanyard/card_back.png"
+                  alt="Card Back"
+                  className="card-image"
+                />
+                <motion.div
+                  style={{ background: glareBackground, opacity: glareOpacity }}
+                  className="glare"
+                />
+              </CardBack>
+            </Card>
+          </motion.div>
+        </motion.div>
+      </div>
+    </LanyardWrapper>
   );
 }

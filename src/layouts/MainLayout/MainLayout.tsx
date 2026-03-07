@@ -122,9 +122,7 @@ const MainLayout: React.FC = () => {
         <IceHeaderLeftSider>
           <Logo showText />
           <MenuBtnZone />
-          <DesktopOnly>
-            <LanguageSwitcher />
-          </DesktopOnly>
+          <LanguageSwitcher />
         </IceHeaderLeftSider>
         <OffsetNavigator />
         {isProcessing && (
@@ -237,9 +235,6 @@ const MainLayout: React.FC = () => {
               tooltip={t('footer.encoding')}
             />
           )}
-          <MobileOnly>
-            <LanguageSwitcher />
-          </MobileOnly>
           <PrivacyBtn />
           <MessageHistory />
         </IceFooterRight>

@@ -13,8 +13,11 @@ import {
   AnimatedBg,
   SimpleListCard,
   SectionBlock,
+  SponsorNote,
+  SponsorNoteSub,
 } from './AboutLayout.styles';
 import Lanyard from './Lanyard/Lanyard';
+import SponsorButton from '@/components/SponsorButton/SponsorButton';
 
 const CURRENT_AGE = new Date().getFullYear() - 2001;
 
@@ -148,7 +151,7 @@ const About: React.FC = () => {
     <MainContainer>
       <HeroSection>
         <AnimatedBg />
-        <Lanyard position={[0, 0, 13]} gravity={[0, -40, 0]} />
+        <Lanyard />
         <ScrollIndicator>
           <svg className="arrow" viewBox="0 0 24 24" fill="none">
             <path
@@ -379,6 +382,15 @@ const About: React.FC = () => {
                 </ListItem>
               ))}
             </List>
+          </SimpleListCard>
+        </SectionBlock>
+        <SectionBlock>
+          <SimpleListCard>
+            <SponsorNote>
+              {t('sponsorNote')}
+              <SponsorNoteSub>{t('sponsorSub')}</SponsorNoteSub>
+            </SponsorNote>
+            <SponsorButton />
           </SimpleListCard>
         </SectionBlock>
       </AppContainer>

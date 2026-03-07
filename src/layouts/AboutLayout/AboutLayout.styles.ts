@@ -74,6 +74,21 @@ export const SectionBlock = styled.section`
   }
 `;
 
+// 스폰서 유도 문구
+export const SponsorNote = styled.p`
+  margin: 0 0 0.6rem;
+  font-size: 0.92em;
+  color: #b3b8d4;
+  line-height: 1.6;
+`;
+
+export const SponsorNoteSub = styled.span`
+  display: block;
+  font-size: 0.88em;
+  color: #8e95b6;
+  margin-top: 0.2em;
+`;
+
 // 카드 역할 없음, 최소화
 export const SimpleListCard = styled.div`
   display: flex;
