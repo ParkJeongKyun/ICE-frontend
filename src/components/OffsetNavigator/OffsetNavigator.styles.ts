@@ -6,10 +6,10 @@ export const NavigatorContainer = styled.div`
   gap: 0px;
   padding: 0px;
   height: 100%;
-  flex: 1;
+  flex-shrink: 1;
   min-width: 60px;
   max-width: 180px;
-  margin-left: 4px;
+  margin-left: auto;
   overflow: hidden;
 `;
 

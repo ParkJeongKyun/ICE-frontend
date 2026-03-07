@@ -273,13 +273,20 @@ export const MainContainer = styled.div`
     }
 
     li > p {
-      display: inline !important;
+      display: inline-block !important;
+      margin: 0 !important;
+      width: 100%;
     }
 
     ul,
     ol {
       padding-left: 1.5rem !important;
       margin: 0.5rem 0 !important;
+    }
+
+    .task-list-item,
+    .list-item {
+      line-height: 1.5 !important;
     }
   }
 `;
