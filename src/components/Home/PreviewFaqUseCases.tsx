@@ -25,7 +25,7 @@ const PreviewFaqUseCases: React.FC = () => {
       <TopBox>
         <PreviewBox>
           <img
-            src="/images/sample/sample.png"
+            src="/images/sample/sample.webp"
             alt="ICE-PNG Forensic Interface Preview"
           />
         </PreviewBox>

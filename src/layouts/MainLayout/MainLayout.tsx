@@ -41,7 +41,6 @@ import MessageHistory from '@/components/MessageHistory/MessageHistory';
 import Spinner from '@/components/common/Spinner/Spinner';
 import Select from '@/components/common/Select/Select';
 import OffsetNavigator from '@/components/OffsetNavigator/OffsetNavigator';
-import LanguageSwitcher from '@/components/common/LanguageSwitcher/LanguageSwitcher';
 import InfoPanel from './SidePanels/InfoPanel';
 import ToolsPanel from './SidePanels/ToolsPanel';
 import { useProgress } from '@/hooks/useProgress';
@@ -120,7 +119,6 @@ const MainLayout: React.FC = () => {
         <IceHeaderLeftSider>
           <Logo showText />
           <MenuBtnZone />
-          <LanguageSwitcher />
         </IceHeaderLeftSider>
         <OffsetNavigator />
         {isProcessing && (

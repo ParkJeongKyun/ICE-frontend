@@ -250,5 +250,9 @@
     "button": "Report",
     "description": "Report bugs or ideas 💡",
     "ariaLabel": "Report an issue on GitHub"
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language"
   }
 }

@@ -16,6 +16,7 @@ import { useRefs } from '@/contexts/RefContext/RefContext';
 import { useFileProcessor } from '@/hooks/useFileProcessor';
 import { useShowIp } from '@/hooks/useShowIp';
 import { Link } from '@/locales/routing';
+import SettingsModal from '@/components/SettingsModal/SettingsModal';
 
 export interface MenuBtnZoneRef {
   openBtnClick: () => void;
@@ -148,6 +149,7 @@ const MenuBtnZone: React.FC = () => {
       </Link>
 
       <MenuBtn onClick={() => openModal('about')} text={t('menu.about')} />
+      <SettingsModal />
     </Div>
   );
 };

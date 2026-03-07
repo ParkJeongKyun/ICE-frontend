@@ -306,7 +306,6 @@ const HashValueContainer = styled.div`
 
 const HashValueText = styled.div`
   flex: 1;
-  font-family: monospace;
   font-size: 0.65rem;
   color: var(--main-color);
   word-break: break-all;
