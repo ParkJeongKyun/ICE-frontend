@@ -356,6 +356,7 @@ const DataInspector: React.FC = () => {
                           >
                             <JumpButton
                               onClick={() => handleJumpToOffset(item.value)}
+                              aria-label={t('dataInspector.jumpRelative')}
                             >
                               <DoubleChevronsRightIcon width={14} height={14} />
                             </JumpButton>
@@ -375,6 +376,7 @@ const DataInspector: React.FC = () => {
                               onClick={() =>
                                 handleJumpToAbsoluteOffset(item.value)
                               }
+                              aria-label={t('dataInspector.jumpAbsolute')}
                             >
                               <ChevronRightIcon width={14} height={14} />
                             </JumpButton>

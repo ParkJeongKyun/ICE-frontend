@@ -74,6 +74,7 @@ const IfdInfoCollapse: React.FC = () => {
                         <span>{ifd.offset}</span>
                         <JumpButton
                           onClick={() => onJumpToIfdOffset(ifd.offset)}
+                          aria-label={t('exifViewer.jumpToIfdOffset')}
                         >
                           <ChevronRightIcon />
                         </JumpButton>

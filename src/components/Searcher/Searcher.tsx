@@ -371,6 +371,7 @@ const Searcher: React.FC = () => {
             value={searchType}
             onChange={handleSearchTypeChange}
             disabled={isAnalysisProcessing}
+            aria-label={t('searcher.typeLabel')}
           >
             <option value="hex">{t('searcher.hexOption')}</option>
             <option value="ascii">{t('searcher.asciiOption')}</option>
@@ -389,6 +390,7 @@ const Searcher: React.FC = () => {
               type: searchType.toUpperCase(),
             })}
             disabled={isAnalysisProcessing}
+            aria-label={t('searcher.searchLabel')}
           />
           {searchType === 'ascii' && (
             <Tooltip
@@ -403,6 +405,11 @@ const Searcher: React.FC = () => {
                   !isAnalysisProcessing && setIgnoreCase((prev) => !prev)
                 }
                 $disabled={isAnalysisProcessing}
+                aria-label={
+                  ignoreCase
+                    ? t('searcher.caseInsensitiveTooltip')
+                    : t('searcher.caseSensitiveTooltip')
+                }
                 style={{
                   opacity: ignoreCase ? 1 : 0.4,
                   fontWeight: ignoreCase ? 600 : 400,
@@ -414,7 +421,10 @@ const Searcher: React.FC = () => {
           )}
           {isAnalysisProcessing ? (
             <Tooltip text={t('searcher.cancelTooltip')}>
-              <ButtonDiv onClick={cancelSearch}>
+              <ButtonDiv
+                onClick={cancelSearch}
+                aria-label={t('searcher.cancelTooltip')}
+              >
                 <XIcon width={16} height={16} />
               </ButtonDiv>
             </Tooltip>
@@ -427,6 +437,7 @@ const Searcher: React.FC = () => {
                   search(inputValue, searchType)
                 }
                 $disabled={isAnalysisProcessing || !inputValue}
+                aria-label={t('searcher.searchTooltip')}
               >
                 <SearchIcon width={16} height={16} />
               </ButtonDiv>
@@ -475,6 +486,7 @@ const Searcher: React.FC = () => {
               <Tooltip text={t('searcher.prevTooltip')}>
                 <ButtonDiv
                   onClick={handlePrevButtonClick}
+                  aria-label={t('searcher.prevTooltip')}
                   $disabled={
                     (searchResults[activeKey] as SearchResult).results.length <=
                     1
@@ -486,6 +498,7 @@ const Searcher: React.FC = () => {
               <Tooltip text={t('searcher.nextTooltip')}>
                 <ButtonDiv
                   onClick={handleNextButtonClick}
+                  aria-label={t('searcher.nextTooltip')}
                   $disabled={
                     (searchResults[activeKey] as SearchResult).results.length <=
                     1
@@ -495,7 +508,10 @@ const Searcher: React.FC = () => {
                 </ButtonDiv>
               </Tooltip>
               <Tooltip text={t('searcher.resetTooltip')}>
-                <ButtonDiv onClick={handleResetButtonClick}>
+                <ButtonDiv
+                  onClick={handleResetButtonClick}
+                  aria-label={t('searcher.resetTooltip')}
+                >
                   <XIcon height={16} width={16} />
                 </ButtonDiv>
               </Tooltip>

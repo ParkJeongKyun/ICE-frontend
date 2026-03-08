@@ -99,7 +99,10 @@ const OffsetNavigator: React.FC = () => {
         placeholder={placeholder}
       />
       <Tooltip text={t('offsetNavigator.navigateTooltip')}>
-        <NavigatorButton onClick={handleButtonClick}>
+        <NavigatorButton
+          onClick={handleButtonClick}
+          aria-label={t('offsetNavigator.navigateTooltip')}
+        >
           <SearchIcon width={16} height={16} />
         </NavigatorButton>
       </Tooltip>

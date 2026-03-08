@@ -172,10 +172,6 @@ export const MarkDownDiv = styled.div`
     overflow-x: auto;
   }
 
-  code {
-    font-family: 'Courier New', Courier, monospace;
-  }
-
   /* Styling for lists */
   ul,
   ol {

@@ -23,11 +23,11 @@ Click the "How to Use" link above to see detailed instructions.
 
 ## PC Version
 
-![PC version sample image](/images/sample/sample.png)
+![PC version sample image](/images/sample/sample.webp)
 
 ## Mobile Version
 
-![Mobile version sample image](/images/sample/sample_mobile.png)
+![Mobile version sample image](/images/sample/sample_mobile.webp)
 
 # 👋 Hello!
 

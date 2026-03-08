@@ -156,6 +156,7 @@ const ExifTagsCollapse: React.FC = () => {
                                 item.tag
                               )
                             }
+                            aria-label={headerTooltip}
                           >
                             <ChevronRightIcon />
                           </JumpButton>
@@ -187,6 +188,7 @@ const ExifTagsCollapse: React.FC = () => {
                         <Tooltip text={realTooltip}>
                           <JumpButton
                             onClick={() => onJumpToRealDataOffset(item)}
+                            aria-label={realTooltip}
                           >
                             {item.isFar ? (
                               <DoubleChevronsRightIcon />

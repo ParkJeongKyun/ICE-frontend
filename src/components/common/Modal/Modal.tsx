@@ -113,7 +113,7 @@ const Modal: React.FC<ModalProps> = ({
         <ModalHeader>
           <ModalTitle>{title}</ModalTitle>
           <Tooltip text={t('common.close')}>
-            <CloseBtn onClick={close}>
+            <CloseBtn onClick={close} aria-label={t('common.close')}>
               <XIcon width={14} height={14} />
             </CloseBtn>
           </Tooltip>

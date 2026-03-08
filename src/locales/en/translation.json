@@ -143,6 +143,8 @@
     "bigEndianTooltip": "Switch to Big Endian",
     "relativeJumpTooltip": "Relative offset jump: Current(0x{current}({currentDec})) {operator}{value} → 0x{target}({targetDec})",
     "absoluteJumpTooltip": "Absolute offset jump: 0x{target}({targetDec})",
+    "jumpRelative": "Jump to relative offset",
+    "jumpAbsolute": "Jump to absolute offset",
     "dataTypes": {
       "uint8": "UInt8",
       "int8": "Int8",
@@ -225,6 +227,7 @@
     "jumpToOffset": "Jump to: 0x{target}({targetDec}) ({bytes} bytes)",
     "jumpToTag": "Jump to tag offset: 0x{target}({targetDec}) ({bytes} bytes)",
     "jumpUnavailable": "Jump (unavailable)",
+    "jumpToIfdOffset": "Jump to IFD offset",
     "jumpToPointerTarget": "Jump to pointer target: 0x{target}({targetDec}) ({bytes} bytes)",
     "jumpToData": "Jump to data at: 0x{target}({targetDec}) ({bytes} bytes)"
   },
@@ -250,5 +253,9 @@
     "button": "Report",
     "description": "Report bugs or ideas 💡",
     "ariaLabel": "Report an issue on GitHub"
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language"
   }
 }

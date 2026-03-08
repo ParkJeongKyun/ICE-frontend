@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useRef, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import {
   motion,
   useMotionValue,
@@ -11,6 +12,7 @@ import {
 import { LanyardWrapper, Card, CardFront, CardBack } from './Lanyard.styles';
 
 export default function Lanyard() {
+  const t = useTranslations('about');
   const cardRef = useRef<HTMLDivElement>(null);
   const [isFlipped, setIsFlipped] = useState(false);
 
@@ -58,6 +60,12 @@ export default function Lanyard() {
     <LanyardWrapper>
       <div
         ref={cardRef}
+        role="button"
+        tabIndex={0}
+        aria-label={t('flipCard')}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') setIsFlipped((prev) => !prev);
+        }}
         onPointerMove={handlePointerMove}
         onPointerLeave={handlePointerLeave}
         onClick={() => setIsFlipped((prev) => !prev)}
@@ -100,6 +108,7 @@ export default function Lanyard() {
                   src="/lanyard/card_front.png"
                   alt="Card Front"
                   className="card-image"
+                  fetchPriority="high"
                 />
                 <motion.div
                   style={{ background: glareBackground, opacity: glareOpacity }}
@@ -112,6 +121,7 @@ export default function Lanyard() {
                   src="/lanyard/card_back.png"
                   alt="Card Back"
                   className="card-image"
+                  fetchPriority="high"
                 />
                 <motion.div
                   style={{ background: glareBackground, opacity: glareOpacity }}

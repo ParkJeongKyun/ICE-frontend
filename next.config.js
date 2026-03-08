@@ -1,24 +1,26 @@
 const createNextIntlPlugin = require('next-intl/plugin');
-
 const withNextIntl = createNextIntlPlugin('./src/locales/request.ts');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export',
+  output: 'export', // 정적 배포 모드 유지
+
   images: {
-    unoptimized: true,
+    unoptimized: true, // GitHub Pages는 이미지 최적화 서버가 없으므로 필수
   },
-  basePath: process.env.NODE_ENV === 'production' ? '' : '',
+
+  basePath: '',
+
   compiler: {
     styledComponents: true,
   },
+
   webpack: (config) => {
     config.module.rules.push({
       test: /\.wasm$/,
       type: 'webassembly/async',
     });
 
-    // WebAssembly 실험적 기능 활성화
     config.experiments = {
       ...config.experiments,
       asyncWebAssembly: true,

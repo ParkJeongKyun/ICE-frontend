@@ -6,6 +6,7 @@ import { ProcessProvider } from '@/contexts/ProcessContext/ProcessContext';
 import { RefProvider } from '@/contexts/RefContext/RefContext';
 import { TabDataProvider } from '@/contexts/TabDataContext/TabDataContext';
 import { WorkerProvider } from '@/contexts/WorkerContext/WorkerContext';
+import { ConfigProvider } from '@/contexts/ConfigContext/ConfigContext';
 import StyledComponentsRegistry from '@/app/[locale]/StyledComponentsRegistry';
 
 export default function GlobalProviders({
@@ -14,16 +15,18 @@ export default function GlobalProviders({
   children: React.ReactNode;
 }) {
   return (
-    <ProcessProvider>
-      <WorkerProvider>
-        <TabDataProvider>
-          <RefProvider>
-            <HexViewerCacheProvider>
-              <StyledComponentsRegistry>{children}</StyledComponentsRegistry>
-            </HexViewerCacheProvider>
-          </RefProvider>
-        </TabDataProvider>
-      </WorkerProvider>
-    </ProcessProvider>
+    <ConfigProvider>
+      <ProcessProvider>
+        <WorkerProvider>
+          <TabDataProvider>
+            <RefProvider>
+              <HexViewerCacheProvider>
+                <StyledComponentsRegistry>{children}</StyledComponentsRegistry>
+              </HexViewerCacheProvider>
+            </RefProvider>
+          </TabDataProvider>
+        </WorkerProvider>
+      </ProcessProvider>
+    </ConfigProvider>
   );
 }

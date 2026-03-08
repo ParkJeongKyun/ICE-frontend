@@ -190,6 +190,13 @@ const HashCalculator: React.FC = () => {
                 }
                 $disabled={isHashProcessing && calculatingHash !== hashType}
                 $isCalculating={calculatingHash === hashType}
+                aria-label={
+                  calculatingHash === hashType
+                    ? t('calculateHash.cancelTooltip')
+                    : t('calculateHash.calculateTooltip', {
+                        type: hashType.toUpperCase(),
+                      })
+                }
               >
                 {calculatingHash === hashType ? (
                   <XIcon width={12} height={12} />
@@ -215,6 +222,7 @@ const HashCalculator: React.FC = () => {
                           onClick={() =>
                             handleCopyHash(currentResult[hashType]!)
                           }
+                          aria-label={t('common.copy')}
                         >
                           <FlopyIcon width={12} height={12} />
                         </CopyButton>
@@ -306,7 +314,6 @@ const HashValueContainer = styled.div`
 
 const HashValueText = styled.div`
   flex: 1;
-  font-family: monospace;
   font-size: 0.65rem;
   color: var(--main-color);
   word-break: break-all;

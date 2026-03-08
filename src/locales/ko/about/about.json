@@ -21,5 +21,6 @@
   "company": "회사",
   "position": "직위",
   "client": "클라이언트",
-  "role": "역할"
+  "role": "역할",
+  "flipCard": "카드 뒤집기"
 }

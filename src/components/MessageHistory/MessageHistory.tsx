@@ -69,7 +69,11 @@ const MessageHistory: React.FC = () => {
 
   return (
     <>
-      <HistoryButton onClick={handleToggle} $hasUnread={unreadCount > 0}>
+      <HistoryButton
+        onClick={handleToggle}
+        $hasUnread={unreadCount > 0}
+        aria-label={t('notifications.openNotifications')}
+      >
         <BellIcon width={14} height={14} />
         {unreadCount > 0 && <HistoryBadge />}
       </HistoryButton>
@@ -82,13 +86,19 @@ const MessageHistory: React.FC = () => {
           <HistoryActions>
             {messageHistory.length > 0 && (
               <Tooltip text={t('notifications.clearAll')}>
-                <HistoryClearBtn onClick={clearHistory}>
+                <HistoryClearBtn
+                  onClick={clearHistory}
+                  aria-label={t('notifications.clearAll')}
+                >
                   <TrashIcon width={14} height={14} />
                 </HistoryClearBtn>
               </Tooltip>
             )}
             <Tooltip text={t('notifications.close')}>
-              <HistoryClearBtn onClick={handleClose}>
+              <HistoryClearBtn
+                onClick={handleClose}
+                aria-label={t('notifications.close')}
+              >
                 <XIcon width={14} height={14} />
               </HistoryClearBtn>
             </Tooltip>
@@ -126,6 +136,7 @@ const MessageHistory: React.FC = () => {
                       <Tooltip text={t('notifications.delete')}>
                         <HistoryItemDelete
                           onClick={() => deleteMessage(msg.id)}
+                          aria-label={t('notifications.delete')}
                         >
                           <XIcon width={14} height={14} />
                         </HistoryItemDelete>

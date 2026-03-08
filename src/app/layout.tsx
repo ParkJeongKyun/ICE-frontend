@@ -22,7 +22,7 @@ export const metadata: Metadata = {
   ],
   creator: 'Park Jeong Kyun',
   robots: { index: true, follow: true },
-  referrer: 'no-referrer',
+  referrer: 'strict-origin-when-cross-origin',
   icons: { icon: `${DOMAIN}/favicon.ico` },
 
   // common OpenGraph assets only (page-specific title/description are set per-page)

@@ -44,7 +44,6 @@ export const ToolbarTitle = styled.div`
   display: flex;
   align-items: center;
   gap: 4px;
-  font-family: 'Pretendard', sans-serif;
   font-weight: 700;
   font-size: 8px;
   line-height: 1.5;
@@ -87,7 +86,6 @@ export const ToolbarStatus = styled.div`
   display: flex;
   align-items: center;
   gap: 6px;
-  font-family: 'Pretendard', sans-serif;
   font-size: 0.8rem;
   color: var(--main-color);
   opacity: 0.5;
@@ -119,7 +117,6 @@ const GhostButton = css`
   border: none;
   border-radius: 6px;
   color: var(--main-color);
-  font-family: 'Pretendard', sans-serif;
   font-size: 0.85rem;
   font-weight: 500;
   cursor: pointer;
@@ -345,7 +342,6 @@ export const Toast = styled.div<{ $show: boolean }>`
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: var(--ice-main-color);
   padding: 12px 24px;
-  font-family: 'Pretendard', sans-serif;
   font-size: 0.85rem;
   font-weight: 500;
   border-radius: 30px;
@@ -367,7 +363,6 @@ export const BottomBar = styled.div<{
   padding: 0 6px 0 14px;
   border-top: 1px solid var(--main-line-color);
   background-color: var(--main-bg-color);
-  font-family: 'Pretendard', sans-serif;
   font-size: 12px;
   font-weight: 500;
   color: ${({ $warn }) =>
