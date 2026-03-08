@@ -4,9 +4,9 @@ import CriticalCss from '@/components/common/CriticalCss';
 const DOMAIN = process.env.NEXT_PUBLIC_DOMAIN || 'https://www.ice-forensic.com';
 
 export const metadata: Metadata = {
-  title: 'Online Hex Viewer & Online EXIF Viewer',
+  title: 'ICE Forensic | Online Hex Viewer & EXIF Analysis',
   description:
-    'Web-based digital forensics tool. Supports Hex Viewer, File Header Analysis, and Image EXIF Metadata Analysis.',
+    'Select your language to start using ICE Forensic tools. Web-based digital forensics without installation.',
   alternates: {
     canonical: DOMAIN,
     languages: {
@@ -27,40 +27,10 @@ export default function RootLayout({
       <head>
         <CriticalCss />
         <meta name="robots" content="index,follow" />
-
-        {/* 1) JS 비활성 환경(크롤러 포함)을 위한 안전한 리다이렉트 */}
-        <noscript>
-          <meta httpEquiv="refresh" content="0; url=/en" />
-        </noscript>
-
-        {/* 2) 일반 사용자(일반 브라우저) — React가 실행되기 전에 즉시 실행되는 빠른 클라이언트 리다이렉트 */}
+        {/* 재방문자만 조용히 이동 — 봇은 localStorage 없으므로 영향 없음 */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `
-              (function(){
-                try {
-                  var supported = ['ko','en'];
-                  var defaultLang = 'en';
-                  var saved = null;
-                  try { saved = localStorage.getItem('user-locale'); } catch(e) { saved = null; }
-                  var browser = (navigator.language || navigator.userLanguage || '').split('-')[0] || '';
-
-                  var target = defaultLang;
-                  if (saved && supported.indexOf(saved) !== -1) {
-                    target = saved;
-                  } else if (browser && supported.indexOf(browser) !== -1) {
-                    target = browser;
-                  }
-
-                  // 빠르고 안전한 교체 (히스토리 남기지 않음)
-                  if (window.location.pathname === '/' || window.location.pathname === '') {
-                    window.location.replace('/' + target);
-                  }
-                } catch (err) {
-                  try { window.location.replace('/en'); } catch (e) { /* ignore */ }
-                }
-              })();
-            `,
+            __html: `(function(){try{var s=localStorage.getItem('user-locale');if(s==='ko'||s==='en'){var p=window.location.pathname;if(p==='/'||p===''){window.location.replace('/'+s);}}}catch(e){}})();`,
           }}
         />
       </head>

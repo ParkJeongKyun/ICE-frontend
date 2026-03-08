@@ -26,12 +26,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     }));
   });
 
-  // 2. ⭐️ 글로벌 대표 루트 URL (/) 명시적 추가
+  // 2. 글로벌 루트 URL (/) — 언어 선택 대문. 실제 콘텐츠는 /en, /ko
   sitemapList.unshift({
     url: baseUrl, // https://www.ice-forensic.com
     lastModified: new Date(),
-    changeFrequency: 'daily',
-    priority: 1.0,
+    changeFrequency: 'monthly',
+    priority: 0.5,
     alternates: {
       languages: {
         en: `${baseUrl}/en`,
