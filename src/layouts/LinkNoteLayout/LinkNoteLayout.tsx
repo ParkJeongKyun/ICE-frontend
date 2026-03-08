@@ -34,12 +34,27 @@ const LoadingUI = () => {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            paddingTop: '32px', // ★ 변경된 32px 상단 패딩에 정확히 일치시킴
+            paddingTop: '32px',
           }}
         >
+          {/* LCP 앵커: 실제 텍스트를 DOM에 놓아 구글 봇이 콘텐츠를 즉시 인식하게 함 */}
+          <h1
+            style={{
+              position: 'absolute',
+              top: '24px',
+              fontSize: '28px',
+              fontWeight: 'bold',
+              color: 'var(--main-color)',
+              opacity: 0.2,
+              zIndex: 1,
+              pointerEvents: 'none',
+            }}
+          >
+            {t('appName')}
+          </h1>
           <div
             style={{
-              padding: '24px', // 애니메이션 박스 패딩 살짝 줄임
+              padding: '24px',
               opacity: 0.6,
               animation: 'pulse 1.5s infinite',
               width: '100%',
@@ -97,11 +112,11 @@ const LoadingUI = () => {
   );
 };
 
-const DynamicCrepeEditor = dynamic(
-  () => import('@/layouts/LinkNoteLayout/CrepeEditor/CrepeEditor'),
+const DynamicTipTapEditor = dynamic(
+  () => import('@/layouts/LinkNoteLayout/TipTapEditor/TipTapEditor'),
   { ssr: false, loading: () => <LoadingUI /> }
 );
 
 export default function LinkNoteLayout() {
-  return <DynamicCrepeEditor />;
+  return <DynamicTipTapEditor />;
 }

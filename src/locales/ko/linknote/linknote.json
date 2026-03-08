@@ -18,5 +18,6 @@
   "contentTooLongError": "용량 초과: 텍스트가 너무 깁니다. (이미지 등 대용량 데이터는 붙여넣을 수 없습니다)",
   "saveFailed": "저장 실패 (URL 길이 제한 초과)",
   "fullscreen": "전체화면",
-  "exitFullscreen": "전체화면 종료"
+  "exitFullscreen": "전체화면 종료",
+  "editorLabel": "마크다운 메모 편집기"
 }
