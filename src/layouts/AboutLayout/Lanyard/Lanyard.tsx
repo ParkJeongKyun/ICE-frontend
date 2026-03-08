@@ -100,6 +100,7 @@ export default function Lanyard() {
                   src="/lanyard/card_front.png"
                   alt="Card Front"
                   className="card-image"
+                  fetchPriority="high"
                 />
                 <motion.div
                   style={{ background: glareBackground, opacity: glareOpacity }}
@@ -112,6 +113,7 @@ export default function Lanyard() {
                   src="/lanyard/card_back.png"
                   alt="Card Back"
                   className="card-image"
+                  fetchPriority="high"
                 />
                 <motion.div
                   style={{ background: glareBackground, opacity: glareOpacity }}
