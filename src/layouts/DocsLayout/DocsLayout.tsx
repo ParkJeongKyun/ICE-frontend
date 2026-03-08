@@ -34,7 +34,7 @@ const DocsLayout: React.FC<DocsLayoutProps> = ({ markdownData = {} }) => {
   ];
 
   return (
-    <Container>
+    <Container as="main">
       <Card>
         <LogoContainer>
           <Link href="/" aria-label={t('home.homepage')}>

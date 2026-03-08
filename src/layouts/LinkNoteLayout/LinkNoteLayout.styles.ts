@@ -205,86 +205,75 @@ export const MainContainer = styled.div`
   width: 100%;
   box-sizing: border-box;
 
-  .milkdown {
+  /* TipTap / ProseMirror 기본 스타일 재정의 */
+  .ProseMirror {
+    outline: none;
     text-align: left;
-    --crepe-font-title: 'Pretendard', -apple-system, sans-serif;
-    --crepe-font-default: 'Pretendard', -apple-system, sans-serif;
-    --crepe-font-code: 'Menlo', monospace;
+    min-height: 200px;
 
-    /* ★ 1. 실제 DOM 기반 업로드 UI 완전 제거 */
-    .placeholder label.uploader,
-    .placeholder input[type='file'],
-    .placeholder span.text {
-      display: none !important;
-      pointer-events: none !important;
-    }
-    /* milkdown-image-block 커스텀 엘리먼트 자체를 숨겨 빈 껍데기까지 제거 */
-    milkdown-image-block {
-      display: none !important;
+    p {
+      font-size: 1.05rem;
+      line-height: 1.7;
+      color: rgba(255, 255, 255, 0.85);
+      word-break: break-word;
+      text-align: left;
     }
 
-    /* ★ 2. 슬래시(/) 및 플러스(+) 메뉴에서 '이미지' 아이템 숨김 */
-    [role='menuitem'][data-id='image'],
-    .milkdown-slash-menu [data-id='image'] {
-      display: none !important;
-    }
-
-    .editor {
-      padding: 0;
-
-      p {
-        font-size: 1.05rem; /* 시원시원한 본문 크기 */
-        line-height: 1.7; /* 넉넉한 줄간격 */
-        color: rgba(255, 255, 255, 0.85); /* 눈이 편안한 텍스트 컬러 */
-        word-break: break-word;
-      }
-
-      .heading {
-        color: var(--ice-main-color);
-        font-weight: 700;
-        letter-spacing: -0.5px;
-        margin-top: 1.5em;
-      }
-
-      /* 코드블록도 깔끔하게 */
-      .milkdown-code-block {
-        background: rgba(0, 0, 0, 0.3);
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        border-radius: 8px;
-        font-size: 0.9rem;
-      }
-    }
-
-    /* 모바일 편집 중 불필요한 공백 노드로 인한 줄간격 불일치 방지 */
-    p,
-    li,
-    ul,
-    ol {
-      margin: 0 !important;
-      padding: 0 !important;
-    }
-
-    li {
-      line-height: 1.6 !important;
-      margin-bottom: 0 !important;
-    }
-
-    li > p {
-      display: inline-block !important;
-      margin: 0 !important;
-      width: 100%;
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+      color: var(--ice-main-color);
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      margin-top: 1.5em;
+      margin-bottom: 0.5em;
     }
 
     ul,
     ol {
-      padding-left: 1.5rem !important;
-      margin: 0.5rem 0 !important;
+      padding-left: 1.5rem;
     }
 
-    .task-list-item,
-    .list-item {
-      line-height: 1.5 !important;
+    code {
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 4px;
+      padding: 2px 5px;
+      font-size: 0.88em;
+      font-family: 'Menlo', monospace;
     }
+
+    pre {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      padding: 16px;
+      font-size: 0.9rem;
+      overflow-x: auto;
+
+      code {
+        background: none;
+        padding: 0;
+      }
+    }
+
+    blockquote {
+      border-left: 3px solid var(--ice-main-color);
+      margin-left: 0;
+      padding-left: 1rem;
+      opacity: 0.75;
+    }
+  }
+
+  /* 플레이스홀더 */
+  .ProseMirror p.is-editor-empty:first-child::before {
+    content: attr(data-placeholder);
+    float: left;
+    color: rgba(255, 255, 255, 0.25);
+    pointer-events: none;
+    height: 0;
   }
 `;
 

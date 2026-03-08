@@ -18,5 +18,6 @@
   "contentTooLongError": "Content too long. (Images or large data cannot be pasted)",
   "saveFailed": "Save failed (URL length limit exceeded)",
   "fullscreen": "Fullscreen",
-  "exitFullscreen": "Exit Fullscreen"
+  "exitFullscreen": "Exit Fullscreen",
+  "editorLabel": "Markdown note editor"
 }

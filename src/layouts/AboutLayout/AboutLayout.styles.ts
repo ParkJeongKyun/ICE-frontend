@@ -86,7 +86,7 @@ export const SponsorNote = styled.p`
 export const SponsorNoteSub = styled.span`
   display: block;
   font-size: 0.88em;
-  color: var(--main-disabled-color);
+  color: var(--main-color-reverse);
   margin-top: 0.2em;
 `;
 

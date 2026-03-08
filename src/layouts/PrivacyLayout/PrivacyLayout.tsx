@@ -20,7 +20,7 @@ const PrivacyLayout: React.FC<PrivacyLayoutProps> = ({ initialContent }) => {
   const t = useTranslations();
 
   return (
-    <Container>
+    <Container as="main">
       <MarkdownBox>
         <LogoContainer>
           <Link href="/" aria-label={t('home.homepage')}>

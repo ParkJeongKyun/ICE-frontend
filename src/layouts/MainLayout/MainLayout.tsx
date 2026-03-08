@@ -133,7 +133,7 @@ const MainLayout: React.FC = () => {
         )}
       </IceHeader>
 
-      <IceLayout role="main">
+      <IceLayout as="main">
         <IceLeftSider
           style={{ width: `${leftSidePosition}px` }}
           $isCollapsed={leftSidePosition < MIN_SIDER_WIDTH}

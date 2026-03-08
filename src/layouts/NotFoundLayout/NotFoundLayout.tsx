@@ -7,7 +7,7 @@ import { NotFoundContainer } from './NotFoundLayout.styles';
 const NotFoundLayout: React.FC = () => {
   return (
     <NotFoundContainer>
-      <div className="card" role="main" aria-labelledby="nf-title">
+      <main className="card" aria-labelledby="nf-title">
         <div className="left">
           <div className="code">404</div>
         </div>
@@ -49,7 +49,7 @@ const NotFoundLayout: React.FC = () => {
             Report an issue
           </a>
         </div>
-      </div>
+      </main>
     </NotFoundContainer>
   );
 };

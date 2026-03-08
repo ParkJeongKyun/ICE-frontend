@@ -82,7 +82,6 @@ export const ContientDiv = styled.div`
 
   @media (max-width: 1024px) {
     margin: 0;
-    max-width: 100%; /* 모바일에서 고정 너비 해제 */
   }
 `;
 

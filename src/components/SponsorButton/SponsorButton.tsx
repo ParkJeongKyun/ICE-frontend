@@ -67,7 +67,6 @@ export default function SponsorButton() {
         style={{
           fontSize: '0.6875rem',
           fontWeight: 400,
-          opacity: 0.7,
         }}
       >
         {t('description')}

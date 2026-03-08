@@ -1,20 +1,23 @@
 'use client';
 
-import { Crepe } from '@milkdown/crepe';
-import { Milkdown, MilkdownProvider, useEditor } from '@milkdown/react';
-import '@milkdown/crepe/theme/common/style.css';
+import { useEditor, EditorContent } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import { Markdown } from 'tiptap-markdown';
+import Placeholder from '@tiptap/extension-placeholder';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/locales/routing';
-import pako from 'pako';
-import { toByteArray } from 'base64-js';
+import type {
+  CompressResponse,
+  DecompressResponse,
+} from '@/workers/noteCompress.worker';
 import EditIcon from '@/components/common/Icons/EditIcon';
 import ReadIcon from '@/components/common/Icons/ReadIcon';
 import ShareIcon from '@/components/common/Icons/ShareIcon';
 import Logo from '@/components/common/Icons/Logo/Logo';
 import FlopyIcon from '@/components/common/Icons/FlopyIcon';
 import Tooltip from '@/components/common/Tooltip/Tooltip';
-import { createNoteUrl } from '@/layouts/LinkNoteLayout/utils';
+
 import {
   LayoutWrapper,
   TopToolbar,
@@ -40,9 +43,8 @@ interface NoteData {
 }
 
 const MAX_URL_LENGTH = 8000;
-const SAVE_DEBOUNCE_TIME = 1500;
+const SAVE_DEBOUNCE_TIME = 2000;
 
-// ★ 전체화면 진입 아이콘
 const MaximizeIcon = () => (
   <svg
     viewBox="0 0 24 24"
@@ -56,7 +58,6 @@ const MaximizeIcon = () => (
   </svg>
 );
 
-// ★ 전체화면 해제 아이콘
 const MinimizeIcon = () => (
   <svg
     viewBox="0 0 24 24"
@@ -70,32 +71,85 @@ const MinimizeIcon = () => (
   </svg>
 );
 
-const EditorCore: React.FC = () => {
+export default function TipTapEditor() {
   const t = useTranslations('linknote');
   const [isReadOnly, setIsReadOnly] = useState(true);
   const [urlLength, setUrlLength] = useState(0);
-  const [isFullscreen, setIsFullscreen] = useState(false); // ★ 전체화면 상태
-  const [initialContent, setInitialContent] = useState('');
-  const [initialLastModified, setInitialLastModified] = useState('');
-  const editorRef = useRef<Crepe | null>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
-  const [lastModified, setLastModified] = useState<string>('');
+  const [lastModified, setLastModified] = useState('');
 
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const hideStatusTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const toastTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isReadOnlyRef = useRef(isReadOnly);
-
-  // ★ 로직 개선: 마크다운 내용이 실제로 변경되었는지 감지하기 위한 Ref
   const lastSavedMarkdownRef = useRef('');
-  // ★ 이벤트 캡처링을 위한 EditorArea Ref
+  const hasInitializedRef = useRef(false);
   const editorAreaRef = useRef<HTMLElement>(null);
+  const compressWorkerRef = useRef<Worker | null>(null);
+  const pendingCompressIdRef = useRef<string>('');
+  const pendingDecompressContentRef = useRef<string>('');
+  const pendingDecompressLmRef = useRef<string>('');
+  const [decompressReady, setDecompressReady] = useState(false);
 
-  // isReadOnly 상태를 ref에 동기화
   useEffect(() => {
     isReadOnlyRef.current = isReadOnly;
   }, [isReadOnly]);
+
+  // ★ 압축 워커 초기화 및 정리
+  useEffect(() => {
+    const worker = new Worker(
+      new URL('../../../workers/noteCompress.worker.ts', import.meta.url)
+    );
+    worker.onmessage = (
+      e: MessageEvent<CompressResponse | DecompressResponse>
+    ) => {
+      const { id, type } = e.data;
+
+      if (type === 'DECOMPRESS') {
+        const {
+          content,
+          lastModified: lm,
+          error,
+        } = e.data as DecompressResponse;
+        if (id !== pendingCompressIdRef.current) return;
+        if (error || content === undefined) {
+          showToast(t('invalidData'));
+          setIsReadOnly(false);
+          return;
+        }
+        lastSavedMarkdownRef.current = content;
+        if (lm) setLastModified(lm);
+        pendingDecompressContentRef.current = content;
+        pendingDecompressLmRef.current = lm || '';
+        setDecompressReady(true);
+        return;
+      }
+
+      const { url, lastModified: lm, error } = e.data as CompressResponse;
+      if (id !== pendingCompressIdRef.current) return;
+      if (error || !url) {
+        showToast(t('saveFailed'));
+        setIsSaving(false);
+        return;
+      }
+      if (url.length > MAX_URL_LENGTH) {
+        showToast(t('contentTooLongError'));
+        setIsSaving(false);
+        return;
+      }
+      window.history.replaceState({}, '', url);
+      setUrlLength(url.length);
+      if (lm) setLastModified(lm);
+      hideStatusTimeoutRef.current = setTimeout(() => setIsSaving(false), 1000);
+    };
+    compressWorkerRef.current = worker;
+    return () => {
+      worker.terminate();
+      compressWorkerRef.current = null;
+    };
+  }, []);
 
   const showToast = (msg: string, duration = 3000) => {
     setToastMsg(msg);
@@ -103,64 +157,18 @@ const EditorCore: React.FC = () => {
     toastTimeoutRef.current = setTimeout(() => setToastMsg(null), duration);
   };
 
-  // URL에서 노트 데이터 추출 함수
-  const getNoteDataFromUrl = () => {
-    setUrlLength(window.location.href.length);
-
-    const urlParams = new URLSearchParams(window.location.search);
-    const compressedData = urlParams.get('data');
-
-    if (!compressedData) return { content: '', lastModified: '' };
-
-    try {
-      const decodedUrl = decodeURIComponent(compressedData);
-      const compressed = toByteArray(decodedUrl);
-      const jsonString = new TextDecoder().decode(pako.inflate(compressed));
-
-      const parsedData: NoteData = JSON.parse(jsonString);
-
-      return {
-        content: parsedData.c || '',
-        lastModified: parsedData.lm || '',
-      };
-    } catch {
-      showToast(t('invalidData'));
-      return { content: '', lastModified: '' };
-    }
-  };
-
-  useEffect(() => {
-    const { content, lastModified: lm } = getNoteDataFromUrl();
-    setInitialContent(content);
-    lastSavedMarkdownRef.current = content; // 초기값 세팅
-    setInitialLastModified(lm);
-    if (lm) setLastModified(lm);
-
-    if (!content) {
-      setIsReadOnly(false);
-    }
-  }, []);
-
   const handleShare = () => {
     const url = window.location.href;
-
     if (url.length > MAX_URL_LENGTH) {
       showToast(t('contentTooLong'));
       return;
     }
-
     if (navigator.share) {
       navigator
-        .share({
-          title: t('shareTitle'),
-          text: t('shareText'),
-          url: url,
-        })
+        .share({ title: t('shareTitle'), text: t('shareText'), url })
         .then(() => showToast(t('shareSuccess')))
         .catch((error) => {
-          if (error.name !== 'AbortError') {
-            copyToClipboard(url);
-          }
+          if (error.name !== 'AbortError') copyToClipboard(url);
         });
     } else {
       copyToClipboard(url);
@@ -186,98 +194,115 @@ const EditorCore: React.FC = () => {
     return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
   };
 
-  const { get } = useEditor(
-    (root) => {
-      const editor = new Crepe({
-        root,
-        defaultValue: initialContent,
-        featureConfigs: {
-          // ★ 엔진은 살려두고 로컈 파일 업로드만 차단 (URL 입력은 허용)
-          [Crepe.Feature.ImageBlock]: {
-            onUpload: async (_file: File) => {
-              showToast(t('contentTooLongError'));
-              return Promise.reject(
-                'Local image upload is blocked. Use URL instead.'
-              );
-            },
-          },
-          [Crepe.Feature.LinkTooltip]: {
-            inputPlaceholder: t('urlPlaceholder'),
-          },
-          [Crepe.Feature.Placeholder]: {
-            text: t('editorPlaceholder'),
-          },
+  const triggerSave = (markdown: string) => {
+    if (markdown === lastSavedMarkdownRef.current) {
+      setIsSaving(false);
+      return;
+    }
+    lastSavedMarkdownRef.current = markdown;
+
+    if (!compressWorkerRef.current) {
+      setIsSaving(false);
+      return;
+    }
+    const jobId = String(Date.now());
+    pendingCompressIdRef.current = jobId;
+    compressWorkerRef.current.postMessage({
+      id: jobId,
+      type: 'COMPRESS',
+      content: markdown,
+      origin: window.location.origin,
+      pathname: window.location.pathname,
+    });
+  };
+
+  const editor = useEditor(
+    {
+      extensions: [
+        StarterKit,
+        Markdown.configure({ transformCopiedText: true }),
+        Placeholder.configure({ placeholder: t('editorPlaceholder') }),
+      ],
+      immediatelyRender: false,
+      content: '',
+      editable: !isReadOnly,
+      editorProps: {
+        attributes: {
+          role: 'textbox',
+          'aria-label': t('editorLabel'),
+          spellcheck: 'false',
+          autocorrect: 'off',
+          autocapitalize: 'off',
         },
-      });
+      },
+      onUpdate: ({ editor: e }) => {
+        if (isReadOnlyRef.current) return;
 
-      // 초기 상태 설정
-      editor.setReadonly(isReadOnly);
-      editorRef.current = editor;
+        if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+        if (hideStatusTimeoutRef.current)
+          clearTimeout(hideStatusTimeoutRef.current);
 
-      // 이벤트 리스너 등록
-      editor.on((listener) => {
-        listener.updated(() => {
-          if (!isReadOnlyRef.current) {
-            if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
-            if (hideStatusTimeoutRef.current)
-              clearTimeout(hideStatusTimeoutRef.current);
+        setIsSaving(true);
 
-            setIsSaving(true);
-
-            saveTimeoutRef.current = setTimeout(() => {
-              try {
-                const markdown = editor.getMarkdown();
-
-                // ★ 성능 개선 포인트: 내용이 동일하다면 URL 변경이나 압축 작업을 무시합니다.
-                if (markdown === lastSavedMarkdownRef.current) {
-                  setIsSaving(false);
-                  return;
-                }
-                lastSavedMarkdownRef.current = markdown; // 최신 내용 기록
-
-                const newUrl = createNoteUrl(markdown);
-
-                if (newUrl.length > MAX_URL_LENGTH) {
-                  showToast(t('contentTooLongError'));
-                  setIsSaving(false);
-                  return;
-                }
-
-                window.history.replaceState({}, '', newUrl);
-                setUrlLength(newUrl.length);
-                setLastModified(new Date().toISOString());
-                hideStatusTimeoutRef.current = setTimeout(
-                  () => setIsSaving(false),
-                  1000
-                );
-              } catch {
-                showToast(t('saveFailed'));
-                setIsSaving(false);
-              }
-            }, SAVE_DEBOUNCE_TIME);
+        saveTimeoutRef.current = setTimeout(() => {
+          try {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const markdown = (
+              e.storage as any
+            ).markdown.getMarkdown() as string;
+            triggerSave(markdown);
+          } catch {
+            showToast(t('saveFailed'));
+            setIsSaving(false);
           }
-        });
-      });
-
-      return editor;
+        }, SAVE_DEBOUNCE_TIME);
+      },
     },
-    [initialContent]
+    []
   );
 
-  // 읽기 모드 상태가 변경될 때마다 에디터 업데이트
+  // ★ URL 파싱 → 워커에 DECOMPRESS 위임 (메인 스레드에서 pako 제거)
   useEffect(() => {
-    if (editorRef.current) editorRef.current.setReadonly(isReadOnly);
-  }, [isReadOnly]);
+    if (!editor || hasInitializedRef.current) return;
+    hasInitializedRef.current = true;
+    setUrlLength(window.location.href.length);
 
-  // 정리
+    const urlParams = new URLSearchParams(window.location.search);
+    const compressedData = urlParams.get('data');
+
+    if (!compressedData) {
+      setIsReadOnly(false);
+      return;
+    }
+
+    if (!compressWorkerRef.current) {
+      setIsReadOnly(false);
+      return;
+    }
+
+    const jobId = `decompress-${Date.now()}`;
+    pendingCompressIdRef.current = jobId;
+    compressWorkerRef.current.postMessage({
+      id: jobId,
+      type: 'DECOMPRESS',
+      data: compressedData,
+    });
+  }, [editor]);
+
+  // ★ 워커 DECOMPRESS 완료 후 에디터에 콘텐츠 주입
   useEffect(() => {
-    return () => {
-      if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
-      if (hideStatusTimeoutRef.current)
-        clearTimeout(hideStatusTimeoutRef.current);
-      if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
-    };
-  }, []);
+    if (!decompressReady || !editor) return;
+    setDecompressReady(false);
+    const content = pendingDecompressContentRef.current;
+    const lm = pendingDecompressLmRef.current;
+    if (content) editor.commands.setContent(content);
+    setIsReadOnly(content !== '');
+  }, [decompressReady, editor]);
+
+  // ★ 읽기/쓰기 모드 전환 시 에디터 editable 상태 동기화
+  useEffect(() => {
+    if (editor) editor.setEditable(!isReadOnly);
+  }, [isReadOnly, editor]);
 
   // ★ isSaving 중 탭 닫기 / 뒤로가기 시 데이터 유실 방어
   useEffect(() => {
@@ -291,13 +316,12 @@ const EditorCore: React.FC = () => {
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [isSaving]);
 
-  // ★ 완벽한 방어: capture: true 로 Milkdown이 이벤트를 낚아채기 전에 강제 차단
+  // ★ 이미지 붙여넣기·드래그 차단
   useEffect(() => {
     const area = editorAreaRef.current;
     if (!area) return;
 
     const handleNativePaste = (e: ClipboardEvent) => {
-      // 1. 파일 객체 차단 (진짜 이미지 파일 복사)
       const items = e.clipboardData?.items;
       if (items) {
         for (let i = 0; i < items.length; i++) {
@@ -309,8 +333,6 @@ const EditorCore: React.FC = () => {
           }
         }
       }
-
-      // 2. Base64 텍스트 폭탄 차단 (구글 이미지 주소 복사 등 data: URI)
       const pastedText = e.clipboardData?.getData('text/plain') || '';
       const pastedHtml = e.clipboardData?.getData('text/html') || '';
       if (
@@ -324,7 +346,6 @@ const EditorCore: React.FC = () => {
     };
 
     const handleNativeDrop = (e: DragEvent) => {
-      // 1. 파일 객체 드래그 차단
       if (e.dataTransfer?.files && e.dataTransfer.files.length > 0) {
         const hasImageFile = Array.from(e.dataTransfer.files).some((file) =>
           file.type.startsWith('image/')
@@ -336,8 +357,6 @@ const EditorCore: React.FC = () => {
           return;
         }
       }
-
-      // ★ 2. Base64 텍스트 폭탄 드래그 차단 (구글 이미지 껌 누르고 끌어오기 방어)
       const droppedText = e.dataTransfer?.getData('text/plain') || '';
       const droppedHtml = e.dataTransfer?.getData('text/html') || '';
       if (
@@ -357,6 +376,16 @@ const EditorCore: React.FC = () => {
       area.removeEventListener('drop', handleNativeDrop, { capture: true });
     };
   }, [t]);
+
+  // ★ 정리
+  useEffect(() => {
+    return () => {
+      if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+      if (hideStatusTimeoutRef.current)
+        clearTimeout(hideStatusTimeoutRef.current);
+      if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
+    };
+  }, []);
 
   return (
     <LayoutWrapper>
@@ -387,16 +416,19 @@ const EditorCore: React.FC = () => {
             <ToggleButton
               $isReadOnly={isReadOnly}
               onClick={() => setIsReadOnly(!isReadOnly)}
+              aria-label={isReadOnly ? t('editMode') : t('readMode')}
             >
               {isReadOnly ? <EditIcon /> : <ReadIcon />}
-              <span>{isReadOnly ? t('editMode') : t('readMode')}</span>
+              <span aria-hidden="true">
+                {isReadOnly ? t('editMode') : t('readMode')}
+              </span>
             </ToggleButton>
           </Tooltip>
 
           <Tooltip text={t('share')} placement="bottom">
-            <ShareButton onClick={handleShare}>
+            <ShareButton onClick={handleShare} aria-label={t('share')}>
               <ShareIcon />
-              <span>{t('share')}</span>
+              <span aria-hidden="true">{t('share')}</span>
             </ShareButton>
           </Tooltip>
         </ToolbarRight>
@@ -411,7 +443,7 @@ const EditorCore: React.FC = () => {
           suppressContentEditableWarning={true}
         >
           <div style={{ position: 'relative', zIndex: 1 }}>
-            <Milkdown />
+            <EditorContent editor={editor} />
           </div>
         </MainContainer>
       </EditorArea>
@@ -435,7 +467,6 @@ const EditorCore: React.FC = () => {
         </Tooltip>
       </BottomBar>
 
-      {/* ★ 우측 하단에 떠있는 전체화면 취소 플로팅 버튼 (isFullscreen === true 일 때만 등장) */}
       <Tooltip text={t('exitFullscreen')} placement="left">
         <FloatingButton
           $show={isFullscreen}
@@ -448,13 +479,5 @@ const EditorCore: React.FC = () => {
 
       <Toast $show={!!toastMsg}>{toastMsg}</Toast>
     </LayoutWrapper>
-  );
-};
-
-export default function CrepeEditor() {
-  return (
-    <MilkdownProvider>
-      <EditorCore />
-    </MilkdownProvider>
   );
 }

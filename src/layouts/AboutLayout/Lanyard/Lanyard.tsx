@@ -3,12 +3,16 @@
 import React, { useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import {
-  motion,
+  LazyMotion,
+  m,
   useMotionValue,
   useSpring,
   useTransform,
   useMotionTemplate,
 } from 'framer-motion';
+
+const loadFeatures = () =>
+  import('framer-motion').then((res) => res.domAnimation);
 import { LanyardWrapper, Card, CardFront, CardBack } from './Lanyard.styles';
 
 export default function Lanyard() {
@@ -58,80 +62,89 @@ export default function Lanyard() {
 
   return (
     <LanyardWrapper>
-      <div
-        ref={cardRef}
-        role="button"
-        tabIndex={0}
-        aria-label={t('flipCard')}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') setIsFlipped((prev) => !prev);
-        }}
-        onPointerMove={handlePointerMove}
-        onPointerLeave={handlePointerLeave}
-        onClick={() => setIsFlipped((prev) => !prev)}
-        style={{
-          perspective: 1500,
-          width: '280px',
-          height: '423px',
-          cursor: 'pointer',
-          touchAction: 'none',
-        }}
-      >
-        <motion.div
-          animate={{ rotateY: isFlipped ? 180 : 0 }}
-          transition={{
-            duration: 0.6,
-            type: 'spring',
-            stiffness: 260,
-            damping: 20,
+      <LazyMotion features={loadFeatures} strict>
+        <div
+          ref={cardRef}
+          role="button"
+          tabIndex={0}
+          aria-label={t('flipCard')}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ')
+              setIsFlipped((prev) => !prev);
           }}
+          onPointerMove={handlePointerMove}
+          onPointerLeave={handlePointerLeave}
+          onClick={() => setIsFlipped((prev) => !prev)}
           style={{
-            width: '100%',
-            height: '100%',
-            transformStyle: 'preserve-3d',
+            perspective: 1500,
+            width: '280px',
+            height: '423px',
+            cursor: 'pointer',
+            touchAction: 'none',
           }}
         >
-          <motion.div
+          <m.div
+            animate={{ rotateY: isFlipped ? 180 : 0 }}
+            transition={{
+              duration: 0.6,
+              type: 'spring',
+              stiffness: 260,
+              damping: 20,
+            }}
             style={{
               width: '100%',
               height: '100%',
               transformStyle: 'preserve-3d',
-              borderRadius: '16px',
-              rotateX: tiltX,
-              rotateY: tiltY,
-              boxShadow: boxShadow,
             }}
           >
-            <Card>
-              <CardFront>
-                <img
-                  src="/lanyard/card_front.png"
-                  alt="Card Front"
-                  className="card-image"
-                  fetchPriority="high"
-                />
-                <motion.div
-                  style={{ background: glareBackground, opacity: glareOpacity }}
-                  className="glare"
-                />
-              </CardFront>
+            <m.div
+              style={{
+                width: '100%',
+                height: '100%',
+                transformStyle: 'preserve-3d',
+                borderRadius: '16px',
+                rotateX: tiltX,
+                rotateY: tiltY,
+                boxShadow: boxShadow,
+              }}
+            >
+              <Card>
+                <CardFront>
+                  <img
+                    src="/lanyard/card_front.webp"
+                    alt="Card Front"
+                    className="card-image"
+                    fetchPriority="high"
+                  />
+                  <m.div
+                    style={{
+                      background: glareBackground,
+                      opacity: glareOpacity,
+                    }}
+                    className="glare"
+                  />
+                </CardFront>
 
-              <CardBack>
-                <img
-                  src="/lanyard/card_back.png"
-                  alt="Card Back"
-                  className="card-image"
-                  fetchPriority="high"
-                />
-                <motion.div
-                  style={{ background: glareBackground, opacity: glareOpacity }}
-                  className="glare"
-                />
-              </CardBack>
-            </Card>
-          </motion.div>
-        </motion.div>
-      </div>
+                <CardBack>
+                  <img
+                    src="/lanyard/card_back.webp"
+                    alt="Card Back"
+                    className="card-image"
+                    fetchPriority="high"
+                  />
+                  <m.div
+                    style={{
+                      background: glareBackground,
+                      opacity: glareOpacity,
+                    }}
+                    className="glare"
+                  />
+                </CardBack>
+              </Card>
+            </m.div>
+          </m.div>
+        </div>
+      </LazyMotion>
     </LanyardWrapper>
   );
 }

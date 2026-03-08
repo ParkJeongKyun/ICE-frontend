@@ -1,6 +1,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
+import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import {
   LayoutWrapper,
@@ -16,6 +17,9 @@ import Logo from '@/components/common/Icons/Logo/Logo';
 const LoadingUI = () => {
   const t = useTranslations('linknote');
 
+  const skeletonSvg = `<svg width="800" height="300" viewBox="0 0 800 300" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="0" width="250" height="24" rx="4" fill="#888888" opacity="0.2"/><rect x="0" y="50" width="800" height="14" rx="4" fill="#888888" opacity="0.1"/><rect x="0" y="80" width="720" height="14" rx="4" fill="#888888" opacity="0.1"/><rect x="0" y="110" width="760" height="14" rx="4" fill="#888888" opacity="0.1"/><rect x="0" y="140" width="600" height="14" rx="4" fill="#888888" opacity="0.1"/></svg>`;
+  const skeletonDataUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(skeletonSvg)}`;
+
   return (
     <LayoutWrapper>
       <TopToolbar>
@@ -28,80 +32,56 @@ const LoadingUI = () => {
           </ToolbarTitle>
         </ToolbarLeft>
       </TopToolbar>
-      <EditorArea>
+      <EditorArea as="main">
         <MainContainer
           style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            paddingTop: '32px', // ★ 변경된 32px 상단 패딩에 정확히 일치시킴
+            paddingTop: '32px',
           }}
         >
-          <div
+          <h1
             style={{
-              padding: '24px', // 애니메이션 박스 패딩 살짝 줄임
-              opacity: 0.6,
-              animation: 'pulse 1.5s infinite',
-              width: '100%',
+              fontSize: '1.4rem',
+              fontWeight: 700,
+              color: 'var(--main-color)',
+              marginBottom: '24px',
             }}
           >
-            <div
-              style={{
-                height: '20px',
-                background: 'var(--main-line-color)',
-                width: '60%',
-                marginBottom: '24px',
-                borderRadius: '2px',
-              }}
-            />
-            <div
-              style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}
-            >
-              <div
-                style={{
-                  height: '14px',
-                  background: 'var(--main-line-color)',
-                  width: '100%',
-                  borderRadius: '2px',
-                }}
-              />
-              <div
-                style={{
-                  height: '14px',
-                  background: 'var(--main-line-color)',
-                  width: '95%',
-                  borderRadius: '2px',
-                }}
-              />
-              <div
-                style={{
-                  height: '14px',
-                  background: 'var(--main-line-color)',
-                  width: '92%',
-                  borderRadius: '2px',
-                }}
-              />
-              <div
-                style={{
-                  height: '14px',
-                  background: 'var(--main-line-color)',
-                  width: '92%',
-                  borderRadius: '2px',
-                }}
-              />
-            </div>
-          </div>
+            {t('appName')}
+          </h1>
+          <div
+            aria-hidden="true"
+            style={{
+              width: '100%',
+              height: '300px',
+              backgroundImage: `url("${skeletonDataUrl}")`,
+              backgroundRepeat: 'no-repeat',
+              backgroundPosition: 'top left',
+              backgroundSize: '100% auto',
+            }}
+          />
         </MainContainer>
       </EditorArea>
     </LayoutWrapper>
   );
 };
 
-const DynamicCrepeEditor = dynamic(
-  () => import('@/layouts/LinkNoteLayout/CrepeEditor/CrepeEditor'),
+const DynamicTipTapEditor = dynamic(
+  () => import('@/layouts/LinkNoteLayout/TipTapEditor/TipTapEditor'),
   { ssr: false, loading: () => <LoadingUI /> }
 );
 
 export default function LinkNoteLayout() {
-  return <DynamicCrepeEditor />;
+  const [hasClient, setHasClient] = useState(false);
+
+  useEffect(() => {
+    setHasClient(true);
+  }, []);
+
+  // 서버 렌더링 & 초기 하이드레이션: LoadingUI가 SSR HTML에 포함됨 → LCP 앵커 확보
+  if (!hasClient) {
+    return <LoadingUI />;
+  }
+
+  // 클라이언트 마운트 후: DynamicTipTapEditor 로딩 중에도 LoadingUI로 fallback
+  return <DynamicTipTapEditor />;
 }
