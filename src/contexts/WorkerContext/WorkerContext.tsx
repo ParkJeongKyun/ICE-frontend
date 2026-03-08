@@ -7,10 +7,10 @@ import React, {
   useState,
   useEffect,
 } from 'react';
-import { WorkerManager, type WorkerEvents } from '@/utils/WorkerManager';
+import { WorkerManager } from '@/utils/WorkerManager';
 import { useProcess } from '@/contexts/ProcessContext/ProcessContext';
 import eventBus from '@/types/eventBus';
-import { WorkerStats } from '@/types/worker/index.worker.types';
+import { usePathname } from 'next/navigation';
 
 interface WorkerContextType {
   hashManager: WorkerManager | null; // 제네릭 제거!
@@ -37,6 +37,8 @@ export const WorkerProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const [isWasmReady, setIsWasmReady] = useState(false);
 
+  const pathname = usePathname();
+
   const {
     startHashProcessing,
     stopHashProcessing,
@@ -45,6 +47,15 @@ export const WorkerProvider: React.FC<{ children: React.ReactNode }> = ({
   } = useProcess();
 
   useEffect(() => {
+    // linknote나 about 페이지에서는 무거운 WASM 초기화 실행 안 함
+    if (
+      pathname.includes('/linknote') ||
+      pathname.includes('/about') ||
+      pathname.includes('/docs')
+    ) {
+      return;
+    }
+
     startAnalysisProcessing();
 
     let hashManager: WorkerManager | null = null; // 제네릭 제거!

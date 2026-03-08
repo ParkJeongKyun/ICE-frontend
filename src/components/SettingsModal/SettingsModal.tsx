@@ -90,6 +90,7 @@ const SettingsModal: React.FC = () => {
                 $active={locale === 'ko'}
                 onClick={() => handleLangSelect('ko')}
                 disabled={isProcessing || isPending}
+                aria-label="한국어로 변경"
               >
                 <KRFlagIcon width={20} height={14} />
                 한국어
@@ -98,6 +99,7 @@ const SettingsModal: React.FC = () => {
                 $active={locale === 'en'}
                 onClick={() => handleLangSelect('en')}
                 disabled={isProcessing || isPending}
+                aria-label="Switch to English"
               >
                 <USFlagIcon width={20} height={14} />
                 English

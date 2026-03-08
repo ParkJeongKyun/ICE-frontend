@@ -64,7 +64,7 @@ const MessageModal: React.FC = () => {
                 e.stopPropagation();
                 handleClose(message.id);
               }}
-              aria-label="Close message"
+              aria-label={t('notifications.close')}
             >
               <XIcon width={16} height={16} />
             </CloseButton>

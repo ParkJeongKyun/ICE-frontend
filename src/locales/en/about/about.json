@@ -21,5 +21,6 @@
   "company": "Company",
   "position": "Position",
   "client": "Client",
-  "role": "Role"
+  "role": "Role",
+  "flipCard": "Flip card"
 }

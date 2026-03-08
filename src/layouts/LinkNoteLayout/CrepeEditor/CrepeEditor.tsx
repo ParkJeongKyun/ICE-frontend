@@ -428,7 +428,7 @@ const EditorCore: React.FC = () => {
         <Tooltip text={t('fullscreen')} placement="top">
           <BottomBarButton
             onClick={() => setIsFullscreen(true)}
-            aria-label="Fullscreen"
+            aria-label={t('fullscreen')}
           >
             <MaximizeIcon />
           </BottomBarButton>
@@ -440,7 +440,7 @@ const EditorCore: React.FC = () => {
         <FloatingButton
           $show={isFullscreen}
           onClick={() => setIsFullscreen(false)}
-          aria-label="Exit Fullscreen"
+          aria-label={t('exitFullscreen')}
         >
           <MinimizeIcon />
         </FloatingButton>

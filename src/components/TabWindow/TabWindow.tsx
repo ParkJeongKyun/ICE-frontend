@@ -17,9 +17,11 @@ import XIcon from '@/components/common/Icons/XIcon';
 import { useTab } from '@/contexts/TabDataContext/TabDataContext';
 import { TabKey } from '@/types';
 import { useProcess } from '@/contexts/ProcessContext/ProcessContext';
+import { useTranslations } from 'next-intl';
 
 const TabWindow: React.FC = () => {
   const { isProcessing } = useProcess();
+  const t = useTranslations();
   const contentContainerRef = useRef<HTMLDivElement>(null);
   const tabsContainerRef = useRef<HTMLDivElement>(null);
   const {
@@ -228,6 +230,7 @@ const TabWindow: React.FC = () => {
             <CloseBtn
               $active={tabKey === activeKey}
               $disabled={isProcessing}
+              aria-label={t('common.close')}
               onClick={(e) => {
                 if (isProcessing) return;
                 e.stopPropagation();

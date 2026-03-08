@@ -160,6 +160,7 @@ const TextChunksCollapse: React.FC = () => {
                         onClick={() =>
                           onJumpToChunkOffset(chunk.offset, chunk.length || 0)
                         }
+                        aria-label={`${t('textChunksViewer.jumpToOffset', { target: chunk.offset.toString(16).toUpperCase(), targetDec: chunk.offset, bytes: chunk.length || 0 })}`}
                       >
                         <ChevronRightIcon />
                       </JumpButton>
