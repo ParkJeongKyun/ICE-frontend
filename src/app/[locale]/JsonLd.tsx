@@ -80,6 +80,11 @@ export default function JsonLd({ locale }: JsonLdProps) {
     creator: { '@id': PERSON_ID },
     publisher: { '@id': ORG_ID },
     inLanguage: isKo ? 'ko' : 'en',
+    alternateName: isKo ? 'ICE 포렌식 도구' : 'ICE Forensic Tool',
+    hasPart: [
+      { '@type': 'WebPage', url: `${DOMAIN}/en`, inLanguage: 'en' },
+      { '@type': 'WebPage', url: `${DOMAIN}/ko`, inLanguage: 'ko' },
+    ],
   };
 
   const combinedJsonLd = [
