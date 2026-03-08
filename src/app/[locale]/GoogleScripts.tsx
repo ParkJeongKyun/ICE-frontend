@@ -15,7 +15,13 @@ export default function GoogleScripts() {
         {`window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);} 
           gtag('js', new Date());
-          gtag('config', 'G-79876PQVY4');`}
+          
+          gtag('config', 'G-79876PQVY4', {
+            'cookie_flags': 'SameSite=None;Secure',
+            'allow_ad_personalization_signals': false,
+            'anonymize_ip': true,
+            'update': 'privacy'
+        });`}
       </Script>
     </>
   );

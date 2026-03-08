@@ -268,18 +268,16 @@ export const GitHubBox = styled.div`
 
 export const PreviewBox = styled.div`
   width: 100%;
-  aspect-ratio: 16 / 9;
-  background-color: #000;
+  background-color: var(--main-bg-color);
   border-radius: 0.25rem;
   overflow: hidden;
   border: 1px solid var(--main-line-color);
   margin-bottom: 0.5rem;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 
   img {
     width: 100%;
-    height: 100%;
-    object-fit: cover;
+    height: auto;
+    display: block;
     opacity: 0.9;
   }
 `;
