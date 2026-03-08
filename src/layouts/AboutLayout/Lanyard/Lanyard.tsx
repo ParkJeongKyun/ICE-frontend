@@ -111,7 +111,7 @@ export default function Lanyard() {
               <Card>
                 <CardFront>
                   <img
-                    src="/lanyard/card_front.png"
+                    src="/lanyard/card_front.webp"
                     alt="Card Front"
                     className="card-image"
                     fetchPriority="high"
@@ -127,7 +127,7 @@ export default function Lanyard() {
 
                 <CardBack>
                   <img
-                    src="/lanyard/card_back.png"
+                    src="/lanyard/card_back.webp"
                     alt="Card Back"
                     className="card-image"
                     fetchPriority="high"

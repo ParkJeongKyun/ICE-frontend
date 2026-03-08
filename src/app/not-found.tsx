@@ -1,9 +1,11 @@
 import NotFoundLayout from '@/layouts/NotFoundLayout/NotFoundLayout';
+import CriticalCss from '@/components/common/CriticalCss';
 
 export default function NotFound() {
   return (
     <html lang="en">
       <head>
+        <CriticalCss />
         {/* React가 렌더링되기 전, 브라우저가 HTML을 읽자마자 즉시 실행되는 스크립트 */}
         <script
           dangerouslySetInnerHTML={{

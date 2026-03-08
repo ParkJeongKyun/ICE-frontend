@@ -6,6 +6,7 @@ import { redirect } from 'next/navigation';
 import type { Metadata, Viewport } from 'next';
 import JsonLd from './JsonLd';
 import GoogleScripts from './GoogleScripts';
+import CriticalCss from '@/components/common/CriticalCss';
 
 const DOMAIN = process.env.NEXT_PUBLIC_DOMAIN || 'https://www.ice-forensic.com';
 
@@ -68,6 +69,7 @@ export default async function LocaleLayout({
   return (
     <html lang={locale} suppressHydrationWarning>
       <head>
+        <CriticalCss />
         <meta charSet="utf-8" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="msapplication-TileColor" content="#000000" />

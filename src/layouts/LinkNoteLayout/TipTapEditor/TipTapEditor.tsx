@@ -1,12 +1,16 @@
 'use client';
 
 import { useEditor, EditorContent } from '@tiptap/react';
-import type { AnyExtension } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
+import { Markdown } from 'tiptap-markdown';
+import Placeholder from '@tiptap/extension-placeholder';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/locales/routing';
-import type { CompressResponse } from '@/workers/noteCompress.worker';
+import type {
+  CompressResponse,
+  DecompressResponse,
+} from '@/workers/noteCompress.worker';
 import EditIcon from '@/components/common/Icons/EditIcon';
 import ReadIcon from '@/components/common/Icons/ReadIcon';
 import ShareIcon from '@/components/common/Icons/ShareIcon';
@@ -72,55 +76,58 @@ export default function TipTapEditor() {
   const [isReadOnly, setIsReadOnly] = useState(true);
   const [urlLength, setUrlLength] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [initialContent, setInitialContent] = useState('');
-  const [initialLastModified, setInitialLastModified] = useState('');
   const [toastMsg, setToastMsg] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
-  const [lastModified, setLastModified] = useState<string>('');
-  const [ready, setReady] = useState(false);
-  const [extensionsReady, setExtensionsReady] = useState(false);
-  const extensionsRef = useRef<AnyExtension[]>([StarterKit]);
+  const [lastModified, setLastModified] = useState('');
 
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const hideStatusTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const toastTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isReadOnlyRef = useRef(isReadOnly);
   const lastSavedMarkdownRef = useRef('');
+  const hasInitializedRef = useRef(false);
   const editorAreaRef = useRef<HTMLElement>(null);
   const compressWorkerRef = useRef<Worker | null>(null);
   const pendingCompressIdRef = useRef<string>('');
+  const pendingDecompressContentRef = useRef<string>('');
+  const pendingDecompressLmRef = useRef<string>('');
+  const [decompressReady, setDecompressReady] = useState(false);
 
   useEffect(() => {
     isReadOnlyRef.current = isReadOnly;
   }, [isReadOnly]);
-
-  // ★ TipTap 확장 비동기 로드 (메인 스레드 점유 분산)
-  // StarterKit은 doc 노드 등 스키마 필수 요소를 제공하므로 정적 유지
-  // Markdown·Placeholder는 선택적 확장이므로 비동기 로드
-  useEffect(() => {
-    const loadExtensions = async () => {
-      const [{ Markdown }, { default: Placeholder }] = await Promise.all([
-        import('tiptap-markdown'),
-        import('@tiptap/extension-placeholder'),
-      ]);
-      // ref에 저장 후 플래그만 변경 → 에디터 재생성 방지
-      extensionsRef.current = [
-        StarterKit,
-        Markdown.configure({ transformCopiedText: true }),
-        Placeholder.configure({ placeholder: t('editorPlaceholder') }),
-      ];
-      setExtensionsReady(true);
-    };
-    loadExtensions();
-  }, []);
 
   // ★ 압축 워커 초기화 및 정리
   useEffect(() => {
     const worker = new Worker(
       new URL('../../../workers/noteCompress.worker.ts', import.meta.url)
     );
-    worker.onmessage = (e: MessageEvent<CompressResponse>) => {
-      const { id, url, lastModified: lm, error } = e.data;
+    worker.onmessage = (
+      e: MessageEvent<CompressResponse | DecompressResponse>
+    ) => {
+      const { id, type } = e.data;
+
+      if (type === 'DECOMPRESS') {
+        const {
+          content,
+          lastModified: lm,
+          error,
+        } = e.data as DecompressResponse;
+        if (id !== pendingCompressIdRef.current) return;
+        if (error || content === undefined) {
+          showToast(t('invalidData'));
+          setIsReadOnly(false);
+          return;
+        }
+        lastSavedMarkdownRef.current = content;
+        if (lm) setLastModified(lm);
+        pendingDecompressContentRef.current = content;
+        pendingDecompressLmRef.current = lm || '';
+        setDecompressReady(true);
+        return;
+      }
+
+      const { url, lastModified: lm, error } = e.data as CompressResponse;
       if (id !== pendingCompressIdRef.current) return;
       if (error || !url) {
         showToast(t('saveFailed'));
@@ -142,46 +149,6 @@ export default function TipTapEditor() {
       worker.terminate();
       compressWorkerRef.current = null;
     };
-  }, []);
-
-  // ★ URL에서 노트 데이터를 비동기로 추출 (pako/base64 지연 로드)
-  useEffect(() => {
-    const init = async () => {
-      setUrlLength(window.location.href.length);
-      const urlParams = new URLSearchParams(window.location.search);
-      const compressedData = urlParams.get('data');
-
-      if (!compressedData) {
-        setIsReadOnly(false);
-        setReady(true);
-        return;
-      }
-
-      try {
-        const [{ default: pako }, { toByteArray }] = await Promise.all([
-          import('pako'),
-          import('base64-js'),
-        ]);
-        const decodedUrl = decodeURIComponent(compressedData);
-        const compressed = toByteArray(decodedUrl);
-        const jsonString = new TextDecoder().decode(pako.inflate(compressed));
-        const parsedData: NoteData = JSON.parse(jsonString);
-
-        const content = parsedData.c || '';
-        const lm = parsedData.lm || '';
-
-        setInitialContent(content);
-        lastSavedMarkdownRef.current = content;
-        setInitialLastModified(lm);
-        if (lm) setLastModified(lm);
-        if (!content) setIsReadOnly(false);
-      } catch {
-        showToast(t('invalidData'));
-        setIsReadOnly(false);
-      }
-      setReady(true);
-    };
-    init();
   }, []);
 
   const showToast = (msg: string, duration = 3000) => {
@@ -242,6 +209,7 @@ export default function TipTapEditor() {
     pendingCompressIdRef.current = jobId;
     compressWorkerRef.current.postMessage({
       id: jobId,
+      type: 'COMPRESS',
       content: markdown,
       origin: window.location.origin,
       pathname: window.location.pathname,
@@ -250,14 +218,18 @@ export default function TipTapEditor() {
 
   const editor = useEditor(
     {
-      extensions: extensionsRef.current,
+      extensions: [
+        StarterKit,
+        Markdown.configure({ transformCopiedText: true }),
+        Placeholder.configure({ placeholder: t('editorPlaceholder') }),
+      ],
       immediatelyRender: false,
-      content: initialContent,
+      content: '',
       editable: !isReadOnly,
       editorProps: {
         attributes: {
+          role: 'textbox',
           'aria-label': t('editorLabel'),
-          'aria-multiline': 'true',
           spellcheck: 'false',
           autocorrect: 'off',
           autocapitalize: 'off',
@@ -286,9 +258,46 @@ export default function TipTapEditor() {
         }, SAVE_DEBOUNCE_TIME);
       },
     },
-    // URL 파싱 + 확장 로드가 모두 완료된 시점에 단 1회 에디터 생성
-    [ready && extensionsReady, initialContent]
+    []
   );
+
+  // ★ URL 파싱 → 워커에 DECOMPRESS 위임 (메인 스레드에서 pako 제거)
+  useEffect(() => {
+    if (!editor || hasInitializedRef.current) return;
+    hasInitializedRef.current = true;
+    setUrlLength(window.location.href.length);
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const compressedData = urlParams.get('data');
+
+    if (!compressedData) {
+      setIsReadOnly(false);
+      return;
+    }
+
+    if (!compressWorkerRef.current) {
+      setIsReadOnly(false);
+      return;
+    }
+
+    const jobId = `decompress-${Date.now()}`;
+    pendingCompressIdRef.current = jobId;
+    compressWorkerRef.current.postMessage({
+      id: jobId,
+      type: 'DECOMPRESS',
+      data: compressedData,
+    });
+  }, [editor]);
+
+  // ★ 워커 DECOMPRESS 완료 후 에디터에 콘텐츠 주입
+  useEffect(() => {
+    if (!decompressReady || !editor) return;
+    setDecompressReady(false);
+    const content = pendingDecompressContentRef.current;
+    const lm = pendingDecompressLmRef.current;
+    if (content) editor.commands.setContent(content);
+    setIsReadOnly(content !== '');
+  }, [decompressReady, editor]);
 
   // ★ 읽기/쓰기 모드 전환 시 에디터 editable 상태 동기화
   useEffect(() => {

@@ -61,7 +61,7 @@ export const IceHeader = styled.div<{
       height: 1.5px;
       width: 100%;
       background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.05) 20%, var(--ice-main-color) 50%, rgba(255,255,255,0.05) 80%, transparent 100%);
-      background-size: 200% 100%;
+      transform: translateX(-100%);
       animation: shimmer 2.5s linear infinite;
       pointer-events: none;
       z-index: 1002;
@@ -69,8 +69,8 @@ export const IceHeader = styled.div<{
     }
 
     @keyframes shimmer {
-      from { background-position: 200% 0; }
-      to { background-position: -200% 0; }
+      from { transform: translateX(-100%); }
+      to { transform: translateX(100%); }
     }
   `}
 

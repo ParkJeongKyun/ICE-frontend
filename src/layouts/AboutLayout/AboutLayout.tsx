@@ -373,7 +373,7 @@ const About: React.FC = () => {
                   <span
                     style={{
                       fontSize: '0.95em',
-                      color: 'var(--main-disabled-color)',
+                      color: 'var(--main-color-reverse)',
                       marginTop: 1,
                     }}
                   >

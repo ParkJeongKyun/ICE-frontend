@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState, useTransition } from 'react';
+import React, { useState, useTransition } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useRouter, usePathname } from '@/locales/routing';
 import { useProcess } from '@/contexts/ProcessContext/ProcessContext';
@@ -16,6 +16,19 @@ import {
   SettingsSectionLabel,
   SettingsWrapper,
 } from './SettingsModal.styles';
+import Tooltip from '@/components/common/Tooltip/Tooltip';
+import {
+  useFloating,
+  autoUpdate,
+  offset,
+  flip,
+  shift,
+  useClick,
+  useDismiss,
+  useRole,
+  useInteractions,
+  FloatingPortal,
+} from '@floating-ui/react';
 
 const SettingsIcon = () => (
   <svg
@@ -42,23 +55,24 @@ const SettingsModal: React.FC = () => {
   const { isHashProcessing, isAnalysisProcessing } = useProcess();
 
   const [open, setOpen] = useState(false);
-  const wrapperRef = useRef<HTMLDivElement>(null);
-
   const isProcessing = isHashProcessing || isAnalysisProcessing;
 
-  useEffect(() => {
-    if (!open) return;
-    const handler = (e: MouseEvent) => {
-      if (
-        wrapperRef.current &&
-        !wrapperRef.current.contains(e.target as Node)
-      ) {
-        setOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, [open]);
+  const { refs, floatingStyles, context } = useFloating({
+    open,
+    onOpenChange: setOpen,
+    placement: 'bottom',
+    whileElementsMounted: autoUpdate,
+    middleware: [offset(4), flip(), shift({ padding: 8 })],
+  });
+
+  const click = useClick(context);
+  const dismiss = useDismiss(context);
+  const role = useRole(context, { role: 'dialog' });
+  const { getReferenceProps, getFloatingProps } = useInteractions([
+    click,
+    dismiss,
+    role,
+  ]);
 
   const handleLangSelect = (lang: 'ko' | 'en') => {
     if (isProcessing || lang === locale) return;
@@ -69,44 +83,52 @@ const SettingsModal: React.FC = () => {
   };
 
   return (
-    <SettingsWrapper ref={wrapperRef}>
-      <SettingsButton
-        onClick={() => setOpen((v) => !v)}
-        aria-label={t('title')}
-        aria-expanded={open}
-        title={t('title')}
-      >
-        <SettingsIcon />
-      </SettingsButton>
+    <SettingsWrapper>
+      <Tooltip text={t('title')} placement="bottom">
+        <SettingsButton
+          ref={refs.setReference}
+          aria-label={t('title')}
+          aria-expanded={open}
+          {...getReferenceProps()}
+        >
+          <SettingsIcon />
+        </SettingsButton>
+      </Tooltip>
 
       {open && (
-        <SettingsPanel>
-          <SettingsPanelTitle>{t('title')}</SettingsPanelTitle>
+        <FloatingPortal>
+          <SettingsPanel
+            ref={refs.setFloating}
+            style={floatingStyles}
+            {...getFloatingProps()}
+          >
+            <SettingsPanelTitle>{t('title')}</SettingsPanelTitle>
 
-          <SettingsSection>
-            <SettingsSectionLabel>{t('language')}</SettingsSectionLabel>
-            <LangFlagRow>
-              <LangFlagBtn
-                $active={locale === 'ko'}
-                onClick={() => handleLangSelect('ko')}
-                disabled={isProcessing || isPending}
-                aria-label="한국어로 변경"
-              >
-                <KRFlagIcon width={20} height={14} />
-                한국어
-              </LangFlagBtn>
-              <LangFlagBtn
-                $active={locale === 'en'}
-                onClick={() => handleLangSelect('en')}
-                disabled={isProcessing || isPending}
-                aria-label="Switch to English"
-              >
-                <USFlagIcon width={20} height={14} />
-                English
-              </LangFlagBtn>
-            </LangFlagRow>
-          </SettingsSection>
-        </SettingsPanel>
+            <SettingsSection>
+              <SettingsSectionLabel>{t('language')}</SettingsSectionLabel>
+              <LangFlagRow>
+                <LangFlagBtn
+                  $active={locale === 'ko'}
+                  onClick={() => handleLangSelect('ko')}
+                  disabled={isProcessing || isPending}
+                  aria-label="한국어로 변경"
+                >
+                  <KRFlagIcon width={20} height={14} />
+                  한국어
+                </LangFlagBtn>
+                <LangFlagBtn
+                  $active={locale === 'en'}
+                  onClick={() => handleLangSelect('en')}
+                  disabled={isProcessing || isPending}
+                  aria-label="Switch to English"
+                >
+                  <USFlagIcon width={20} height={14} />
+                  English
+                </LangFlagBtn>
+              </LangFlagRow>
+            </SettingsSection>
+          </SettingsPanel>
+        </FloatingPortal>
       )}
     </SettingsWrapper>
   );

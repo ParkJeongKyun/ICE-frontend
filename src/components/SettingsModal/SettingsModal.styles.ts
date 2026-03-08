@@ -1,9 +1,4 @@
-import styled, { keyframes } from 'styled-components';
-
-const fadeIn = keyframes`
-  from { opacity: 0; transform: translateY(4px); }
-  to   { opacity: 1; transform: translateY(0); }
-`;
+import styled from 'styled-components';
 
 export const SettingsButton = styled.button`
   background: none;
@@ -15,7 +10,6 @@ export const SettingsButton = styled.button`
   align-items: center;
   justify-content: center;
   color: var(--main-color);
-  transition: color 0.15s ease;
 
   &:hover {
     color: var(--ice-main-color);
@@ -23,31 +17,26 @@ export const SettingsButton = styled.button`
 `;
 
 export const SettingsWrapper = styled.div`
-  position: relative;
   height: 100%;
   display: flex;
   align-items: center;
 `;
 
 export const SettingsPanel = styled.div`
-  position: absolute;
-  top: calc(100% + 4px);
-  left: 0;
-  min-width: 220px;
+  min-width: 200px;
   background: var(--main-bg-color);
   border: 1px solid var(--main-line-color);
-  border-radius: 6px;
+  border-radius: 4px;
   padding: 10px 12px;
   z-index: 1100;
-  animation: ${fadeIn} 0.15s ease;
 `;
 
 export const SettingsPanelTitle = styled.div`
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 600;
   color: var(--main-color-reverse);
   text-transform: uppercase;
-  letter-spacing: 0.07em;
+  letter-spacing: 0.06em;
   margin-bottom: 8px;
   padding-bottom: 6px;
   border-bottom: 1px solid var(--main-line-color);
@@ -150,10 +139,7 @@ export const LangFlagBtn = styled.button<{ $active: boolean }>`
   display: flex;
   align-items: center;
   gap: 4px;
-  background: ${({ $active }) =>
-    $active
-      ? 'color-mix(in srgb, var(--ice-main-color) 15%, transparent)'
-      : 'var(--main-bg-color)'};
+  background: none;
   border: 1px solid
     ${({ $active }) =>
       $active ? 'var(--ice-main-color)' : 'var(--main-line-color)'};
@@ -163,7 +149,6 @@ export const LangFlagBtn = styled.button<{ $active: boolean }>`
   color: ${({ $active }) =>
     $active ? 'var(--ice-main-color)' : 'var(--main-color)'};
   cursor: pointer;
-  transition: all 0.15s ease;
 
   &:hover {
     border-color: var(--ice-main-color);

@@ -109,7 +109,29 @@ const MenuBtnZone: React.FC = () => {
         disabled={isAnalysisProcessing}
         disabledTxt={t('menu.fileProcessing')}
       />
-      <FileInput type="file" ref={fileInputRef} onChange={handleFileChange} />
+      <label
+        htmlFor="file-upload-input"
+        style={{
+          position: 'absolute',
+          width: '1px',
+          height: '1px',
+          padding: 0,
+          margin: '-1px',
+          overflow: 'hidden',
+          clip: 'rect(0,0,0,0)',
+          whiteSpace: 'nowrap',
+          border: 0,
+        }}
+      >
+        {t('menu.open')}
+      </label>
+      <FileInput
+        id="file-upload-input"
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        aria-label={t('menu.open')}
+        title={t('menu.open')}
+      />
       <ToolsMenuContainer ref={toolsMenuRef}>
         <MenuBtn
           onClick={() => setShowToolsMenu(!showToolsMenu)}
@@ -163,8 +185,21 @@ const Div = styled.div`
   flex-shrink: 0;
 `;
 
-const FileInput = styled.input`
-  display: none;
+const FileInput = styled.input.attrs({
+  type: 'file',
+  tabIndex: -1,
+})`
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+  opacity: 0;
+  pointer-events: none;
 `;
 
 const ToolsMenuContainer = styled.div`

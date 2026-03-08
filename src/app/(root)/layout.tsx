@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import CriticalCss from '@/components/common/CriticalCss';
 
 const DOMAIN = process.env.NEXT_PUBLIC_DOMAIN || 'https://www.ice-forensic.com';
 
@@ -24,6 +25,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <CriticalCss />
         <meta name="robots" content="index,follow" />
 
         {/* 1) JS 비활성 환경(크롤러 포함)을 위한 안전한 리다이렉트 */}

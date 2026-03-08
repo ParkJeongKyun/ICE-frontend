@@ -27,6 +27,8 @@ const PreviewFaqUseCases: React.FC = () => {
           <img
             src="/images/sample/sample.webp"
             alt="ICE-PNG Forensic Interface Preview"
+            width={500}
+            height={234}
             fetchPriority="high"
           />
         </PreviewBox>

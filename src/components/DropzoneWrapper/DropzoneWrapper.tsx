@@ -66,7 +66,12 @@ const DropzoneWrapper: React.FC<DropzoneWrapperProps> = ({ children }) => {
 
   return (
     <DropzoneRoot {...getRootProps()}>
-      <input {...getInputProps()} ref={inputRef} />
+      <input
+        {...getInputProps()}
+        ref={inputRef}
+        aria-label={t('dropzone.message')}
+        title={t('dropzone.message')}
+      />
       {isDragActive && !forceHide && (
         <DragOverlay onClick={handleOverlayClick}>
           <DragIconContainer>
