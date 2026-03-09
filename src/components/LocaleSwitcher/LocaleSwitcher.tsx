@@ -33,7 +33,7 @@ const LocaleSwitcher: React.FC = () => {
         aria-label="한국어로 변경"
       >
         <KRFlagIcon width={18} height={13} />
-        한국어
+        <span>한국어</span>
       </LangFlagBtn>
       <LangFlagBtn
         $active={locale === 'en'}
@@ -42,7 +42,7 @@ const LocaleSwitcher: React.FC = () => {
         aria-label="Switch to English"
       >
         <USFlagIcon width={18} height={13} />
-        English
+        <span>English</span>
       </LangFlagBtn>
     </LangFlagRow>
   );

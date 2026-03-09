@@ -56,6 +56,19 @@ export const AppContainer = styled.div`
   overflow-wrap: anywhere;
 `;
 
+// 언어 전환 버튼 - Hero 우상단 고정 (LanyardWrapper z-index:10 보다 높아야 터치 가능)
+export const LangSwitcherCorner = styled.div`
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 20;
+  @media (max-width: 480px) {
+    span {
+      display: none;
+    }
+  }
+`;
+
 // 각 섹션 블록(구분선, 패딩)
 export const SectionBlock = styled.section`
   width: 100%;

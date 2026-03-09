@@ -17,15 +17,16 @@ import ShareIcon from '@/components/common/Icons/ShareIcon';
 import Logo from '@/components/common/Icons/Logo/Logo';
 import FlopyIcon from '@/components/common/Icons/FlopyIcon';
 import Tooltip from '@/components/common/Tooltip/Tooltip';
+import LocaleSwitcher from '@/components/LocaleSwitcher/LocaleSwitcher';
 
 import {
   LayoutWrapper,
   TopToolbar,
   ToolbarLeft,
   ToolbarTitle,
-  LogoButton,
   ToolbarStatus,
   ToolbarRight,
+  ToolbarLocaleWrap,
   EditorArea,
   MainContainer,
   ToggleButton,
@@ -452,19 +453,24 @@ export default function TipTapEditor() {
         $warn={urlLength > MAX_URL_LENGTH * 0.9}
         $isFullscreen={isFullscreen}
       >
-        <span>
+        <span style={{ opacity: 0.55 }}>
           {urlLength > 0
             ? `${urlLength.toLocaleString()} / ${MAX_URL_LENGTH.toLocaleString()} bytes`
             : ''}
         </span>
-        <Tooltip text={t('fullscreen')} placement="top">
-          <BottomBarButton
-            onClick={() => setIsFullscreen(true)}
-            aria-label={t('fullscreen')}
-          >
-            <MaximizeIcon />
-          </BottomBarButton>
-        </Tooltip>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+          <ToolbarLocaleWrap>
+            <LocaleSwitcher />
+          </ToolbarLocaleWrap>
+          <Tooltip text={t('fullscreen')} placement="top">
+            <BottomBarButton
+              onClick={() => setIsFullscreen(true)}
+              aria-label={t('fullscreen')}
+            >
+              <MaximizeIcon />
+            </BottomBarButton>
+          </Tooltip>
+        </div>
       </BottomBar>
 
       <Tooltip text={t('exitFullscreen')} placement="left">

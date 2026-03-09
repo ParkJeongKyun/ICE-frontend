@@ -68,20 +68,6 @@ export const ToolbarTitle = styled.div`
   }
 `;
 
-export const LogoButton = styled.button`
-  display: flex;
-  align-items: center;
-  background: transparent;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  transition: opacity 0.2s;
-
-  &:hover {
-    opacity: 0.8;
-  }
-`;
-
 export const ToolbarStatus = styled.div`
   display: flex;
   align-items: center;
@@ -104,6 +90,16 @@ export const ToolbarRight = styled.div`
   align-items: center;
   gap: 8px;
   flex-shrink: 0;
+`;
+
+export const ToolbarLocaleWrap = styled.div`
+  display: flex;
+  align-items: center;
+  @media (max-width: 480px) {
+    span {
+      display: none;
+    }
+  }
 `;
 
 // 2. 미니멀 고스트 버튼 (Notion 스타일)
@@ -360,8 +356,7 @@ export const BottomBar = styled.div<{
   overflow: hidden;
 
   height: ${({ $isFullscreen }) => ($isFullscreen ? '0' : '32px')};
-  opacity: ${({ $warn, $isFullscreen }) =>
-    $isFullscreen ? 0 : $warn ? 1 : 0.55};
+  opacity: ${({ $isFullscreen }) => ($isFullscreen ? 0 : 1)};
   transform: translateY(
     ${({ $isFullscreen }) => ($isFullscreen ? '10px' : '0')}
   );

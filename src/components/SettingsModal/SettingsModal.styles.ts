@@ -133,6 +133,7 @@ export const LangFlagRow = styled.div`
   display: flex;
   gap: 6px;
   align-items: center;
+  user-select: none;
 `;
 
 export const LangFlagBtn = styled.button<{ $active: boolean }>`

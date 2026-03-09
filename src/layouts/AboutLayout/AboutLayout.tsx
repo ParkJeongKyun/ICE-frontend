@@ -15,9 +15,11 @@ import {
   SectionBlock,
   SponsorNote,
   SponsorNoteSub,
+  LangSwitcherCorner,
 } from './AboutLayout.styles';
 import Lanyard from './Lanyard/Lanyard';
 import SponsorButton from '@/components/SponsorButton/SponsorButton';
+import LocaleSwitcher from '@/components/LocaleSwitcher/LocaleSwitcher';
 
 const CURRENT_AGE = new Date().getFullYear() - 2001;
 
@@ -151,6 +153,9 @@ const About: React.FC = () => {
     <MainContainer>
       <HeroSection>
         <AnimatedBg />
+        <LangSwitcherCorner>
+          <LocaleSwitcher />
+        </LangSwitcherCorner>
         <Lanyard />
         <ScrollIndicator>
           <svg className="arrow" viewBox="0 0 24 24" fill="none">
