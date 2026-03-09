@@ -13,11 +13,75 @@ export const PageLayout = styled.div`
 export const PageHeader = styled.header`
   display: flex;
   align-items: center;
+  justify-content: space-between;
   height: 26px;
   padding: 0 8px;
   border-bottom: 1.5px solid var(--main-line-color);
   flex-shrink: 0;
   user-select: none;
+`;
+
+export const HeaderRight = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+export const GitHubLink = styled.a`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--main-color);
+  text-decoration: none;
+  opacity: 0.7;
+  transition:
+    opacity 0.15s,
+    color 0.15s;
+
+  &:hover {
+    opacity: 1;
+    color: var(--ice-main-color);
+  }
+`;
+
+export const SponsorLink = styled.a`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--ice-main-color-love);
+  text-decoration: none;
+  opacity: 0.7;
+  transition: opacity 0.15s;
+
+  &:hover {
+    opacity: 1;
+  }
+`;
+
+export const ReportLink = styled.a`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--ice-main-color);
+  text-decoration: none;
+  opacity: 0.7;
+  transition: opacity 0.15s;
+
+  &:hover {
+    opacity: 1;
+  }
+`;
+
+export const HeaderDivider = styled.div`
+  width: 1px;
+  height: 12px;
+  background: var(--main-line-color);
 `;
 
 export const PageContent = styled.main`
@@ -26,17 +90,17 @@ export const PageContent = styled.main`
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 6vh 2rem 2rem;
+  padding: 4vh 2rem 2rem;
 `;
 
 export const PageInner = styled.div`
   width: 100%;
-  max-width: 560px;
+  max-width: 500px;
   text-align: left;
 `;
 
 export const Tagline = styled.p`
-  margin: 0 0 1.75rem;
+  margin: 0 0 1.25rem;
   font-size: 1.05rem;
   opacity: 0.85;
   line-height: 1.65;
@@ -63,14 +127,14 @@ export const LangBtn = styled.button`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 4px;
   flex: 1;
-  height: 80px;
+  height: 64px;
   background: transparent;
   border: 1.5px solid var(--main-line-color);
   border-radius: 6px;
-  padding: 10px 16px;
-  font-size: 1.15rem;
+  padding: 8px 12px;
+  font-size: 1rem;
   font-weight: 700;
   color: var(--main-color);
   cursor: pointer;
@@ -87,9 +151,20 @@ export const LangBtn = styled.button`
   }
 `;
 
+export const LangBtnHint = styled.span`
+  font-size: 0.65rem;
+  font-weight: 400;
+  opacity: 0.55;
+  letter-spacing: 0.03em;
+
+  ${LangBtn}:hover & {
+    opacity: 0.85;
+  }
+`;
+
 export const Divider = styled.div`
   border-top: 1px solid var(--main-line-color);
-  margin: 1.25rem 0;
+  margin: 1rem 0;
 `;
 
 export const FeatureList = styled.div`
@@ -148,4 +223,13 @@ export const Copyright = styled.span`
 
 export const FlagIconWrap = styled.span`
   line-height: 0;
+`;
+
+export const PreviewImg = styled.img`
+  width: 100%;
+  height: auto;
+  border-radius: 4px;
+  border: 1px solid var(--main-line-color);
+  margin-bottom: 1.75rem;
+  display: block;
 `;
