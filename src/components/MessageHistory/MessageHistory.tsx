@@ -69,14 +69,16 @@ const MessageHistory: React.FC = () => {
 
   return (
     <>
-      <HistoryButton
-        onClick={handleToggle}
-        $hasUnread={unreadCount > 0}
-        aria-label={t('notifications.openNotifications')}
-      >
-        <BellIcon width={14} height={14} />
-        {unreadCount > 0 && <HistoryBadge />}
-      </HistoryButton>
+      <Tooltip text={t('notifications.openNotifications')} disabled={isOpen}>
+        <HistoryButton
+          onClick={handleToggle}
+          $hasUnread={unreadCount > 0}
+          aria-label={t('notifications.openNotifications')}
+        >
+          <BellIcon width={14} height={14} />
+          {unreadCount > 0 && <HistoryBadge />}
+        </HistoryButton>
+      </Tooltip>
 
       {isOpen && <HistoryOverlay onClick={handleClose} />}
 
