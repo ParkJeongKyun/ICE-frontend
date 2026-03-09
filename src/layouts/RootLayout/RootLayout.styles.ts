@@ -35,13 +35,9 @@ export const GitHubLink = styled.a`
   font-weight: 600;
   color: var(--main-color);
   text-decoration: none;
-  opacity: 0.7;
-  transition:
-    opacity 0.15s,
-    color 0.15s;
+  transition: color 0.15s;
 
   &:hover {
-    opacity: 1;
     color: var(--ice-main-color);
   }
 `;
@@ -54,11 +50,10 @@ export const SponsorLink = styled.a`
   font-weight: 600;
   color: var(--ice-main-color-love);
   text-decoration: none;
-  opacity: 0.7;
-  transition: opacity 0.15s;
+  transition: filter 0.15s;
 
   &:hover {
-    opacity: 1;
+    filter: brightness(1.15);
   }
 `;
 
@@ -70,11 +65,10 @@ export const ReportLink = styled.a`
   font-weight: 600;
   color: var(--ice-main-color);
   text-decoration: none;
-  opacity: 0.7;
-  transition: opacity 0.15s;
+  transition: filter 0.15s;
 
   &:hover {
-    opacity: 1;
+    filter: brightness(1.15);
   }
 `;
 
@@ -122,16 +116,20 @@ export const LangRow = styled.div`
   width: 100%;
 `;
 
-export const LangBtn = styled.button`
+export const LangBtn = styled.button<{ $recommended?: boolean }>`
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 4px;
   flex: 1;
-  height: 64px;
+  min-height: 64px;
+  height: auto;
   background: transparent;
-  border: 1.5px solid var(--main-line-color);
+  border: 1.5px solid
+    ${({ $recommended }) =>
+      $recommended ? 'var(--ice-main-color)' : 'var(--main-line-color)'};
   border-radius: 6px;
   padding: 8px 12px;
   font-size: 1rem;
@@ -154,11 +152,11 @@ export const LangBtn = styled.button`
 export const LangBtnHint = styled.span`
   font-size: 0.65rem;
   font-weight: 400;
-  opacity: 0.55;
+  color: var(--main-color-reverse);
   letter-spacing: 0.03em;
 
   ${LangBtn}:hover & {
-    opacity: 0.85;
+    color: var(--main-bg-color);
   }
 `;
 
@@ -223,6 +221,9 @@ export const Copyright = styled.span`
 
 export const FlagIconWrap = styled.span`
   line-height: 0;
+  border-radius: 4px;
+  overflow: hidden;
+  flex-shrink: 0;
 `;
 
 export const PreviewImg = styled.img`
@@ -232,4 +233,39 @@ export const PreviewImg = styled.img`
   border: 1px solid var(--main-line-color);
   margin-bottom: 1.75rem;
   display: block;
+`;
+
+export const HeroSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 0.25rem;
+`;
+
+export const HeroLogoWrap = styled.div`
+  margin-bottom: 0.75rem;
+`;
+
+export const BadgeRow = styled.div`
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 0.75rem;
+`;
+
+export const Badge = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 100px;
+  border: 1px solid color-mix(in srgb, var(--ice-main-color) 40%, transparent);
+  background: color-mix(in srgb, var(--ice-main-color) 8%, transparent);
+  color: var(--ice-main-color);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  user-select: none;
 `;

@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Logo from '@/components/common/Icons/Logo/Logo';
 import USFlagIcon from '@/components/common/Icons/USFlagIcon';
 import KRFlagIcon from '@/components/common/Icons/KRFlagIcon';
@@ -31,6 +31,10 @@ import {
   SponsorLink,
   ReportLink,
   HeaderDivider,
+  HeroSection,
+  HeroLogoWrap,
+  BadgeRow,
+  Badge,
 } from './RootLayout.styles';
 
 const FEATURES: { label: string; desc: string }[] = [
@@ -53,6 +57,12 @@ const FEATURES: { label: string; desc: string }[] = [
 ];
 
 const RootLayout: React.FC = () => {
+  const [browserLang, setBrowserLang] = useState<'ko' | 'en' | null>(null);
+
+  useEffect(() => {
+    setBrowserLang(navigator.language.startsWith('ko') ? 'ko' : 'en');
+  }, []);
+
   return (
     <PageLayout>
       <PageHeader>
@@ -108,13 +118,57 @@ const RootLayout: React.FC = () => {
 
       <PageContent>
         <PageInner>
-          <Tagline>
-            Browser-based digital forensics — no install, no account required.
-          </Tagline>
+          <HeroSection>
+            <HeroLogoWrap>
+              <Logo showText size={38} textSize={38} />
+            </HeroLogoWrap>
+            <BadgeRow>
+              <Badge>
+                <svg
+                  width="11"
+                  height="11"
+                  viewBox="0 0 16 16"
+                  fill="currentColor"
+                  aria-hidden="true"
+                >
+                  <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Zm4.879-2.773 4.264 2.559a.25.25 0 0 1 0 .428l-4.264 2.559A.25.25 0 0 1 6 10.559V5.442a.25.25 0 0 1 .379-.215Z" />
+                </svg>
+                100% Client-Side
+              </Badge>
+              <Badge>
+                <svg
+                  width="11"
+                  height="11"
+                  viewBox="0 0 16 16"
+                  fill="currentColor"
+                  aria-hidden="true"
+                >
+                  <path d="M8.533.133a1.75 1.75 0 0 0-1.066 0l-5.25 1.68A1.75 1.75 0 0 0 1 3.48V8c0 3.56 2.826 6.307 6.504 7.447.28.086.712.086.992 0C12.174 14.307 15 11.56 15 8V3.48a1.75 1.75 0 0 0-1.217-1.667Zm-.533 1.4a.25.25 0 0 1 .152 0l5.25 1.68a.25.25 0 0 1 .174.238V8c0 2.996-2.266 5.388-5.439 6.396a.316.316 0 0 1-.138 0C4.766 13.388 2.5 10.996 2.5 8V3.48a.25.25 0 0 1 .174-.238ZM11.28 6.28a.75.75 0 0 0-1.06-1.06L7 8.44 5.78 7.22a.75.75 0 0 0-1.06 1.06l1.75 1.75a.75.75 0 0 0 1.06 0Z" />
+                </svg>
+                No Data Upload
+              </Badge>
+              <Badge>
+                <svg
+                  width="11"
+                  height="11"
+                  viewBox="0 0 16 16"
+                  fill="currentColor"
+                  aria-hidden="true"
+                >
+                  <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Zm7-3.25v2.992l2.028.812a.75.75 0 0 1-.557 1.392l-2.5-1A.751.751 0 0 1 7 8.25v-3.5a.75.75 0 0 1 1.5 0Z" />
+                </svg>
+                Free &amp; Open Source
+              </Badge>
+            </BadgeRow>
+            <Tagline>
+              Browser-based digital forensics — no install, no account required.
+            </Tagline>
+          </HeroSection>
 
           <SectionLabel>Select language / 언어 선택</SectionLabel>
           <LangRow>
             <LangBtn
+              $recommended={browserLang === 'en'}
               onClick={() => {
                 localStorage.setItem('user-locale', 'en');
                 window.location.href = '/en';
@@ -127,6 +181,7 @@ const RootLayout: React.FC = () => {
               <LangBtnHint>Start →</LangBtnHint>
             </LangBtn>
             <LangBtn
+              $recommended={browserLang === 'ko'}
               onClick={() => {
                 localStorage.setItem('user-locale', 'ko');
                 window.location.href = '/ko';
