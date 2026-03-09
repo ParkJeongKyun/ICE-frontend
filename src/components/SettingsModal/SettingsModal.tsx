@@ -84,7 +84,7 @@ const SettingsModal: React.FC = () => {
 
   return (
     <SettingsWrapper>
-      <Tooltip text={t('title')} placement="bottom">
+      <Tooltip text={t('title')} placement="bottom" disabled={open}>
         <SettingsButton
           ref={refs.setReference}
           aria-label={t('title')}

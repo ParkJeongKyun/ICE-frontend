@@ -15,103 +15,28 @@ import {
   SectionBlock,
   SponsorNote,
   SponsorNoteSub,
+  LangSwitcherCorner,
 } from './AboutLayout.styles';
 import Lanyard from './Lanyard/Lanyard';
 import SponsorButton from '@/components/SponsorButton/SponsorButton';
+import LocaleSwitcher from '@/components/LocaleSwitcher/LocaleSwitcher';
 
 const CURRENT_AGE = new Date().getFullYear() - 2001;
 
-const EDUCATION = [
-  {
-    school: '고려사이버대학교',
-    major: '정보관리보안학과',
-    status: '8월 졸업예정',
-    year: '2026',
-  },
-  {
-    school: '영진직업전문학교',
-    major: '고교위탁 학생',
-    status: '졸업',
-    year: '2019',
-  },
-  { school: '협성고등학교', major: '', status: '졸업', year: '2020' },
-];
-
-const MILITARY = {
-  service: '대한민국 해군 3함대사령부',
-  position: 'CERT 정보보호병 병장',
-  period: '2020.11.23 ~ 2022.07.22',
+type EducationItem = {
+  school: string;
+  major: string;
+  status: string;
+  year: string;
 };
-
-const CERTIFICATES = [
-  '디지털포렌식전문가 2급',
-  '정보보안기사',
-  '정보보안산업기사',
-  '정보처리산업기사',
-  '리눅스마스터 2급',
-  '네트워크관리사 2급',
-];
-
-const SKILLS = {
-  언어: ['Python', 'TypeScript', 'JavaScript', 'Go', 'Java', 'HTML/CSS'],
-  전문분야: ['디지털포렌식', '정보보안', '침해사고대응', '풀스택개발'],
+type MilitaryData = { service: string; position: string; period: string };
+type CareerItem = { period: string; company: string; position: string };
+type ProjectItem = {
+  name: string;
+  client: string;
+  role: string;
+  period: string;
 };
-
-const CAREERS = [
-  {
-    period: '2025.01 - 2026.03',
-    company: '아이모스(주) AI 플랫폼 R&D팀',
-    position: '프리랜서 개발자',
-  },
-  {
-    period: '2024.07 - 2024.12',
-    company: '케이디액스랩(주)',
-    position: '프리랜서 개발자',
-  },
-  {
-    period: '2022.07 - 2024.06',
-    company: '누리꿈소프트(주) DX 개발팀',
-    position: '개발자',
-  },
-  {
-    period: '2021.01 - 2022.07',
-    company: '대한민국 해군 3함대사령부 사이버방호과',
-    position: 'CERT/보안관제',
-  },
-];
-
-const PROJECTS = [
-  {
-    name: 'AIMOS - 철 스크랩 AI 검수 시스템',
-    client: '대한제강, LG CNS, Aimos',
-    role: '시스템 개발 및 운영',
-    period: '2023.06 - 2026.03',
-  },
-  {
-    name: '현대제철 야드비상조업 시스템',
-    client: '현대제철, 현대ITC',
-    role: 'JSP 웹 개발',
-    period: '2023.06 - 2023.12',
-  },
-  {
-    name: '현대 ITC 안전 보건 시스템',
-    client: '현대ITC',
-    role: 'React 웹 프론트엔드 개발',
-    period: '2023.03 - 2023.06',
-  },
-  {
-    name: '차세대 지방 재정 분석 시스템',
-    client: '한국지역정보개발원',
-    role: 'Jupyter Hub AI 분석 환경, Nifi 데이터 ETL',
-    period: '2023.01 - 2023.08',
-  },
-  {
-    name: 'AI Link On, Plant AI',
-    client: 'LG 화학, LG CNS',
-    role: 'Fast API 백엔드 개발',
-    period: '2022.07 - 2022.12',
-  },
-];
 
 // 태그 스타일 리스트
 function TagList({ items }: { items: string[] }) {
@@ -147,10 +72,22 @@ function TagList({ items }: { items: string[] }) {
 
 const About: React.FC = () => {
   const t = useTranslations('about');
+
+  const education = t.raw('educationData') as EducationItem[];
+  const military = t.raw('militaryData') as MilitaryData;
+  const certificates = t.raw('certificatesData') as string[];
+  const skillsExpert = t.raw('skillsExpertData') as string[];
+  const skillsLang = t.raw('skillsLangData') as string[];
+  const careers = t.raw('careersData') as CareerItem[];
+  const projects = t.raw('projectsData') as ProjectItem[];
+
   return (
     <MainContainer>
       <HeroSection>
         <AnimatedBg />
+        <LangSwitcherCorner>
+          <LocaleSwitcher />
+        </LangSwitcherCorner>
         <Lanyard />
         <ScrollIndicator>
           <svg className="arrow" viewBox="0 0 24 24" fill="none">
@@ -170,10 +107,10 @@ const About: React.FC = () => {
             <SectionTitle>{t('personalInfo')}</SectionTitle>
             <List>
               <ListItem>
-                <strong>{t('name')}</strong> 박정균 Park Jeong Kyun
+                <strong>{t('name')}</strong> {t('nameValue')}
               </ListItem>
               <ListItem>
-                <strong>{t('dateOfBirth')}</strong> 2001년 2월 23일{' '}
+                <strong>{t('dateOfBirth')}</strong> {t('dateOfBirthValue')}{' '}
                 <span
                   style={{
                     color: 'var(--ice-main-color)',
@@ -197,10 +134,10 @@ const About: React.FC = () => {
                 </a>
               </ListItem>
               <ListItem>
-                <strong>{t('residence')}</strong> 서울특별시
+                <strong>{t('residence')}</strong> {t('residenceValue')}
               </ListItem>
               <ListItem>
-                <strong>{t('birthplace')}</strong> 대구광역시
+                <strong>{t('birthplace')}</strong> {t('birthplaceValue')}
               </ListItem>
             </List>
           </SimpleListCard>
@@ -208,14 +145,14 @@ const About: React.FC = () => {
         <SectionBlock>
           <SimpleListCard>
             <SectionTitle>{t('certificates')}</SectionTitle>
-            <TagList items={CERTIFICATES} />
+            <TagList items={certificates} />
           </SimpleListCard>
         </SectionBlock>
         <SectionBlock>
           <SimpleListCard>
             <SectionTitle>{t('education')}</SectionTitle>
             <List>
-              {EDUCATION.map((edu) => (
+              {education.map((edu) => (
                 <ListItem
                   key={edu.school + edu.year}
                   style={{
@@ -263,7 +200,7 @@ const About: React.FC = () => {
                 }}
               >
                 <span>
-                  <strong>{MILITARY.service}</strong>
+                  <strong>{military.service}</strong>
                   <span
                     style={{
                       color: 'var(--ice-main-color)',
@@ -271,7 +208,7 @@ const About: React.FC = () => {
                     }}
                   >
                     {' '}
-                    ({MILITARY.position})
+                    ({military.position})
                   </span>
                 </span>
                 <span
@@ -281,7 +218,7 @@ const About: React.FC = () => {
                     marginTop: 2,
                   }}
                 >
-                  {MILITARY.period}
+                  {military.period}
                 </span>
               </ListItem>
             </List>
@@ -290,20 +227,20 @@ const About: React.FC = () => {
         <SectionBlock>
           <SimpleListCard>
             <SectionTitle>{t('expertise')}</SectionTitle>
-            <TagList items={SKILLS.전문분야} />
+            <TagList items={skillsExpert} />
           </SimpleListCard>
         </SectionBlock>
         <SectionBlock>
           <SimpleListCard>
             <SectionTitle>{t('languages')}</SectionTitle>
-            <TagList items={SKILLS.언어} />
+            <TagList items={skillsLang} />
           </SimpleListCard>
         </SectionBlock>
         <SectionBlock>
           <SimpleListCard>
             <SectionTitle>{t('career')}</SectionTitle>
             <List>
-              {CAREERS.map((career) => (
+              {careers.map((career) => (
                 <ListItem
                   key={career.company + career.period}
                   style={{
@@ -341,7 +278,7 @@ const About: React.FC = () => {
           <SimpleListCard>
             <SectionTitle>{t('projects')}</SectionTitle>
             <List>
-              {PROJECTS.map((project) => (
+              {projects.map((project) => (
                 <ListItem
                   key={project.name + project.period}
                   style={{

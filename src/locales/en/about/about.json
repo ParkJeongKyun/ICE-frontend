@@ -2,7 +2,7 @@
   "personalInfo": "Personal Information",
   "name": "Name",
   "dateOfBirth": "Date of Birth",
-  "age": "age",
+  "age": " years old",
   "email": "Email",
   "residence": "Residence",
   "birthplace": "Birthplace",
@@ -22,5 +22,110 @@
   "position": "Position",
   "client": "Client",
   "role": "Role",
-  "flipCard": "Flip card"
+  "flipCard": "Flip card",
+  "nameValue": "Park Jeong Kyun",
+  "dateOfBirthValue": "Feb 23, 2001",
+  "residenceValue": "Seoul, South Korea",
+  "birthplaceValue": "Daegu, South Korea",
+  "educationData": [
+    {
+      "school": "Korea Cyber University",
+      "major": "Dept. of Information Management & Security",
+      "status": "Expected Graduation",
+      "year": "Aug 2026"
+    },
+    {
+      "school": "Hyeopseong High School",
+      "major": "",
+      "status": "Graduated",
+      "year": "2020"
+    },
+    {
+      "school": "Yeungjin Vocational College",
+      "major": "Vocational Training (InfoSec & Hacking Defense)",
+      "status": "Graduated",
+      "year": "2019"
+    }
+  ],
+  "militaryData": {
+    "service": "Republic of Korea Navy 3rd Fleet Command",
+    "position": "Information Security Specialist (Sergeant, CERT)",
+    "period": "Nov 2020 – Jul 2022"
+  },
+  "certificatesData": [
+    "Digital Forensic Professional (Level 2)",
+    "Engineer Information Security",
+    "Industrial Engineer Information Security",
+    "Industrial Engineer Information Processing",
+    "Linux Master Level 2",
+    "Network Administrator Level 2"
+  ],
+  "skillsExpertData": [
+    "Digital Forensics",
+    "Information Security",
+    "Incident Response (CERT)",
+    "Full-Stack Development"
+  ],
+  "skillsLangData": [
+    "Python",
+    "TypeScript",
+    "JavaScript",
+    "Go",
+    "Java",
+    "HTML/CSS"
+  ],
+  "careersData": [
+    {
+      "period": "2025.01 – 2026.03",
+      "company": "AIMOS Inc. – AI Platform R&D",
+      "position": "Freelance Developer"
+    },
+    {
+      "period": "2024.07 – 2024.12",
+      "company": "KDX Lab Inc.",
+      "position": "Freelance Developer"
+    },
+    {
+      "period": "2022.07 – 2024.06",
+      "company": "Nuridum Soft Inc. – DX Dev Team",
+      "position": "Software Developer"
+    },
+    {
+      "period": "2021.01 – 2022.07",
+      "company": "ROK Navy 3rd Fleet Command, Cyber Defense Div.",
+      "position": "CERT / Security Operations"
+    }
+  ],
+  "projectsData": [
+    {
+      "name": "AIMOS – AI-based Steel Scrap Inspection System",
+      "client": "Daehan Steel, LG CNS, Aimos",
+      "role": "System Development & Operations",
+      "period": "2023.06 – 2026.03"
+    },
+    {
+      "name": "Hyundai Steel Yard Emergency Operations System",
+      "client": "Hyundai Steel, Hyundai ITC",
+      "role": "JSP Web Development",
+      "period": "2023.06 – 2023.12"
+    },
+    {
+      "name": "Hyundai ITC Safety & Health System",
+      "client": "Hyundai ITC",
+      "role": "React Frontend Development",
+      "period": "2023.03 – 2023.06"
+    },
+    {
+      "name": "Next-Gen Local Finance Analysis System",
+      "client": "KLID (Korea Local Information Research & Development Institute)",
+      "role": "JupyterHub AI Env., Nifi Data ETL",
+      "period": "2023.01 – 2023.08"
+    },
+    {
+      "name": "AI Link-On, Plant AI",
+      "client": "LG Chem, LG CNS",
+      "role": "FastAPI Backend Development",
+      "period": "2022.07 – 2022.12"
+    }
+  ]
 }

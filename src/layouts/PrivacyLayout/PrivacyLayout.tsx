@@ -11,6 +11,7 @@ import {
   MarkdownBox,
 } from './PrivacyLayout.styles';
 import Logo from '@/components/common/Icons/Logo/Logo';
+import LocaleSwitcher from '@/components/LocaleSwitcher/LocaleSwitcher';
 
 interface PrivacyLayoutProps {
   initialContent: string;
@@ -26,6 +27,7 @@ const PrivacyLayout: React.FC<PrivacyLayoutProps> = ({ initialContent }) => {
           <Link href="/" aria-label={t('home.homepage')}>
             <Logo showText size={38} textSize={38} />
           </Link>
+          <LocaleSwitcher />
         </LogoContainer>
         <ICEMarkDown defaultText={initialContent} key={'privacyPolicy'} />
         <Copyright>{t('copyright')}</Copyright>

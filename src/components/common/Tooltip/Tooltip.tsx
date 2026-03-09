@@ -18,12 +18,14 @@ interface TooltipProps {
   text: string;
   children: React.ReactNode;
   placement?: 'top' | 'bottom' | 'left' | 'right';
+  disabled?: boolean;
 }
 
 const Tooltip: React.FC<TooltipProps> = ({
   text,
   children,
   placement = 'bottom',
+  disabled = false,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -31,8 +33,10 @@ const Tooltip: React.FC<TooltipProps> = ({
 
   // Floating UI 설정
   const { refs, floatingStyles, context } = useFloating({
-    open: isOpen,
-    onOpenChange: setIsOpen, // 단순히 상태만 변경
+    open: isOpen && !disabled,
+    onOpenChange: (next) => {
+      if (!disabled) setIsOpen(next);
+    }, // 단순히 상태만 변경
     placement,
     whileElementsMounted: autoUpdate,
     middleware: [offset(2), flip(), shift({ padding: 8 })],

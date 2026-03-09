@@ -30,7 +30,21 @@ export default function RootLayout({
         {/* 재방문자만 조용히 이동 — 봇은 localStorage 없으므로 영향 없음 */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var s=localStorage.getItem('user-locale');if(s==='ko'||s==='en'){var p=window.location.pathname;if(p==='/'||p===''){window.location.replace('/'+s);}}}catch(e){}})();`,
+            __html: `
+              (function() {
+                try {
+                  var locale = localStorage.getItem('user-locale');
+                  if (locale && (locale === 'ko' || locale === 'en')) {
+                    // 현재 경로가 정확히 루트(/)인 경우에만 실행
+                    if (window.location.pathname === '/' || window.location.pathname === '') {
+                      window.location.replace('/' + locale);
+                    }
+                  }
+                } catch (e) {
+                  console.error('Storage redirect error:', e);
+                }
+              })();
+            `,
           }}
         />
       </head>
