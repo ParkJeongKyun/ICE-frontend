@@ -17,6 +17,7 @@ import { useTranslations } from 'next-intl';
 import { Link } from '@/locales/routing';
 import Logo from '@/components/common/Icons/Logo/Logo';
 import ICEMarkDown from '@/components/markdown';
+import LocaleSwitcher from '@/components/LocaleSwitcher/LocaleSwitcher';
 
 interface DocsLayoutProps {
   markdownData?: { [key: string]: string };
@@ -40,6 +41,7 @@ const DocsLayout: React.FC<DocsLayoutProps> = ({ markdownData = {} }) => {
           <Link href="/" aria-label={t('home.homepage')}>
             <Logo showText size={38} textSize={38} />
           </Link>
+          <LocaleSwitcher />
         </LogoContainer>
         <TabBar>
           {tabs.map((tab) => (

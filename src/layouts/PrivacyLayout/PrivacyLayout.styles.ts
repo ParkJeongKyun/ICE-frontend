@@ -13,12 +13,12 @@ export const Container = styled.div`
 
 export const LogoContainer = styled.div`
   display: flex;
+  box-sizing: border-box;
   width: 100%;
   text-align: left;
   align-items: center;
-  justify-content: flex-start; /* 좌측 정렬 */
-  margin: 1rem;
-  margin-bottom: 0.5rem;
+  justify-content: space-between;
+  padding: 0.75rem 1rem 0.5rem;
 
   /* 로고 링크 밑줄 제거 및 색상 상속 */
   a {
