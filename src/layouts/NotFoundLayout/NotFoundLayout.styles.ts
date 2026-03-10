@@ -101,13 +101,51 @@ export const PageFooter = styled.footer`
   padding: 0 8px;
   border-top: 1px solid var(--main-line-color);
   flex-shrink: 0;
+  overflow: hidden;
   user-select: none;
+`;
+
+export const CopyrightWrap = styled.div`
+  flex: 1;
+  min-width: 0;
+  overflow-x: auto;
+  text-align: left;
+  padding-right: 8px;
 `;
 
 export const Copyright = styled.span`
   font-size: 0.72rem;
   font-weight: 500;
   opacity: 0.75;
+  white-space: nowrap;
+`;
+
+export const FooterLinks = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  padding-left: 8px;
+`;
+
+export const FooterLink = styled.a`
+  font-size: 0.68rem;
+  font-weight: 500;
+  color: var(--main-color);
+  opacity: 0.55;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: opacity 0.15s;
+
+  &:hover {
+    opacity: 1;
+  }
+`;
+
+export const FooterDivider = styled.div`
+  width: 1px;
+  height: 10px;
+  background: var(--main-line-color);
 `;
 
 export const HeroSection = styled.div`
