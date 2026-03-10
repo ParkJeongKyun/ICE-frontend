@@ -5,7 +5,7 @@ import { MessageProvider } from '@/contexts/MessageContext/MessageContext';
 import { redirect } from 'next/navigation';
 import type { Metadata, Viewport } from 'next';
 import JsonLd from './JsonLd';
-import GoogleScripts from './GoogleScripts';
+import GoogleScripts from '../GoogleScripts';
 import CriticalCss from '@/components/common/CriticalCss';
 
 const DOMAIN = process.env.NEXT_PUBLIC_DOMAIN || 'https://www.ice-forensic.com';
@@ -87,12 +87,12 @@ export default async function LocaleLayout({
       <body suppressHydrationWarning>
         <JsonLd locale={locale} />
 
-        {/* Google scripts (production only) */}
-        <GoogleScripts />
-
         <NextIntlClientProvider locale={locale} messages={messages}>
           <MessageProvider>{children}</MessageProvider>
         </NextIntlClientProvider>
+
+        {/* Google scripts (production only) */}
+        <GoogleScripts />
       </body>
     </html>
   );
