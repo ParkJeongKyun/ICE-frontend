@@ -1,5 +1,6 @@
 import NotFoundLayout from '@/layouts/NotFoundLayout/NotFoundLayout';
 import CriticalCss from '@/components/common/CriticalCss';
+import GoogleScripts from './GoogleScripts';
 
 export default function NotFound() {
   return (
@@ -24,6 +25,9 @@ export default function NotFound() {
       </head>
       <body>
         <NotFoundLayout />
+
+        {/* Google scripts (production only) */}
+        <GoogleScripts />
       </body>
     </html>
   );

@@ -23,7 +23,11 @@ import {
   FeatureDesc,
   AboutText,
   PageFooter,
+  CopyrightWrap,
   Copyright,
+  FooterLinks,
+  FooterLink,
+  FooterDivider,
   FlagIconWrap,
   PreviewImg,
   HeaderRight,
@@ -233,9 +237,29 @@ const RootLayout: React.FC = () => {
       </PageContent>
 
       <PageFooter>
-        <Copyright>
-          © 2022 ParkJeong-kyun (dbzoseh84@gmail.com). All rights reserved.
-        </Copyright>
+        <CopyrightWrap>
+          <Copyright>
+            © 2022 ParkJeong-kyun (dbzoseh84@gmail.com). All rights reserved.
+          </Copyright>
+        </CopyrightWrap>
+        <FooterDivider />
+        <FooterLinks>
+          <FooterLink
+            href="/en/privacy"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Privacy Policy (EN)
+          </FooterLink>
+          <FooterDivider />
+          <FooterLink
+            href="/ko/privacy"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            개인정보 처리방침 (KO)
+          </FooterLink>
+        </FooterLinks>
       </PageFooter>
 
       <div style={{ display: 'none' }}>

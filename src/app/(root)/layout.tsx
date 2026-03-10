@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import CriticalCss from '@/components/common/CriticalCss';
+import GoogleScripts from '../GoogleScripts';
 
 const DOMAIN = process.env.NEXT_PUBLIC_DOMAIN || 'https://www.ice-forensic.com';
 
@@ -48,7 +49,12 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+
+        {/* Google scripts (production only) */}
+        <GoogleScripts />
+      </body>
     </html>
   );
 }
