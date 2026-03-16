@@ -19,16 +19,6 @@ that **does not upload files or personal information to the server**.
 
 Click the "How to Use" link above to see detailed instructions.
 
-# Usage Example Screens
-
-## PC Version
-
-![PC version sample image](/images/sample/sample.webp)
-
-## Mobile Version
-
-![Mobile version sample image](/images/sample/sample_mobile.webp)
-
 # 👋 Hello!
 
 I'm **Kyun**, the developer of this site.
@@ -46,6 +36,16 @@ Stay healthy and happy :)
 - 📧 dbzoseh84@gmail.com
 - 🔒 Digital Forensics, Information Security, Incident Response, Full-stack Development
 - For more information about the developer, click the "Developer" link above.
+
+# Usage Example Screens
+
+## PC Version
+
+![PC version sample image](/images/sample/sample.webp)
+
+## Mobile Version
+
+![Mobile version sample image](/images/sample/sample_mobile.webp)
 
 ## 📝 [Release Notes](/markdown/release)
 

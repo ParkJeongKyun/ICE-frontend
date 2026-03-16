@@ -19,16 +19,6 @@
 
 상단의 "사용법" 링크를 클릭해 자세한 사용법을 확인하세요.
 
-# 사용 예시 화면
-
-## PC 버전
-
-![PC 버전 샘플 이미지](/images/sample/sample.webp)
-
-## 모바일 버전
-
-![모바일 버전 샘플 이미지](/images/sample/sample_mobile.webp)
-
 # 👋 안녕하세요!
 
 사이트 개발자 **균**입니다.
@@ -46,6 +36,16 @@
 - 📧 dbzoseh84@gmail.com
 - 🔒 디지털 포렌식, 정보보안, 침해사고대응, 풀스택개발
 - 개발자에 대한 자세한 정보는 위 "개발자" 링크를 클릭해 주세요.
+
+# 사용 예시 화면
+
+## PC 버전
+
+![PC 버전 샘플 이미지](/images/sample/sample.webp)
+
+## 모바일 버전
+
+![모바일 버전 샘플 이미지](/images/sample/sample_mobile.webp)
 
 ## 📝 [릴리즈 노트](/markdown/release)
 
