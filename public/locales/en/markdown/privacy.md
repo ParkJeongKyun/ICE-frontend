@@ -60,7 +60,7 @@ Users have the right to request access, correction, deletion, or suspension of p
 If you have any questions or concerns regarding our privacy practices or data security, please contact us:
 
 - **Email:** [dbzoseh84@gmail.com](mailto:dbzoseh84@gmail.com)
-- **Data Protection Officer:** Jeonggyun Park
+- **Data Protection Officer:** JeongKyun Park
 
 ## 9. Changes to This Policy
 
