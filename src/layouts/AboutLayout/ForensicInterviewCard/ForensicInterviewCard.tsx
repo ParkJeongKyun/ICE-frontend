@@ -17,7 +17,7 @@ type ForensicInterviewCardProps = {
   sourceIconSrc?: string;
 };
 
-const CardWrapper = styled.div`
+const CardWrapper = styled.article`
   width: 100%;
   max-width: 500px;
 `;
@@ -45,8 +45,12 @@ const CardLink = styled.a`
   }
 `;
 
+const InterviewHeader = styled.header`
+  margin-bottom: 0.7rem;
+`;
+
 const InterviewTitle = styled.h3`
-  margin: 0 0 0.75rem;
+  margin: 0 0 0.45rem;
   color: var(--ice-main-color);
   font-size: 1.36rem;
   font-weight: 800;
@@ -83,7 +87,8 @@ const SourceName = styled.span`
   color: var(--ice-main-color);
 `;
 
-const InterviewDate = styled.p`
+const InterviewDate = styled.time`
+  display: block;
   margin: 0 0 1rem;
   color: var(--main-color-reverse);
   font-style: italic;
@@ -92,6 +97,7 @@ const InterviewDate = styled.p`
 
 const InterviewImage = styled.img`
   width: 100%;
+  max-width: 500px;
   height: auto;
   border-radius: 6px;
   border: 1px solid var(--main-line-color);
@@ -130,24 +136,67 @@ const ForensicInterviewCard: React.FC<ForensicInterviewCardProps> = ({
   imageSrc = '/images/articles/article_1.webp',
   sourceIconSrc = 'https://www.google.com/s2/favicons?domain=forensicfocus.com&sz=64',
 }) => {
+  // Use a fixed ISO date for SEO (should match the real article date)
+  const isoDate = '2026-03-17T00:00:00+09:00';
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'NewsArticle',
+    headline: title,
+    datePublished: isoDate,
+    author: {
+      '@type': 'Person',
+      name: 'JeongKyun Park',
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: sourceName,
+      url: 'https://www.forensicfocus.com',
+    },
+    mainEntityOfPage: link,
+    image: imageSrc,
+    description: description,
+  };
+
   return (
-    <CardWrapper>
-      <CardLink href={link} target="_blank" rel="noopener noreferrer">
-        <SourceBadge>
-          <SourceIcon src={sourceIconSrc} alt={sourceIconAlt} loading="lazy" />
-          <SourceText>
-            {sourceLabel} <SourceName>{sourceName}</SourceName>
-          </SourceText>
-        </SourceBadge>
-        <InterviewTitle>{title}</InterviewTitle>
-        <InterviewDate>{date}</InterviewDate>
-        <InterviewImage src={imageSrc} alt={imageAlt} loading="lazy" />
-        <InterviewSummary>{description}</InterviewSummary>
-        <ReadMore>
-          {readMoreText} <span aria-hidden="true">→</span>
-        </ReadMore>
-      </CardLink>
-    </CardWrapper>
+    <>
+      <script
+        type="application/ld+json"
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <CardWrapper>
+        <CardLink href={link} target="_blank" rel="noopener noreferrer">
+          <SourceBadge>
+            <SourceIcon
+              src={sourceIconSrc}
+              alt={sourceIconAlt}
+              loading="lazy"
+            />
+            <SourceText>
+              {sourceLabel} <SourceName>{sourceName}</SourceName>
+            </SourceText>
+          </SourceBadge>
+          <InterviewHeader>
+            <InterviewTitle>{title}</InterviewTitle>
+            <InterviewDate dateTime={isoDate}>{date}</InterviewDate>
+          </InterviewHeader>
+          <InterviewImage
+            src={imageSrc}
+            alt={
+              imageAlt ||
+              'Digital Forensics Interview with JeongKyun Park on Forensic Focus'
+            }
+            loading="lazy"
+            width={500}
+            height={248}
+          />
+          <InterviewSummary>{description}</InterviewSummary>
+          <ReadMore>
+            {readMoreText} <span aria-hidden="true">→</span>
+          </ReadMore>
+        </CardLink>
+      </CardWrapper>
+    </>
   );
 };
 
