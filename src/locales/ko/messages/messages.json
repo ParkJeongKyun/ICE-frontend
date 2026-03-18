@@ -102,6 +102,14 @@
     "title": "복사 실패",
     "message": "클립보드에 복사하지 못했습니다."
   },
+  "CONVERT_ENCODE_FAILED": {
+    "title": "인코딩 실패",
+    "message": "입력값 인코딩에 실패했습니다. 입력값을 확인해주세요."
+  },
+  "CONVERT_DECODE_FAILED": {
+    "title": "디코딩 실패",
+    "message": "입력값 디코딩에 실패했습니다. 입력값을 확인해주세요."
+  },
   "CHUNK_READ_ERROR": {
     "title": "청크 읽기 오류",
     "message": "파일 청크를 읽는 중 오류가 발생했습니다."

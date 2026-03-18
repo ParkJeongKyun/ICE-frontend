@@ -72,7 +72,7 @@ export const LangSwitcherCorner = styled.div`
 // 각 섹션 블록(구분선, 패딩)
 export const SectionBlock = styled.section`
   width: 100%;
-  max-width: 600px;
+  max-width: 500px;
   margin: 0 auto;
   padding: 2.5rem 1.2rem 1.5rem 1.2rem;
   border-bottom: 1px solid

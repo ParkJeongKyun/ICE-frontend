@@ -243,6 +243,15 @@
     "calculateTooltip": "Calculate {type} hash",
     "cancelTooltip": "Cancel hash calculation"
   },
+  "dataConverter": {
+    "title": "Data Converter",
+    "encode": "Encode",
+    "decode": "Decode",
+    "swap": "Swap",
+    "clear": "Clear",
+    "output": "Output",
+    "inputPlaceholder": "Enter plain text or encoded value"
+  },
   "copyright": "© 2022 ParkJeong-kyun (dbzoseh84@gmail.com). All rights reserved.",
   "sponsor": {
     "button": "Sponsor",

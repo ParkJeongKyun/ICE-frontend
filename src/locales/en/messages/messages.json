@@ -102,6 +102,14 @@
     "title": "Copy Failed",
     "message": "Failed to copy to clipboard."
   },
+  "CONVERT_ENCODE_FAILED": {
+    "title": "Encoding Failed",
+    "message": "Failed to encode input. Please check your input."
+  },
+  "CONVERT_DECODE_FAILED": {
+    "title": "Decoding Failed",
+    "message": "Failed to decode input. Please check your input."
+  },
   "CHUNK_READ_ERROR": {
     "title": "Chunk Read Failed",
     "message": "An error occurred while reading file chunk."
