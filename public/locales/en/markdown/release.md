@@ -12,6 +12,11 @@
 
 ## Release Notes
 
+### v2026.03.18
+
+- Honored to be featured on Forensic Focus
+- Added Data Converter (Beta): Supports Base64 & Hex
+
 ### v2026.03.03
 
 - Added GitHub Sponsors
