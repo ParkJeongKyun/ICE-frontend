@@ -243,6 +243,15 @@
     "calculateTooltip": "{type} 해시 계산",
     "cancelTooltip": "해시 계산 취소"
   },
+  "dataConverter": {
+    "title": "데이터 변환기",
+    "encode": "인코딩",
+    "decode": "디코딩",
+    "swap": "교체",
+    "clear": "초기화",
+    "output": "출력",
+    "inputPlaceholder": "일반 텍스트 또는 인코딩 값을 입력하세요"
+  },
   "copyright": "© 2022 박정균 (dbzoseh84@gmail.com). 모든 권리 보유.",
   "sponsor": {
     "button": "스폰서",
