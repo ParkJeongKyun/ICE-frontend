@@ -14,7 +14,7 @@ export const Container = styled.div`
 export const Card = styled.div`
   display: flex;
   flex-direction: column;
-  max-width: 600px;
+  max-width: 500px;
   width: 100%;
   height: 100%;
   text-align: left;

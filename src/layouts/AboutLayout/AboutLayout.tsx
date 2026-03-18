@@ -20,6 +20,7 @@ import {
 import Lanyard from './Lanyard/Lanyard';
 import SponsorButton from '@/components/SponsorButton/SponsorButton';
 import LocaleSwitcher from '@/components/LocaleSwitcher/LocaleSwitcher';
+import ForensicInterviewCard from './ForensicInterviewCard/ForensicInterviewCard';
 
 const CURRENT_AGE = new Date().getFullYear() - 2001;
 
@@ -102,6 +103,21 @@ const About: React.FC = () => {
         </ScrollIndicator>
       </HeroSection>
       <AppContainer>
+        <SectionBlock>
+          <SimpleListCard>
+            <SectionTitle>{t('featuredInterview')}</SectionTitle>
+            <ForensicInterviewCard
+              title={t('interviewCardTitle')}
+              date={t('interviewCardDate')}
+              description={t('interviewCardDescription')}
+              imageAlt={t('interviewCardImageAlt')}
+              readMoreText={t('interviewCardReadMore')}
+              sourceLabel={t('interviewCardSourceLabel')}
+              sourceName={t('interviewCardSourceName')}
+              sourceIconAlt={t('interviewCardSourceIconAlt')}
+            />
+          </SimpleListCard>
+        </SectionBlock>
         <SectionBlock>
           <SimpleListCard>
             <SectionTitle>{t('personalInfo')}</SectionTitle>

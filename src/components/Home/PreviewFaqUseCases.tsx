@@ -13,9 +13,11 @@ import {
 import SponsorButton from '@/components/SponsorButton/SponsorButton';
 import ReportButton from '@/components/ReportButton/ReportButton';
 import GitHubFilledIcon from '../common/Icons/GitHubFilledIcon';
+import ForensicInterviewCard from '@/layouts/AboutLayout/ForensicInterviewCard/ForensicInterviewCard';
 
 const PreviewFaqUseCases: React.FC = () => {
   const t = useTranslations();
+  const tAbout = useTranslations('about');
 
   const faqData = t.raw('faq') as { q: string; a: string }[];
   const useCasesData = t.raw('useCases') as string[];
@@ -40,6 +42,20 @@ const PreviewFaqUseCases: React.FC = () => {
           <ReportButton />
         </GitHubBox>
       </TopBox>
+
+      <section>
+        <SectionTitle>{tAbout('featuredInterview')}</SectionTitle>
+        <ForensicInterviewCard
+          title={tAbout('interviewCardTitle')}
+          date={tAbout('interviewCardDate')}
+          description={tAbout('interviewCardDescription')}
+          imageAlt={tAbout('interviewCardImageAlt')}
+          readMoreText={tAbout('interviewCardReadMore')}
+          sourceLabel={tAbout('interviewCardSourceLabel')}
+          sourceName={tAbout('interviewCardSourceName')}
+          sourceIconAlt={tAbout('interviewCardSourceIconAlt')}
+        />
+      </section>
 
       <section>
         <SectionTitle>{t('faqTab')}</SectionTitle>

@@ -5,6 +5,7 @@ import Logo from '@/components/common/Icons/Logo/Logo';
 import USFlagIcon from '@/components/common/Icons/USFlagIcon';
 import KRFlagIcon from '@/components/common/Icons/KRFlagIcon';
 import GitHubFilledIcon from '@/components/common/Icons/GitHubFilledIcon';
+import ForensicInterviewCard from '@/layouts/AboutLayout/ForensicInterviewCard/ForensicInterviewCard';
 import {
   PageLayout,
   PageHeader,
@@ -208,6 +209,22 @@ const RootLayout: React.FC = () => {
             height={234}
             fetchPriority="high"
           />
+
+          <Divider />
+
+          <SectionLabel>Featured Interview</SectionLabel>
+          <ForensicInterviewCard
+            title="JeongKyun Park, Information Security Student And Independent Developer, Korea Cyber University"
+            date="17th March 2026"
+            description="From Navy CERT to building ICE-Forensic, JeongKyun Park shares how a passion for uncovering the truth through system traces is driving his transition into digital forensics."
+            imageAlt="Interview with JeongKyun Park"
+            readMoreText="Read More"
+            sourceLabel="Interviewed at"
+            sourceName="Forensic Focus"
+            sourceIconAlt="Forensic Focus icon"
+          />
+
+          <Divider />
 
           <SectionLabel>Tools</SectionLabel>
           <FeatureList>
