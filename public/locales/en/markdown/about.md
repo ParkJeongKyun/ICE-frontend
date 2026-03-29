@@ -1,4 +1,4 @@
-# Current Version: v2026.03.18
+# Current Version: v2026.03.29
 
 # Introduction
 
@@ -19,7 +19,9 @@ that **does not upload files or personal information to the server**.
 
 Click the "How to Use" link above to see detailed instructions.
 
-# 👋 Hello!
+## 👨‍💻 [Developer](/en/about)
+
+---
 
 I'm **Kyun**, the developer of this site.
 Thank you so much for visiting!
@@ -27,7 +29,7 @@ Thank you so much for visiting!
 I hope it can be a small help to someone.
 Stay healthy and happy :)
 
-## 👨‍💻 [Developer](/en/about)
+---
 
 **Park Jeong-Kyun**
 
