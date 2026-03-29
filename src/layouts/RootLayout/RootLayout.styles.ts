@@ -21,10 +21,51 @@ export const PageHeader = styled.header`
   user-select: none;
 `;
 
+export const HeaderLeft = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+export const BtnZone = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 100%;
+  user-select: none;
+  flex-shrink: 0;
+`;
+
 export const HeaderRight = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
+`;
+
+export const HeaderLink = styled.a`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 3px 6px;
+  border-radius: 4px;
+
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+  color: var(--main-color);
+
+  transition: all 0.15s ease;
+
+  &:hover {
+    color: var(--ice-main-color);
+    background: var(--main-hover-color);
+  }
+
+  &:active {
+    opacity: 0.8;
+  }
 `;
 
 export const GitHubLink = styled.a`
