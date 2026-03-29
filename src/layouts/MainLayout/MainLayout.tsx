@@ -15,8 +15,6 @@ import {
   IceRightSider,
   ProcessInfo,
   SelectInfo,
-  SelectLabel,
-  SelectValue,
   Separator,
   IceFooterRight,
   IceHeaderLeftSider,
@@ -32,7 +30,6 @@ import Home from '@/components/Home/Home';
 import {
   encodingOptions,
   useTab,
-  useSelection,
   EncodingType,
 } from '@/contexts/TabDataContext/TabDataContext';
 import Logo from '@/components/common/Icons/Logo/Logo';
@@ -41,6 +38,7 @@ import MessageHistory from '@/components/MessageHistory/MessageHistory';
 import Spinner from '@/components/common/Spinner/Spinner';
 import Select from '@/components/common/Select/Select';
 import OffsetNavigator from '@/components/OffsetNavigator/OffsetNavigator';
+import SelectionDisplay from '@/components/SelectionDisplay/SelectionDisplay';
 import InfoPanel from './SidePanels/InfoPanel';
 import ToolsPanel from './SidePanels/ToolsPanel';
 import { useProgress } from '@/hooks/useProgress';
@@ -51,7 +49,6 @@ const MIN_SIDER_WIDTH = 100;
 const MainLayout: React.FC = () => {
   const t = useTranslations();
   const { isEmpty, encoding, setEncoding } = useTab();
-  const { activeSelectionState } = useSelection();
   const { isProcessing } = useProcess();
   const { progress } = useProgress();
   const [mobileTab, setMobileTab] = useState<'info' | 'tools'>('info');
@@ -76,41 +73,6 @@ const MainLayout: React.FC = () => {
     reverse: true,
     max: MIN_SIDER_WIDTH * 8,
   });
-
-  const selectionInfo = (() => {
-    if (
-      !activeSelectionState ||
-      activeSelectionState.start === null ||
-      activeSelectionState.start < 0 ||
-      activeSelectionState.end === null ||
-      activeSelectionState.end < 0
-    )
-      return null;
-
-    const minOffset = Math.min(
-      activeSelectionState.start,
-      activeSelectionState.end
-    );
-    const maxOffset = Math.max(
-      activeSelectionState.start,
-      activeSelectionState.end
-    );
-
-    return {
-      minOffset,
-      maxOffset,
-      length: maxOffset - minOffset + 1,
-    };
-  })();
-
-  const showHex = (decimal: number) => (
-    <SelectValue>
-      {decimal}
-      <SelectValue as="span">
-        (0x{decimal.toString(16).toUpperCase()})
-      </SelectValue>
-    </SelectValue>
-  );
 
   return (
     <IceMainLayout $isResizing={isLeftSideDragging || isRightSideDragging}>
@@ -185,25 +147,7 @@ const MainLayout: React.FC = () => {
 
       <IceFooter>
         <SelectInfo>
-          {selectionInfo ? (
-            <>
-              <div>
-                <SelectLabel>{t('footer.selection')}:</SelectLabel>
-                {showHex(selectionInfo.length)}
-              </div>
-              <div>
-                <SelectLabel>{t('footer.offset')}:</SelectLabel>
-                {showHex(selectionInfo.minOffset)}
-              </div>
-              <div>
-                <SelectLabel>{t('footer.range')}:</SelectLabel>
-                {showHex(selectionInfo.minOffset)}-
-                {showHex(selectionInfo.maxOffset)}
-              </div>
-            </>
-          ) : (
-            <IceCopyRight>{t('copyright')}</IceCopyRight>
-          )}
+          <SelectionDisplay />
         </SelectInfo>
         <IceFooterRight>
           {isProcessing && (

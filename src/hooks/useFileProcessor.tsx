@@ -22,7 +22,9 @@ export const useFileProcessor = () => {
         const newActiveKey = getNewKey();
 
         // 1️⃣ 워커 매니저를 통한 파일 분석 요청
-        const result = await analysisManager.execute('PROCESS_EXIF', { file });
+        const result = await analysisManager.execute('PROCESS_ANALYSIS', {
+          file,
+        });
 
         if (process.env.NODE_ENV === 'development') {
           console.log('[FileProcessor] EXIF processing result:', result);
@@ -74,7 +76,10 @@ export const useFileProcessor = () => {
 
         // 3️⃣ 새 탭을 활성화하고 성공 토스트 띄우기
         setActiveKey(newActiveKey);
-        eventBus.emit('toast', { code: 'EXIF_SUCCESS', stats: result.stats });
+        eventBus.emit('toast', {
+          code: 'ANALYSIS_SUCCESS',
+          stats: result.stats,
+        });
         return true;
       } catch (error) {
         // ✅ 에러는 WorkerContext(WorkerManager.ERROR 이벤트)에서 처리됨

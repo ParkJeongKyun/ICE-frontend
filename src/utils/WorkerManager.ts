@@ -95,7 +95,7 @@ export class WorkerManager {
 
           // EXIF 썸네일 처리는 taskType으로 구분 (isProcessing 유지를 위해 매니저에서 수행)
           if (
-            req.taskType === 'PROCESS_EXIF' &&
+            req.taskType === 'PROCESS_ANALYSIS' &&
             data &&
             typeof data === 'object' &&
             'mimeType' in data &&
@@ -239,7 +239,7 @@ export class WorkerManager {
         baseTime: 30000, // 30초
         minSpeed: 5, // MB/s (SHA256)
       },
-      PROCESS_EXIF: {
+      PROCESS_ANALYSIS: {
         baseTime: 30000, // 30초
         minSpeed: 10, // MB/s (메모리 I/O)
       },
@@ -291,7 +291,7 @@ export class WorkerManager {
     // 타입별 타임아웃 토스트 코드 매핑
     const timeoutCodeMap: Record<string, string> = {
       PROCESS_HASH: 'HASH_TIMEOUT',
-      PROCESS_EXIF: 'EXIF_TIMEOUT',
+      PROCESS_ANALYSIS: 'ANALYSIS_TIMEOUT',
       SEARCH_HEX: 'SEARCH_TIMEOUT',
       SEARCH_ASCII: 'SEARCH_TIMEOUT',
     };
@@ -333,7 +333,7 @@ export class WorkerManager {
           reject(error);
         },
         taskType: type,
-        // PROCESS_EXIF인 경우 file 저장 (HEIC/HEIF 썸네일 생성용)
+        // PROCESS_ANALYSIS인 경우 file 저장 (HEIC/HEIF 썸네일 생성용)
         file:
           'file' in payload && payload.file instanceof File
             ? payload.file

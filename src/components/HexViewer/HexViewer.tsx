@@ -229,6 +229,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
     closeContextMenu,
     handleMouseDown,
     handleMouseMove,
+    handleMouseMoveAt,
     handleMouseUp,
     handleContextMenu,
     handleCopyHex,
@@ -300,6 +301,27 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
   useEffect(() => {
     isDraggingRef.current = activeSelectionState?.isDragging ?? false;
   }, [activeSelectionState?.isDragging]);
+
+  useEffect(() => {
+    if (!activeSelectionState?.isDragging) return;
+    const onGlobalMouseMove = (e: MouseEvent) => {
+      if (!canvasRef.current) return;
+      const rect = canvasRef.current.getBoundingClientRect();
+      handleMouseMoveAt(e.clientX - rect.left, e.clientY - rect.top);
+    };
+
+    const onGlobalMouseUp = () => {
+      handleMouseUp();
+    };
+
+    window.addEventListener('mousemove', onGlobalMouseMove);
+    window.addEventListener('mouseup', onGlobalMouseUp);
+
+    return () => {
+      window.removeEventListener('mousemove', onGlobalMouseMove);
+      window.removeEventListener('mouseup', onGlobalMouseUp);
+    };
+  }, [activeSelectionState?.isDragging, handleMouseMoveAt, handleMouseUp]);
 
   // Theme/Colors Update
   useEffect(() => {
@@ -536,6 +558,13 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
         const endIndex =
           offset > 0 ? Math.min(index + offset - 1, fileSize - 1) : index;
         setSelection(index, endIndex);
+
+        eventBus.emit('hexSelectionUpdate', {
+          start: index,
+          end: endIndex,
+          cursor: index,
+        });
+        eventBus.emit('hexSelectionEnd');
 
         handleDragRepaint();
 

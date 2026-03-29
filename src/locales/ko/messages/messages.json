@@ -36,21 +36,17 @@
     "title": "파일 읽기 오류",
     "message": "파일을 읽는 중 오류가 발생했습니다."
   },
-  "EXIF_ERROR": {
-    "title": "EXIF 처리 오류",
-    "message": "EXIF 데이터를 처리하지 못했습니다."
+  "ANALYSIS_ERROR": {
+    "title": "분석 오류",
+    "message": "분석 데이터를 처리하지 못했습니다."
   },
-  "EXIF_PARSE_ERROR": {
-    "title": "EXIF 파싱 오류",
-    "message": "EXIF 데이터를 파싱하는 중 오류가 발생했습니다."
+  "ANALYSIS_TIMEOUT": {
+    "title": "분석 시간 초과",
+    "message": "분석 시간이 초과되었습니다.\n다시 시도해주세요."
   },
-  "EXIF_TIMEOUT": {
-    "title": "EXIF 처리 시간 초과",
-    "message": "EXIF 데이터 처리 시간이 초과되었습니다.\n다시 시도해주세요."
-  },
-  "EXIF_SUCCESS": {
-    "title": "EXIF 처리 완료",
-    "message": "EXIF 데이터 처리가 완료되었습니다."
+  "ANALYSIS_SUCCESS": {
+    "title": "분석 완료",
+    "message": "파일 분석이 완료되었습니다."
   },
   "HASH_CALCULATION_SUCCESS": {
     "title": "해시 계산 완료"
@@ -96,7 +92,7 @@
   },
   "COPY_SUCCESS": {
     "title": "복사 완료",
-    "message": "클립보드에 복사되었습니다."
+    "message": "클립보드에 복사되었습니다.\n(최대 256KB)"
   },
   "COPY_ERROR": {
     "title": "복사 실패",

@@ -1,180 +1,199 @@
-## Upcoming Updates
+## 🚀 Upcoming Features
 
-- Integrated terminal feature.
-- Save and export analysis results.
-- Enhanced search options and performance optimization for hex viewer.
-- Hex data and metadata editing capabilities.
-- Go WebAssembly architecture redesign and optimization.
-- Mobile responsive UI/UX improvements.
-- User preferences and local storage support.
-- User authentication and additional analysis tools.
-- Dedicated analysis support for non-image file formats.
+Here are the features currently in preparation to provide a better analysis environment.
 
-## Release Notes
+We will update them as quickly and stably as possible :)
 
-### v2026.03.18
+- **Analysis Session Management**
+  - Save/Export/Import analysis results
+- **Custom User Settings**
+  - Detailed workspace configuration for individual users
+- **Advanced Search Capabilities**
+  - Improved search logic for faster and more precise data exploration
+- **Expanded Analysis Formats**
+  - Support for analyzing various file types in addition to image files
+- **Data Editor**
+  - Direct editing and modification of Hex data and metadata
+- **Authentication & Extension Tools**
+  - Implementation of a user authentication system and additional tools for in-depth analysis
 
-- Honored to be featured on Forensic Focus
-- Added Data Converter (Beta): Supports Base64 & Hex
+<br/>
 
-### v2026.03.03
+## 📢 Release Notes
 
-- Added GitHub Sponsors
-- Updated Privacy Policy
+Here is the update history of how we got to where we are today.
 
-### v2026.03.01
+## 🌟 2026
 
-- Go WASM Enhancements
-- UI/UX Improvements
-- Updated Privacy Policy
+### ✨ v2026.03.29
 
-### v2026.02.13
-
-- Added drag & drop file functionality
-- Added hash calculation feature
-- Performance and UI/UX improvements (Go code and frontend code optimization)
-- Bug fixes
-
-### v2026.02.01
-
-- Migrated to Next.js
+- **Improved selection area functionality**
+- Updated Markdown documentation content
 - UI/UX improvements
+
+### ✨ v2026.03.18
+
+- **Published interview with Forensic Focus**
+  - I was deeply honored to have this wonderful interview opportunity :)
+- **Added Data Converter (Beta)**: Supports Base64, Hex
+
+### ✨ v2026.03.03
+
+- **Added GitHub Sponsors**
+  - Your support will be greatly appreciated and used for coffee and site operations!
+- Updated Privacy Policy
+
+### ✨ v2026.03.01
+
+- **Go WASM improvements** and UI/UX updates
+- Updated Privacy Policy
+
+### ✨ v2026.02.15
+
+- **Added PNG IHDR and Text chunk parsing** functionality
+- Increased thumbnail resolution
+- Updated Privacy Policy
+
+### ✨ v2026.02.13
+
+- **Added drag-and-drop file** support
+- **Added Hash calculation** feature
+- Speed and UI/UX improvements (Refactored Go and frontend code)
 - Bug fixes
 
-### v2026.01.23
+### ✨ v2026.02.01
 
-- Updated Go EXIF library
-- Improved EXIF analysis / Enhanced EXIF parsing
+- **Migrated to Next.js**
+- UI/UX improvements and bug fixes
+
+### ✨ v2026.01.23
+
+- **Changed Go EXIF library** and improved analysis features
 - Added English language support
 - UI/UX improvements
 
-### v2026.01.12
+### ✨ v2026.01.12
 
-- Changed map from KakaoMap to Leaflet (OpenStreetMap)
-- Global map and address
+- **Changed Map API** (KakaoMap → Leaflet/OpenStreetMap)
+  - Supported worldwide location info
 - Improved search and offset jump functionality
 - UI/UX improvements
 
-### v2026.01.04
+### ✨ v2026.01.04
 
-- Added Data Inspector feature
+- **Added Data Inspector** feature
 - UI/UX improvements
-- Added notification feature
+- **Added Notification** feature
 
-### v2025.12.30
+## 🌟 2025
+
+### ✨ v2025.12.30
 
 - Improved search speed
 - UI/UX improvements
 - Bug fixes
-- Information updates
 
-### v2025.11.20
+### ✨ v2025.11.20
 
-- Optimized large file handling in hex viewer
-- Removed file size limit
-- Improved file loading speed
-- Added and improved encoding options
+- **Optimized Hex Viewer for large files** (Removed file size limits)
+- Improved file loading speed and added encoding options
+- Internal library updates and optimizations
+- **Added LinkNote** page
 - UI/UX improvements
-- Updated and optimized internal libraries
-- Added LinkNote page
 
-### v2025.06.30
+### ✨ v2025.06.30
 
-- Design theme changed
+- Changed design theme
 
-### v2025.06.22
+### ✨ v2025.06.22
 
-- Switched from virtualized lists to canvas-based rendering
-- Significantly improved hex viewer rendering speed
+- Switched from virtualized list to **Canvas-based rendering** (Massive improvement in rendering speed)
 - Optimized UI/UX for mobile environments
 
-### v2025.06.15
+### ✨ v2025.06.15
 
-- Fixed hex viewer selection area bug
+- Fixed Hex Viewer selection area bug
 - Optimized WebAssembly performance
-- Limited reading of files over 1GB to 1GB
-- Added copy function to hex viewer
-- Added text encoding change feature
+- Applied 1GB read limit for files exceeding 1GB
+- Added copy functionality and text encoding options to Hex Viewer
 
-### v2024.06.19
+## 🌟 2024
+
+### ✨ v2024.06.19
 
 - Replaced virtualized list library
 
-### v2024.06.14
+### ✨ v2024.06.14
 
-- Applied and improved mobile UI
-- Improved scrollbar design
+- Applied additional mobile UI and improved scrollbar design
 - Changed and optimized list virtualization library
 
-### v2024.06.05
+### ✨ v2024.06.05
 
-- Added Home (main) screen
-- Updated markdown document content
+- **Added Home (Main) screen**
+- Updated Markdown documentation content
 
-### v2024.06.02
+### ✨ v2024.06.02
 
-- Added hex viewer search type (ASCII/HEX)
-- Display selected cell information at bottom left
-- Added About page
+- Added Hex Viewer search types (ASCII/Hex)
+- Displayed selected cell information at the bottom left
+- **Added About page**
 
-### v2024.05.29
+### ✨ v2024.05.29
 
-- Improved hex viewer design
-- Added offset search feature
-- Added cell selection feature
+- Improved Hex Viewer design
+- Added offset search and cell selection functionality
 
-### v2024.05.27
+### ✨ v2024.05.27
 
-- Added layout adjustment feature
-- Improved markdown viewer
+- Added layout adjustment functionality and improved Markdown viewer
 
-### v2024.05.24
+### ✨ v2024.05.24
 
-- Renewed entire site design to web app style
-- Implemented hex viewer feature
+- 3rd Site Design Renewal (Changed entire design to Web App style)
+- **First release of the Hex Viewer feature**
 
-### v2023.07.10
+## 🌟 2023
 
-- Connected Google Analytics
-- Site design renewal
-- Changed WebAssembly language from C++ to Go
-- Removed EXIF editing feature
+### ✨ v2023.07.10
 
-### v2023.02.27
+- Integrated Google Analytics
+- 2nd Site Design Renewal
+- **Changed WebAssembly Language (C++ → Go)**
+- Removed EXIF modification feature to prevent bugs
 
-- Introduced Typescript
-- Upgraded frontend resources
+### ✨ v2023.02.27
 
-### v2023.01.30
+- **Introduced TypeScript** and completely upgraded frontend resources
 
-- Site design renewal
+### ✨ v2023.01.30
 
-### v2022.12.24
+- 1st Site Design Renewal
 
-- Replaced Backend API with WebAssembly (C++ based)
-- Transitioned to serverless architecture
+## 🌟 2022
 
-### v2022.11.15
+### ✨ v2022.12.24
 
-- Deprecated existing Backend API (Python, Nginx, GCP)
+- Replaced Backend API server with WebAssembly (C++ based), transitioning to a **Serverless architecture**
 
-### v2022.08.01
+### ✨ v2022.11.15
 
-- Changed Backend API from Flask to FastAPI
+- Shut down Backend API servers (Python, Nginx, GCP)
 
-### v2022.07.07
+### ✨ v2022.08.01
 
-- Added EXIF editing feature
-- Connected KakaoMap
+- Changed backend framework (Flask → FastAPI)
 
-### v2022.06.23
+### ✨ v2022.07.07
 
----
+- Added EXIF modification feature
+- Integrated KakaoMap API
 
-I conceptualized and deployed this right after military discharge.
-In the early days, it had an unnecessarily heavy structure with separate backend and frontend servers.
-Personally, this was the 3rd web site project I created.
+<br/>
 
----
+### 🌱 v2022.06.23 - Site First Release
 
-- First deployment of ice-forensic.com
+- **First deployment of ice-forensic.com**
+
+> This is my 3rd personal web project, which I conceptualized and released right after being discharged from the military.
+> Check out the detailed story [here](https://www.forensicfocus.com/interviews/jeongkyun-park-information-security-student-and-independent-developer-korea-cyber-university/) :)

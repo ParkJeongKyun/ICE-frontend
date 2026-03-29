@@ -1,4 +1,4 @@
-import { RefObject, useCallback, useEffect, useState } from 'react';
+import { RefObject, useCallback, useEffect, useRef, useState } from 'react';
 import {
   useTab,
   useSelection,
@@ -48,6 +48,9 @@ export const useHexViewerSelection = ({
 
   // [Fix] useRef 대신 useState 사용 (UI 렌더링 트리거)
   const [contextMenu, setContextMenu] = useState<ContextMenuState | null>(null);
+
+  // Interaction helpers
+  const previewRafRef = useRef<number | null>(null);
 
   // Get current state from context
   const selection = selectionStates[activeKey] || {
@@ -135,6 +138,22 @@ export const useHexViewerSelection = ({
 
   // --- Event Handlers ---
 
+  const emitSelectionPreview = useCallback(
+    (preview: {
+      start: number | null;
+      end: number | null;
+      cursor: number | null;
+    }) => {
+      eventBus.emit('hexSelectionPreview', preview);
+      eventBus.emit('hexSelectionUpdate', preview);
+    },
+    []
+  );
+
+  const emitSelectionEnd = useCallback(() => {
+    eventBus.emit('hexSelectionEnd');
+  }, []);
+
   const handleMouseDown = useCallback(
     (e: React.MouseEvent<HTMLCanvasElement>) => {
       // 우클릭 시 컨텍스트 메뉴가 열려있으면 닫기
@@ -160,6 +179,7 @@ export const useHexViewerSelection = ({
           dragStart: null,
         });
         if (selectionPreviewRef) selectionPreviewRef.current = null;
+        emitSelectionEnd();
       } else {
         updateSelectionState({
           cursor: idx,
@@ -179,44 +199,69 @@ export const useHexViewerSelection = ({
             selectedBytes: undefined,
           };
         }
+        emitSelectionPreview({ start: idx, end: idx, cursor: idx });
         onPreviewChange?.();
       }
     },
     [
-      contextMenu, // 의존성 추가
+      contextMenu,
       getByteIndexFromMouse,
       selection.start,
       updateSelectionState,
       selectionPreviewRef,
       onPreviewChange,
+      emitSelectionPreview,
+      emitSelectionEnd,
+    ]
+  );
+
+  const handleMouseMoveAt = useCallback(
+    (x: number, y: number) => {
+      const idx = getByteIndexFromMouse(x, y);
+
+      if (idx === null) return;
+
+      const isDragActive =
+        (selectionPreviewRef && selectionPreviewRef.current?.isDragging) ||
+        selection.isDragging;
+
+      if (!isDragActive) return;
+
+      const currentPreview = selectionPreviewRef?.current;
+      if (currentPreview) {
+        currentPreview.cursor = idx;
+        currentPreview.end = idx;
+      }
+
+      if (previewRafRef.current !== null)
+        cancelAnimationFrame(previewRafRef.current);
+      previewRafRef.current = requestAnimationFrame(() => {
+        const start = currentPreview?.start ?? selection.start;
+        emitSelectionPreview({
+          start: start ?? null,
+          end: idx,
+          cursor: idx,
+        });
+        onPreviewChange?.();
+        previewRafRef.current = null;
+      });
+    },
+    [
+      getByteIndexFromMouse,
+      selection.isDragging,
+      selection.start,
+      selectionPreviewRef,
+      onPreviewChange,
+      emitSelectionPreview,
     ]
   );
 
   const handleMouseMove = useCallback(
     (e: React.MouseEvent<HTMLCanvasElement>) => {
       const rect = e.currentTarget.getBoundingClientRect();
-      const idx = getByteIndexFromMouse(
-        e.clientX - rect.left,
-        e.clientY - rect.top
-      );
-
-      if (idx === null) return;
-
-      if (selectionPreviewRef && selectionPreviewRef.current?.isDragging) {
-        selectionPreviewRef.current.cursor = idx;
-        selectionPreviewRef.current.end = idx;
-        onPreviewChange?.();
-      } else if (selection.isDragging) {
-        updateSelectionState({ cursor: idx, end: idx });
-      }
+      handleMouseMoveAt(e.clientX - rect.left, e.clientY - rect.top);
     },
-    [
-      getByteIndexFromMouse,
-      selection.isDragging,
-      updateSelectionState,
-      selectionPreviewRef,
-      onPreviewChange,
-    ]
+    [handleMouseMoveAt]
   );
 
   const handleMouseUp = useCallback(() => {
@@ -235,17 +280,20 @@ export const useHexViewerSelection = ({
       }
       selectionPreviewRef.current = null;
       onPreviewChange?.();
+      emitSelectionEnd();
       return;
     }
 
     if (selection.isDragging) {
       updateSelectionState({ isDragging: false, dragStart: null });
+      emitSelectionEnd();
     }
   }, [
     selection.isDragging,
     updateSelectionState,
     selectionPreviewRef,
     onPreviewChange,
+    emitSelectionEnd,
   ]);
 
   // --- Context Menu (Fixed) ---
@@ -395,6 +443,7 @@ export const useHexViewerSelection = ({
     closeContextMenu,
     handleMouseDown,
     handleMouseMove,
+    handleMouseMoveAt,
     handleMouseUp,
     handleContextMenu,
     handleCopyHex,

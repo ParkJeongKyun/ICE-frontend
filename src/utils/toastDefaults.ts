@@ -17,11 +17,10 @@ export const TOAST_DEFAULTS: Record<
   FILE_PROCESSING_FAILED: { type: 'error', duration: 10000 },
   FILE_READ_ERROR: { type: 'error', duration: 10000 },
 
-  // EXIF 관련
-  EXIF_ERROR: { type: 'error', duration: 10000 },
-  EXIF_PARSE_ERROR: { type: 'error', duration: 10000 },
-  EXIF_TIMEOUT: { type: 'error', duration: 10000 },
-  EXIF_SUCCESS: { type: 'success', duration: 4000 },
+  // ANALYSIS 관련
+  ANALYSIS_ERROR: { type: 'error', duration: 10000 },
+  ANALYSIS_TIMEOUT: { type: 'error', duration: 10000 },
+  ANALYSIS_SUCCESS: { type: 'success', duration: 4000 },
 
   // 검색 관련
   SEARCH_TIMEOUT: { type: 'error', duration: 10000 },

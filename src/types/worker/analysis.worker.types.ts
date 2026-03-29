@@ -13,7 +13,7 @@ import { ExifInfo, TextChunkInfo } from '@/types';
 export type AnalysisWorkerRequestType =
   | 'SEARCH_HEX'
   | 'SEARCH_ASCII'
-  | 'PROCESS_EXIF';
+  | 'PROCESS_ANALYSIS';
 
 export interface AnalysisWorkerRequest {
   type: AnalysisWorkerRequestType;
@@ -34,7 +34,7 @@ export interface SearchResult {
   stats?: WorkerStats; // optional로 변경 (ExecuteResponse와 일치)
 }
 
-export interface ExifResult {
+export interface AnalysisResult {
   data: {
     hasExif: boolean;
     mimeType: string;
