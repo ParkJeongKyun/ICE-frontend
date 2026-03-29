@@ -118,6 +118,16 @@
       "tools": "도구"
     }
   },
+  "selectionEditor": {
+    "title": "선택",
+    "rangeMode": "범위 (시작/끝)",
+    "lengthMode": "시작 + 길이",
+    "startOffset": "시작 위치",
+    "endOffset": "끝 위치",
+    "length": "길이",
+    "cancel": "취소",
+    "apply": "적용"
+  },
   "footer": {
     "selection": "선택",
     "offset": "오프셋",

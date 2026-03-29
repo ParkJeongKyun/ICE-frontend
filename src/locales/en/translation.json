@@ -118,6 +118,16 @@
       "tools": "Tools"
     }
   },
+  "selectionEditor": {
+    "title": "Selection",
+    "rangeMode": "Range (start/end)",
+    "lengthMode": "Start + Length",
+    "startOffset": "Start offset",
+    "endOffset": "End offset",
+    "length": "Length",
+    "cancel": "Cancel",
+    "apply": "Apply"
+  },
   "footer": {
     "selection": "Selection",
     "offset": "Offset",

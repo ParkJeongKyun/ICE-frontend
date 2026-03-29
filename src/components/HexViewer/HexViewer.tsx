@@ -559,6 +559,13 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
           offset > 0 ? Math.min(index + offset - 1, fileSize - 1) : index;
         setSelection(index, endIndex);
 
+        eventBus.emit('hexSelectionUpdate', {
+          start: index,
+          end: endIndex,
+          cursor: index,
+        });
+        eventBus.emit('hexSelectionEnd');
+
         handleDragRepaint();
 
         manualScrollTimeoutRef.current = window.setTimeout(() => {
