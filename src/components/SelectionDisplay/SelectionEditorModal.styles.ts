@@ -1,3 +1,4 @@
+import { BREAKPOINTS } from '@/layouts/MainLayout/MainLayout.styles';
 import styled from 'styled-components';
 
 export const SelectionModalOverlay = styled.div`
@@ -24,6 +25,15 @@ export const SelectionModalBox = styled.div`
   display: flex;
   flex-direction: column;
   overflow: hidden;
+
+  @media (max-width: ${BREAKPOINTS.mobile}) {
+    position: fixed;
+    bottom: 60px;
+    left: 10px;
+    right: 10px;
+    width: auto;
+    max-height: 60vh;
+  }
 `;
 
 export const SelectionModalHeader = styled.div`
@@ -43,7 +53,7 @@ export const SelectionModalTitle = styled.h3`
 `;
 
 export const SelectionModalBody = styled.div`
-  padding: 6px;
+  padding: 10px;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -140,7 +150,6 @@ export const SelectionModalActions = styled.div`
   display: flex;
   justify-content: flex-end;
   gap: 4px;
-  margin-top: 6px;
 `;
 
 export const SelectionModeGroup = styled.div`
@@ -179,14 +188,23 @@ export const SelectionModeButton = styled.div<{ $active: boolean }>`
 `;
 
 export const SelectionModalButton = styled.button`
-  padding: 6px 10px;
+  padding: 4px 6px;
+  border: 1px solid var(--main-line-color);
   border-radius: 4px;
-  border: none;
-  cursor: pointer;
+  background: transparent;
   color: var(--main-color);
-  background: var(--main-hover-color);
-  &:hover {
-    background: var(--ice-main-color);
-    color: var(--main-bg-color);
+  font-size: 0.68rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  width: 100%;
+
+  &:hover:not(:disabled) {
+    border-color: var(--ice-main-color);
+    color: var(--ice-main-color);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 `;

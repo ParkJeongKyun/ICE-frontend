@@ -4,7 +4,8 @@
     "copy": "복사",
     "close": "닫기",
     "delete": "삭제",
-    "back": "뒤로가기"
+    "back": "뒤로가기",
+    "confirm": "확인"
   },
   "welcome": "ICE에 오신 것을 환영합니다!",
   "description": "웹 기반 헥스 뷰어 및 이미지 메타데이터(EXIF) 분석 도구입니다.",
@@ -125,9 +126,7 @@
     "startOffset": "시작 위치",
     "endOffset": "끝 위치",
     "length": "길이",
-    "radixTooltip": "16/10/8진수 전환",
-    "cancel": "취소",
-    "apply": "적용"
+    "radixTooltip": "16/10/8진수 전환"
   },
   "footer": {
     "selection": "선택",

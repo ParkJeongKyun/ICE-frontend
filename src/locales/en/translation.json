@@ -4,7 +4,8 @@
     "copy": "Copy",
     "close": "Close",
     "delete": "Delete",
-    "back": "Back"
+    "back": "Back",
+    "confirm": "Confirm"
   },
   "welcome": "Welcome to ICE!",
   "description": "A web-based hex viewer and image metadata (EXIF) analysis tool.",
@@ -125,9 +126,7 @@
     "startOffset": "Start offset",
     "endOffset": "End offset",
     "length": "Length",
-    "radixTooltip": "Toggle 16/10/8 radix",
-    "cancel": "Cancel",
-    "apply": "Apply"
+    "radixTooltip": "Toggle 16/10/8 radix"
   },
   "footer": {
     "selection": "Selection",

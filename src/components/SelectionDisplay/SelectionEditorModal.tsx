@@ -75,7 +75,6 @@ const SelectionEditorModal: React.FC<SelectionEditorModalProps> = ({
     const minSelection = Math.min(currentStart, currentEnd);
     const maxSelection = Math.max(currentStart, currentEnd);
 
-    setMode('length');
     setStart(toRadixString(minSelection, radix));
     setEnd(toRadixString(maxSelection, radix));
     setLength(
@@ -236,7 +235,7 @@ const SelectionEditorModal: React.FC<SelectionEditorModalProps> = ({
 
           <SelectionModalActions>
             <SelectionModalButton type="button" onClick={handleApply}>
-              {t('selectionEditor.apply')}
+              {t('common.confirm')}
             </SelectionModalButton>
           </SelectionModalActions>
         </SelectionModalBody>
