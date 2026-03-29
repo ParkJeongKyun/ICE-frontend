@@ -36,21 +36,17 @@
     "title": "File Read Error",
     "message": "An error occurred while reading the file."
   },
-  "EXIF_ERROR": {
-    "title": "EXIF Error",
-    "message": "Failed to process EXIF data."
+  "ANALYSIS_ERROR": {
+    "title": "Analysis Error",
+    "message": "Failed to process analysis data."
   },
-  "EXIF_PARSE_ERROR": {
-    "title": "EXIF Parse Error",
-    "message": "An error occurred while parsing EXIF data."
+  "ANALYSIS_TIMEOUT": {
+    "title": "Analysis Timeout",
+    "message": "Analysis timed out.\nPlease try again."
   },
-  "EXIF_TIMEOUT": {
-    "title": "EXIF Processing Timeout",
-    "message": "EXIF data processing timed out.\nPlease try again."
-  },
-  "EXIF_SUCCESS": {
-    "title": "EXIF Processed",
-    "message": "EXIF data processed successfully."
+  "ANALYSIS_SUCCESS": {
+    "title": "Analysis Complete",
+    "message": "File analysis completed successfully."
   },
   "HASH_CALCULATION_SUCCESS": {
     "title": "Hash Calculated"

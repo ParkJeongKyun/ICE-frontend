@@ -229,7 +229,7 @@ class AnalysisWorker {
         self.postMessage({
           id, // 루트에 id 직접 삽입
           status: 'ERROR',
-          taskType: 'PROCESS_EXIF',
+          taskType: 'PROCESS_ANALYSIS',
           errorCode: 'WASM_NOT_READY',
         });
         return;
@@ -248,8 +248,8 @@ class AnalysisWorker {
         self.postMessage({
           id, // 루트에 id 직접 삽입
           status: 'ERROR',
-          taskType: 'PROCESS_EXIF',
-          errorCode: 'EXIF_PARSE_ERROR',
+          taskType: 'PROCESS_ANALYSIS',
+          errorCode: 'ANALYSIS_ERROR',
         });
         return;
       }
@@ -282,7 +282,7 @@ class AnalysisWorker {
       self.postMessage({
         id,
         status: 'SUCCESS',
-        taskType: 'PROCESS_EXIF',
+        taskType: 'PROCESS_ANALYSIS',
         stats: createStats(
           id,
           duration,
@@ -302,8 +302,8 @@ class AnalysisWorker {
       self.postMessage({
         id, // 루트에 id 직접 삽입
         status: 'ERROR',
-        taskType: 'PROCESS_EXIF',
-        errorCode: 'EXIF_ERROR',
+        taskType: 'PROCESS_ANALYSIS',
+        errorCode: 'ANALYSIS_ERROR',
       });
     }
   }
@@ -414,7 +414,7 @@ class AnalysisWorker {
         }
         break;
 
-      case 'PROCESS_EXIF':
+      case 'PROCESS_ANALYSIS':
         if (file) {
           await this.processExif(id, file);
         }

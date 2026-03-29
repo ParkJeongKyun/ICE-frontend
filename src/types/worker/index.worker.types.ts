@@ -3,7 +3,7 @@
  */
 
 import type { HashResult, HashType } from './hash.worker.types';
-import type { SearchResult, ExifResult } from './analysis.worker.types';
+import type { SearchResult, AnalysisResult } from './analysis.worker.types';
 
 /**
  * 워커 응답의 통합 stats 구조
@@ -32,9 +32,9 @@ export type TaskMap = {
     req: { file: File; hashType?: HashType };
     res: HashResult['data'];
   };
-  PROCESS_EXIF: {
+  PROCESS_ANALYSIS: {
     req: { file: File };
-    res: ExifResult['data'];
+    res: AnalysisResult['data'];
   };
   SEARCH_HEX: {
     req: { file: File; pattern: Uint8Array }; // 🚀 Uint8Array로 변경
