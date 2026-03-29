@@ -31,7 +31,9 @@ import {
   FooterDivider,
   FlagIconWrap,
   PreviewImg,
+  HeaderLeft,
   HeaderRight,
+  HeaderLink,
   GitHubLink,
   SponsorLink,
   ReportLink,
@@ -40,6 +42,7 @@ import {
   HeroLogoWrap,
   BadgeRow,
   Badge,
+  BtnZone,
 } from './RootLayout.styles';
 
 const FEATURES: { label: string; desc: string }[] = [
@@ -71,8 +74,31 @@ const RootLayout: React.FC = () => {
   return (
     <PageLayout>
       <PageHeader>
-        <Logo showText />
+        <HeaderLeft>
+          <Logo showText />
+          <BtnZone>
+            <HeaderLink
+              href="/en/docs"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Docs"
+              title="Docs"
+            >
+              Docs
+            </HeaderLink>
+            <HeaderLink
+              href="/en/about"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Developer"
+              title="Developer"
+            >
+              Developer
+            </HeaderLink>
+          </BtnZone>
+        </HeaderLeft>
         <HeaderRight>
+          <HeaderDivider />
           <GitHubLink
             href="https://github.com/ParkJeongKyun/ICE-frontend"
             target="_blank"
@@ -173,10 +199,11 @@ const RootLayout: React.FC = () => {
           <SectionLabel>Select language / 언어 선택</SectionLabel>
           <LangRow>
             <LangBtn
+              as="a"
+              href="/en"
               $recommended={browserLang === 'en'}
               onClick={() => {
                 localStorage.setItem('user-locale', 'en');
-                window.location.href = '/en';
               }}
             >
               <FlagIconWrap>
@@ -186,10 +213,11 @@ const RootLayout: React.FC = () => {
               <LangBtnHint>Start →</LangBtnHint>
             </LangBtn>
             <LangBtn
+              as="a"
+              href="/ko"
               $recommended={browserLang === 'ko'}
               onClick={() => {
                 localStorage.setItem('user-locale', 'ko');
-                window.location.href = '/ko';
               }}
             >
               <FlagIconWrap>
@@ -278,18 +306,6 @@ const RootLayout: React.FC = () => {
           </FooterLink>
         </FooterLinks>
       </PageFooter>
-
-      <div style={{ display: 'none' }}>
-        <h1>ICE Forensic — Online Digital Forensics Tools</h1>
-        <h2>
-          Online Hex Viewer, EXIF Metadata Viewer, Hash Calculator, File Header
-          Analysis
-        </h2>
-        <p>
-          ICE Forensic is a free, web-based digital forensics toolkit. No
-          download or installation required.
-        </p>
-      </div>
     </PageLayout>
   );
 };
