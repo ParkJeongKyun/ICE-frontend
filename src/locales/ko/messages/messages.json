@@ -96,7 +96,7 @@
   },
   "COPY_SUCCESS": {
     "title": "복사 완료",
-    "message": "클립보드에 복사되었습니다."
+    "message": "클립보드에 복사되었습니다.\n(최대 256KB)"
   },
   "COPY_ERROR": {
     "title": "복사 실패",

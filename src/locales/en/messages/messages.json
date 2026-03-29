@@ -96,7 +96,7 @@
   },
   "COPY_SUCCESS": {
     "title": "Copy Success",
-    "message": "Copied to clipboard."
+    "message": "Copied to clipboard.\n(Max 256KB)"
   },
   "COPY_ERROR": {
     "title": "Copy Failed",
