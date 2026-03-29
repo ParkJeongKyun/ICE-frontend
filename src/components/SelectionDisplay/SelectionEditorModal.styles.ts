@@ -67,11 +67,73 @@ export const SelectionModalClose = styled.button`
   }
 `;
 
-export const SelectionModalRow = styled.div`
-  margin-bottom: 6px;
+export const SelectionModalGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  margin-bottom: 8px;
+`;
+
+export const SelectionRow = styled.div`
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+`;
+
+export const SelectionRowLabel = styled.div`
+  min-width: 70px;
+  max-width: 90px;
+  font-size: 0.75rem;
+  color: var(--main-color);
+  font-weight: 600;
+`;
+
+export const SelectionRowInput = styled.div`
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 0px;
+`;
+
+export const SelectionRadixButton = styled.div`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  border-radius: 2px;
+  color: var(--main-color);
+  cursor: pointer;
+  opacity: 0.6;
+  font-size: 0.65rem;
+  transition: opacity 0.2s ease;
+  &:hover {
+    opacity: 1;
+    color: var(--ice-main-color);
+  }
+`;
+
+export const SelectionModalInput = styled.input`
+  flex: 1;
+  min-width: 20px;
+  width: 100%;
+  color: var(--main-color);
+  background-color: var(--main-bg-color);
+  border: none;
+  border-bottom: 1px solid var(--main-line-color);
+  box-sizing: border-box;
+  font-size: 0.75rem;
+  &:focus,
+  &:hover {
+    outline: none;
+    background-color: var(--main-hover-color-primary);
+  }
+
+  &::placeholder {
+    font-size: 0.65rem;
+    opacity: 0.5;
+  }
 `;
 
 export const SelectionModalActions = styled.div`
@@ -84,52 +146,36 @@ export const SelectionModalActions = styled.div`
 export const SelectionModeGroup = styled.div`
   display: flex;
   align-items: stretch;
-  justify-content: space-between;
-  gap: 0;
-  margin-bottom: 12px;
+  justify-content: stretch;
+  gap: 0px;
+  user-select: none;
+  width: 100%;
+  border-bottom: 1px solid var(--main-line-color);
+  > * {
+    flex: 1;
+  }
 `;
 
-export const SelectionModeButton = styled.button<{ $active: boolean }>`
-  flex: 1;
+export const SelectionModeButton = styled.div<{ $active: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 600;
-  padding: 6px 8px;
-  background: ${({ $active }) =>
-    $active ? 'var(--main-hover-color)' : 'var(--main-bg-color)'};
-  border: 1px solid var(--main-line-color);
-  border-right: ${({ $active }) =>
-    $active
-      ? '1px solid var(--main-line-color)'
-      : '1px solid var(--main-line-color)'};
-  color: ${({ $active }) =>
-    $active ? 'var(--ice-main-color)' : 'var(--main-color)'};
+  padding: 3px 0px;
+  color: var(--main-color);
+  opacity: ${(props) => (props.$active ? 1 : 0.4)};
   cursor: pointer;
   transition: all 0.2s ease;
-  &:first-child {
-    border-radius: 4px 0 0 4px;
-  }
-  &:last-child {
-    border-radius: 0 4px 4px 0;
-    border-left: 0;
-  }
-  &:hover {
-    background-color: var(--main-hover-color);
-    color: var(--ice-main-color);
-  }
-`;
+  outline: none;
 
-export const SelectionModalInput = styled.input`
-  width: 100%;
-  margin-top: 4px;
-  box-sizing: border-box;
-  border: 1px solid var(--main-line-color);
-  border-radius: 4px;
-  background: var(--main-bg-color);
-  color: var(--main-color);
-  padding: 6px 8px;
+  border-top: 1px solid var(--main-line-color);
+
+  &:hover {
+    opacity: 1;
+    color: var(--ice-main-color);
+    background-color: var(--main-hover-color);
+  }
 `;
 
 export const SelectionModalButton = styled.button`

@@ -11,12 +11,16 @@ import {
   SelectionModalTitle,
   SelectionModalBody,
   SelectionModalClose,
-  SelectionModalRow,
   SelectionModalActions,
   SelectionModalInput,
   SelectionModalButton,
   SelectionModeGroup,
   SelectionModeButton,
+  SelectionModalGrid,
+  SelectionRow,
+  SelectionRowLabel,
+  SelectionRowInput,
+  SelectionRadixButton,
 } from './SelectionEditorModal.styles';
 
 interface SelectionEditorModalProps {
@@ -39,6 +43,29 @@ const SelectionEditorModal: React.FC<SelectionEditorModalProps> = ({
   const [start, setStart] = useState('0');
   const [end, setEnd] = useState('0');
   const [length, setLength] = useState('1');
+  const [radix, setRadix] = useState<16 | 10 | 8>(16);
+
+  const radixLabel = radix === 16 ? '0x' : radix === 10 ? 'Dec' : '0o';
+
+  const toggleRadix = () => {
+    setRadix((prev) => {
+      if (prev === 16) return 10;
+      if (prev === 10) return 8;
+      return 16;
+    });
+  };
+
+  const toRadixString = (value: number, base: 16 | 10 | 8) =>
+    base === 16
+      ? value.toString(16).toUpperCase()
+      : base === 10
+        ? value.toString(10)
+        : value.toString(8);
+
+  const parseByRadix = (value: string, base: 16 | 10 | 8) => {
+    const parsed = parseInt(value, base);
+    return Number.isNaN(parsed) ? NaN : parsed;
+  };
 
   useEffect(() => {
     if (!isOpen) return;
@@ -49,23 +76,25 @@ const SelectionEditorModal: React.FC<SelectionEditorModalProps> = ({
     const maxSelection = Math.max(currentStart, currentEnd);
 
     setMode('length');
-    setStart(String(minSelection));
-    setEnd(String(maxSelection));
-    setLength(String(Math.max(1, maxSelection - minSelection + 1)));
-  }, [isOpen, activeSelectionState.start, activeSelectionState.end]);
+    setStart(toRadixString(minSelection, radix));
+    setEnd(toRadixString(maxSelection, radix));
+    setLength(
+      toRadixString(Math.max(1, maxSelection - minSelection + 1), radix)
+    );
+  }, [isOpen, activeSelectionState.start, activeSelectionState.end, radix]);
 
   if (!isOpen) return null;
 
   const handleApply = () => {
-    const parsedStart = Number(start);
+    const parsedStart = parseByRadix(start, radix);
     if (Number.isNaN(parsedStart) || parsedStart < 0) return;
 
     let parsedEnd = parsedStart;
     if (mode === 'range') {
-      parsedEnd = Number(end);
+      parsedEnd = parseByRadix(end, radix);
       if (Number.isNaN(parsedEnd) || parsedEnd < 0) return;
     } else {
-      const parsedLength = Number(length);
+      const parsedLength = parseByRadix(length, radix);
       if (Number.isNaN(parsedLength) || parsedLength < 1) return;
       parsedEnd = parsedStart + parsedLength - 1;
     }
@@ -113,14 +142,12 @@ const SelectionEditorModal: React.FC<SelectionEditorModalProps> = ({
         <SelectionModalBody>
           <SelectionModeGroup>
             <SelectionModeButton
-              type="button"
               $active={mode === 'length'}
               onClick={() => setMode('length')}
             >
               {t('selectionEditor.lengthMode')}
             </SelectionModeButton>
             <SelectionModeButton
-              type="button"
               $active={mode === 'range'}
               onClick={() => setMode('range')}
             >
@@ -128,43 +155,84 @@ const SelectionEditorModal: React.FC<SelectionEditorModalProps> = ({
             </SelectionModeButton>
           </SelectionModeGroup>
 
-          <SelectionModalRow>
-            <label>
-              {t('selectionEditor.startOffset')}:
-              <SelectionModalInput
-                type="number"
-                min={0}
-                value={start}
-                onChange={(e) => setStart(e.target.value)}
-              />
-            </label>
-          </SelectionModalRow>
+          <SelectionModalGrid>
+            <SelectionRow>
+              <SelectionRowLabel>
+                {t('selectionEditor.startOffset')}
+              </SelectionRowLabel>
+              <SelectionRowInput>
+                <SelectionRadixButton onClick={toggleRadix}>
+                  {radixLabel}
+                </SelectionRadixButton>
+                <SelectionModalInput
+                  type="text"
+                  value={start}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    const cleaned =
+                      radix === 16
+                        ? val.replace(/[^0-9a-fA-F]/g, '')
+                        : radix === 10
+                          ? val.replace(/[^0-9]/g, '')
+                          : val.replace(/[^0-7]/g, '');
+                    setStart(cleaned);
+                  }}
+                />
+              </SelectionRowInput>
+            </SelectionRow>
 
-          {mode === 'range' ? (
-            <SelectionModalRow>
-              <label>
-                {t('selectionEditor.endOffset')}:
-                <SelectionModalInput
-                  type="number"
-                  min={0}
-                  value={end}
-                  onChange={(e) => setEnd(e.target.value)}
-                />
-              </label>
-            </SelectionModalRow>
-          ) : (
-            <SelectionModalRow>
-              <label>
-                {t('selectionEditor.length')}:
-                <SelectionModalInput
-                  type="number"
-                  min={1}
-                  value={length}
-                  onChange={(e) => setLength(e.target.value)}
-                />
-              </label>
-            </SelectionModalRow>
-          )}
+            {mode === 'range' ? (
+              <SelectionRow>
+                <SelectionRowLabel>
+                  {t('selectionEditor.endOffset')}
+                </SelectionRowLabel>
+                <SelectionRowInput>
+                  <SelectionRadixButton onClick={toggleRadix}>
+                    {radixLabel}
+                  </SelectionRadixButton>
+                  <SelectionModalInput
+                    type="text"
+                    value={end}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      const cleaned =
+                        radix === 16
+                          ? val.replace(/[^0-9a-fA-F]/g, '')
+                          : radix === 10
+                            ? val.replace(/[^0-9]/g, '')
+                            : val.replace(/[^0-7]/g, '');
+                      setEnd(cleaned);
+                    }}
+                  />
+                </SelectionRowInput>
+              </SelectionRow>
+            ) : (
+              <SelectionRow>
+                <SelectionRowLabel>
+                  {t('selectionEditor.length')}
+                </SelectionRowLabel>
+                <SelectionRowInput>
+                  <SelectionRadixButton onClick={toggleRadix}>
+                    {radixLabel}
+                  </SelectionRadixButton>
+                  <SelectionModalInput
+                    type="text"
+                    value={length}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      const cleaned =
+                        radix === 16
+                          ? val.replace(/[^0-9a-fA-F]/g, '')
+                          : radix === 10
+                            ? val.replace(/[^0-9]/g, '')
+                            : val.replace(/[^0-7]/g, '');
+                      setLength(cleaned);
+                    }}
+                  />
+                </SelectionRowInput>
+              </SelectionRow>
+            )}
+          </SelectionModalGrid>
 
           <SelectionModalActions>
             <SelectionModalButton type="button" onClick={handleApply}>

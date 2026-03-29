@@ -125,6 +125,7 @@
     "startOffset": "시작 위치",
     "endOffset": "끝 위치",
     "length": "길이",
+    "radixTooltip": "16/10/8진수 전환",
     "cancel": "취소",
     "apply": "적용"
   },

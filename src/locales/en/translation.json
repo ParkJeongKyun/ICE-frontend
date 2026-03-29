@@ -125,6 +125,7 @@
     "startOffset": "Start offset",
     "endOffset": "End offset",
     "length": "Length",
+    "radixTooltip": "Toggle 16/10/8 radix",
     "cancel": "Cancel",
     "apply": "Apply"
   },
