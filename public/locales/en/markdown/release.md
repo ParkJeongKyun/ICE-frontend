@@ -17,8 +17,6 @@ We will update them as quickly and stably as possible :)
 - **Authentication & Extension Tools**
   - Implementation of a user authentication system and additional tools for in-depth analysis
 
-<br/>
-
 ## 📢 Release Notes
 
 Here is the update history of how we got to where we are today.
@@ -188,8 +186,6 @@ Here is the update history of how we got to where we are today.
 
 - Added EXIF modification feature
 - Integrated KakaoMap API
-
-<br/>
 
 ### 🌱 v2022.06.23 - Site First Release
 
