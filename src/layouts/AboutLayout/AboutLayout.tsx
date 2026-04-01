@@ -16,11 +16,17 @@ import {
   SponsorNote,
   SponsorNoteSub,
   LangSwitcherCorner,
+  CopyrightFooter,
 } from './AboutLayout.styles';
 import Lanyard from './Lanyard/Lanyard';
 import SponsorButton from '@/components/SponsorButton/SponsorButton';
 import LocaleSwitcher from '@/components/LocaleSwitcher/LocaleSwitcher';
 import ForensicInterviewCard from './ForensicInterviewCard/ForensicInterviewCard';
+import { Link } from '@/locales/routing';
+import {
+  calculateCareerDuration,
+  calculateTotalCareerDuration,
+} from '@/utils/careerCalculator';
 
 const CURRENT_AGE = new Date().getFullYear() - 2001;
 
@@ -73,7 +79,6 @@ function TagList({ items }: { items: string[] }) {
 
 const About: React.FC = () => {
   const t = useTranslations('about');
-
   const education = t.raw('educationData') as EducationItem[];
   const military = t.raw('militaryData') as MilitaryData;
   const certificates = t.raw('certificatesData') as string[];
@@ -254,39 +259,79 @@ const About: React.FC = () => {
         </SectionBlock>
         <SectionBlock>
           <SimpleListCard>
-            <SectionTitle>{t('career')}</SectionTitle>
+            <SectionTitle>
+              {t('career')}
+              <span
+                style={{
+                  marginLeft: '0.3em',
+                  color: 'var(--ice-main-color)',
+                  fontWeight: 400,
+                }}
+              >
+                (
+                {(() => {
+                  const { years, months } = calculateTotalCareerDuration(
+                    careers.map((c) => c.period)
+                  );
+                  const parts = [];
+                  if (years > 0) parts.push(`${years}${t('year')}`);
+                  if (months > 0) parts.push(`${months}${t('month')}`);
+                  return parts.join(' ');
+                })()}
+                )
+              </span>
+            </SectionTitle>
             <List>
-              {careers.map((career) => (
-                <ListItem
-                  key={career.company + career.period}
-                  style={{
-                    flexDirection: 'column',
-                    alignItems: 'flex-start',
-                  }}
-                >
-                  <span>
-                    <strong>{career.company}</strong>
-                    <span
-                      style={{
-                        color: 'var(--ice-main-color)',
-                        fontWeight: 400,
-                      }}
-                    >
-                      {' '}
-                      ({career.position})
-                    </span>
-                  </span>
-                  <span
+              {careers.map((career) => {
+                const { years, months } = calculateCareerDuration(
+                  career.period
+                );
+                const durationParts = [];
+                if (years > 0) durationParts.push(`${years}${t('year')}`);
+                if (months > 0) durationParts.push(`${months}${t('month')}`);
+                const durationStr = durationParts.join(' ');
+
+                return (
+                  <ListItem
+                    key={career.company + career.period}
                     style={{
-                      fontSize: '0.97em',
-                      color: 'var(--main-color-reverse)',
-                      marginTop: 2,
+                      flexDirection: 'column',
+                      alignItems: 'flex-start',
                     }}
                   >
-                    {career.period}
-                  </span>
-                </ListItem>
-              ))}
+                    <span>
+                      <strong>{career.company}</strong>
+                      <span
+                        style={{
+                          color: 'var(--ice-main-color)',
+                          fontWeight: 400,
+                        }}
+                      >
+                        {' '}
+                        ({career.position})
+                      </span>
+                    </span>
+                    <span
+                      style={{
+                        fontSize: '0.97em',
+                        color: 'var(--main-color-reverse)',
+                        marginTop: 2,
+                      }}
+                    >
+                      {career.period}
+                      <span
+                        style={{
+                          marginLeft: '0.3em',
+                          color: 'var(--ice-main-color)',
+                          fontWeight: 500,
+                        }}
+                      >
+                        ({durationStr})
+                      </span>
+                    </span>
+                  </ListItem>
+                );
+              })}
             </List>
           </SimpleListCard>
         </SectionBlock>
@@ -346,6 +391,15 @@ const About: React.FC = () => {
             <SponsorButton />
           </SimpleListCard>
         </SectionBlock>
+        <CopyrightFooter>
+          <Link href="/" target="_blank" rel="noopener noreferrer">
+            ICE Forensic
+          </Link>
+          <div>{t('copyright')}</div>
+          <Link href="/privacy" target="_blank" rel="noopener noreferrer">
+            {t('privacyPolicy')}
+          </Link>
+        </CopyrightFooter>
       </AppContainer>
     </MainContainer>
   );
