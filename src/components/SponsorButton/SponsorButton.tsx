@@ -43,11 +43,10 @@ const HeartIcon = styled.svg`
 
 export default function SponsorButton() {
   const t = useTranslations('sponsor');
-  const GITHUB_USERNAME = 'ParkJeongKyun';
 
   return (
     <SponsorLink
-      href={`https://github.com/sponsors/${GITHUB_USERNAME}`}
+      href={process.env.NEXT_PUBLIC_GITHUB_SPONSORS_URL}
       target="_blank"
       rel="noopener noreferrer"
       title={t('description')}

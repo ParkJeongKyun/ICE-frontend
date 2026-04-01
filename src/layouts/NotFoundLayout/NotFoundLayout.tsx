@@ -36,18 +36,10 @@ const NotFoundLayout: React.FC = () => {
       <PageHeader>
         <Logo showText />
         <HeaderRight>
-          <GitHubLink
-            href="https://github.com/ParkJeongKyun/ICE-frontend"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="GitHub repository"
-          >
-            <GitHubFilledIcon width={13} height={13} />
-            GitHub
-          </GitHubLink>
+          <GitHubFilledIcon width={13} height={13} />
           <HeaderDivider />
           <SponsorLink
-            href="https://github.com/sponsors/ParkJeongKyun"
+            href={process.env.NEXT_PUBLIC_GITHUB_SPONSORS_URL}
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Sponsor"
@@ -65,7 +57,7 @@ const NotFoundLayout: React.FC = () => {
           </SponsorLink>
           <HeaderDivider />
           <ReportLink
-            href="https://github.com/ParkJeongKyun/ICE-frontend/issues"
+            href={process.env.NEXT_PUBLIC_GITHUB_ISSUES_URL}
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Report issue"
@@ -113,7 +105,7 @@ const NotFoundLayout: React.FC = () => {
               </BtnPrimary>
             </ErrorActions>
             <ReportIssueLink
-              href="https://github.com/ParkJeongKyun/ICE-frontend/issues"
+              href={process.env.NEXT_PUBLIC_GITHUB_ISSUES_URL}
               target="_blank"
               rel="noopener noreferrer"
             >

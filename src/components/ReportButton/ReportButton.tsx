@@ -43,11 +43,10 @@ const IssueIcon = styled.svg`
 
 export default function ReportButton() {
   const t = useTranslations('report');
-  const GITHUB_REPO = 'ParkJeongKyun/ICE-frontend';
 
   return (
     <ReportLink
-      href={`https://github.com/${GITHUB_REPO}/issues`}
+      href={process.env.NEXT_PUBLIC_GITHUB_ISSUES_URL}
       target="_blank"
       rel="noopener noreferrer"
       title={t('description')}
