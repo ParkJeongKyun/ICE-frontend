@@ -196,3 +196,27 @@ export const ScrollIndicator = styled.div`
 
 // SectionCard는 더 이상 사용하지 않으므로 빈 div로 유지
 export const SectionCard = styled.div``;
+
+// 하단 푸터
+export const CopyrightFooter = styled.div`
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--main-color-reverse);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 1.5rem 1rem;
+
+  a {
+    font-size: 0.85rem;
+    color: var(--ice-main-color);
+    text-decoration: none;
+    transition: text-decoration 0.15s;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+`;

@@ -1,8 +1,9 @@
 import React from 'react';
 import PrivacyIcon from '../Icons/PrivacyIcon';
 import styled from 'styled-components';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import Tooltip from '../Tooltip/Tooltip';
+import { Link } from '@/locales/routing';
 
 export const Btn = styled.button`
   position: relative;
@@ -25,19 +26,23 @@ export const Btn = styled.button`
 `;
 
 const PrivacyBtn: React.FC<{ className?: string }> = ({ className }) => {
-  const locale = useLocale();
   const t = useTranslations();
   return (
     <Tooltip text={t('home.privacyPolicy')}>
-      <Btn
-        className={className}
-        aria-label={t('home.privacyPolicy')}
-        onClick={() => {
-          window.open(`/${locale}/privacy`, '_blank', 'noopener,noreferrer');
-        }}
+      <Link
+        href="/privacy"
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{ textDecoration: 'none' }}
       >
-        <PrivacyIcon />
-      </Btn>
+        <Btn
+          className={className}
+          aria-label={t('home.privacyPolicy')}
+          as="span"
+        >
+          <PrivacyIcon />
+        </Btn>
+      </Link>
     </Tooltip>
   );
 };
