@@ -254,7 +254,7 @@
     "cancelTooltip": "해시 계산 취소"
   },
   "dataConverter": {
-    "title": "데이터 변환기",
+    "title": "데이터 변환",
     "encode": "인코딩",
     "decode": "디코딩",
     "swap": "교체",
