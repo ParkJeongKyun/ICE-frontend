@@ -16,6 +16,7 @@ import {
   LangRow,
   LangBtn,
   LangBtnHint,
+  LangFeedbackHint,
   Divider,
   FeatureList,
   FeatureItem,
@@ -188,6 +189,8 @@ const RootLayout: React.FC = () => {
             </Tagline>
           </HeroSection>
 
+          <Divider />
+
           <SectionLabel>Select language / 언어 선택</SectionLabel>
           <LangRow>
             <LangBtn
@@ -219,6 +222,24 @@ const RootLayout: React.FC = () => {
               <LangBtnHint>시작하기 →</LangBtnHint>
             </LangBtn>
           </LangRow>
+          <LangFeedbackHint>
+            <a
+              href={`${process.env.NEXT_PUBLIC_GITHUB_ISSUES_URL}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 16 16"
+                fill="currentColor"
+                aria-hidden="true"
+              >
+                <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM9 5H7v4h2V5Zm0 6H7v2h2v-2Z" />
+              </svg>
+              Don't see your language? Let us know
+            </a>
+          </LangFeedbackHint>
 
           <Divider />
 

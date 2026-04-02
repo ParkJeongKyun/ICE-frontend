@@ -156,3 +156,33 @@ export const LangFlagBtn = styled.button<{ $active: boolean }>`
     color: var(--ice-main-color);
   }
 `;
+
+/* Report section */
+export const ReportSection = styled.div`
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--main-line-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+`;
+
+export const ReportLink = styled.a`
+  font-size: 0.68rem;
+  color: var(--ice-main-color);
+  text-decoration: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  transition: background 0.15s;
+
+  &:hover {
+    background: color-mix(in srgb, var(--ice-main-color) 10%, transparent);
+    text-decoration: underline;
+  }
+`;

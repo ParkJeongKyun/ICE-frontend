@@ -275,6 +275,8 @@
   },
   "settings": {
     "title": "설정",
-    "language": "언어"
+    "language": "언어",
+    "reportIssue": "언어 추가 요청 / 번역 오류 보고",
+    "reportBug": "기능 제안 / 버그 보고"
   }
 }
