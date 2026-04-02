@@ -215,6 +215,7 @@ const TextArea = styled.textarea`
   font-size: 0.7rem;
   line-height: 1.5;
   resize: vertical;
+  box-sizing: border-box;
 
   &::placeholder {
     color: var(--main-color-reverse);
@@ -293,8 +294,9 @@ const OutputArea = styled.pre`
   white-space: pre-wrap;
   word-break: break-all;
   min-height: 72px;
-  max-height: 72px;
   overflow: auto;
+  resize: vertical;
+  box-sizing: border-box;
 `;
 
 const ErrorText = styled.div`
