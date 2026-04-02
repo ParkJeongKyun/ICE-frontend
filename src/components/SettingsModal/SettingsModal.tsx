@@ -15,6 +15,8 @@ import {
   SettingsSection,
   SettingsSectionLabel,
   SettingsWrapper,
+  ReportSection,
+  ReportLink,
 } from './SettingsModal.styles';
 import Tooltip from '@/components/common/Tooltip/Tooltip';
 import {
@@ -127,6 +129,41 @@ const SettingsModal: React.FC = () => {
                 </LangFlagBtn>
               </LangFlagRow>
             </SettingsSection>
+
+            <ReportSection>
+              <ReportLink
+                href={`${process.env.NEXT_PUBLIC_GITHUB_ISSUES_URL}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 16 16"
+                  fill="currentColor"
+                >
+                  <path d="M1 3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1H1zm7 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4z" />
+                  <path d="M0 5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V5zm8 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4z" />
+                </svg>
+                {t('reportIssue')}
+              </ReportLink>
+              <ReportLink
+                href={`${process.env.NEXT_PUBLIC_GITHUB_ISSUES_URL}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 16 16"
+                  fill="currentColor"
+                >
+                  <path d="M8 9.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z" />
+                  <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Z" />
+                </svg>
+                {t('reportBug')}
+              </ReportLink>
+            </ReportSection>
           </SettingsPanel>
         </FloatingPortal>
       )}

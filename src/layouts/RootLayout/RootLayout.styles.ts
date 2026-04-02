@@ -135,7 +135,7 @@ export const PageInner = styled.div`
 `;
 
 export const Tagline = styled.p`
-  margin: 0 0 1.25rem;
+  margin: 0;
   font-size: 1.05rem;
   opacity: 0.85;
   line-height: 1.65;
@@ -198,6 +198,27 @@ export const LangBtnHint = styled.span`
 
   ${LangBtn}:hover & {
     color: var(--main-bg-color);
+  }
+`;
+
+export const LangFeedbackHint = styled.div`
+  text-align: center;
+  margin-top: 0.75rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.82rem;
+
+  a {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--ice-main-color);
+    text-decoration: none;
+    transition: opacity 0.15s;
+
+    &:hover {
+      opacity: 0.8;
+      text-decoration: underline;
+    }
   }
 `;
 
@@ -319,7 +340,6 @@ export const HeroSection = styled.div`
   flex-direction: column;
   align-items: center;
   text-align: center;
-  margin-bottom: 0.25rem;
 `;
 
 export const HeroLogoWrap = styled.div`
