@@ -1,8 +1,9 @@
 name: Deploy Repo
 on:
   push:
-    branches:
-      - master
+    tags:
+      - 'v*'
+      # 태그를 푸시하는 경우 운영에 배포됨
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -54,6 +55,12 @@ jobs:
           # dist 파일 복사
           cp -r ../out/* ./
           touch .nojekyll
+
+          # 변경사항 커밋 및 태그 강제 생성
           git add .
-          git commit -m "Automated Deployment: $(date '+%Y-%m-%d %H:%M:%S')"
+          git commit -m "Automated Deployment: ${{ github.ref_name }} ($(date '+%Y-%m-%d %H:%M:%S'))"
+
+          # 현재 푸시된 태그명으로 강제 태그 생성 및 원격 강제 푸시
+          git tag -f "${{ github.ref_name }}"
           git push origin master
+          git push origin "${{ github.ref_name }}" --force
