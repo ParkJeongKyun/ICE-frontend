@@ -15,7 +15,7 @@ that **does not upload files or personal information to the server**.
 - We plan to keep updating, so please give us your support!
 - If you encounter any bugs, please contact [dbzoseh84@gmail.com](mailto:dbzoseh84@gmail.com) :)
 
-# [How to Use](/markdown/howToUse)
+# [How to Use](https://github.com/ParkJeongKyun/ICE-frontend/wiki/en_howToUse)
 
 Click the "How to Use" link above to see detailed instructions.
 
@@ -49,7 +49,7 @@ Stay healthy and happy :)
 
 ![Mobile version sample image](/images/sample/sample_mobile.webp)
 
-## 📝 [Release Notes](/markdown/release)
+## 📝 [Release Notes](https://github.com/ParkJeongKyun/ICE-frontend/wiki/en_release)
 
 You can check the release notes at the "Release Notes" link above.
 

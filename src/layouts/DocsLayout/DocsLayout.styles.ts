@@ -22,6 +22,10 @@ export const Card = styled.div`
   color: var(--main-color);
   overflow: hidden;
   transition: box-shadow 0.2s;
+
+  @media (min-width: 1024px) {
+    max-width: 1200px;
+  }
 `;
 
 export const IntroContainer = styled.div`
@@ -58,6 +62,10 @@ export const TabBar = styled.div`
   gap: 8px;
   margin-bottom: 0.5rem;
   flex-wrap: wrap;
+
+  @media (min-width: 1024px) {
+    display: none;
+  }
 `;
 
 export const TabButton = styled.button<{ $active?: boolean }>`
@@ -89,8 +97,51 @@ export const TabContents = styled.div`
   overflow-y: auto;
   /* ensure content fills remaining space without overshoot */
   min-height: 0;
+
+  @media (min-width: 1024px) {
+    display: flex;
+    flex-direction: row;
+    overflow-y: hidden;
+    gap: 1rem;
+    padding: 0 1rem;
+  }
 `;
 
 export const TabContent = styled.div<{ $active?: boolean }>`
   display: ${({ $active }) => ($active ? 'block' : 'none')};
+
+  @media (min-width: 1024px) {
+    display: block !important;
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+  }
+
+  &:nth-child(2) {
+    @media (min-width: 1024px) {
+      border-left: 1px solid var(--main-line-color);
+      padding-left: 1rem;
+    }
+  }
+`;
+
+export const TabContentTitle = styled.div`
+  display: none;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--ice-main-color);
+  padding: 1rem 1rem 0.75rem 1rem;
+  margin-bottom: 0;
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
+  border-bottom: 1px solid var(--main-line-color);
+  background-color: var(--main-bg-color);
+  z-index: 10;
+  text-align: center;
+
+  @media (min-width: 1024px) {
+    display: block;
+  }
 `;

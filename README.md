@@ -9,6 +9,8 @@ Visit the official website for more details:
 
 © 2022 Park Jeong-Kyun (dbzoseh84@gmail.com). All rights reserved.
 
+## [Developer](https://www.ice-forensic.com/en/about)
+
 ---
 
 ## How to Run
