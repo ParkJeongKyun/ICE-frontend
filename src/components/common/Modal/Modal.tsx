@@ -37,7 +37,6 @@ const Modal: React.FC<ModalProps> = ({
   const [isOpen, setIsOpen] = useState(false);
   const [title, setTitle] = useState<string>('');
   const [content, setContent] = useState<string>('');
-  const [childTexts, setChildTexts] = useState<{ [key: string]: string }>({});
 
   // 마크다운 모달 데이터 정의 (필요시 확장)
   const modalData = useMemo(
@@ -45,10 +44,6 @@ const Modal: React.FC<ModalProps> = ({
       about: {
         title: t('menu.about'),
         file: 'about',
-        childFiles: {
-          howToUse: 'howToUse',
-          release: 'release',
-        },
       },
     }),
     [t]
@@ -63,14 +58,6 @@ const Modal: React.FC<ModalProps> = ({
 
       // 서버에서 전달된 markdownData에서 바로 콘텐츠를 꺼내 사용합니다.
       setContent(markdownData[data.file] || 'Content not found.');
-
-      const currentChildTexts: { [key: string]: string } = {};
-      if (data.childFiles) {
-        Object.entries(data.childFiles).forEach(([childKey, fname]) => {
-          currentChildTexts[childKey] = markdownData[fname] || '';
-        });
-      }
-      setChildTexts(currentChildTexts);
       setIsOpen(true);
     },
     [modalData, markdownData]
@@ -119,7 +106,7 @@ const Modal: React.FC<ModalProps> = ({
           </Tooltip>
         </ModalHeader>
         <ChildDiv>
-          <ICEMarkDown defaultText={content} childTexts={childTexts} />
+          <ICEMarkDown defaultText={content} />
         </ChildDiv>
       </ModalContent>
     </ModalContainer>

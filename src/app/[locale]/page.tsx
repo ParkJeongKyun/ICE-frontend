@@ -73,11 +73,7 @@ export default async function HomePage(props: Props) {
   const params = await props.params;
   const locale = params.locale;
 
-  const markdownData = getMarkdownData(locale, [
-    'about',
-    'release',
-    'howToUse',
-  ]);
+  const markdownData = getMarkdownData(locale, ['about']);
 
   return (
     <>

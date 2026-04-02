@@ -42,11 +42,7 @@ export default async function DocsPage(props: Props) {
   const params = await props.params;
   const locale = params.locale;
 
-  const markdownData = getMarkdownData(locale, [
-    'about',
-    'release',
-    'howToUse',
-  ]);
+  const markdownData = getMarkdownData(locale, ['about']);
 
   return <DocsLayout markdownData={markdownData} />;
 }

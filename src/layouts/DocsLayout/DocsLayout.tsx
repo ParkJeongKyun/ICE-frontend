@@ -30,8 +30,6 @@ const DocsLayout: React.FC<DocsLayoutProps> = ({ markdownData = {} }) => {
   const tabs = [
     { key: 'intro', label: t('docs.intro') },
     { key: 'about', label: t('docs.about') },
-    { key: 'howToUse', label: t('docs.howToUse') },
-    { key: 'release', label: t('docs.release') },
   ];
 
   return (
@@ -61,25 +59,7 @@ const DocsLayout: React.FC<DocsLayoutProps> = ({ markdownData = {} }) => {
             </IntroContainer>
           </TabContent>
           <TabContent $active={activeTab === 'about'}>
-            <ICEMarkDown
-              defaultText={markdownData.about || ''}
-              showBackButton={false}
-              onTabChange={setActiveTab}
-            />
-          </TabContent>
-          <TabContent $active={activeTab === 'release'}>
-            <ICEMarkDown
-              defaultText={markdownData.release || ''}
-              showBackButton={false}
-              onTabChange={setActiveTab}
-            />
-          </TabContent>
-          <TabContent $active={activeTab === 'howToUse'}>
-            <ICEMarkDown
-              defaultText={markdownData.howToUse || ''}
-              showBackButton={false}
-              onTabChange={setActiveTab}
-            />
+            <ICEMarkDown defaultText={markdownData.about || ''} />
           </TabContent>
         </TabContents>
         <Copyright>{t('copyright')}</Copyright>

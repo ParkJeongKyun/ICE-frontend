@@ -1,43 +1,14 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import Markdown from 'react-markdown';
 import styled from 'styled-components';
-import BackArrowIcon from '@/components/common/Icons/BackArrowIcon';
-import { useTranslations } from 'next-intl';
 
 export interface Props {
   defaultText: string;
-  childTexts?: { [key: string]: string };
-  showBackButton?: boolean;
-  onTabChange?: (tabKey: string) => void;
 }
 
-const ICEMarkDown: React.FC<Props> = ({
-  defaultText,
-  childTexts,
-  showBackButton = true,
-  onTabChange,
-}) => {
-  const t = useTranslations();
-  const [markdownText, setMarkdownText] = useState<string>(defaultText);
-
-  useEffect(() => {
-    setMarkdownText(defaultText);
-  }, [defaultText]);
-
-  // 기본 텍스트로 변경
-  const setDefaultText = () => {
-    setMarkdownText(defaultText);
-  };
-
-  // 자식 텍스트로 변경
-  const setChildText = (key: string) => {
-    if (key && childTexts && childTexts[key]) {
-      setMarkdownText(childTexts[key]);
-    }
-  };
-
+const ICEMarkDown: React.FC<Props> = ({ defaultText }) => {
   // 이미지 태그 커스텀 랜더링 (react-markdown v7+ 호환)
   const ImageRenderer: React.FC<React.ComponentProps<'img'>> = (props) => {
     return <img {...props} />;
@@ -46,20 +17,7 @@ const ICEMarkDown: React.FC<Props> = ({
   // 링크 태그 커스텀 랜더링 (react-markdown v7+ 호환)
   const LinkRenderer: React.FC<React.ComponentProps<'a'>> = (props) => {
     const { href, children, ...rest } = props;
-    return href?.startsWith('/markdown/') ? (
-      <MarkDownLink
-        onClick={() => {
-          const tabKey = href.split('/markdown/')[1] || '';
-          if (onTabChange) {
-            onTabChange(tabKey);
-          } else {
-            setChildText(tabKey);
-          }
-        }}
-      >
-        {children}
-      </MarkDownLink>
-    ) : (
+    return (
       <a href={href} target="_blank" rel="noopener noreferrer" {...rest}>
         {children}
       </a>
@@ -75,17 +33,8 @@ const ICEMarkDown: React.FC<Props> = ({
   return (
     <MarkdownContainer>
       <MarkDownDiv>
-        <Markdown components={components}>{markdownText}</Markdown>
+        <Markdown components={components}>{defaultText}</Markdown>
       </MarkDownDiv>
-      {showBackButton && markdownText != defaultText && (
-        <FloatingBackBtn onClick={setDefaultText} aria-label={t('common.back')}>
-          <BackArrowIcon
-            width={18}
-            height={18}
-            color="var(--ice-main-color-warning)"
-          />
-        </FloatingBackBtn>
-      )}
     </MarkdownContainer>
   );
 };
@@ -100,37 +49,6 @@ const MarkdownContainer = styled.div`
   overflow-y: hidden;
   text-align: left;
   height: 100%;
-`;
-
-// 떠 있는 뒤로가기 버튼 (우측 상단)
-const FloatingBackBtn = styled.button`
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 35px;
-  height: 35px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: var(--main-bg-color);
-  border: 1px solid var(--main-line-color);
-  color: var(--main-color);
-  border-radius: 3px;
-  cursor: pointer;
-  z-index: 30;
-  opacity: 0.8;
-  transition: opacity 0.12s ease;
-
-  &:hover {
-    opacity: 1;
-  }
-`;
-
-// 마크다운 링크
-const MarkDownLink = styled.span`
-  color: var(--ice-main-color);
-  text-decoration: underline;
-  cursor: pointer;
 `;
 
 // 마크다운 컨테이너

@@ -15,7 +15,7 @@
 - 꾸준히 업데이트 예정이니 많은 관심 부탁드립니다!
 - 버그 발생시 [dbzoseh84@gmail.com](mailto:dbzoseh84@gmail.com)으로 연락해주시면 감사하겠습니다 :)
 
-# [사용법](/markdown/howToUse)
+# [사용법](https://github.com/ParkJeongKyun/ICE-frontend/wiki/ko_howToUse)
 
 상단의 "사용법" 링크를 클릭해 자세한 사용법을 확인하세요.
 
@@ -49,7 +49,7 @@
 
 ![모바일 버전 샘플 이미지](/images/sample/sample_mobile.webp)
 
-## 📝 [릴리즈 노트](/markdown/release)
+## 📝 [릴리즈 노트](https://github.com/ParkJeongKyun/ICE-frontend/wiki/ko_release)
 
 릴리즈 노트는 위 "릴리즈 노트" 링크에서 확인하실 수 있습니다.
 
