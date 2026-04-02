@@ -10,6 +10,7 @@ import {
   TabButton,
   TabContents,
   TabContent,
+  TabContentTitle,
   IntroContainer,
 } from './DocsLayout.styles';
 import PreviewFaqUseCases from '@/components/Home/PreviewFaqUseCases';
@@ -54,11 +55,13 @@ const DocsLayout: React.FC<DocsLayoutProps> = ({ markdownData = {} }) => {
         </TabBar>
         <TabContents>
           <TabContent $active={activeTab === 'intro'}>
+            <TabContentTitle>{t('docs.intro')}</TabContentTitle>
             <IntroContainer>
               <PreviewFaqUseCases />
             </IntroContainer>
           </TabContent>
           <TabContent $active={activeTab === 'about'}>
+            <TabContentTitle>{t('docs.about')}</TabContentTitle>
             <ICEMarkDown defaultText={markdownData.about || ''} />
           </TabContent>
         </TabContents>
