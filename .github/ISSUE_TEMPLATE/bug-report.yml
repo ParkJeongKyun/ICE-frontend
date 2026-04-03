@@ -10,17 +10,6 @@ body:
         Your report makes **ICE-Forensic** a more precise tool.
         여러분의 제보가 ICE-Forensic을 더 정교한 도구로 만듭니다.
         
-  - type: checkboxes
-    id: pr-check
-    attributes:
-      label: "Before reporting (사전 확인 사항)"
-      description: "Please check the following before submitting (제보 전 아래 사항을 확인해 주세요)"
-      options:
-        - label: "I have checked if a similar issue already exists. (이미 동일한 이슈가 있는지 확인했습니다.)"
-          required: true
-        - label: "I am using the latest version of ICE-Forensic. (최신 버전을 사용 중입니다.)"
-          required: true
-
   - type: dropdown
     id: environment
     attributes:
@@ -57,13 +46,6 @@ body:
         3. Error occurs when clicking the analyze button (분석 버튼 클릭 시 에러 발생)
     validations:
       required: true
-
-  - type: textarea
-    id: screenshot
-    attributes:
-      label: "Screenshots or Logs (스크린샷 또는 로그 - 선택)"
-      description: "Drag and drop error screens or console logs here (에러 화면이나 로그를 드래그 앤 드롭 하세요)"
-      placeholder: "Attaching images or text helps solve problems faster. (이미지 첨부는 빠른 해결에 도움이 됩니다.)"
 
   - type: checkboxes
     id: contact-consent
