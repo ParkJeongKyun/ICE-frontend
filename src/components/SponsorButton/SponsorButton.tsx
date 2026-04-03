@@ -69,6 +69,7 @@ const KoFiLink = styled(SponsorLink)`
 
 export default function SponsorButton() {
   const t = useTranslations('sponsor');
+  const tCoffee = useTranslations('coffee');
 
   return (
     <SponsorContainer>
@@ -76,18 +77,26 @@ export default function SponsorButton() {
         href={process.env.NEXT_PUBLIC_GITHUB_SPONSORS_URL}
         target="_blank"
         rel="noopener noreferrer"
-        title={t('ariaLabel')}
+        title={t('description')}
         aria-label={t('ariaLabel')}
       >
         <HeartIcon width={14} height={14} color="var(--ice-main-color-love)" />
+        <small
+          style={{
+            fontSize: '0.6875rem',
+            fontWeight: 400,
+          }}
+        >
+          {t('button')}
+        </small>
       </GitHubSponsorLink>
 
       <KoFiLink
         href={process.env.NEXT_PUBLIC_KOFI_URL}
         target="_blank"
         rel="noopener noreferrer"
-        title={t('description')}
-        aria-label={t('description')}
+        title={tCoffee('description')}
+        aria-label={tCoffee('ariaLabel')}
       >
         <CoffeeIcon width={14} height={14} color="var(--ice-main-color-love)" />
         <small
@@ -96,7 +105,7 @@ export default function SponsorButton() {
             fontWeight: 400,
           }}
         >
-          {t('description')}
+          {tCoffee('description')}
         </small>
       </KoFiLink>
     </SponsorContainer>

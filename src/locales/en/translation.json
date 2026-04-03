@@ -268,6 +268,11 @@
     "description": "Buy me a coffee",
     "ariaLabel": "Sponsor us on GitHub"
   },
+  "coffee": {
+    "button": "Coffee",
+    "description": "Buy me a coffee",
+    "ariaLabel": "Support on Ko-fi"
+  },
   "report": {
     "button": "Report",
     "description": "Report bugs or ideas",
@@ -276,7 +281,6 @@
   "settings": {
     "title": "Settings",
     "language": "Language",
-    "reportIssue": "Language Request / Translation Report",
-    "reportBug": "Feature Request / Bug Report"
+    "languageHint": "Want to add a language or found a translation error?"
   }
 }

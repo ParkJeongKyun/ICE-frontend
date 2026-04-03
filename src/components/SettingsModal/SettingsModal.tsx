@@ -6,6 +6,9 @@ import { useRouter, usePathname } from '@/locales/routing';
 import { useProcess } from '@/contexts/ProcessContext/ProcessContext';
 import USFlagIcon from '../common/Icons/USFlagIcon';
 import KRFlagIcon from '../common/Icons/KRFlagIcon';
+import HeartIcon from '../common/Icons/HeartIcon';
+import CoffeeIcon from '../common/Icons/CoffeeIcon';
+import IssueIcon from '../common/Icons/IssueIcon';
 import {
   LangFlagBtn,
   LangFlagRow,
@@ -17,6 +20,7 @@ import {
   SettingsWrapper,
   ReportSection,
   ReportLink,
+  SponsorLink,
 } from './SettingsModal.styles';
 import Tooltip from '@/components/common/Tooltip/Tooltip';
 import {
@@ -50,6 +54,9 @@ const SettingsIcon = () => (
 
 const SettingsModal: React.FC = () => {
   const t = useTranslations('settings');
+  const tReport = useTranslations('report');
+  const tSponsor = useTranslations('sponsor');
+  const tCoffee = useTranslations('coffee');
   const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
@@ -131,38 +138,49 @@ const SettingsModal: React.FC = () => {
             </SettingsSection>
 
             <ReportSection>
+              <div
+                style={{
+                  fontSize: '0.68rem',
+                  marginBottom: '4px',
+                  color: 'var(--main-color)',
+                  opacity: 0.85,
+                  lineHeight: 1.4,
+                }}
+              >
+                {t('languageHint')}
+              </div>
               <ReportLink
                 href={`${process.env.NEXT_PUBLIC_GITHUB_ISSUES_URL}`}
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <svg
-                  width="12"
-                  height="12"
-                  viewBox="0 0 16 16"
-                  fill="currentColor"
-                >
-                  <path d="M1 3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1H1zm7 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4z" />
-                  <path d="M0 5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V5zm8 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4z" />
-                </svg>
-                {t('reportIssue')}
+                <IssueIcon width={12} height={12} color="currentColor" />
+                {tReport('description')}
               </ReportLink>
-              <ReportLink
-                href={`${process.env.NEXT_PUBLIC_GITHUB_ISSUES_URL}`}
-                target="_blank"
-                rel="noopener noreferrer"
+              <div
+                style={{
+                  display: 'flex',
+                  gap: '4px',
+                  marginTop: '2px',
+                }}
               >
-                <svg
-                  width="12"
-                  height="12"
-                  viewBox="0 0 16 16"
-                  fill="currentColor"
+                <SponsorLink
+                  href={process.env.NEXT_PUBLIC_GITHUB_SPONSORS_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
                 >
-                  <path d="M8 9.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z" />
-                  <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Z" />
-                </svg>
-                {t('reportBug')}
-              </ReportLink>
+                  <HeartIcon width={12} height={12} color="currentColor" />
+                  {tSponsor('button')}
+                </SponsorLink>
+                <SponsorLink
+                  href={process.env.NEXT_PUBLIC_KOFI_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <CoffeeIcon width={12} height={12} color="currentColor" />
+                  {tCoffee('description')}
+                </SponsorLink>
+              </div>
             </ReportSection>
           </SettingsPanel>
         </FloatingPortal>
