@@ -186,3 +186,21 @@ export const ReportLink = styled.a`
     text-decoration: underline;
   }
 `;
+
+export const SponsorLink = styled.a`
+  font-size: 0.68rem;
+  color: var(--ice-main-color-love);
+  text-decoration: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  transition: background 0.15s;
+
+  &:hover {
+    background: color-mix(in srgb, var(--ice-main-color-love) 10%, transparent);
+    text-decoration: underline;
+  }
+`;

@@ -265,18 +265,22 @@
   "copyright": "© 2022 ParkJeong-kyun (dbzoseh84@gmail.com). All rights reserved.",
   "sponsor": {
     "button": "Sponsor",
-    "description": "Buy us a coffee ☕",
+    "description": "Buy me a coffee",
     "ariaLabel": "Sponsor us on GitHub"
+  },
+  "coffee": {
+    "button": "Coffee",
+    "description": "Buy me a coffee",
+    "ariaLabel": "Support on Ko-fi"
   },
   "report": {
     "button": "Report",
-    "description": "Report bugs or ideas 💡",
+    "description": "Report bugs or ideas",
     "ariaLabel": "Report an issue on GitHub"
   },
   "settings": {
     "title": "Settings",
     "language": "Language",
-    "reportIssue": "Language Request / Translation Report",
-    "reportBug": "Feature Request / Bug Report"
+    "languageHint": "Want to add a language or found a translation error?"
   }
 }

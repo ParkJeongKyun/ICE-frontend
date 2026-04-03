@@ -265,18 +265,22 @@
   "copyright": "© 2022 박정균 (dbzoseh84@gmail.com). 모든 권리 보유.",
   "sponsor": {
     "button": "스폰서",
-    "description": "커피 한 잔 후원하기 ☕",
+    "description": "커피 한 잔 후원하기",
     "ariaLabel": "GitHub에서 스폰서 되기"
+  },
+  "coffee": {
+    "button": "커피",
+    "description": "커피 한 잔 후원하기",
+    "ariaLabel": "Ko-fi에서 후원하기"
   },
   "report": {
     "button": "리포트",
-    "description": "버그 제보 · 기능 제안 💡",
+    "description": "버그 제보 · 기능 제안",
     "ariaLabel": "GitHub에서 이슈 등록하기"
   },
   "settings": {
     "title": "설정",
     "language": "언어",
-    "reportIssue": "언어 추가 요청 / 번역 오류 보고",
-    "reportBug": "기능 제안 / 버그 보고"
+    "languageHint": "언어를 추가하고 싶거나 번역이 잘못되었나요?"
   }
 }
