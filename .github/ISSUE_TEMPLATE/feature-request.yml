@@ -1,0 +1,50 @@
+name: "🚀 Feature Request (기능 제안)"
+description: "Suggest a new idea or improvement for ICE-Forensic (새로운 아이디어나 개선 사항을 제안해 주세요)"
+title: "[Feature]: "
+labels: ["enhancement", "proposal"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ### 💡 Have a great idea? (멋진 아이디어가 있으신가요?)
+        Please describe the feature you would like to see in **ICE-Forensic**.
+        ICE-Forensic에 추가되었으면 하는 기능을 상세히 적어주세요.
+
+  - type: textarea
+    id: problem-statement
+    attributes:
+      label: "Problem Statement (관련된 문제 상황)"
+      description: "Is your feature request related to a problem? Please describe. (이 기능이 어떤 불편함을 해결해 주나요?)"
+      placeholder: "e.g. It's difficult to analyze specific log formats manually. (예: 특정 로그 형식을 수동으로 분석하기 어렵습니다.)"
+    validations:
+      required: true
+
+  - type: textarea
+    id: feature-description
+    attributes:
+      label: "Proposed Solution (제안하는 해결책/기능)"
+      description: "Describe the solution you'd like to see (원하는 기능의 상세 동작을 적어주세요)"
+      placeholder: "e.g. Add a parser for Windows Event Logs (.evtx). (예: Windows 이벤트 로그 파서 추가)"
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: "Alternatives Considered (고려해본 대안)"
+      description: "Any alternative solutions or features you've considered (대신 사용할 수 있는 다른 방법이 있다면 알려주세요)"
+      placeholder: "e.g. Currently using external Python scripts. (예: 현재는 외부 파이썬 스크립트를 따로 쓰고 있습니다.)"
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: "Additional Context (기타 사항)"
+      description: "Add any other context or screenshots about the feature request here (기타 참고 자료나 스크린샷을 첨부해 주세요)"
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        🌐 **Official Website:** [ice-forensic.com](https://ice-forensic.com)
+        *Your feedback helps us grow. Thank you!*
+        *여러분의 소중한 의견이 프로젝트의 성장을 돕습니다. 감사합니다!*
