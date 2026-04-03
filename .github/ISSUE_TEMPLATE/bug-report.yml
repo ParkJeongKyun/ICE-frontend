@@ -11,20 +11,37 @@ body:
         여러분의 제보가 ICE-Forensic을 더 정교한 도구로 만듭니다.
         
   - type: dropdown
-    id: environment
+    id: primary-environment
     attributes:
-      label: "Environment (분석 환경)"
-      description: "Select the OS or browser where the problem occurred (운영체제나 브라우저를 선택해 주세요)"
-      multiple: false
+      label: "Primary Environment (주요 발생 환경)"
+      description: "Select the main environment where the issue was found (문제가 발견된 주된 환경을 선택해 주세요)"
       options:
-        - "Windows 10/11"
-        - "macOS (Apple Silicon)"
-        - "macOS (Intel)"
-        - "Linux (Ubuntu/Debian)"
-        - "Web Browser (Chrome/Edge)"
-        - "Other"
+        - "Windows 10/11 (64-bit)"
+        - "macOS (Apple Silicon - M1/M2/M3)"
+        - "macOS (Intel Core)"
+        - "Linux (Ubuntu/Debian/Kali)"
+        - "Web Browser (Chrome/Edge/Arc)"
+        - "Other / Not Listed"
     validations:
       required: true
+
+  - type: checkboxes
+    id: affected-environments
+    attributes:
+      label: "Also occurs in... (다른 발생 환경 - 선택)"
+      description: "Check if the issue occurs in multiple environments (여러 환경에서 공통적으로 발생한다면 체크해 주세요)"
+      options:
+        - label: "Confirmed on Windows (윈도우 확인됨)"
+        - label: "Confirmed on macOS (맥 확인됨)"
+        - label: "Confirmed on Linux (리눅스 확인됨)"
+        - label: "Confirmed on Web Browser (웹 브라우저 확인됨)"
+        - label: "Occurs on ALL environments (모든 환경에서 발생함)"
+
+  - type: input
+    id: version-detail
+    attributes:
+      label: "Specific Version Detail (상세 버전 정보)"
+      description: "e.g. Windows 11 23H2, Chrome v122 (구체적인 버전을 적어주세요)"
 
   - type: textarea
     id: bug-description
