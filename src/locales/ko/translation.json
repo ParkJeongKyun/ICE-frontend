@@ -265,12 +265,12 @@
   "copyright": "© 2022 박정균 (dbzoseh84@gmail.com). 모든 권리 보유.",
   "sponsor": {
     "button": "스폰서",
-    "description": "커피 한 잔 후원하기 ☕",
+    "description": "커피 한 잔 후원하기",
     "ariaLabel": "GitHub에서 스폰서 되기"
   },
   "report": {
     "button": "리포트",
-    "description": "버그 제보 · 기능 제안 💡",
+    "description": "버그 제보 · 기능 제안",
     "ariaLabel": "GitHub에서 이슈 등록하기"
   },
   "settings": {

@@ -3,6 +3,7 @@
 import React from 'react';
 import { useTranslations } from 'next-intl';
 import styled from 'styled-components';
+import IssueIcon from '../common/Icons/IssueIcon';
 
 const ReportLink = styled.a`
   display: flex;
@@ -35,12 +36,6 @@ const ReportLink = styled.a`
   }
 `;
 
-const IssueIcon = styled.svg`
-  fill: var(--ice-main-color);
-  transition: all 0.3s ease;
-  flex-shrink: 0;
-`;
-
 export default function ReportButton() {
   const t = useTranslations('report');
 
@@ -52,15 +47,7 @@ export default function ReportButton() {
       title={t('description')}
       aria-label={t('ariaLabel')}
     >
-      <IssueIcon
-        aria-hidden="true"
-        height="14"
-        viewBox="0 0 16 16"
-        version="1.1"
-        width="14"
-      >
-        <path d="M8 9.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3ZM8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Z" />
-      </IssueIcon>
+      <IssueIcon width={14} height={14} color="var(--ice-main-color)" />
       <span>{t('button')}</span>
       <small
         style={{

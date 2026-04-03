@@ -35,8 +35,6 @@ const PreviewFaqUseCases: React.FC = () => {
           />
         </PreviewBox>
         <GitHubBox>
-          <GitHubFilledIcon width={18} height={18} className="github-logo" />
-          <div className="divider" />
           <SponsorButton />
           <div className="divider" />
           <ReportButton />
