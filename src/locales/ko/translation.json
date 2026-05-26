@@ -281,6 +281,34 @@
   "settings": {
     "title": "설정",
     "language": "언어",
-    "languageHint": "언어를 추가하고 싶거나 번역이 잘못되었나요?"
+    "languageHint": "언어를 추가하고 싶거나 번역이 잘못되었나요?",
+    "resetSettings": "기본값으로 초기화",
+    "notifications": {
+      "title": "알림",
+      "enable": "알림 활성화",
+      "note": "오류 및 일부 메시지는 항상 표시됩니다"
+    },
+    "analysis": {
+      "title": "분석",
+      "enable": "분석 활성화",
+      "imageMetadata": "이미지 메타데이터 분석"
+    },
+    "ui": {
+      "title": "UI 환경설정",
+      "bytesPerLine": "한줄당 바이트 수",
+      "numberBase": "진법",
+      "numberBaseOptions": {
+        "binary": "2진수",
+        "octal": "8진수",
+        "decimal": "10진수",
+        "hexadecimal": "16진수"
+      },
+      "dateFormat": "날짜 형식",
+      "dateFormatOptions": {
+        "ISO": "ISO (YYYY-MM-DD)",
+        "US": "US (MM/DD/YYYY)",
+        "KO": "KO (YYYY년 MM월 DD일)"
+      }
+    }
   }
 }

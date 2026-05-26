@@ -24,17 +24,9 @@
     "title": "WASM Not Ready",
     "message": "WASM is not ready yet.\nPlease try again later."
   },
-  "WASM_LOADED_SUCCESS": {
-    "title": "WASM Loaded",
-    "message": "WASM module loaded successfully."
-  },
   "FILE_PROCESSING_FAILED": {
     "title": "File Processing Failed",
     "message": "An error occurred while processing the file."
-  },
-  "FILE_READ_ERROR": {
-    "title": "File Read Error",
-    "message": "An error occurred while reading the file."
   },
   "ANALYSIS_ERROR": {
     "title": "Analysis Error",

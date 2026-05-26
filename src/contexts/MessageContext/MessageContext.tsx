@@ -10,6 +10,7 @@ import React, {
   useEffect,
 } from 'react';
 import { useTranslations } from 'next-intl';
+import { useConfig } from '@/contexts/ConfigContext/ConfigContext';
 import eventBus from '@/types/eventBus';
 import { getToastDefaults } from '@/utils/toastDefaults';
 import type { WorkerStats } from '@/types/worker/index.worker.types';
@@ -29,6 +30,16 @@ export interface MessageItem {
 
 const MAX_TOAST_COUNT = 3;
 const MAX_HISTORY_COUNT = 50;
+
+/**
+ * 사용자 설정과 관계없이 무조건 표시되어야 하는 메시지 코드 리스트
+ * (특수 정보: IP 조회, 위치 정보 등)
+ */
+const MANDATORY_NOTIFICATION_CODES = new Set([
+  // IP/위치 정보 (사용자가 명시적으로 요청한 정보)
+  'IP_FETCH_SUCCESS',
+  'LEAFLET_MAP_INVALID_LOCATION',
+]);
 
 interface MessageContextType {
   showMessage: (code: string, message?: string, stats?: WorkerStats) => void;
@@ -50,6 +61,7 @@ export const MessageProvider: React.FC<{ children: React.ReactNode }> = ({
   const [messageHistory, setMessageHistory] = useState<MessageItem[]>([]);
   const timeoutsRef = useRef<Map<string, NodeJS.Timeout>>(new Map());
   const t = useTranslations();
+  const { config } = useConfig();
 
   const hideMessage = useCallback(
     (id: string, removeFromHistory: boolean = false) => {
@@ -89,6 +101,18 @@ export const MessageProvider: React.FC<{ children: React.ReactNode }> = ({
       // code별 타입과 duration 가져오기
       const { type, duration } = getToastDefaults(code);
 
+      // 알림 표시 여부 결정
+      // 1. Error 타입은 무조건 표시
+      // 2. 예외 리스트(IP 정보 등)도 무조건 표시
+      // 3. 그 외는 사용자 설정(enabled)으로만 제어
+      const isError = type === 'error';
+      const isMandatory = MANDATORY_NOTIFICATION_CODES.has(code);
+      const shouldShow = isError || isMandatory || config.notifications.enabled;
+
+      if (!shouldShow) {
+        return;
+      }
+
       const newMessage: MessageItem = {
         id: crypto.randomUUID(),
         code,
@@ -123,7 +147,7 @@ export const MessageProvider: React.FC<{ children: React.ReactNode }> = ({
         timeoutsRef.current.set(newMessage.id, timeoutId);
       }
     },
-    [t, hideMessage]
+    [t, hideMessage, config]
   );
 
   // Subscribe to eventBus for toast events

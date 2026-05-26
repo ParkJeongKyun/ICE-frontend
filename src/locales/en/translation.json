@@ -281,6 +281,34 @@
   "settings": {
     "title": "Settings",
     "language": "Language",
-    "languageHint": "Want to add a language or found a translation error?"
+    "languageHint": "Want to add a language or found a translation error?",
+    "resetSettings": "Reset to Defaults",
+    "notifications": {
+      "title": "Notifications",
+      "enable": "Enable Notifications",
+      "note": "Errors and some messages always shown."
+    },
+    "analysis": {
+      "title": "Analysis",
+      "enable": "Enable Analysis",
+      "imageMetadata": "Image Metadata Analysis"
+    },
+    "ui": {
+      "title": "UI Preferences",
+      "bytesPerLine": "Bytes Per Line",
+      "numberBase": "Number Base",
+      "numberBaseOptions": {
+        "binary": "Binary",
+        "octal": "Octal",
+        "decimal": "Decimal",
+        "hexadecimal": "Hexadecimal"
+      },
+      "dateFormat": "Date Format",
+      "dateFormatOptions": {
+        "ISO": "ISO (YYYY-MM-DD)",
+        "US": "US (MM/DD/YYYY)",
+        "KO": "KO (YYYY년 MM월 DD일)"
+      }
+    }
   }
 }

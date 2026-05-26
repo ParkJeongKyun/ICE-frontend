@@ -4,6 +4,7 @@ import React, { useState, useTransition } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useRouter, usePathname } from '@/locales/routing';
 import { useProcess } from '@/contexts/ProcessContext/ProcessContext';
+import { useConfig } from '@/contexts/ConfigContext/ConfigContext';
 import USFlagIcon from '../common/Icons/USFlagIcon';
 import KRFlagIcon from '../common/Icons/KRFlagIcon';
 import HeartIcon from '../common/Icons/HeartIcon';
@@ -18,6 +19,10 @@ import {
   SettingsSection,
   SettingsSectionLabel,
   SettingsWrapper,
+  SettingsRow,
+  SettingsLabel,
+  ToggleTrack,
+  ToggleThumb,
   ReportSection,
   ReportLink,
   SponsorLink,
@@ -62,6 +67,7 @@ const SettingsModal: React.FC = () => {
   const pathname = usePathname();
   const [isPending, startTransition] = useTransition();
   const { isHashProcessing, isAnalysisProcessing } = useProcess();
+  const { config, updateConfig, resetConfig } = useConfig();
 
   const [open, setOpen] = useState(false);
   const isProcessing = isHashProcessing || isAnalysisProcessing;
@@ -90,6 +96,52 @@ const SettingsModal: React.FC = () => {
       router.replace(pathname, { locale: lang });
     });
   };
+
+  // 알람 설정 핸들러
+  const handleToggleNotification = () => {
+    updateConfig({
+      notifications: {
+        enabled: !config.notifications.enabled,
+      },
+    });
+  };
+
+  // 분석 설정 핸들러
+  const handleToggleAnalysis = (key: 'enabled' | 'imageMetadata') => {
+    updateConfig({
+      analysis: {
+        ...config.analysis,
+        [key]: !config.analysis[key],
+      },
+    });
+  };
+
+  // UI 설정 핸들러
+  const handleUIChange = (key: string, value: any) => {
+    updateConfig({
+      ui: {
+        ...config.ui,
+        [key]: value,
+      },
+    });
+  };
+
+  const ToggleSwitch = ({
+    checked,
+    onChange,
+  }: {
+    checked: boolean;
+    onChange: () => void;
+  }) => (
+    <ToggleTrack
+      $on={checked}
+      onClick={onChange}
+      role="switch"
+      aria-checked={checked}
+    >
+      <ToggleThumb $on={checked} />
+    </ToggleTrack>
+  );
 
   return (
     <SettingsWrapper>
@@ -135,6 +187,154 @@ const SettingsModal: React.FC = () => {
                   English
                 </LangFlagBtn>
               </LangFlagRow>
+            </SettingsSection>
+
+            {/* 알람 설정 */}
+            <SettingsSection>
+              <SettingsSectionLabel>
+                {t('notifications.title')}
+              </SettingsSectionLabel>
+              <SettingsRow>
+                <SettingsLabel>{t('notifications.enable')}</SettingsLabel>
+                <ToggleSwitch
+                  checked={config.notifications.enabled}
+                  onChange={() => handleToggleNotification()}
+                />
+              </SettingsRow>
+              <div
+                style={{
+                  marginLeft: '0px',
+                  marginTop: '6px',
+                  fontSize: '0.68rem',
+                  color: 'var(--main-color)',
+                  opacity: 0.7,
+                  lineHeight: 1.4,
+                }}
+              >
+                {t('notifications.note')}
+              </div>
+            </SettingsSection>
+
+            {/* 분석 설정 */}
+            <SettingsSection>
+              <SettingsSectionLabel>{t('analysis.title')}</SettingsSectionLabel>
+              <SettingsRow>
+                <SettingsLabel>{t('analysis.enable')}</SettingsLabel>
+                <ToggleSwitch
+                  checked={config.analysis.enabled}
+                  onChange={() => handleToggleAnalysis('enabled')}
+                />
+              </SettingsRow>
+              {config.analysis.enabled && (
+                <>
+                  <SettingsRow style={{ marginLeft: '12px', opacity: 0.8 }}>
+                    <SettingsLabel>{t('analysis.imageMetadata')}</SettingsLabel>
+                    <ToggleSwitch
+                      checked={config.analysis.imageMetadata}
+                      onChange={() => handleToggleAnalysis('imageMetadata')}
+                    />
+                  </SettingsRow>
+                </>
+              )}
+            </SettingsSection>
+
+            {/* UI 설정 */}
+            <SettingsSection>
+              <SettingsSectionLabel>{t('ui.title')}</SettingsSectionLabel>
+              <SettingsRow>
+                <SettingsLabel>{t('ui.bytesPerLine')}</SettingsLabel>
+                <select
+                  value={config.ui.bytesPerLine}
+                  onChange={(e) =>
+                    handleUIChange('bytesPerLine', parseInt(e.target.value))
+                  }
+                  style={{
+                    padding: '4px 6px',
+                    borderRadius: '3px',
+                    border: '1px solid var(--main-line-color)',
+                    background: 'var(--main-bg-color)',
+                    color: 'var(--main-color)',
+                    fontSize: '0.75rem',
+                    cursor: 'pointer',
+                  }}
+                >
+                  <option value="8">8</option>
+                  <option value="16">16</option>
+                  <option value="32">32</option>
+                  <option value="64">64</option>
+                </select>
+              </SettingsRow>
+              <SettingsRow>
+                <SettingsLabel>{t('ui.numberBase')}</SettingsLabel>
+                <select
+                  value={config.ui.numberBase}
+                  onChange={(e) => handleUIChange('numberBase', e.target.value)}
+                  style={{
+                    padding: '4px 6px',
+                    borderRadius: '3px',
+                    border: '1px solid var(--main-line-color)',
+                    background: 'var(--main-bg-color)',
+                    color: 'var(--main-color)',
+                    fontSize: '0.75rem',
+                    cursor: 'pointer',
+                  }}
+                >
+                  <option value="binary">
+                    {t('ui.numberBaseOptions.binary')}
+                  </option>
+                  <option value="octal">
+                    {t('ui.numberBaseOptions.octal')}
+                  </option>
+                  <option value="decimal">
+                    {t('ui.numberBaseOptions.decimal')}
+                  </option>
+                  <option value="hexadecimal">
+                    {t('ui.numberBaseOptions.hexadecimal')}
+                  </option>
+                </select>
+              </SettingsRow>
+              <SettingsRow>
+                <SettingsLabel>{t('ui.dateFormat')}</SettingsLabel>
+                <select
+                  value={config.ui.dateFormat}
+                  onChange={(e) => handleUIChange('dateFormat', e.target.value)}
+                  style={{
+                    padding: '4px 6px',
+                    borderRadius: '3px',
+                    border: '1px solid var(--main-line-color)',
+                    background: 'var(--main-bg-color)',
+                    color: 'var(--main-color)',
+                    fontSize: '0.75rem',
+                    cursor: 'pointer',
+                  }}
+                >
+                  <option value="ISO">{t('ui.dateFormatOptions.ISO')}</option>
+                  <option value="US">{t('ui.dateFormatOptions.US')}</option>
+                  <option value="KO">{t('ui.dateFormatOptions.KO')}</option>
+                </select>
+              </SettingsRow>
+            </SettingsSection>
+
+            {/* 설정 초기화 */}
+            <SettingsSection>
+              <button
+                onClick={resetConfig}
+                disabled={isProcessing || isPending}
+                style={{
+                  width: '100%',
+                  padding: '6px 8px',
+                  borderRadius: '3px',
+                  border: '1px solid var(--main-line-color)',
+                  background: 'transparent',
+                  color: 'var(--main-color)',
+                  fontSize: '0.75rem',
+                  cursor: isProcessing || isPending ? 'not-allowed' : 'pointer',
+                  opacity: isProcessing || isPending ? 0.5 : 1,
+                  transition: 'opacity 0.2s',
+                }}
+              >
+                {t('resetSettings')}
+              </button>
             </SettingsSection>
 
             <ReportSection>

@@ -50,8 +50,7 @@ export const SettingsSection = styled.div`
   & + & {
     margin-top: 8px;
     padding-top: 8px;
-    border-top: 1px solid
-      color-mix(in srgb, var(--main-line-color) 40%, transparent);
+    border-top: 1px solid var(--main-line-color);
   }
 `;
 
