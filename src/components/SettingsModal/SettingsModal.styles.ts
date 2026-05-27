@@ -24,11 +24,14 @@ export const SettingsWrapper = styled.div`
 
 export const SettingsPanel = styled.div`
   min-width: 200px;
+  max-height: 75vh;
+  overflow-y: auto;
   background: var(--main-bg-color);
   border: 1px solid var(--main-line-color);
   border-radius: 4px;
   padding: 10px 12px;
   z-index: 1100;
+  position: relative;
 `;
 
 export const SettingsPanelTitle = styled.div`
