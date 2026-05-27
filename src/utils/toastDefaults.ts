@@ -16,6 +16,7 @@ export const TOAST_DEFAULTS: Record<
   FILE_PROCESSING_FAILED: { type: 'error', duration: 10000 },
 
   // 분석
+  TAB_CREATED: { type: 'success', duration: 4000 },
   ANALYSIS_ERROR: { type: 'error', duration: 10000 },
   ANALYSIS_TIMEOUT: { type: 'error', duration: 10000 },
   ANALYSIS_SUCCESS: { type: 'success', duration: 4000 },

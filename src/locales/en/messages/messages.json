@@ -40,6 +40,10 @@
     "title": "Analysis Complete",
     "message": "File analysis completed successfully."
   },
+  "TAB_CREATED": {
+    "title": "Tab Created",
+    "message": "Tab created. Analysis disabled."
+  },
   "HASH_CALCULATION_SUCCESS": {
     "title": "Hash Calculated"
   },

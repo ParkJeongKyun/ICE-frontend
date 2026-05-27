@@ -76,7 +76,7 @@ export interface TabData {
     file: File;
     fileInfo: fileinfo;
     hasExif: boolean;
-    exifInfo: ExifInfo;
+    exifInfo?: ExifInfo;
     textChunkData?: TextChunkInfo;
   };
 }

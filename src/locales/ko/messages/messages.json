@@ -40,6 +40,10 @@
     "title": "분석 완료",
     "message": "파일 분석이 완료되었습니다."
   },
+  "TAB_CREATED": {
+    "title": "탭 생성",
+    "message": "탭이 생성되었습니다. 분석이 비활성화되어 있습니다."
+  },
   "HASH_CALCULATION_SUCCESS": {
     "title": "해시 계산 완료"
   },
