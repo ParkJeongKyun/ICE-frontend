@@ -1,6 +1,5 @@
 'use client';
-
-import { NumberBase } from '@/components/HexViewer/hexViewerConstants';
+import { NumberBase, EncodingType } from '@/components/HexViewer/hexViewerConstants';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
 // ==================================================================================
@@ -15,9 +14,11 @@ export interface IceConfig {
     enabled: boolean;
     imageMetadata: boolean;
   };
+  // UI/UX 설정
   ui: {
     bytesPerLine: number;
     numberBase: NumberBase;
+    encoding: EncodingType;
     dateFormat: 'ISO' | 'US' | 'KO';
   };
 }
@@ -33,9 +34,11 @@ const DEFAULT_CONFIG: IceConfig = {
   ui: {
     bytesPerLine: 16,
     numberBase: 'hexadecimal',
+    encoding: 'ansi',
     dateFormat: 'ISO',
   },
 };
+
 
 const STORAGE_KEY = 'ice_user_config';
 

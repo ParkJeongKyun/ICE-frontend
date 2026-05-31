@@ -316,6 +316,7 @@
         "decimal": "Decimal",
         "hexadecimal": "Hexadecimal"
       },
+      "encoding": "Encoding",
       "dateFormat": "Date Format",
       "dateFormatOptions": {
         "ISO": "ISO (YYYY-MM-DD)",

@@ -25,12 +25,13 @@ import TabWindow from '@/components/TabWindow/TabWindow';
 
 import { useResizable } from 'react-resizable-layout';
 import { useProcess } from '@/contexts/ProcessContext/ProcessContext';
+import { useConfig } from '@/contexts/ConfigContext/ConfigContext';
 import Home from '@/components/Home/Home';
+import { useTab } from '@/contexts/TabDataContext/TabDataContext';
 import {
   encodingOptions,
-  useTab,
   EncodingType,
-} from '@/contexts/TabDataContext/TabDataContext';
+} from '@/components/HexViewer/hexViewerConstants';
 import Logo from '@/components/common/Icons/Logo/Logo';
 import MessageModal from '@/components/MessageModal/MessageModal';
 import MessageHistory from '@/components/MessageHistory/MessageHistory';
@@ -47,7 +48,8 @@ const MIN_SIDER_WIDTH = 100;
 
 const MainLayout: React.FC = () => {
   const t = useTranslations();
-  const { isEmpty, encoding, setEncoding } = useTab();
+  const { isEmpty } = useTab();
+  const { config, updateConfig } = useConfig();
   const { isProcessing } = useProcess();
   const { progress } = useProgress();
   const [mobileTab, setMobileTab] = useState<'info' | 'tools'>('info');
@@ -158,9 +160,13 @@ const MainLayout: React.FC = () => {
           )}
           {!isEmpty && (
             <Select
-              value={encoding}
+              value={config.ui.encoding}
               options={encodingOptions}
-              onChange={(value) => setEncoding(value as EncodingType)}
+              onChange={(value) =>
+                updateConfig({
+                  ui: { ...config.ui, encoding: value as EncodingType },
+                })
+              }
               tooltip={t('footer.encoding')}
             />
           )}

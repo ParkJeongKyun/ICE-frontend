@@ -70,13 +70,15 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
   // ==================================================================================
   // 1. Contexts & Hooks
   // ==================================================================================
-  const { activeData, encoding, activeKey } = useTab();
+  const { activeData, activeKey } = useTab();
+  const { config } = useConfig();
   const { scrollPositions, setScrollPositions } = useScroll();
   const { activeSelectionState } = useSelection();
   const { chunkWorker } = useWorker();
-  const { config } = useConfig();
   const { chunkCacheRef, requestedChunksRef, getByte, checkCacheSize } =
     useHexViewerCacheContext();
+
+  const encoding = config.ui.encoding;
 
   // ==================================================================================
   // 2. Layout Config (Dynamic based on viewport width and user config)

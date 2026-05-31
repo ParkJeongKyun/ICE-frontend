@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { useRouter, usePathname } from '@/locales/routing';
 import { useProcess } from '@/contexts/ProcessContext/ProcessContext';
 import { useConfig } from '@/contexts/ConfigContext/ConfigContext';
+import { encodingOptions } from '@/components/HexViewer/hexViewerConstants';
 import USFlagIcon from '../common/Icons/USFlagIcon';
 import KRFlagIcon from '../common/Icons/KRFlagIcon';
 import HeartIcon from '../common/Icons/HeartIcon';
@@ -291,6 +292,28 @@ const SettingsModal: React.FC = () => {
                   <option value="hexadecimal">
                     {t('ui.numberBaseOptions.hexadecimal')}
                   </option>
+                </select>
+              </SettingsRow>
+              <SettingsRow>
+                <SettingsLabel>{t('ui.encoding')}</SettingsLabel>
+                <select
+                  value={config.ui.encoding}
+                  onChange={(e) => handleUIChange('encoding', e.target.value)}
+                  style={{
+                    padding: '4px 6px',
+                    borderRadius: '3px',
+                    border: '1px solid var(--main-line-color)',
+                    background: 'var(--main-bg-color)',
+                    color: 'var(--main-color)',
+                    fontSize: '0.75rem',
+                    cursor: 'pointer',
+                  }}
+                >
+                  {encodingOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
                 </select>
               </SettingsRow>
               <SettingsRow>

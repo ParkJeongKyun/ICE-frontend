@@ -316,6 +316,7 @@
         "decimal": "10진수",
         "hexadecimal": "16진수"
       },
+      "encoding": "인코딩",
       "dateFormat": "날짜 형식",
       "dateFormatOptions": {
         "ISO": "ISO (YYYY-MM-DD)",

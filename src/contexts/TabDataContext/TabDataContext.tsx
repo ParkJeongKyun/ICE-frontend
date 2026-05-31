@@ -10,8 +10,6 @@ import React, {
   useEffect,
 } from 'react';
 
-export type EncodingType = 'ansi' | 'oem' | 'ascii' | 'mac' | 'ebcdic';
-
 export interface SelectionState {
   cursor: number | null;
   start: number | null;
@@ -56,8 +54,6 @@ interface TabContextType {
   getNewKey: () => TabKey;
   activeData: TabData[TabKey];
   isEmpty: boolean;
-  encoding: EncodingType;
-  setEncoding: (encoding: EncodingType) => void;
   deleteTab: (key: TabKey) => void;
   tabOrder: TabKey[];
   setTabOrder: React.Dispatch<React.SetStateAction<TabKey[]>>;
@@ -87,20 +83,11 @@ const SelectionContext = createContext<SelectionContextType | undefined>(
   undefined
 );
 
-export const encodingOptions = [
-  { value: 'ascii', label: 'ASCII' },
-  { value: 'ansi', label: 'ANSI(Windows-1252)' },
-  { value: 'oem', label: 'OEM(CP437)' },
-  { value: 'mac', label: 'Macintosh(Mac Roman)' },
-  { value: 'ebcdic', label: 'EBCDIC(IBM Mainframe)' },
-];
-
 export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [tabData, setTabData] = useState<TabData>({});
   const [activeKey, setActiveKey] = useState<TabKey>('');
-  const [encodingState, setEncodingState] = useState<EncodingType>('ansi');
   const [scrollPositions, setScrollPositions] = useState<
     Record<TabKey, number>
   >({});
@@ -109,10 +96,6 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
   >({});
   const [tabOrder, setTabOrder] = useState<TabKey[]>([]);
   const [addressCache, setAddressCache] = useState<AddressCache>({});
-
-  const setEncoding = useCallback((newEncoding: EncodingType) => {
-    setEncodingState(newEncoding);
-  }, []);
 
   // 언어+좌표키별로 상태를 관리
   const updateAddressCache = useCallback(
@@ -216,23 +199,12 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
       getNewKey,
       activeData,
       isEmpty,
-      encoding: encodingState,
-      setEncoding,
       deleteTab,
       tabOrder,
       setTabOrder,
       reorderTabs,
     }),
-    [
-      tabData,
-      activeKey,
-      encodingState,
-      setEncoding,
-      tabOrder,
-      getNewKey,
-      deleteTab,
-      reorderTabs,
-    ]
+    [tabData, activeKey, tabOrder, getNewKey, deleteTab, reorderTabs]
   );
 
   // === AddressCache Context ===

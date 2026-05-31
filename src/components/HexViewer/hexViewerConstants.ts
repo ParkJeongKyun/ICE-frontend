@@ -4,6 +4,15 @@
 
 // 타입 정의
 export type NumberBase = 'binary' | 'octal' | 'decimal' | 'hexadecimal';
+export type EncodingType = 'ansi' | 'oem' | 'ascii' | 'mac' | 'ebcdic';
+
+export const encodingOptions = [
+  { value: 'ascii', label: 'ASCII' },
+  { value: 'ansi', label: 'ANSI(Windows-1252)' },
+  { value: 'oem', label: 'OEM(CP437)' },
+  { value: 'mac', label: 'Macintosh(Mac Roman)' },
+  { value: 'ebcdic', label: 'EBCDIC(IBM Mainframe)' },
+];
 
 // 청크 크기 (256KB)
 export const CHUNK_SIZE = 256 * 1024;
