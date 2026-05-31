@@ -16,6 +16,7 @@ interface UseHexViewerYScrollProps {
     currentFileSize: number,
     currentVisibleRows: number
   ) => void;
+  cancelAllRequests: () => void;
   firstRowRef: RefObject<number>;
   rowHeight: number;
 }
@@ -26,6 +27,7 @@ export const useHexViewerYScroll = ({
   maxFirstRow,
   canvasHeight,
   requestChunks,
+  cancelAllRequests,
   firstRowRef,
   rowHeight,
 }: UseHexViewerYScrollProps) => {
@@ -197,17 +199,18 @@ export const useHexViewerYScroll = ({
         const deltaY = e.clientY - scrollbarStartY;
         const totalScrollable = canvasHeight - scrollbarHeight;
         if (totalScrollable <= 0) return;
-        const rowDelta = Math.round(
-          (deltaY / totalScrollable) * (rowCount - visibleRows)
-        );
+        // 스크롤 비율 계산 (현재 이동 거리 / 전체 이동 가능 높이)
+        const scrollRatio = deltaY / totalScrollable;
+        // bytesPerRow가 반영된 maxFirstRow를 사용하여 정확한 행 계산
+        const rowDelta = Math.round(scrollRatio * maxFirstRow);
         let nextRow = scrollbarStartRow + rowDelta;
         nextRow = Math.max(0, Math.min(nextRow, maxFirstRow));
 
         if (nextRow !== firstRowRef.current) {
-          // ✅ 큰 스크롤 점프 감지: 20줄 이상 이동하면 워커 큐 비우기
+          // 큰 스크롤 점프 감지: 20줄 이상 이동하면 워커 큐 비우기
           const jumpDistance = Math.abs(nextRow - firstRowRef.current);
-          if (jumpDistance > 20 && chunkWorker) {
-            chunkWorker.postMessage({ type: 'CANCEL_ALL' });
+          if (jumpDistance > 20) {
+            cancelAllRequests();
           }
 
           updateScrollPosition(nextRow);
@@ -230,17 +233,18 @@ export const useHexViewerYScroll = ({
         const deltaY = e.touches[0].clientY - scrollbarStartY;
         const totalScrollable = canvasHeight - scrollbarHeight;
         if (totalScrollable <= 0) return;
-        const rowDelta = Math.round(
-          (deltaY / totalScrollable) * (rowCount - visibleRows)
-        );
+        // 스크롤 비율 계산 (현재 이동 거리 / 전체 이동 가능 높이)
+        const scrollRatio = deltaY / totalScrollable;
+        // bytesPerRow가 반영된 maxFirstRow를 사용하여 정확한 행 계산
+        const rowDelta = Math.round(scrollRatio * maxFirstRow);
         let nextRow = scrollbarStartRow + rowDelta;
         nextRow = Math.max(0, Math.min(nextRow, maxFirstRow));
 
         if (nextRow !== firstRowRef.current) {
-          // ✅ 큰 스크롤 점프 감지: 20줄 이상 이동하면 워커 큐 비우기
+          // 큰 스크롤 점프 감지: 20줄 이상 이동하면 워커 큐 비우기
           const jumpDistance = Math.abs(nextRow - firstRowRef.current);
-          if (jumpDistance > 20 && chunkWorker) {
-            chunkWorker.postMessage({ type: 'CANCEL_ALL' });
+          if (jumpDistance > 20) {
+            cancelAllRequests();
           }
 
           updateScrollPosition(nextRow);
@@ -279,6 +283,7 @@ export const useHexViewerYScroll = ({
     file,
     fileSize,
     requestChunks,
+    cancelAllRequests,
     updateScrollPosition,
     chunkWorker,
     handleScrollbarEnd,

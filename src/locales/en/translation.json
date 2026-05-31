@@ -185,6 +185,19 @@
       "guid": "GUID"
     }
   },
+  "hexViewer": {
+    "contextMenu": {
+      "copyOffset": "Copy Offset ({base})",
+      "copyHexString": "Copy (Hex String)",
+      "copyAsciiText": "Copy (ASCII Text)",
+      "bases": {
+        "hexadecimal": "Hex",
+        "decimal": "Dec",
+        "octal": "Oct",
+        "binary": "Bin"
+      }
+    }
+  },
   "searcher": {
     "title": "Search",
     "typeLabel": "Type",
@@ -296,7 +309,7 @@
     "ui": {
       "title": "UI Preferences",
       "bytesPerLine": "Bytes Per Line",
-      "numberBase": "Number Base",
+      "numberBase": "Number Base for Offsets",
       "numberBaseOptions": {
         "binary": "Binary",
         "octal": "Octal",

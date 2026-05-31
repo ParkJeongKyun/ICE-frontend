@@ -1,21 +1,23 @@
 'use client';
 
+import { NumberBase } from '@/components/HexViewer/hexViewerConstants';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
+// ==================================================================================
+// 1. Types & Constants
+// ==================================================================================
+
 export interface IceConfig {
-  // 알람 관련 설정
   notifications: {
     enabled: boolean;
   };
-  // 분석 기능 관련 설정
   analysis: {
     enabled: boolean;
     imageMetadata: boolean;
   };
-  // UI/UX 설정
   ui: {
     bytesPerLine: number;
-    numberBase: 'binary' | 'octal' | 'decimal' | 'hexadecimal';
+    numberBase: NumberBase;
     dateFormat: 'ISO' | 'US' | 'KO';
   };
 }
@@ -37,11 +39,22 @@ const DEFAULT_CONFIG: IceConfig = {
 
 const STORAGE_KEY = 'ice_user_config';
 
-interface ConfigContextValue {
-  config: IceConfig;
-  updateConfig: (partial: DeepPartial<IceConfig>) => void;
-  resetConfig: () => void;
-}
+// NumberBase 검증용 객체
+export const NUMBER_BASES: Record<NumberBase, NumberBase> = {
+  binary: 'binary',
+  octal: 'octal',
+  decimal: 'decimal',
+  hexadecimal: 'hexadecimal',
+};
+
+// 타입 가드
+export const isValidNumberBase = (base: any): base is NumberBase => {
+  return Object.prototype.hasOwnProperty.call(NUMBER_BASES, base);
+};
+
+// ==================================================================================
+// 2. Helper Functions
+// ==================================================================================
 
 type DeepPartial<T> = {
   [K in keyof T]?: T[K] extends object ? DeepPartial<T[K]> : T[K];
@@ -63,25 +76,23 @@ function deepMerge<T extends object>(base: T, override: DeepPartial<T>): T {
   return result;
 }
 
-// 설정값 검증 함수
 function validateConfig(config: IceConfig): IceConfig {
   const validated = { ...config };
 
   // bytesPerLine 검증: 8, 16, 32, 64만 허용
-  const validBytesPerLine = [8, 16, 32, 64];
-  if (!validBytesPerLine.includes(config.ui.bytesPerLine)) {
+  const validBytesPerLine = new Set([8, 16, 32, 64]);
+  if (!validBytesPerLine.has(config.ui.bytesPerLine)) {
     validated.ui.bytesPerLine = DEFAULT_CONFIG.ui.bytesPerLine;
   }
 
   // numberBase 검증
-  const validNumberBases = ['binary', 'octal', 'decimal', 'hexadecimal'];
-  if (!validNumberBases.includes(config.ui.numberBase)) {
+  if (!isValidNumberBase(config.ui.numberBase)) {
     validated.ui.numberBase = DEFAULT_CONFIG.ui.numberBase;
   }
 
   // dateFormat 검증
-  const validDateFormats = ['ISO', 'US', 'KO'];
-  if (!validDateFormats.includes(config.ui.dateFormat)) {
+  const validDateFormats = new Set(['ISO', 'US', 'KO']);
+  if (!validDateFormats.has(config.ui.dateFormat)) {
     validated.ui.dateFormat = DEFAULT_CONFIG.ui.dateFormat;
   }
 
@@ -99,6 +110,16 @@ function validateConfig(config: IceConfig): IceConfig {
   }
 
   return validated;
+}
+
+// ==================================================================================
+// 3. Provider & Hook
+// ==================================================================================
+
+interface ConfigContextValue {
+  config: IceConfig;
+  updateConfig: (partial: DeepPartial<IceConfig>) => void;
+  resetConfig: () => void;
 }
 
 const ConfigContext = createContext<ConfigContextValue>({
