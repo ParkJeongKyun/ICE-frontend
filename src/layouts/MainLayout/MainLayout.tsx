@@ -97,53 +97,67 @@ const MainLayout: React.FC = () => {
       </IceHeader>
 
       <IceLayout as="main">
-        <IceLeftSider
-          style={{ width: `${leftSidePosition}px` }}
-          $isCollapsed={leftSidePosition < MIN_SIDER_WIDTH}
-          $isEmpty={isEmpty}
-          $mobileActive={mobileTab === 'info'}
-        >
-          <InfoPanel />
-        </IceLeftSider>
-        <Separator
-          {...leftSideSepProps}
-          $isResizing={isLeftSideDragging}
-          style={{ display: isEmpty ? 'none' : 'block' }}
-        />
+        {config.ui.panelVisibility.info.enabled && (
+          <>
+            <IceLeftSider
+              style={{ width: `${leftSidePosition}px` }}
+              $isCollapsed={leftSidePosition < MIN_SIDER_WIDTH}
+              $isEmpty={isEmpty}
+              $mobileActive={
+                !config.ui.panelVisibility.tools.enabled || mobileTab === 'info'
+              }
+            >
+              <InfoPanel />
+            </IceLeftSider>
+            <Separator
+              {...leftSideSepProps}
+              $isResizing={isLeftSideDragging}
+              style={{ display: isEmpty ? 'none' : 'block' }}
+            />
+          </>
+        )}
 
         <IceContent>{isEmpty ? <Home /> : <TabWindow />}</IceContent>
 
-        <Separator
-          {...rightSideSepProps}
-          $reverse={true}
-          $isResizing={isRightSideDragging}
-          style={{ display: isEmpty ? 'none' : 'block' }}
-        />
-        <IceRightSider
-          style={{ width: `${rightSidePosition}px` }}
-          $isCollapsed={rightSidePosition < MIN_SIDER_WIDTH}
-          $isEmpty={isEmpty}
-          $mobileActive={mobileTab === 'tools'}
-        >
-          <ToolsPanel />
-        </IceRightSider>
-
-        {!isEmpty && (
-          <IceMobileTabBar>
-            <IceMobileTabButton
-              $active={mobileTab === 'info'}
-              onClick={() => setMobileTab('info')}
+        {config.ui.panelVisibility.tools.enabled && (
+          <>
+            <Separator
+              {...rightSideSepProps}
+              $reverse={true}
+              $isResizing={isRightSideDragging}
+              style={{ display: isEmpty ? 'none' : 'block' }}
+            />
+            <IceRightSider
+              style={{ width: `${rightSidePosition}px` }}
+              $isCollapsed={rightSidePosition < MIN_SIDER_WIDTH}
+              $isEmpty={isEmpty}
+              $mobileActive={
+                !config.ui.panelVisibility.info.enabled || mobileTab === 'tools'
+              }
             >
-              {t('mobile.tabs.info')}
-            </IceMobileTabButton>
-            <IceMobileTabButton
-              $active={mobileTab === 'tools'}
-              onClick={() => setMobileTab('tools')}
-            >
-              {t('mobile.tabs.tools')}
-            </IceMobileTabButton>
-          </IceMobileTabBar>
+              <ToolsPanel />
+            </IceRightSider>
+          </>
         )}
+
+        {!isEmpty &&
+          config.ui.panelVisibility.info.enabled &&
+          config.ui.panelVisibility.tools.enabled && (
+            <IceMobileTabBar>
+              <IceMobileTabButton
+                $active={mobileTab === 'info'}
+                onClick={() => setMobileTab('info')}
+              >
+                {t('mobile.tabs.info')}
+              </IceMobileTabButton>
+              <IceMobileTabButton
+                $active={mobileTab === 'tools'}
+                onClick={() => setMobileTab('tools')}
+              >
+                {t('mobile.tabs.tools')}
+              </IceMobileTabButton>
+            </IceMobileTabBar>
+          )}
       </IceLayout>
 
       <IceFooter>

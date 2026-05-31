@@ -1,4 +1,5 @@
 'use client';
+
 import { NumberBase, EncodingType } from '@/components/HexViewer/hexViewerConstants';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
@@ -20,6 +21,25 @@ export interface IceConfig {
     numberBase: NumberBase;
     encoding: EncodingType;
     dateFormat: 'ISO' | 'US' | 'KO';
+    panelVisibility: {
+      info: {
+        enabled: boolean;
+        exifThumbnail: boolean;
+        fileInfo: boolean;
+        map: boolean;
+        exifInfo: boolean;
+        ifdInfo: boolean;
+        exifTags: boolean;
+        textChunks: boolean;
+      };
+      tools: {
+        enabled: boolean;
+        searcher: boolean;
+        hashCalculator: boolean;
+        dataConverter: boolean;
+        dataInspector: boolean;
+      };
+    };
   };
 }
 
@@ -36,9 +56,27 @@ const DEFAULT_CONFIG: IceConfig = {
     numberBase: 'hexadecimal',
     encoding: 'ansi',
     dateFormat: 'ISO',
+    panelVisibility: {
+      info: {
+        enabled: true,
+        exifThumbnail: true,
+        fileInfo: true,
+        map: true,
+        exifInfo: true,
+        ifdInfo: true,
+        exifTags: true,
+        textChunks: true,
+      },
+      tools: {
+        enabled: true,
+        searcher: true,
+        hashCalculator: true,
+        dataConverter: true,
+        dataInspector: true,
+      },
+    },
   },
 };
-
 
 const STORAGE_KEY = 'ice_user_config';
 
@@ -97,6 +135,26 @@ function validateConfig(config: IceConfig): IceConfig {
   const validDateFormats = new Set(['ISO', 'US', 'KO']);
   if (!validDateFormats.has(config.ui.dateFormat)) {
     validated.ui.dateFormat = DEFAULT_CONFIG.ui.dateFormat;
+  }
+
+  // panelVisibility 검증
+  const v = config.ui.panelVisibility;
+  if (
+    typeof v?.info?.enabled !== 'boolean' ||
+    typeof v?.info?.exifThumbnail !== 'boolean' ||
+    typeof v?.info?.fileInfo !== 'boolean' ||
+    typeof v?.info?.map !== 'boolean' ||
+    typeof v?.info?.exifInfo !== 'boolean' ||
+    typeof v?.info?.ifdInfo !== 'boolean' ||
+    typeof v?.info?.exifTags !== 'boolean' ||
+    typeof v?.info?.textChunks !== 'boolean' ||
+    typeof v?.tools?.enabled !== 'boolean' ||
+    typeof v?.tools?.searcher !== 'boolean' ||
+    typeof v?.tools?.hashCalculator !== 'boolean' ||
+    typeof v?.tools?.dataConverter !== 'boolean' ||
+    typeof v?.tools?.dataInspector !== 'boolean'
+  ) {
+    validated.ui.panelVisibility = DEFAULT_CONFIG.ui.panelVisibility;
   }
 
   // notifications.enabled 검증

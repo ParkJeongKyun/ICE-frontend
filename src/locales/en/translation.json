@@ -309,6 +309,21 @@
     },
     "ui": {
       "title": "UI Preferences",
+      "panelVisibility": {
+        "infoPanel": "Info Panel",
+        "toolsPanel": "Tools Panel",
+        "exifThumbnail": "Thumbnail",
+        "fileInfo": "File Info",
+        "map": "Map",
+        "exifInfo": "EXIF Info",
+        "ifdInfo": "IFD Info",
+        "exifTags": "EXIF Tags",
+        "textChunks": "Text Chunks & IHDR Info",
+        "searcher": "Searcher",
+        "hashCalculator": "Hash Calculator",
+        "dataConverter": "Data Converter",
+        "dataInspector": "Data Inspector"
+      },
       "bytesPerLine": "Bytes Per Line",
       "numberBase": "Number Base for Offsets",
       "numberBaseOptions": {

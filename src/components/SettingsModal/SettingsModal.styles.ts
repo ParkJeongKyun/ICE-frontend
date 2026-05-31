@@ -45,6 +45,13 @@ export const SettingsPanelTitle = styled.div`
   border-bottom: 1px solid var(--main-line-color);
 `;
 
+export const SettingsSectionLabel = styled.div`
+  font-size: 0.68rem;
+  color: var(--main-color-reverse);
+  letter-spacing: 0.04em;
+  margin-bottom: 2px;
+`;
+
 export const SettingsSection = styled.div`
   display: flex;
   flex-direction: column;
@@ -57,11 +64,14 @@ export const SettingsSection = styled.div`
   }
 `;
 
-export const SettingsSectionLabel = styled.div`
-  font-size: 0.68rem;
-  color: var(--main-color-reverse);
-  letter-spacing: 0.04em;
-  margin-bottom: 2px;
+export const SettingsGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+
+  @media (min-width: 600px) {
+    grid-template-columns: 1fr 1fr;
+  }
 `;
 
 export const SettingsRow = styled.div`
@@ -89,6 +99,10 @@ export const ToggleTrack = styled.div<{ $on: boolean }>`
   cursor: pointer;
   transition: background 0.2s ease;
   flex-shrink: 0;
+
+  &:hover {
+    filter: brightness(1.1);
+  }
 `;
 
 export const ToggleThumb = styled.div<{ $on: boolean }>`
@@ -204,5 +218,52 @@ export const SponsorLink = styled.a`
   &:hover {
     background: color-mix(in srgb, var(--ice-main-color-love) 10%, transparent);
     text-decoration: underline;
+  }
+`;
+
+export const SelectWrapper = styled.div`
+  padding: 0;
+  border-radius: 3px;
+  border: 1px solid var(--main-line-color);
+  background: var(--main-bg-color);
+  cursor: pointer;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+
+  &:hover {
+    background-color: var(--main-hover-color);
+  }
+`;
+
+export const StyledSelect = styled.select`
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: var(--main-color);
+  font-size: 0.75rem;
+  cursor: pointer;
+  outline: none;
+  padding: 4px 6px;
+`;
+
+export const ResetButton = styled.button`
+  width: 100%;
+  padding: 6px 8px;
+  border-radius: 3px;
+  border: 1px solid var(--main-line-color);
+  background: transparent;
+  color: var(--main-color);
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: opacity 0.2s;
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  &:hover:not(:disabled) {
+    background-color: var(--main-hover-color);
   }
 `;
