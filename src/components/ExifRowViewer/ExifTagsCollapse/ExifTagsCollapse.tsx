@@ -2,6 +2,7 @@
 
 import React, { useCallback } from 'react';
 import { useTranslations } from 'next-intl';
+import { useConfig } from '@/contexts/ConfigContext/ConfigContext';
 import { useTab } from '@/contexts/TabDataContext/TabDataContext';
 import { useRefs } from '@/contexts/RefContext/RefContext';
 import Collapse from '@/components/common/Collapse/Collapse';
@@ -18,9 +19,11 @@ import {
   NoDataMessage,
 } from '../ExifRowViewer.styles';
 import type { ExifRow } from '@/types';
+import { formatOffset, getDate } from '@/utils/formatters';
 
 const ExifTagsCollapse: React.FC = () => {
   const t = useTranslations();
+  const { config } = useConfig();
   const { activeData } = useTab();
   const { searcherRef } = useRefs();
 
@@ -49,6 +52,36 @@ const ExifTagsCollapse: React.FC = () => {
 
   const getExifDataDisplay = useCallback(
     (tag: string, rawData: string): string => {
+      const dateTags = ['DateTime', 'DateTimeOriginal', 'DateTimeDigitized'];
+      if (dateTags.includes(tag)) {
+        let date = new Date(rawData);
+        if (isNaN(date.getTime())) {
+          const exifDateRegex =
+            /^(\d{4}):(\d{2}):(\d{2})(?:\s+(\d{2}):(\d{2}):(\d{2}))?/;
+          const match = rawData.match(exifDateRegex);
+
+          if (match) {
+            const year = match[1];
+            const month = match[2];
+            const day = match[3];
+            const hours = match[4] || '00';
+            const minutes = match[5] || '00';
+            const seconds = match[6] || '00';
+
+            const isoString = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+            date = new Date(isoString);
+          }
+        }
+
+        // 3. 유효한 날짜 객체가 만들어졌다면 포맷팅해서 반환
+        if (!isNaN(date.getTime())) {
+          return getDate(date, config.ui.dateFormat); // 기존 포맷팅 함수 사용
+        }
+
+        // 정규식도 안 통하는 쓰레기값(예: "0000:00:00")이면 원본 그대로 반환하도록 아래로 흘려보냄
+      }
+
+      // 날짜가 아니거나 변환에 실패한 경우 기존 로직 수행
       const tagKey = `exifExamples.${tag}`;
       if (t.has(tagKey)) {
         const examples = t.raw(tagKey);
@@ -58,7 +91,7 @@ const ExifTagsCollapse: React.FC = () => {
       }
       return rawData;
     },
-    [t]
+    [t, config.ui.dateFormat]
   );
 
   const onJumpToAbsoluteOffset = useCallback(
@@ -70,9 +103,8 @@ const ExifTagsCollapse: React.FC = () => {
 
       if (absoluteOffset < 0 || absoluteOffset >= fileSize) return;
 
-      const hexStr = absoluteOffset.toString(16);
       try {
-        await searcherRef.current.findByOffset(hexStr, length);
+        await searcherRef.current.findByOffset(absoluteOffset, length);
       } catch (e) {
         // ignore
       }
@@ -89,8 +121,10 @@ const ExifTagsCollapse: React.FC = () => {
 
       try {
         if (!item.isFar) {
-          const hexStr = entryValueAddress.toString(16);
-          await searcherRef.current.findByOffset(hexStr, item.length);
+          await searcherRef.current.findByOffset(
+            entryValueAddress,
+            item.length
+          );
           return;
         }
 
@@ -108,8 +142,7 @@ const ExifTagsCollapse: React.FC = () => {
 
         if (realDataAddress < 0 || realDataAddress >= file.size) return;
 
-        const hexStr = realDataAddress.toString(16);
-        await searcherRef.current.findByOffset(hexStr, item.length);
+        await searcherRef.current.findByOffset(realDataAddress, item.length);
       } catch (e) {
         // ignore
       }
@@ -138,12 +171,14 @@ const ExifTagsCollapse: React.FC = () => {
                       const abs = baseOffset + (item.offset || 0);
                       const absValid =
                         typeof abs === 'number' && abs >= 0 && abs < fileSize;
-                      const absHex =
-                        typeof abs === 'number'
-                          ? `0x${abs.toString(16).toUpperCase()}`
-                          : '-';
+                      const absStr = absValid
+                        ? formatOffset(abs, config.ui.numberBase)
+                        : '-';
                       const headerTooltip = absValid
-                        ? `${t('exifViewer.jumpToTag', { target: absHex, targetDec: abs, bytes: item.isFar ? 4 : item.length || 0 })}`
+                        ? t('exifViewer.jumpToTag', {
+                            target: absStr,
+                            bytes: item.isFar ? 4 : item.length || 0,
+                          })
                         : t('exifViewer.jumpUnavailable');
 
                       return (
@@ -179,10 +214,16 @@ const ExifTagsCollapse: React.FC = () => {
                     {(() => {
                       const entryOffset = item.offset ?? 0;
                       const entryAddr = baseOffset + entryOffset;
-                      const entryHex = `0x${entryAddr.toString(16).toUpperCase()}`;
+                      const entryStr = formatOffset(
+                        entryAddr,
+                        config.ui.numberBase
+                      );
                       const realTooltip = item.isFar
-                        ? `${t('exifViewer.jumpToPointerTarget', { target: entryHex, targetDec: entryAddr, bytes: item.length || 0 })}`
-                        : `${t('exifViewer.jumpToData', { target: entryHex, targetDec: entryAddr, bytes: item.length || 0 })}`;
+                        ? t('exifViewer.jumpToPointerTarget')
+                        : t('exifViewer.jumpToData', {
+                            target: entryStr,
+                            bytes: item.length || 0,
+                          });
 
                       return (
                         <Tooltip text={realTooltip}>

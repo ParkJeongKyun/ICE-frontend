@@ -44,6 +44,7 @@ export const useHexViewerSelection = ({
     asciiCharWidth,
     HEX_START_X,
     ASCII_START_X,
+    numberBase,
   } = layoutConfig;
 
   // [Fix] useRef 대신 useState 사용 (UI 렌더링 트리거)
@@ -357,10 +358,16 @@ export const useHexViewerSelection = ({
   const handleCopyText = useCallback(() => handleCopy('text'), [handleCopy]);
   const handleCopyOffset = useCallback(async () => {
     if (selection.start === null) return;
+
+    let radix = 16;
+    if (numberBase === 'binary') radix = 2;
+    else if (numberBase === 'octal') radix = 8;
+    else if (numberBase === 'decimal') radix = 10;
+
     try {
       await navigator.clipboard.writeText(
         Math.min(selection.start, selection.end ?? selection.start)
-          .toString(16)
+          .toString(radix)
           .toUpperCase()
       );
       eventBus.emit('toast', { code: 'COPY_SUCCESS' });
@@ -368,7 +375,7 @@ export const useHexViewerSelection = ({
       eventBus.emit('toast', { code: 'COPY_ERROR' });
     }
     setContextMenu(null); // 메뉴 닫기
-  }, [selection.start, selection.end]);
+  }, [selection.start, selection.end, numberBase]);
 
   // --- Keyboard ---
   const handleKeyDown = useCallback(

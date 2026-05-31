@@ -1,3 +1,4 @@
+'use client';
 import React, {
   useCallback,
   useEffect,
@@ -8,6 +9,7 @@ import React, {
 import styled from 'styled-components';
 import { useTranslations } from 'next-intl';
 import { useSelection, useTab } from '@/contexts/TabDataContext/TabDataContext';
+import { useConfig } from '@/contexts/ConfigContext/ConfigContext';
 import eventBus from '@/types/eventBus';
 import {
   SelectLabel,
@@ -15,9 +17,11 @@ import {
   IceCopyRight,
 } from '@/layouts/MainLayout/MainLayout.styles';
 import SelectionEditorModal from '@/components/SelectionDisplay/SelectionEditorModal';
+import { formatOffset } from '@/utils/formatters';
 
 const SelectionDisplay: React.FC = React.memo(() => {
   const t = useTranslations();
+  const { config } = useConfig();
   const { activeKey } = useTab();
   const { activeSelectionState } = useSelection();
   const [previewRange, setPreviewRange] = useState<{
@@ -113,14 +117,19 @@ const SelectionDisplay: React.FC = React.memo(() => {
     };
   }, [currentSelection]);
 
-  const showHex = (decimal: number) => (
-    <SelectValue>
-      {decimal}
-      <SelectValue as="span">
-        (0x{decimal.toString(16).toUpperCase()})
-      </SelectValue>
-    </SelectValue>
-  );
+  const showFormatted = (decimal: number) => {
+    const formatted = formatOffset(decimal, config.ui.numberBase);
+    const match = formatted.match(/^(.*)(\(.*\))$/);
+    if (match) {
+      return (
+        <SelectValue>
+          {match[1]}
+          <SelectValue as="span">{match[2]}</SelectValue>
+        </SelectValue>
+      );
+    }
+    return <SelectValue>{formatted}</SelectValue>;
+  };
 
   if (!selectionInfo) {
     return <IceCopyRight>{t('copyright')}</IceCopyRight>;
@@ -135,15 +144,17 @@ const SelectionDisplay: React.FC = React.memo(() => {
       >
         <div>
           <SelectLabel>{t('footer.selection')}:</SelectLabel>
-          {showHex(selectionInfo.length)}
+          {showFormatted(selectionInfo.length)}
         </div>
         <div>
           <SelectLabel>{t('footer.offset')}:</SelectLabel>
-          {showHex(selectionInfo.minOffset)}
+          {showFormatted(selectionInfo.minOffset)}
         </div>
         <div>
           <SelectLabel>{t('footer.range')}:</SelectLabel>
-          {showHex(selectionInfo.minOffset)}-{showHex(selectionInfo.maxOffset)}
+          {showFormatted(selectionInfo.minOffset)}
+          {' - '}
+          {showFormatted(selectionInfo.maxOffset)}
         </div>
       </SelectionButton>
 

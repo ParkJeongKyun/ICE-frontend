@@ -12,7 +12,8 @@ declare const self: DedicatedWorkerGlobalScope;
  * 파일 청크 읽기 및 큐 관리
  */
 class ChunkWorker {
-  private queue: ReadChunkRequest[] = [];
+  // Array 대신 Map을 사용하여 offset을 key로 관리
+  private queueMap: Map<number, ReadChunkRequest> = new Map();
   private readonly MAX_CONCURRENT = 4;
   private activeRequests = 0;
 
@@ -20,13 +21,21 @@ class ChunkWorker {
    * 큐 처리
    */
   private processQueue(): void {
-    // 우선순위로 정렬
-    this.queue.sort((a, b) => a.priority - b.priority);
+    // 동시 처리 한도를 채웠거나 큐가 비어있으면 종료
+    if (this.activeRequests >= this.MAX_CONCURRENT || this.queueMap.size === 0) {
+      return;
+    }
 
-    while (this.queue.length > 0 && this.activeRequests < this.MAX_CONCURRENT) {
-      const request = this.queue.shift();
-      if (!request) break;
+    // Map의 값들을 배열로 변환 후 우선순위(Priority)로 정렬
+    const pendingRequests = Array.from(this.queueMap.values());
+    pendingRequests.sort((a, b) => a.priority - b.priority);
 
+    for (const request of pendingRequests) {
+      // 동시 처리 한도에 도달하면 루프 중단
+      if (this.activeRequests >= this.MAX_CONCURRENT) break;
+
+      // 큐에서 꺼낸 항목은 Map에서 제거하고 처리 시작
+      this.queueMap.delete(request.offset);
       this.activeRequests++;
       this.processChunk(request);
     }
@@ -71,10 +80,12 @@ class ChunkWorker {
    */
   handle(data: ChunkWorkerRequest): void {
     if (data.type === 'READ_CHUNK') {
-      this.queue.push(data);
+      // Map을 사용하면 O(1) 시간 복잡도로 즉시 삽입 또는 업데이트 (중복 방지)
+      this.queueMap.set(data.offset, data);
       this.processQueue();
     } else if (data.type === 'CANCEL_ALL') {
-      this.queue = [];
+      // 큐 비우기도 훨씬 간단해짐
+      this.queueMap.clear();
       if (process.env.NODE_ENV === 'development') {
         console.log('[Chunk Worker] Queue cleared - CANCEL_ALL');
       }

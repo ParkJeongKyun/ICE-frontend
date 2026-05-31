@@ -2,9 +2,11 @@
 
 import React, { useMemo, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
+import { useConfig } from '@/contexts/ConfigContext/ConfigContext';
 import { useTab } from '@/contexts/TabDataContext/TabDataContext';
 import { useRefs } from '@/contexts/RefContext/RefContext';
 import Collapse from '@/components/common/Collapse/Collapse';
+import Tooltip from '@/components/common/Tooltip/Tooltip';
 import ChevronRightIcon from '@/components/common/Icons/ChevronRightIcon';
 import {
   CellBodyDiv,
@@ -13,9 +15,11 @@ import {
   JumpButton,
   NoDataMessage,
 } from '../ExifRowViewer.styles';
+import { formatOffset } from '@/utils/formatters';
 
 const IfdInfoCollapse: React.FC = () => {
   const t = useTranslations();
+  const { config } = useConfig();
   const { activeData } = useTab();
   const { searcherRef } = useRefs();
   const baseOffset = activeData?.exifInfo?.baseOffset;
@@ -45,14 +49,13 @@ const IfdInfoCollapse: React.FC = () => {
       )
         return;
 
-      const hexStr = absolute.toString(16);
       try {
-        await searcherRef.current.findByOffset(hexStr, 0);
+        await searcherRef.current.findByOffset(absolute, 0);
       } catch (e) {
         // ignore
       }
     },
-    [searcherRef, baseOffset, activeData]
+    [searcherRef, baseOffset, activeData, config.ui.numberBase]
   );
   const hasData = ifdInfos && ifdInfos.length > 0;
 
@@ -72,12 +75,24 @@ const IfdInfoCollapse: React.FC = () => {
                       <CellHeaderDiv>{t('exifViewer.ifdOffset')}</CellHeaderDiv>
                       <CellBodyDiv>
                         <span>{ifd.offset}</span>
-                        <JumpButton
-                          onClick={() => onJumpToIfdOffset(ifd.offset)}
-                          aria-label={t('exifViewer.jumpToIfdOffset')}
+                        <Tooltip
+                          text={t('exifViewer.jumpToOffset', {
+                            target: formatOffset(
+                              Number(baseOffset ?? 0) + Number(ifd.offset || 0),
+                              config.ui.numberBase
+                            ),
+                            targetDec:
+                              Number(baseOffset ?? 0) + Number(ifd.offset || 0),
+                            bytes: 0,
+                          })}
                         >
-                          <ChevronRightIcon />
-                        </JumpButton>
+                          <JumpButton
+                            onClick={() => onJumpToIfdOffset(ifd.offset)}
+                            aria-label={t('exifViewer.jumpToIfdOffset')}
+                          >
+                            <ChevronRightIcon />
+                          </JumpButton>
+                        </Tooltip>
                       </CellBodyDiv>
                     </ContentDiv>
                     <ContentDiv>

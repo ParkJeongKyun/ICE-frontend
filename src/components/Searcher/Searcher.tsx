@@ -42,7 +42,7 @@ import { initialSearchState, searchReducer } from './hooks/useSearchReducer';
 
 export interface SearcherRef {
   findByOffset: (
-    offset: string,
+    offset: number,
     length?: number,
     shouldScroll?: boolean
   ) => Promise<IndexInfo | null>;
@@ -81,21 +81,11 @@ const Searcher: React.FC = () => {
 
   // Exposed imperative methods (extracted so they can be registered into context)
   const findByOffsetLocal = React.useCallback(
-    async (offset: string, length: number = 1, shouldScroll = true) => {
-      if (!offset.trim()) {
-        eventBus.emit('toast', { code: 'SEARCH_NO_INPUT' });
-        return null;
-      }
-
+    async (offset: number, length: number = 1, shouldScroll = true) => {
       const result = await findByOffset(offset, length);
 
       if (result === null) {
-        const byteOffset = parseInt(offset, 16);
-        if (isNaN(byteOffset)) {
-          eventBus.emit('toast', { code: 'SEARCH_INVALID_HEX' });
-        } else {
-          eventBus.emit('toast', { code: 'SEARCH_OFFSET_OUT_OF_RANGE' });
-        }
+        eventBus.emit('toast', { code: 'SEARCH_OFFSET_OUT_OF_RANGE' });
         return null;
       }
 

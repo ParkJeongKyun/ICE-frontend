@@ -1,4 +1,4 @@
-import { EncodingType } from '@/contexts/TabDataContext/TabDataContext';
+import { EncodingType } from '@/components/HexViewer/hexViewerConstants';
 
 /**
  * 바이트를 16진수 문자열로 변환

@@ -24,17 +24,9 @@
     "title": "WASM Not Ready",
     "message": "WASM is not ready yet.\nPlease try again later."
   },
-  "WASM_LOADED_SUCCESS": {
-    "title": "WASM Loaded",
-    "message": "WASM module loaded successfully."
-  },
   "FILE_PROCESSING_FAILED": {
     "title": "File Processing Failed",
     "message": "An error occurred while processing the file."
-  },
-  "FILE_READ_ERROR": {
-    "title": "File Read Error",
-    "message": "An error occurred while reading the file."
   },
   "ANALYSIS_ERROR": {
     "title": "Analysis Error",
@@ -47,6 +39,10 @@
   "ANALYSIS_SUCCESS": {
     "title": "Analysis Complete",
     "message": "File analysis completed successfully."
+  },
+  "TAB_CREATED": {
+    "title": "Tab Created",
+    "message": "Tab created. Analysis disabled."
   },
   "HASH_CALCULATION_SUCCESS": {
     "title": "Hash Calculated"
@@ -77,10 +73,6 @@
   "SEARCH_NO_INPUT": {
     "title": "No Input",
     "message": "Please enter a search term."
-  },
-  "SEARCH_INVALID_HEX": {
-    "title": "Invalid HEX",
-    "message": "Please enter a valid hexadecimal (0-9, A-F)."
   },
   "SEARCH_OFFSET_OUT_OF_RANGE": {
     "title": "Offset Out of Range",

@@ -1,5 +1,6 @@
 import React, { useCallback } from 'react';
 import { useTranslations } from 'next-intl';
+import { useConfig } from '@/contexts/ConfigContext/ConfigContext';
 import Tooltip from '@/components/common/Tooltip/Tooltip';
 import { useTab } from '@/contexts/TabDataContext/TabDataContext';
 import { useRefs } from '@/contexts/RefContext/RefContext';
@@ -13,9 +14,11 @@ import {
   ScrollableDataDiv,
 } from '../ExifRowViewer.styles';
 import ChevronRightIcon from '@/components/common/Icons/ChevronRightIcon';
+import { formatOffset } from '@/utils/formatters';
 
 const TextChunksCollapse: React.FC = () => {
   const t = useTranslations();
+  const { config } = useConfig();
   const { activeData } = useTab();
   const { searcherRef } = useRefs();
   const textChunkData = activeData?.textChunkData;
@@ -24,14 +27,13 @@ const TextChunksCollapse: React.FC = () => {
   const onJumpToChunkOffset = useCallback(
     async (offset: number, length: number) => {
       if (!searcherRef?.current) return;
-      const hexStr = offset.toString(16);
       try {
-        await searcherRef.current.findByOffset(hexStr, length);
+        await searcherRef.current.findByOffset(offset, length);
       } catch (e) {
         // ignore
       }
     },
-    [searcherRef]
+    [searcherRef, config.ui.numberBase]
   );
 
   // exifExamples 방식과 동일하게, 번역된 값과 원본을 툴팁으로 출력하는 함수
@@ -154,13 +156,27 @@ const TextChunksCollapse: React.FC = () => {
                   }
                   {typeof chunk.offset === 'number' && (
                     <Tooltip
-                      text={`${t('textChunksViewer.jumpToOffset', { target: chunk.offset.toString(16).toUpperCase(), targetDec: chunk.offset, bytes: chunk.length || 0 })}`}
+                      text={t('textChunksViewer.jumpToOffset', {
+                        target: formatOffset(
+                          chunk.offset,
+                          config.ui.numberBase
+                        ),
+                        targetDec: chunk.offset,
+                        bytes: chunk.length || 0,
+                      })}
                     >
                       <JumpButton
                         onClick={() =>
                           onJumpToChunkOffset(chunk.offset, chunk.length || 0)
                         }
-                        aria-label={`${t('textChunksViewer.jumpToOffset', { target: chunk.offset.toString(16).toUpperCase(), targetDec: chunk.offset, bytes: chunk.length || 0 })}`}
+                        aria-label={t('textChunksViewer.jumpToOffset', {
+                          target: formatOffset(
+                            chunk.offset,
+                            config.ui.numberBase
+                          ),
+                          targetDec: chunk.offset,
+                          bytes: chunk.length || 0,
+                        })}
                       >
                         <ChevronRightIcon />
                       </JumpButton>

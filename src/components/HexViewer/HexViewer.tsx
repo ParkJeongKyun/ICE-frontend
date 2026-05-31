@@ -16,6 +16,7 @@ import {
   useSelection,
 } from '@/contexts/TabDataContext/TabDataContext';
 import { useWorker } from '@/contexts/WorkerContext/WorkerContext';
+import { useConfig } from '@/contexts/ConfigContext/ConfigContext';
 import eventBus from '@/types/eventBus';
 import { useHexViewerCacheContext } from '@/contexts/HexViewerCacheContext/HexViewerCacheContext';
 
@@ -50,6 +51,7 @@ import { useHexViewerRender } from './hooks/useHexViewerRender';
 import { useHexViewerWorker } from './hooks/useHexViewerWorker';
 import { useHexViewerXScroll } from './hooks/useHexViewerXScroll';
 import { useHexViewerYScroll } from './hooks/useHexViewerYScroll';
+import { useTranslations } from 'next-intl';
 
 export interface IndexInfo {
   index: number;
@@ -64,18 +66,22 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
   props,
   ref
 ) => {
+  const t = useTranslations();
   // ==================================================================================
   // 1. Contexts & Hooks
   // ==================================================================================
-  const { activeData, encoding, activeKey } = useTab();
+  const { activeData, activeKey } = useTab();
+  const { config } = useConfig();
   const { scrollPositions, setScrollPositions } = useScroll();
   const { activeSelectionState } = useSelection();
   const { chunkWorker } = useWorker();
   const { chunkCacheRef, requestedChunksRef, getByte, checkCacheSize } =
     useHexViewerCacheContext();
 
+  const encoding = config.ui.encoding;
+
   // ==================================================================================
-  // 2. Layout Config (Dynamic based on viewport width)
+  // 2. Layout Config (Dynamic based on viewport width and user config)
   // ==================================================================================
   const [isMeasured, setIsMeasured] = useState(false);
   const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 }); // logical CSS pixels
@@ -89,15 +95,28 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
   }, []);
 
   const layoutConfig = useMemo(
-    () => (windowWidth > 0 ? getLayoutConfig(windowWidth) : DEFAULT_LAYOUT),
-    [windowWidth]
+    () =>
+      windowWidth > 0
+        ? getLayoutConfig(
+            windowWidth,
+            config.ui.bytesPerLine,
+            config.ui.numberBase,
+            activeData?.file?.size || 0
+          )
+        : DEFAULT_LAYOUT,
+    [
+      windowWidth,
+      config.ui.bytesPerLine,
+      config.ui.numberBase,
+      activeData?.file?.size,
+    ]
   );
-  const { bytesPerRow, rowHeight, headerHeight, MIN_HEX_WIDTH } = layoutConfig;
+  const { bytesPerRow, rowHeight, headerHeight, rowCount, MIN_HEX_WIDTH } =
+    layoutConfig;
 
   // Derived States
   const file = activeData?.file;
   const fileSize = file?.size || 0;
-  const rowCount = Math.ceil(fileSize / bytesPerRow);
 
   // ==================================================================================
   // 3. Refs & Local States
@@ -134,6 +153,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
     lastModified: number;
   } | null>(null);
   const prevVisibleRowsRef = useRef<number>(0);
+  const prevBytesPerRowRef = useRef<number>(bytesPerRow);
 
   // Stable References for Effect Dependencies
   const fileRef = useRef(file);
@@ -153,11 +173,10 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
   const maxFirstRow = Math.max(0, rowCount - visibleRows);
 
   // ==================================================================================
-  // 4. Helper Functions
+  // 4. Helper Functions (Defined early for use in effects/hooks)
   // ==================================================================================
 
   // A. React Render Trigger (Throttled)
-  // Used to sync React state eventually (e.g. for loading spinners)
   const [, forceUpdate] = useReducer((x) => x + 1, 0);
   const throttledRender = useCallback(() => {
     if (renderRequestRef.current === null) {
@@ -169,7 +188,6 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
   }, []);
 
   // B. Direct Canvas Repaint (Immediate)
-  // Bypasses React render cycle for high-performance updates (Scroll, Drag, Data Load)
   const handleDragRepaint = useCallback(() => {
     if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
     rafRef.current = requestAnimationFrame(() => {
@@ -178,15 +196,14 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
     });
   }, []);
 
-  // [NEW] Combined Handler for Chunk Loading
-  // When data arrives, we want to paint IMMEDIATELY, then update React state later.
+  // C. Combined Handler for Chunk Loading
   const handleChunkLoaded = useCallback(() => {
-    handleDragRepaint(); // 1. Paint immediately (Fixes blank screen on scroll)
-    throttledRender(); // 2. Update React state (clears loading flags etc.)
+    handleDragRepaint();
+    throttledRender();
   }, [handleDragRepaint, throttledRender]);
 
   // ==================================================================================
-  // 5. Custom Hooks Initialization
+  // 5. Custom Hooks & Logic Initialization
   // ==================================================================================
 
   // Rendering
@@ -207,21 +224,62 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
     directRenderRef.current = directRender;
   }, [directRender]);
 
+  // 설정 변경(layoutConfig 변경) 시 즉시 다시 렌더링
+  useEffect(() => {
+    if (isMeasured) {
+      renderHeader();
+      directRender();
+    }
+  }, [layoutConfig, isMeasured, renderHeader, directRender]);
+
   // Worker Data Fetching
-  const { requestChunks, initializeWorker } = useHexViewerWorker({
-    chunkCacheRef,
-    requestedChunksRef,
-    onChunkLoaded: handleChunkLoaded, // [Updated] Use the combined handler
-    isInitialLoadingRef,
-    visibleRows,
-    checkCacheSize,
-    bytesPerRow,
-  });
+  const { requestChunks, cancelAllRequests, initializeWorker } =
+    useHexViewerWorker({
+      chunkCacheRef,
+      requestedChunksRef,
+      onChunkLoaded: handleChunkLoaded,
+      isInitialLoadingRef,
+      visibleRows,
+      checkCacheSize,
+      bytesPerRow,
+    });
 
   const requestChunksRef = useRef(requestChunks);
   useEffect(() => {
     requestChunksRef.current = requestChunks;
   }, [requestChunks]);
+
+  // ✅ bytesPerRow 변경 시 스크롤 위치 보정 (동일한 바이트 오프셋 유지)
+  useEffect(() => {
+    if (prevBytesPerRowRef.current !== bytesPerRow) {
+      const oldFirstRow = firstRowRef.current;
+      const oldBytesPerRow = prevBytesPerRowRef.current;
+      const byteOffset = oldFirstRow * oldBytesPerRow;
+      const newFirstRow = Math.floor(byteOffset / bytesPerRow);
+
+      const clampedRow = Math.max(0, Math.min(newFirstRow, maxFirstRow));
+      firstRowRef.current = clampedRow;
+      setScrollPositions((prev) => ({ ...prev, [activeKey]: clampedRow }));
+
+      prevBytesPerRowRef.current = bytesPerRow;
+      handleDragRepaint();
+
+      if (file && chunkWorker) {
+        requestChunks(clampedRow, file, fileSize, visibleRows + 20);
+      }
+    }
+  }, [
+    bytesPerRow,
+    activeKey,
+    maxFirstRow,
+    setScrollPositions,
+    file,
+    fileSize,
+    visibleRows,
+    chunkWorker,
+    handleDragRepaint,
+    requestChunks,
+  ]);
 
   // Selection Handling
   const {
@@ -266,6 +324,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
     maxFirstRow,
     canvasHeight: canvasSize.height,
     requestChunks,
+    cancelAllRequests,
     firstRowRef,
     rowHeight,
   });
@@ -678,13 +737,15 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
         >
           <ContextMenuList>
             <ContextMenuItem onClick={handleCopyOffset}>
-              Copy Offset (Hex)
+              {t('hexViewer.contextMenu.copyOffset', {
+                base: t(`hexViewer.contextMenu.bases.${config.ui.numberBase}`),
+              })}
             </ContextMenuItem>
             <ContextMenuItem onClick={handleCopyHex}>
-              Copy (Hex String)
+              {t('hexViewer.contextMenu.copyHexString')}
             </ContextMenuItem>
             <ContextMenuItem onClick={handleCopyText}>
-              Copy (ASCII Text)
+              {t('hexViewer.contextMenu.copyAsciiText')}
             </ContextMenuItem>
           </ContextMenuList>
         </ContextMenu>

@@ -4,6 +4,8 @@ import React, { useState, useTransition } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useRouter, usePathname } from '@/locales/routing';
 import { useProcess } from '@/contexts/ProcessContext/ProcessContext';
+import { useConfig } from '@/contexts/ConfigContext/ConfigContext';
+import { encodingOptions } from '@/components/HexViewer/hexViewerConstants';
 import USFlagIcon from '../common/Icons/USFlagIcon';
 import KRFlagIcon from '../common/Icons/KRFlagIcon';
 import HeartIcon from '../common/Icons/HeartIcon';
@@ -18,9 +20,17 @@ import {
   SettingsSection,
   SettingsSectionLabel,
   SettingsWrapper,
+  SettingsRow,
+  SettingsLabel,
+  ToggleTrack,
+  ToggleThumb,
   ReportSection,
   ReportLink,
   SponsorLink,
+  SelectWrapper,
+  StyledSelect,
+  SettingsGrid,
+  ResetButton,
 } from './SettingsModal.styles';
 import Tooltip from '@/components/common/Tooltip/Tooltip';
 import {
@@ -62,6 +72,7 @@ const SettingsModal: React.FC = () => {
   const pathname = usePathname();
   const [isPending, startTransition] = useTransition();
   const { isHashProcessing, isAnalysisProcessing } = useProcess();
+  const { config, updateConfig, resetConfig } = useConfig();
 
   const [open, setOpen] = useState(false);
   const isProcessing = isHashProcessing || isAnalysisProcessing;
@@ -91,6 +102,68 @@ const SettingsModal: React.FC = () => {
     });
   };
 
+  const handleToggleNotification = () => {
+    updateConfig({
+      notifications: {
+        enabled: !config.notifications.enabled,
+      },
+    });
+  };
+
+  const handleToggleAnalysis = (key: 'enabled' | 'imageMetadata') => {
+    updateConfig({
+      analysis: {
+        ...config.analysis,
+        [key]: !config.analysis[key],
+      },
+    });
+  };
+
+  const handleUIChange = (key: string, value: any) => {
+    updateConfig({
+      ui: {
+        ...config.ui,
+        [key]: value,
+      },
+    });
+  };
+
+  const handlePanelVisibilityChange = (
+    panel: 'info' | 'tools',
+    subKey: string
+  ) => {
+    const currentPanel = config.ui.panelVisibility[panel];
+    updateConfig({
+      ui: {
+        ...config.ui,
+        panelVisibility: {
+          ...config.ui.panelVisibility,
+          [panel]: {
+            ...currentPanel,
+            [subKey]: !currentPanel[subKey as keyof typeof currentPanel],
+          },
+        },
+      },
+    });
+  };
+
+  const ToggleSwitch = ({
+    checked,
+    onChange,
+  }: {
+    checked: boolean;
+    onChange: () => void;
+  }) => (
+    <ToggleTrack
+      $on={checked}
+      onClick={onChange}
+      role="switch"
+      aria-checked={checked}
+    >
+      <ToggleThumb $on={checked} />
+    </ToggleTrack>
+  );
+
   return (
     <SettingsWrapper>
       <Tooltip text={t('title')} placement="bottom" disabled={open}>
@@ -113,28 +186,292 @@ const SettingsModal: React.FC = () => {
           >
             <SettingsPanelTitle>{t('title')}</SettingsPanelTitle>
 
-            <SettingsSection>
-              <SettingsSectionLabel>{t('language')}</SettingsSectionLabel>
-              <LangFlagRow>
-                <LangFlagBtn
-                  $active={locale === 'ko'}
-                  onClick={() => handleLangSelect('ko')}
-                  disabled={isProcessing || isPending}
-                  aria-label="한국어로 변경"
+            <SettingsGrid>
+              {/* 왼쪽 컬럼 */}
+              <div>
+                <SettingsSection>
+                  <SettingsSectionLabel>{t('language')}</SettingsSectionLabel>
+                  <LangFlagRow>
+                    <LangFlagBtn
+                      $active={locale === 'ko'}
+                      onClick={() => handleLangSelect('ko')}
+                      disabled={isProcessing || isPending}
+                      aria-label="한국어로 변경"
+                    >
+                      <KRFlagIcon width={20} height={14} />
+                      한국어
+                    </LangFlagBtn>
+                    <LangFlagBtn
+                      $active={locale === 'en'}
+                      onClick={() => handleLangSelect('en')}
+                      disabled={isProcessing || isPending}
+                      aria-label="Switch to English"
+                    >
+                      <USFlagIcon width={20} height={14} />
+                      English
+                    </LangFlagBtn>
+                  </LangFlagRow>
+                </SettingsSection>
+
+                {/* 알람 설정 */}
+                <SettingsSection>
+                  <SettingsSectionLabel>
+                    {t('notifications.title')}
+                  </SettingsSectionLabel>
+                  <SettingsRow>
+                    <SettingsLabel>{t('notifications.enable')}</SettingsLabel>
+                    <ToggleSwitch
+                      checked={config.notifications.enabled}
+                      onChange={() => handleToggleNotification()}
+                    />
+                  </SettingsRow>
+                </SettingsSection>
+
+                {/* 분석 설정 */}
+                <SettingsSection
+                  style={{
+                    borderBottom: '1px solid var(--main-line-color)',
+                    paddingBottom: '8px',
+                  }}
                 >
-                  <KRFlagIcon width={20} height={14} />
-                  한국어
-                </LangFlagBtn>
-                <LangFlagBtn
-                  $active={locale === 'en'}
-                  onClick={() => handleLangSelect('en')}
-                  disabled={isProcessing || isPending}
-                  aria-label="Switch to English"
-                >
-                  <USFlagIcon width={20} height={14} />
-                  English
-                </LangFlagBtn>
-              </LangFlagRow>
+                  <SettingsSectionLabel>
+                    {t('analysis.title')}
+                  </SettingsSectionLabel>
+                  <SettingsRow>
+                    <SettingsLabel>{t('analysis.enable')}</SettingsLabel>
+                    <ToggleSwitch
+                      checked={config.analysis.enabled}
+                      onChange={() => handleToggleAnalysis('enabled')}
+                    />
+                  </SettingsRow>
+                  {config.analysis.enabled && (
+                    <>
+                      <SettingsRow style={{ marginLeft: '12px', opacity: 0.8 }}>
+                        <SettingsLabel>
+                          {t('analysis.imageMetadata')}
+                        </SettingsLabel>
+                        <ToggleSwitch
+                          checked={config.analysis.imageMetadata}
+                          onChange={() => handleToggleAnalysis('imageMetadata')}
+                        />
+                      </SettingsRow>
+                    </>
+                  )}
+                </SettingsSection>
+              </div>
+
+              {/* 오른쪽 컬럼 */}
+              <div>
+                {/* UI 설정 */}
+                <SettingsSection>
+                  <SettingsSectionLabel>{t('ui.title')}</SettingsSectionLabel>
+
+                  <SettingsRow>
+                    <SettingsLabel>{t('ui.bytesPerLine')}</SettingsLabel>
+                    <SelectWrapper>
+                      <StyledSelect
+                        value={config.ui.bytesPerLine}
+                        onChange={(e) =>
+                          handleUIChange(
+                            'bytesPerLine',
+                            parseInt(e.target.value)
+                          )
+                        }
+                      >
+                        <option value="8">8</option>
+                        <option value="16">16</option>
+                        <option value="32">32</option>
+                        <option value="64">64</option>
+                      </StyledSelect>
+                    </SelectWrapper>
+                  </SettingsRow>
+                  <SettingsRow>
+                    <SettingsLabel>{t('ui.numberBase')}</SettingsLabel>
+                    <SelectWrapper>
+                      <StyledSelect
+                        value={config.ui.numberBase}
+                        onChange={(e) =>
+                          handleUIChange('numberBase', e.target.value)
+                        }
+                      >
+                        <option value="binary">
+                          {t('ui.numberBaseOptions.binary')}
+                        </option>
+                        <option value="octal">
+                          {t('ui.numberBaseOptions.octal')}
+                        </option>
+                        <option value="decimal">
+                          {t('ui.numberBaseOptions.decimal')}
+                        </option>
+                        <option value="hexadecimal">
+                          {t('ui.numberBaseOptions.hexadecimal')}
+                        </option>
+                      </StyledSelect>
+                    </SelectWrapper>
+                  </SettingsRow>
+                  <SettingsRow>
+                    <SettingsLabel>{t('ui.encoding')}</SettingsLabel>
+                    <SelectWrapper>
+                      <StyledSelect
+                        value={config.ui.encoding}
+                        onChange={(e) =>
+                          handleUIChange('encoding', e.target.value)
+                        }
+                      >
+                        {encodingOptions.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </StyledSelect>
+                    </SelectWrapper>
+                  </SettingsRow>
+                  <SettingsRow>
+                    <SettingsLabel>{t('ui.dateFormat')}</SettingsLabel>
+                    <SelectWrapper>
+                      <StyledSelect
+                        value={config.ui.dateFormat}
+                        onChange={(e) =>
+                          handleUIChange('dateFormat', e.target.value)
+                        }
+                      >
+                        <option value="ISO">
+                          {t('ui.dateFormatOptions.ISO')}
+                        </option>
+                        <option value="US">
+                          {t('ui.dateFormatOptions.US')}
+                        </option>
+                        <option value="KO">
+                          {t('ui.dateFormatOptions.KO')}
+                        </option>
+                      </StyledSelect>
+                    </SelectWrapper>
+                  </SettingsRow>
+
+                  {/* Info Panel visibility */}
+                  <SettingsRow style={{ marginTop: '8px' }}>
+                    <SettingsLabel>
+                      {t('ui.panelVisibility.infoPanel')}
+                    </SettingsLabel>
+                    <ToggleSwitch
+                      checked={config.ui.panelVisibility.info.enabled}
+                      onChange={() => handlePanelVisibilityChange('info', 'enabled')}
+                    />
+                  </SettingsRow>
+                  {config.ui.panelVisibility.info.enabled && (
+                    <div
+                      style={{
+                        marginLeft: '12px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '4px',
+                      }}
+                    >
+                      {(
+                        [
+                          'exifThumbnail',
+                          'fileInfo',
+                          'map',
+                          'exifInfo',
+                          'ifdInfo',
+                          'exifTags',
+                          'textChunks',
+                        ] as const
+                      ).map((key) => (
+                        <SettingsRow key={key} style={{ opacity: 0.8 }}>
+                          <SettingsLabel>
+                            {t(`ui.panelVisibility.${key}`)}
+                          </SettingsLabel>
+                          <ToggleSwitch
+                            checked={config.ui.panelVisibility.info[key]}
+                            onChange={() => handlePanelVisibilityChange('info', key)}
+                          />
+                        </SettingsRow>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Tools Panel visibility */}
+                  <SettingsRow style={{ marginTop: '8px' }}>
+                    <SettingsLabel>
+                      {t('ui.panelVisibility.toolsPanel')}
+                    </SettingsLabel>
+                    <ToggleSwitch
+                      checked={config.ui.panelVisibility.tools.enabled}
+                      onChange={() => handlePanelVisibilityChange('tools', 'enabled')}
+                    />
+                  </SettingsRow>
+                  {config.ui.panelVisibility.tools.enabled && (
+                    <div
+                      style={{
+                        marginLeft: '12px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '4px',
+                      }}
+                    >
+                      <SettingsRow style={{ opacity: 0.8 }}>
+                        <SettingsLabel>
+                          {t('ui.panelVisibility.searcher')}
+                        </SettingsLabel>
+                        <ToggleSwitch
+                          checked={config.ui.panelVisibility.tools.searcher}
+                          onChange={() => handlePanelVisibilityChange('tools', 'searcher')}
+                        />
+                      </SettingsRow>
+                      <SettingsRow style={{ opacity: 0.8 }}>
+                        <SettingsLabel>
+                          {t('ui.panelVisibility.hashCalculator')}
+                        </SettingsLabel>
+                        <ToggleSwitch
+                          checked={
+                            config.ui.panelVisibility.tools.hashCalculator
+                          }
+                          onChange={() => handlePanelVisibilityChange('tools', 'hashCalculator')}
+                        />
+                      </SettingsRow>
+                      <SettingsRow style={{ opacity: 0.8 }}>
+                        <SettingsLabel>
+                          {t('ui.panelVisibility.dataConverter')}
+                        </SettingsLabel>
+                        <ToggleSwitch
+                          checked={
+                            config.ui.panelVisibility.tools.dataConverter
+                          }
+                          onChange={() => handlePanelVisibilityChange('tools', 'dataConverter')}
+                        />
+                      </SettingsRow>
+                      <SettingsRow style={{ opacity: 0.8 }}>
+                        <SettingsLabel>
+                          {t('ui.panelVisibility.dataInspector')}
+                        </SettingsLabel>
+                        <ToggleSwitch
+                          checked={
+                            config.ui.panelVisibility.tools.dataInspector
+                          }
+                          onChange={() => handlePanelVisibilityChange('tools', 'dataInspector')}
+                        />
+                      </SettingsRow>
+                    </div>
+                  )}
+                </SettingsSection>
+              </div>
+            </SettingsGrid>
+
+            {/* 설정 초기화 */}
+            <SettingsSection
+              style={{
+                borderTop: '1px solid var(--main-line-color)',
+                marginTop: '10px',
+                paddingTop: '10px',
+              }}
+            >
+              <ResetButton
+                onClick={resetConfig}
+                disabled={isProcessing || isPending}
+              >
+                {t('resetSettings')}
+              </ResetButton>
             </SettingsSection>
 
             <ReportSection>

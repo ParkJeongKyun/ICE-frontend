@@ -1,9 +1,7 @@
-import { useRef, useCallback, RefObject } from 'react';
-import {
-  useTab,
-  SelectionState,
-} from '@/contexts/TabDataContext/TabDataContext';
+import { useRef, useCallback, useMemo, RefObject } from 'react';
+import { useTab, SelectionState } from '@/contexts/TabDataContext/TabDataContext';
 import { useSelection } from '@/contexts/TabDataContext/TabDataContext';
+import { useConfig } from '@/contexts/ConfigContext/ConfigContext';
 import { getDevicePixelRatio } from '@/utils/hexViewer';
 import { byteToHex, byteToChar } from '@/utils/encoding';
 import type { LayoutConfig } from '@/components/HexViewer/hexViewerConstants';
@@ -43,8 +41,10 @@ export const useHexViewerRender = ({
   selectionPreviewRef,
   layoutConfig,
 }: UseHexViewerRenderProps) => {
-  const { encoding, activeData } = useTab();
+  const { activeData } = useTab();
+  const { config } = useConfig();
   const { activeSelectionState } = useSelection();
+  const encoding = config.ui.encoding;
 
   const file = activeData?.file;
   const fileSize = file?.size || 0;
@@ -59,10 +59,37 @@ export const useHexViewerRender = ({
     OFFSET_START_X,
     HEX_START_X,
     ASCII_START_X,
+    rowCount,
+    numberBase,
   } = layoutConfig;
-  const rowCount = Math.ceil(fileSize / bytesPerRow);
 
   const offscreenCanvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  // 진수에 따른 정보 (라딕스, 헤더 접미사, 기본 패딩)
+  const baseInfo = useMemo(() => {
+    switch (numberBase) {
+      case 'binary':
+        return { radix: 2, suffix: '(b)' };
+      case 'octal':
+        return { radix: 8, suffix: '(o)' };
+      case 'decimal':
+        return { radix: 10, suffix: '(d)' };
+      case 'hexadecimal':
+      default:
+        return { radix: 16, suffix: '(h)' };
+    }
+  }, [numberBase]);
+
+  // 오프셋 문자열 포맷팅 함수
+  const formatOffset = useCallback(
+    (offset: number) => {
+      const { radix } = baseInfo;
+      const maxOffset = Math.max(0, fileSize - 1);
+      const maxLength = Math.max(8, maxOffset.toString(radix).length);
+      return offset.toString(radix).padStart(maxLength, '0').toUpperCase();
+    },
+    [baseInfo, fileSize]
+  );
 
   const renderHeader = useCallback(() => {
     const headerCanvas = headerCanvasRef.current;
@@ -80,14 +107,14 @@ export const useHexViewerRender = ({
 
     ctx.save();
     ctx.scale(dpr, dpr);
-    ctx.font = font;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillStyle = colors.OFFSET;
 
-    // Offset 헤더
+    // Offset 헤더 (진수에 따라 변경)
+    ctx.font = font;
+    ctx.fillStyle = colors.OFFSET;
     ctx.fillText(
-      'Offset(h)',
+      `Offset${baseInfo.suffix}`,
       OFFSET_START_X + offsetWidth / 2,
       headerHeight / 2
     );
@@ -107,7 +134,22 @@ export const useHexViewerRender = ({
     ctx.fillText('Decoded text', asciiHeaderX, headerHeight / 2);
 
     ctx.restore();
-  }, [headerCanvasRef, colorsRef, canvasSizeRef, layoutConfig]);
+  }, [
+    headerCanvasRef,
+    colorsRef,
+    canvasSizeRef,
+    layoutConfig,
+    baseInfo,
+    offsetWidth,
+    bytesPerRow,
+    hexByteWidth,
+    asciiCharWidth,
+    OFFSET_START_X,
+    HEX_START_X,
+    ASCII_START_X,
+    headerHeight,
+    font,
+  ]);
 
   const directRender = useCallback(() => {
     const ctx = canvasRef.current?.getContext('2d', { alpha: false });
@@ -151,7 +193,7 @@ export const useHexViewerRender = ({
       // 첫 번째 오프셋 표시
       offCtx.fillStyle = colors.OFFSET;
       offCtx.fillText(
-        '00000000',
+        formatOffset(0),
         OFFSET_START_X + offsetWidth / 2,
         rowHeight / 2
       );
@@ -165,7 +207,6 @@ export const useHexViewerRender = ({
 
     offCtx.save();
     offCtx.scale(dpr, dpr);
-    offCtx.font = font;
     offCtx.textAlign = 'center';
     offCtx.textBaseline = 'middle';
 
@@ -187,18 +228,18 @@ export const useHexViewerRender = ({
     ) {
       const y = drawRow * rowHeight;
       const offset = row * bytesPerRow;
-      const offsetStart = row * bytesPerRow;
-      const offsetEnd = Math.min(offsetStart + bytesPerRow - 1, fileSize - 1);
-      const selStart = currentSelectionRange.start;
-      const selEnd = currentSelectionRange.end;
 
+      // 오프셋 표시
+      offCtx.font = font;
       offCtx.fillStyle = colors.OFFSET;
       offCtx.fillText(
-        offset.toString(16).padStart(8, '0').toUpperCase(),
+        formatOffset(offset),
         OFFSET_START_X + offsetWidth / 2,
         y + rowHeight / 2
       );
 
+      // HEX/ASCII 데이터 표시
+      offCtx.font = font;
       for (let i = 0; i < bytesPerRow; i++) {
         const idx = offset + i;
         if (idx >= fileSize) break;
@@ -227,10 +268,10 @@ export const useHexViewerRender = ({
         validByteCount++;
 
         const isSel =
-          selStart !== null &&
-          selEnd !== null &&
-          idx >= Math.min(selStart, selEnd) &&
-          idx <= Math.max(selStart, selEnd);
+          currentSelectionRange.start !== null &&
+          currentSelectionRange.end !== null &&
+          idx >= Math.min(currentSelectionRange.start, currentSelectionRange.end) &&
+          idx <= Math.max(currentSelectionRange.start, currentSelectionRange.end);
 
         // HEX 영역
         const xHex = HEX_START_X + i * hexByteWidth + hexByteWidth / 2;
@@ -287,6 +328,16 @@ export const useHexViewerRender = ({
     encoding,
     canvasSizeRef,
     layoutConfig,
+    font,
+    headerHeight,
+    rowHeight,
+    bytesPerRow,
+    offsetWidth,
+    HEX_START_X,
+    hexByteWidth,
+    ASCII_START_X,
+    asciiCharWidth,
+    formatOffset,
   ]);
 
   return { directRender, renderHeader };

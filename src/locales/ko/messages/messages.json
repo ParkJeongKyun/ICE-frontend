@@ -24,17 +24,9 @@
     "title": "WASM 준비 안됨",
     "message": "WASM이 아직 준비되지 않았습니다.\n잠시 후 다시 시도해주세요."
   },
-  "WASM_LOADED_SUCCESS": {
-    "title": "WASM 로딩 완료",
-    "message": "WASM 모듈이 성공적으로 로드되었습니다."
-  },
   "FILE_PROCESSING_FAILED": {
     "title": "파일 처리 실패",
     "message": "파일을 처리하는 중 오류가 발생했습니다."
-  },
-  "FILE_READ_ERROR": {
-    "title": "파일 읽기 오류",
-    "message": "파일을 읽는 중 오류가 발생했습니다."
   },
   "ANALYSIS_ERROR": {
     "title": "분석 오류",
@@ -47,6 +39,10 @@
   "ANALYSIS_SUCCESS": {
     "title": "분석 완료",
     "message": "파일 분석이 완료되었습니다."
+  },
+  "TAB_CREATED": {
+    "title": "탭 생성",
+    "message": "탭이 생성되었습니다. 분석이 비활성화되어 있습니다."
   },
   "HASH_CALCULATION_SUCCESS": {
     "title": "해시 계산 완료"
@@ -77,10 +73,6 @@
   "SEARCH_NO_INPUT": {
     "title": "입력 값 없음",
     "message": "검색어를 입력해주세요."
-  },
-  "SEARCH_INVALID_HEX": {
-    "title": "유효하지 않은 HEX",
-    "message": "유효한 16진수(0-9, A-F)를 입력해주세요."
   },
   "SEARCH_OFFSET_OUT_OF_RANGE": {
     "title": "범위 초과",

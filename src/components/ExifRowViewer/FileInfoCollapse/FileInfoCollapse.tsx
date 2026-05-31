@@ -3,6 +3,7 @@
 import React from 'react';
 import { useTranslations } from 'next-intl';
 import { useTab } from '@/contexts/TabDataContext/TabDataContext';
+import { useConfig } from '@/contexts/ConfigContext/ConfigContext';
 import Collapse from '@/components/common/Collapse/Collapse';
 import Tooltip from '@/components/common/Tooltip/Tooltip';
 import {
@@ -15,6 +16,7 @@ import { getBytes, getDate } from '@/utils/formatters';
 
 const FileInfoCollapse: React.FC = () => {
   const t = useTranslations();
+  const { config } = useConfig();
   const { activeData } = useTab();
   const fileInfo = activeData?.fileInfo;
 
@@ -30,7 +32,7 @@ const FileInfoCollapse: React.FC = () => {
             </ContentDiv>
             <ContentDiv>
               <CellHeaderDiv>{t('exifViewer.lastModified')}</CellHeaderDiv>
-              <CellBodyDiv>{getDate(fileInfo.lastModified)}</CellBodyDiv>
+              <CellBodyDiv>{getDate(fileInfo.lastModified, config.ui.dateFormat)}</CellBodyDiv>
             </ContentDiv>
             <ContentDiv>
               <CellHeaderDiv>{t('exifViewer.size')}</CellHeaderDiv>

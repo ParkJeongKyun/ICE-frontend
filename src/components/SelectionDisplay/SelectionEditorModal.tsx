@@ -1,7 +1,10 @@
-import React, { useEffect, useState } from 'react';
+'use client';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useSelection, useTab } from '@/contexts/TabDataContext/TabDataContext';
 import { useRefs } from '@/contexts/RefContext/RefContext';
+import { useConfig } from '@/contexts/ConfigContext/ConfigContext';
+import { getRadix, getOffsetPrefix } from '@/utils/formatters';
 import Tooltip from '@/components/common/Tooltip/Tooltip';
 import XIcon from '@/components/common/Icons/XIcon';
 import {
@@ -33,39 +36,35 @@ const SelectionEditorModal: React.FC<SelectionEditorModalProps> = ({
   onClose,
 }) => {
   const t = useTranslations();
+  const { config, updateConfig } = useConfig();
   const { activeData } = useTab();
   const { activeSelectionState } = useSelection();
   const { hexViewerRef } = useRefs();
 
   const fileSize = activeData?.file?.size || 0;
+  const radix = getRadix(config.ui.numberBase);
+  const radixLabel = getOffsetPrefix(config.ui.numberBase);
 
   const [mode, setMode] = useState<'range' | 'length'>('length');
   const [start, setStart] = useState('0');
   const [end, setEnd] = useState('0');
   const [length, setLength] = useState('1');
-  const [radix, setRadix] = useState<16 | 10 | 8>(16);
-
-  const radixLabel = radix === 16 ? '0x' : radix === 10 ? 'Dec' : '0o';
 
   const toggleRadix = () => {
-    setRadix((prev) => {
-      if (prev === 16) return 10;
-      if (prev === 10) return 8;
-      return 16;
-    });
+    const bases = ['hexadecimal', 'decimal', 'octal', 'binary'] as const;
+    const currentIndex = bases.indexOf(config.ui.numberBase);
+    const nextIndex = (currentIndex + 1) % bases.length;
+    updateConfig({ ui: { ...config.ui, numberBase: bases[nextIndex] } });
   };
 
-  const toRadixString = (value: number, base: 16 | 10 | 8) =>
-    base === 16
-      ? value.toString(16).toUpperCase()
-      : base === 10
-        ? value.toString(10)
-        : value.toString(8);
-
-  const parseByRadix = (value: string, base: 16 | 10 | 8) => {
-    const parsed = parseInt(value, base);
-    return Number.isNaN(parsed) ? NaN : parsed;
-  };
+  const toRadixString = useCallback(
+    (value: number) => value.toString(radix).toUpperCase(),
+    [radix]
+  );
+  const parseByRadix = useCallback(
+    (value: string) => parseInt(value, radix),
+    [radix]
+  );
 
   useEffect(() => {
     if (!isOpen) return;
@@ -75,25 +74,29 @@ const SelectionEditorModal: React.FC<SelectionEditorModalProps> = ({
     const minSelection = Math.min(currentStart, currentEnd);
     const maxSelection = Math.max(currentStart, currentEnd);
 
-    setStart(toRadixString(minSelection, radix));
-    setEnd(toRadixString(maxSelection, radix));
-    setLength(
-      toRadixString(Math.max(1, maxSelection - minSelection + 1), radix)
-    );
-  }, [isOpen, activeSelectionState.start, activeSelectionState.end, radix]);
+    setStart(toRadixString(minSelection));
+    setEnd(toRadixString(maxSelection));
+    setLength(toRadixString(Math.max(1, maxSelection - minSelection + 1)));
+  }, [
+    isOpen,
+    activeSelectionState.start,
+    activeSelectionState.end,
+    radix,
+    toRadixString,
+  ]);
 
   if (!isOpen) return null;
 
   const handleApply = () => {
-    const parsedStart = parseByRadix(start, radix);
+    const parsedStart = parseByRadix(start);
     if (Number.isNaN(parsedStart) || parsedStart < 0) return;
 
     let parsedEnd = parsedStart;
     if (mode === 'range') {
-      parsedEnd = parseByRadix(end, radix);
+      parsedEnd = parseByRadix(end);
       if (Number.isNaN(parsedEnd) || parsedEnd < 0) return;
     } else {
-      const parsedLength = parseByRadix(length, radix);
+      const parsedLength = parseByRadix(length);
       if (Number.isNaN(parsedLength) || parsedLength < 1) return;
       parsedEnd = parsedStart + parsedLength - 1;
     }
@@ -173,7 +176,9 @@ const SelectionEditorModal: React.FC<SelectionEditorModalProps> = ({
                         ? val.replace(/[^0-9a-fA-F]/g, '')
                         : radix === 10
                           ? val.replace(/[^0-9]/g, '')
-                          : val.replace(/[^0-7]/g, '');
+                          : radix === 8
+                            ? val.replace(/[^0-7]/g, '')
+                            : val.replace(/[^0-1]/g, '');
                     setStart(cleaned);
                   }}
                 />
@@ -199,7 +204,9 @@ const SelectionEditorModal: React.FC<SelectionEditorModalProps> = ({
                           ? val.replace(/[^0-9a-fA-F]/g, '')
                           : radix === 10
                             ? val.replace(/[^0-9]/g, '')
-                            : val.replace(/[^0-7]/g, '');
+                            : radix === 8
+                              ? val.replace(/[^0-7]/g, '')
+                              : val.replace(/[^0-1]/g, '');
                       setEnd(cleaned);
                     }}
                   />
@@ -224,7 +231,9 @@ const SelectionEditorModal: React.FC<SelectionEditorModalProps> = ({
                           ? val.replace(/[^0-9a-fA-F]/g, '')
                           : radix === 10
                             ? val.replace(/[^0-9]/g, '')
-                            : val.replace(/[^0-7]/g, '');
+                            : radix === 8
+                              ? val.replace(/[^0-7]/g, '')
+                              : val.replace(/[^0-1]/g, '');
                       setLength(cleaned);
                     }}
                   />

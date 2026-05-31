@@ -126,7 +126,7 @@
     "startOffset": "시작 위치",
     "endOffset": "끝 위치",
     "length": "길이",
-    "radixTooltip": "16/10/8진수 전환"
+    "radixTooltip": "16/10/8/2진수 전환"
   },
   "footer": {
     "selection": "선택",
@@ -138,10 +138,11 @@
     "message": "파일을 여기에 놓으면 분석이 시작됩니다 (클릭하여 닫기)"
   },
   "offsetNavigator": {
-    "radixTooltip": "16/10/8진수 전환",
+    "radixTooltip": "16/10/8/2진수 전환",
     "hexPlaceholder": "오프셋 (16진수)",
     "decPlaceholder": "오프셋 (10진수)",
     "octPlaceholder": "오프셋 (8진수)",
+    "binPlaceholder": "오프셋 (2진수)",
     "navigateTooltip": "오프셋으로 이동"
   },
   "dataInspector": {
@@ -151,8 +152,8 @@
     "bigEndian": "빅 엔디안",
     "littleEndianTooltip": "리틀엔디안으로 변경",
     "bigEndianTooltip": "빅엔디안으로 변경",
-    "relativeJumpTooltip": "상대 오프셋 이동: 현재(0x{current}({currentDec})) {operator}{value} → 0x{target}({targetDec})",
-    "absoluteJumpTooltip": "절대 오프셋 이동: 0x{target}({targetDec})",
+    "relativeJumpTooltip": "상대 오프셋 이동: 현재[{current}] {operator}{value} → {target}",
+    "absoluteJumpTooltip": "절대 오프셋 이동: {target}",
     "jumpRelative": "상대 오프셋으로 이동",
     "jumpAbsolute": "절대 오프셋으로 이동",
     "dataTypes": {
@@ -183,6 +184,19 @@
       "timeT32": "time_t32",
       "timeT64": "time_t64",
       "guid": "GUID"
+    }
+  },
+  "hexViewer": {
+    "contextMenu": {
+      "copyOffset": "오프셋 복사 ({base})",
+      "copyHexString": "복사 (Hex 문자열)",
+      "copyAsciiText": "복사 (ASCII 텍스트)",
+      "bases": {
+        "hexadecimal": "Hex",
+        "decimal": "Dec",
+        "octal": "Oct",
+        "binary": "Bin"
+      }
     }
   },
   "searcher": {
@@ -231,20 +245,20 @@
     "firstIfdOffset": "첫번째 IFD 오프셋",
     "ifdInfo": "IFD 정보",
     "ifdName": "IFD 이름",
-    "ifdOffset": "오프셋",
+    "ifdOffset": "EXIF 기준 상대 오프셋",
     "ifdTagCount": "태그 개수",
     "ifdNextOffset": "다음 IFD 오프셋",
-    "jumpToOffset": "다음으로 이동: 0x{target}({targetDec}) ({bytes} 바이트)",
-    "jumpToTag": "태그 오프셋으로 이동: 0x{target}({targetDec}) ({bytes} 바이트)",
+    "jumpToOffset": "다음으로 이동: {target} ({bytes} 바이트)",
+    "jumpToTag": "태그 오프셋으로 이동: {target} ({bytes} 바이트)",
     "jumpUnavailable": "이동 불가",
     "jumpToIfdOffset": "IFD 오프셋으로 이동",
-    "jumpToPointerTarget": "포인터가 가리키는 위치로 이동: 0x{target}({targetDec}) ({bytes} 바이트)",
-    "jumpToData": "데이터 위치로 이동: 0x{target}({targetDec}) ({bytes} 바이트)"
+    "jumpToPointerTarget": "포인터가 가리키는 위치로 이동",
+    "jumpToData": "데이터 위치로 이동: {target} ({bytes} 바이트)"
   },
   "textChunksViewer": {
     "ihdrInfo": "IHDR 정보",
     "textChunks": "텍스트 청크",
-    "jumpToOffset": "다음으로 이동: 0x{target}({targetDec}) ({bytes} 바이트)"
+    "jumpToOffset": "다음으로 이동: {target} ({bytes} 바이트)"
   },
   "calculateHash": {
     "title": "해시 계산",
@@ -281,6 +295,50 @@
   "settings": {
     "title": "설정",
     "language": "언어",
-    "languageHint": "언어를 추가하고 싶거나 번역이 잘못되었나요?"
+    "languageHint": "언어를 추가하고 싶거나 번역이 잘못되었나요?",
+    "resetSettings": "기본값으로 초기화",
+    "notifications": {
+      "title": "알림",
+      "enable": "알림 활성화",
+      "note": "오류 및 일부 메시지는 항상 표시됩니다"
+    },
+    "analysis": {
+      "title": "분석",
+      "enable": "분석 활성화",
+      "imageMetadata": "이미지 메타데이터 분석"
+    },
+    "ui": {
+      "title": "UI 환경설정",
+      "panelVisibility": {
+        "infoPanel": "정보 패널",
+        "toolsPanel": "도구 패널",
+        "exifThumbnail": "썸네일",
+        "fileInfo": "파일 정보",
+        "map": "지도",
+        "exifInfo": "EXIF 정보",
+        "ifdInfo": "IFD 정보",
+        "exifTags": "EXIF 태그",
+        "textChunks": "텍스트 청크 & IHDR 정보",
+        "searcher": "검색기",
+        "hashCalculator": "해시 계산기",
+        "dataConverter": "데이터 변환기",
+        "dataInspector": "데이터 검사기"
+      },
+      "bytesPerLine": "한줄당 바이트 수",
+      "numberBase": "오프셋 기준 진법",
+      "numberBaseOptions": {
+        "binary": "2진수",
+        "octal": "8진수",
+        "decimal": "10진수",
+        "hexadecimal": "16진수"
+      },
+      "encoding": "인코딩",
+      "dateFormat": "날짜 형식",
+      "dateFormatOptions": {
+        "ISO": "ISO (YYYY-MM-DD)",
+        "US": "US (MM/DD/YYYY)",
+        "KO": "KO (YYYY년 MM월 DD일)"
+      }
+    }
   }
 }

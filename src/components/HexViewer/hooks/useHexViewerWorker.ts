@@ -66,8 +66,14 @@ export const useHexViewerWorker = ({
         }
       }
     },
-    [chunkWorker, chunkCacheRef, requestedChunksRef]
+    [chunkWorker, chunkCacheRef, requestedChunksRef, bytesPerRow]
   );
+
+  const cancelAllRequests = useCallback(() => {
+    if (!chunkWorker) return;
+    requestedChunksRef.current?.clear();
+    chunkWorker.postMessage({ type: 'CANCEL_ALL' });
+  }, [chunkWorker, requestedChunksRef]);
 
   const initializeWorker = useCallback(
     async (initialPosition: number): Promise<void> => {
@@ -141,5 +147,5 @@ export const useHexViewerWorker = ({
     ]
   );
 
-  return { requestChunks, initializeWorker };
+  return { requestChunks, cancelAllRequests, initializeWorker };
 };

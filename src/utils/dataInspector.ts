@@ -146,7 +146,8 @@ export function bytesToSignedInt24(
 // OLE Automation Date (8 bytes)
 export function bytesToOLETIME(
   bytes: Uint8Array,
-  littleEndian: boolean
+  littleEndian: boolean,
+  format: 'ISO' | 'US' | 'KO' = 'ISO'
 ): string {
   if (bytes.length < MIN_BYTE_LENGTHS.OLETIME) return '-';
   const buf = new ArrayBuffer(MIN_BYTE_LENGTHS.OLETIME);
@@ -155,13 +156,14 @@ export function bytesToOLETIME(
   if (isNaN(days)) return '-';
   const ms = days * 24 * 60 * 60 * 1000;
   const date = new Date(Date.UTC(1899, 11, 30) + ms);
-  return isNaN(date.getTime()) ? '-' : getDate(date);
+  return isNaN(date.getTime()) ? '-' : getDate(date, format);
 }
 
 // Windows FILETIME (8 bytes)
 export function bytesToFILETIME(
   bytes: Uint8Array,
-  littleEndian: boolean
+  littleEndian: boolean,
+  format: 'ISO' | 'US' | 'KO' = 'ISO'
 ): string {
   if (bytes.length < MIN_BYTE_LENGTHS.FILETIME) return '-';
   let low = 0,
@@ -185,13 +187,14 @@ export function bytesToFILETIME(
 
   const ms = Number(filetime / 10000n);
   const date = new Date(Date.UTC(1601, 0, 1) + ms);
-  return isNaN(date.getTime()) ? '-' : getDate(date);
+  return isNaN(date.getTime()) ? '-' : getDate(date, format);
 }
 
 // DOS Date (2 bytes)
 export function bytesToDOSDate(
   bytes: Uint8Array,
-  littleEndian: boolean
+  littleEndian: boolean,
+  format: 'ISO' | 'US' | 'KO' = 'ISO'
 ): string {
   if (bytes.length < MIN_BYTE_LENGTHS.DOSDATE) return '-';
   const val = littleEndian
@@ -201,7 +204,9 @@ export function bytesToDOSDate(
   const month = (val >> 5) & 0x0f;
   const day = val & 0x1f;
   if (month < 1 || month > 12 || day < 1 || day > 31) return '-';
-  return `${year.toString().padStart(4, '0')}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+  
+  const date = new Date(year, month - 1, day);
+  return isNaN(date.getTime()) ? '-' : getDate(date, format).split(' ')[0]; // 날짜 부분만 추출
 }
 
 // DOS Time (2 bytes)
@@ -223,7 +228,8 @@ export function bytesToDOSTime(
 // DOS Date & Time (4 bytes)
 export function bytesToDOSDateTime(
   bytes: Uint8Array,
-  littleEndian: boolean
+  littleEndian: boolean,
+  format: 'ISO' | 'US' | 'KO' = 'ISO'
 ): string {
   if (bytes.length < MIN_BYTE_LENGTHS.DOSDATETIME) return '-';
   let dateBytes: Uint8Array, timeBytes: Uint8Array;
@@ -234,31 +240,33 @@ export function bytesToDOSDateTime(
     timeBytes = bytes.slice(0, 2);
     dateBytes = bytes.slice(2, 4);
   }
-  const dateStr = bytesToDOSDate(dateBytes, littleEndian);
+  const dateStr = bytesToDOSDate(dateBytes, littleEndian, format);
   const timeStr = bytesToDOSTime(timeBytes, littleEndian);
   if (dateStr === '-' || timeStr === '-') return '-';
 
   const dateTime = new Date(`${dateStr}T${timeStr}`);
-  return isNaN(dateTime.getTime()) ? '-' : getDate(dateTime);
+  return isNaN(dateTime.getTime()) ? '-' : getDate(dateTime, format);
 }
 
 // time_t 32bit (4 bytes)
 export function bytesToTimeT32(
   bytes: Uint8Array,
-  littleEndian: boolean
+  littleEndian: boolean,
+  format: 'ISO' | 'US' | 'KO' = 'ISO'
 ): string {
   if (bytes.length < MIN_BYTE_LENGTHS.TIMET32) return '-';
   const val = littleEndian
     ? bytes[0] | (bytes[1] << 8) | (bytes[2] << 16) | (bytes[3] << 24)
     : bytes[3] | (bytes[2] << 8) | (bytes[1] << 16) | (bytes[0] << 24);
   const date = new Date(val * 1000);
-  return isNaN(date.getTime()) ? '-' : getDate(date);
+  return isNaN(date.getTime()) ? '-' : getDate(date, format);
 }
 
 // time_t 64bit (8 bytes)
 export function bytesToTimeT64(
   bytes: Uint8Array,
-  littleEndian: boolean
+  littleEndian: boolean,
+  format: 'ISO' | 'US' | 'KO' = 'ISO'
 ): string {
   if (bytes.length < MIN_BYTE_LENGTHS.TIMET64) return '-';
   let val: bigint;
@@ -284,7 +292,7 @@ export function bytesToTimeT64(
       (BigInt(bytes[0]) << 56n);
   }
   const date = new Date(Number(val) * 1000);
-  return isNaN(date.getTime()) ? '-' : getDate(date);
+  return isNaN(date.getTime()) ? '-' : getDate(date, format);
 }
 
 // GUID (16 bytes)

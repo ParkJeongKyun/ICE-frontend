@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import { useTab } from '@/contexts/TabDataContext/TabDataContext';
 import { useWorker } from '@/contexts/WorkerContext/WorkerContext';
 import { useRefs } from '@/contexts/RefContext/RefContext';
+import { useConfig } from '@/contexts/ConfigContext/ConfigContext';
 import eventBus from '@/types/eventBus';
 import HexViewer from '@/components/HexViewer/HexViewer';
 
@@ -13,6 +14,7 @@ export const useFileProcessor = () => {
   const { setTabData, setActiveKey, getNewKey } = useTab();
   const { analysisManager } = useWorker();
   const { hexViewerRef } = useRefs();
+  const { config } = useConfig();
 
   const processFile = useCallback(
     async (file: File): Promise<boolean> => {
@@ -21,7 +23,42 @@ export const useFileProcessor = () => {
       try {
         const newActiveKey = getNewKey();
 
-        // 1️⃣ 워커 매니저를 통한 파일 분석 요청
+        // 설정값 기반 분석 여부 결정
+        const shouldSkipAnalysis =
+          !config.analysis.enabled || !config.analysis.imageMetadata;
+
+        if (shouldSkipAnalysis) {
+          // 분석 스킵: 기본 탭 데이터만 생성
+          if (process.env.NODE_ENV === 'development') {
+            console.log('[FileProcessor] Analysis skipped due to config');
+          }
+
+          setTabData((prevDatas) => ({
+            ...prevDatas,
+            [newActiveKey]: {
+              window: {
+                label: file.name,
+                contents: <HexViewer ref={hexViewerRef} />,
+              },
+              file,
+              fileInfo: {
+                name: file.name,
+                lastModified: file.lastModified,
+                size: file.size,
+                mimeType: file.type,
+              },
+              hasExif: false,
+            },
+          }));
+
+          setActiveKey(newActiveKey);
+          eventBus.emit('toast', {
+            code: 'TAB_CREATED',
+          });
+          return true;
+        }
+
+        // 워커 매니저를 통한 파일 분석 요청
         const result = await analysisManager.execute('PROCESS_ANALYSIS', {
           file,
         });
@@ -74,7 +111,7 @@ export const useFileProcessor = () => {
           },
         }));
 
-        // 3️⃣ 새 탭을 활성화하고 성공 토스트 띄우기
+        // 새 탭을 활성화하고 성공 토스트 띄우기
         setActiveKey(newActiveKey);
         eventBus.emit('toast', {
           code: 'ANALYSIS_SUCCESS',
@@ -82,12 +119,12 @@ export const useFileProcessor = () => {
         });
         return true;
       } catch (error) {
-        // ✅ 에러는 WorkerContext(WorkerManager.ERROR 이벤트)에서 처리됨
+        // 에러는 WorkerContext(WorkerManager.ERROR 이벤트)에서 처리됨
         console.error('[FileProcessor] File processing failed:', error);
         return false;
       }
     },
-    [analysisManager, getNewKey, setTabData, setActiveKey, hexViewerRef]
+    [analysisManager, getNewKey, setTabData, setActiveKey, hexViewerRef, config]
   );
 
   return { processFile };

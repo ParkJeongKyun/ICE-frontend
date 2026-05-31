@@ -4,6 +4,9 @@ import React, { useCallback, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useTab } from '@/contexts/TabDataContext/TabDataContext';
 import { useRefs } from '@/contexts/RefContext/RefContext';
+import { useConfig } from '@/contexts/ConfigContext/ConfigContext';
+import { getOffsetPrefix } from '@/utils/formatters';
+import { parseOffsetInput } from '@/utils/offsetUtils';
 import {
   NavigatorContainer,
   NavigatorInput,
@@ -13,43 +16,43 @@ import {
 import SearchIcon from '@/components/common/Icons/SearchIcon';
 import Tooltip from '@/components/common/Tooltip/Tooltip';
 
-type Radix = 16 | 10 | 8;
-
 const OffsetNavigator: React.FC = () => {
   const t = useTranslations();
+  const { config, updateConfig } = useConfig();
   const { searcherRef } = useRefs();
   const { isEmpty } = useTab();
   const [inputValue, setInputValue] = useState('');
-  const [radix, setRadix] = useState<Radix>(16);
 
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
+      // 입력값을 현재 진법에 맞춰 필터링하는 로직 (기존 유지)
       let filtered: string;
-      if (radix === 16) {
+      const base = config.ui.numberBase;
+      if (base === 'hexadecimal') {
         filtered = e.target.value.replace(/[^0-9a-fA-F]/g, '');
-      } else if (radix === 10) {
+      } else if (base === 'decimal') {
         filtered = e.target.value.replace(/[^0-9]/g, '');
-      } else {
-        // 8진수
+      } else if (base === 'octal') {
         filtered = e.target.value.replace(/[^0-7]/g, '');
+      } else {
+        // 2진수
+        filtered = e.target.value.replace(/[^0-1]/g, '');
       }
       setInputValue(filtered);
     },
-    [radix]
+    [config.ui.numberBase]
   );
 
   const navigateToOffset = useCallback(
     async (offsetStr: string) => {
       if (!offsetStr || !searcherRef.current) return;
 
-      // 진법에 따라 10진수로 변환 후 16진수 문자열로 변환
-      const decimalValue = parseInt(offsetStr, radix);
+      const decimalValue = parseOffsetInput(offsetStr, config.ui.numberBase);
       if (isNaN(decimalValue)) return;
 
-      const hexStr = decimalValue.toString(16);
-      await searcherRef.current.findByOffset(hexStr);
+      await searcherRef.current.findByOffset(decimalValue);
     },
-    [searcherRef, radix]
+    [searcherRef, config.ui.numberBase]
   );
 
   const handleKeyPress = useCallback(
@@ -68,23 +71,24 @@ const OffsetNavigator: React.FC = () => {
   }, [inputValue, navigateToOffset]);
 
   const handleRadixChange = useCallback(() => {
-    setRadix((prev) => {
-      if (prev === 16) return 10;
-      if (prev === 10) return 8;
-      return 16;
-    });
+    const bases = ['hexadecimal', 'decimal', 'octal', 'binary'] as const;
+    const currentIndex = bases.indexOf(config.ui.numberBase);
+    const nextIndex = (currentIndex + 1) % bases.length;
+    updateConfig({ ui: { ...config.ui, numberBase: bases[nextIndex] } });
     setInputValue('');
-  }, []);
+  }, [config.ui, updateConfig]);
 
   if (isEmpty) return null;
 
-  const radixLabel = radix === 16 ? '0x' : radix === 10 ? 'De' : '0o';
+  const radixLabel = getOffsetPrefix(config.ui.numberBase);
   const placeholder =
-    radix === 16
+    config.ui.numberBase === 'hexadecimal'
       ? t('offsetNavigator.hexPlaceholder')
-      : radix === 10
+      : config.ui.numberBase === 'decimal'
         ? t('offsetNavigator.decPlaceholder')
-        : t('offsetNavigator.octPlaceholder');
+        : config.ui.numberBase === 'octal'
+          ? t('offsetNavigator.octPlaceholder')
+          : t('offsetNavigator.binPlaceholder');
 
   return (
     <NavigatorContainer>
@@ -95,7 +99,6 @@ const OffsetNavigator: React.FC = () => {
         value={inputValue}
         onChange={handleInputChange}
         onKeyDown={handleKeyPress}
-        maxLength={radix === 16 ? 20 : radix === 10 ? 25 : 27}
         placeholder={placeholder}
       />
       <Tooltip text={t('offsetNavigator.navigateTooltip')}>
