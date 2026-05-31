@@ -3,6 +3,7 @@
 import React, { useState, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { useMessage } from '@/contexts/MessageContext/MessageContext';
+import { useConfig } from '@/contexts/ConfigContext/ConfigContext';
 import Tooltip from '@/components/common/Tooltip/Tooltip';
 import {
   formatBytes,
@@ -51,6 +52,7 @@ const MessageHistory: React.FC = () => {
     markAsRead,
     deleteMessage,
   } = useMessage();
+  const { config } = useConfig();
 
   const handleToggle = useCallback(() => {
     setIsOpen((prev) => !prev);
@@ -170,7 +172,7 @@ const MessageHistory: React.FC = () => {
                         )}
                       </HistoryItemMessage>
                       <HistoryItemTime>
-                        {getDate(msg.timestamp)}
+                        {getDate(msg.timestamp, config.ui.dateFormat)}
                       </HistoryItemTime>
                     </HistoryItemBody>
                   ) : (

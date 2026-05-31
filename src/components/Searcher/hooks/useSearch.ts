@@ -25,12 +25,10 @@ export const useSearch = () => {
   const fileSize = file?.size || 0;
 
   const findByOffset = useCallback(
-    async (offset: string, length: number = 1): Promise<IndexInfo | null> => {
-      if (!offset.trim()) return null;
-      const byteOffset = parseInt(offset, 16);
-      if (isNaN(byteOffset) || byteOffset < 0 || byteOffset >= fileSize)
+    async (offset: number, length: number = 1): Promise<IndexInfo | null> => {
+      if (offset < 0 || offset >= fileSize)
         return null;
-      return { index: byteOffset, offset: length };
+      return { index: offset, offset: length };
     },
     [fileSize]
   );

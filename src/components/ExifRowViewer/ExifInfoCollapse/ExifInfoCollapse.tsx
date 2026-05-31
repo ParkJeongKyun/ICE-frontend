@@ -2,6 +2,7 @@
 
 import React, { useCallback } from 'react';
 import { useTranslations } from 'next-intl';
+import { useConfig } from '@/contexts/ConfigContext/ConfigContext';
 import { useTab } from '@/contexts/TabDataContext/TabDataContext';
 import { useRefs } from '@/contexts/RefContext/RefContext';
 import Collapse from '@/components/common/Collapse/Collapse';
@@ -14,14 +15,15 @@ import {
   JumpButton,
   NoDataMessage,
 } from '../ExifRowViewer.styles';
+import { formatOffset } from '@/utils/formatters';
 
 const ExifInfoCollapse: React.FC = () => {
   const t = useTranslations();
+  const { config } = useConfig();
   const { activeData } = useTab();
   const { searcherRef } = useRefs();
   const exifInfo = activeData?.hasExif ? activeData?.exifInfo : null;
   const baseOffset = activeData?.exifInfo?.baseOffset;
-  const fileSize = activeData?.file?.size ?? 0;
 
   const getByteOrderLabel = useCallback(
     (byteOrder?: string): string => {
@@ -57,9 +59,8 @@ const ExifInfoCollapse: React.FC = () => {
       )
         return;
 
-      const hexStr = absolute.toString(16);
       try {
-        await searcherRef.current.findByOffset(hexStr, length);
+        await searcherRef.current.findByOffset(absolute, length);
       } catch (e) {
         // ignore
       }
@@ -76,9 +77,8 @@ const ExifInfoCollapse: React.FC = () => {
     const absolute = base + rel;
     if (absolute < 0 || absolute >= activeData.file.size) return;
 
-    const hexStr = absolute.toString(16);
     try {
-      await searcherRef.current.findByOffset(hexStr, 0);
+      await searcherRef.current.findByOffset(absolute, 0);
     } catch (e) {
       // ignore
     }
@@ -94,15 +94,12 @@ const ExifInfoCollapse: React.FC = () => {
     )
       return;
 
-    const hexStr = endOffset.toString(16);
     try {
-      await searcherRef.current.findByOffset(hexStr, 0);
+      await searcherRef.current.findByOffset(endOffset, 0);
     } catch (e) {
       // ignore
     }
   }, [searcherRef, activeData]);
-
-  const hasData = !!exifInfo;
 
   return (
     <Collapse
@@ -115,11 +112,23 @@ const ExifInfoCollapse: React.FC = () => {
                 {t('exifViewer.byteOrder')}
                 {typeof baseOffset === 'number' && (
                   <Tooltip
-                    text={`${t('exifViewer.jumpToOffset', { target: Number(baseOffset).toString(16).toUpperCase(), targetDec: baseOffset, bytes: 2 })}`}
+                    text={t('exifViewer.jumpToOffset', {
+                      target: formatOffset(
+                        Number(baseOffset),
+                        config.ui.numberBase
+                      ),
+                      bytes: 2,
+                    })}
                   >
                     <JumpButton
                       onClick={() => onJumpToBaseOffset(true)}
-                      aria-label={`${t('exifViewer.jumpToOffset', { target: Number(baseOffset).toString(16).toUpperCase(), targetDec: baseOffset, bytes: 2 })}`}
+                      aria-label={t('exifViewer.jumpToOffset', {
+                        target: formatOffset(
+                          Number(baseOffset),
+                          config.ui.numberBase
+                        ),
+                        bytes: 2,
+                      })}
                     >
                       <ChevronRightIcon />
                     </JumpButton>
@@ -133,11 +142,23 @@ const ExifInfoCollapse: React.FC = () => {
                 {t('exifViewer.baseOffset')}
                 {typeof baseOffset === 'number' && (
                   <Tooltip
-                    text={`${t('exifViewer.jumpToOffset', { target: Number(baseOffset).toString(16).toUpperCase(), targetDec: baseOffset, bytes: 1 })}`}
+                    text={t('exifViewer.jumpToOffset', {
+                      target: formatOffset(
+                        Number(baseOffset),
+                        config.ui.numberBase
+                      ),
+                      bytes: 1,
+                    })}
                   >
                     <JumpButton
                       onClick={() => onJumpToBaseOffset(false)}
-                      aria-label={`${t('exifViewer.jumpToOffset', { target: Number(baseOffset).toString(16).toUpperCase(), targetDec: baseOffset, bytes: 1 })}`}
+                      aria-label={t('exifViewer.jumpToOffset', {
+                        target: formatOffset(
+                          Number(baseOffset),
+                          config.ui.numberBase
+                        ),
+                        bytes: 1,
+                      })}
                     >
                       <ChevronRightIcon />
                     </JumpButton>
@@ -151,11 +172,23 @@ const ExifInfoCollapse: React.FC = () => {
                 {t('exifViewer.endOffset')}
                 {typeof exifInfo.endOffset === 'number' && (
                   <Tooltip
-                    text={`${t('exifViewer.jumpToOffset', { target: Number(exifInfo.endOffset).toString(16).toUpperCase(), targetDec: exifInfo.endOffset, bytes: 1 })}`}
+                    text={t('exifViewer.jumpToOffset', {
+                      target: formatOffset(
+                        Number(exifInfo.endOffset),
+                        config.ui.numberBase
+                      ),
+                      bytes: 1,
+                    })}
                   >
                     <JumpButton
                       onClick={onJumpToEndOffset}
-                      aria-label={`${t('exifViewer.jumpToOffset', { target: Number(exifInfo.endOffset).toString(16).toUpperCase(), targetDec: exifInfo.endOffset, bytes: 1 })}`}
+                      aria-label={t('exifViewer.jumpToOffset', {
+                        target: formatOffset(
+                          Number(exifInfo.endOffset),
+                          config.ui.numberBase
+                        ),
+                        bytes: 1,
+                      })}
                     >
                       <ChevronRightIcon />
                     </JumpButton>
@@ -173,11 +206,23 @@ const ExifInfoCollapse: React.FC = () => {
                 {t('exifViewer.firstIfdOffset')}
                 {typeof exifInfo.firstIfdOffset === 'number' && (
                   <Tooltip
-                    text={`${t('exifViewer.jumpToOffset', { target: (Number(baseOffset) + Number(exifInfo.firstIfdOffset)).toString(16).toUpperCase(), targetDec: Number(baseOffset) + Number(exifInfo.firstIfdOffset), bytes: 1 })}`}
+                    text={t('exifViewer.jumpToOffset', {
+                      target: formatOffset(
+                        Number(baseOffset) + Number(exifInfo.firstIfdOffset),
+                        config.ui.numberBase
+                      ),
+                      bytes: 1,
+                    })}
                   >
                     <JumpButton
                       onClick={onJumpToFirstIfdOffset}
-                      aria-label={`${t('exifViewer.jumpToOffset', { target: (Number(baseOffset) + Number(exifInfo.firstIfdOffset)).toString(16).toUpperCase(), targetDec: Number(baseOffset) + Number(exifInfo.firstIfdOffset), bytes: 1 })}`}
+                      aria-label={t('exifViewer.jumpToOffset', {
+                        target: formatOffset(
+                          Number(baseOffset) + Number(exifInfo.firstIfdOffset),
+                          config.ui.numberBase
+                        ),
+                        bytes: 1,
+                      })}
                     >
                       <ChevronRightIcon />
                     </JumpButton>

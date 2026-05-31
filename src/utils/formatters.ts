@@ -1,8 +1,49 @@
 import dayjs from 'dayjs';
+import { NumberBase } from '@/components/HexViewer/hexViewerConstants';
 
 /**
  * 숫자와 단위를 포맷하는 헬퍼 함수들
  */
+
+export const formatOffset = (
+  offset: number,
+  numberBase: NumberBase
+): string => {
+  const radix = getRadix(numberBase);
+  const prefix = getOffsetPrefix(numberBase);
+  const formatted = `${prefix}${offset.toString(radix).toUpperCase()}`;
+  return numberBase === 'decimal' ? `${offset}` : `${offset}(${formatted})`;
+};
+
+export const getRadix = (numberBase: NumberBase): number => {
+  switch (numberBase) {
+    case 'binary':
+      return 2;
+    case 'octal':
+      return 8;
+    case 'decimal':
+      return 10;
+    case 'hexadecimal':
+      return 16;
+    default:
+      return 16;
+  }
+};
+
+export const getOffsetPrefix = (numberBase: NumberBase): string => {
+  switch (numberBase) {
+    case 'binary':
+      return '0b';
+    case 'octal':
+      return '0o';
+    case 'decimal':
+      return 'De';
+    case 'hexadecimal':
+      return '0x';
+    default:
+      return '0x';
+  }
+};
 
 export const formatBytes = (bytes: number, decimals = 2): string => {
   if (bytes === 0) return '0 B';
@@ -34,14 +75,28 @@ export const getBytes = (bytes: number, decimals = 2): string => {
   return `${formattedSize} ${sizes[i]} (${bytes.toLocaleString()} Byte)`;
 };
 
-// 날짜 포맷 지정
-export const DATE_FORMAT = 'YYYY-MM-DD HH:mm:ss';
+// 날짜 포맷 패턴 매핑
+export const getDateFormat = (format: 'ISO' | 'US' | 'KO'): string => {
+  switch (format) {
+    case 'ISO':
+      return 'YYYY-MM-DD HH:mm:ss';
+    case 'US':
+      return 'MM/DD/YYYY HH:mm:ss';
+    case 'KO':
+      return 'YYYY년 MM월 DD일 HH:mm:ss';
+    default:
+      return 'YYYY-MM-DD HH:mm:ss';
+  }
+};
 
 // 날짜 포매터
-export const getDate = (dateStr: string | number | Date): string => {
+export const getDate = (
+  dateStr: string | number | Date,
+  format: 'ISO' | 'US' | 'KO' = 'ISO'
+): string => {
   const formattedDate = dayjs(dateStr);
   if (formattedDate.isValid()) {
-    return formattedDate.format(DATE_FORMAT);
+    return formattedDate.format(getDateFormat(format));
   } else {
     return '';
   }

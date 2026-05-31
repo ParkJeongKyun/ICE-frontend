@@ -11,6 +11,10 @@
     "name": "Original Date/Time",
     "description": "Original image capture date/time"
   },
+  "OffsetTimeOriginal": {
+    "name": "Offset Time Original",
+    "description": "Time zone offset for original capture time"
+  },
   "DateTimeDigitized": {
     "name": "Date/Time Digitized",
     "description": "Digital image creation date/time"

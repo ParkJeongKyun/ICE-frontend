@@ -27,7 +27,6 @@ export const TOAST_DEFAULTS: Record<
   SEARCH_NO_RESULTS: { type: 'info', duration: 6000 },
   SEARCH_SUCCESS: { type: 'success', duration: 4000 },
   SEARCH_NO_INPUT: { type: 'warning', duration: 4000 },
-  SEARCH_INVALID_HEX: { type: 'warning', duration: 4000 },
   SEARCH_OFFSET_OUT_OF_RANGE: { type: 'warning', duration: 4000 },
   SEARCH_ERROR: { type: 'error', duration: 10000 },
   SEARCH_CANCELLED: { type: 'info', duration: 4000 },

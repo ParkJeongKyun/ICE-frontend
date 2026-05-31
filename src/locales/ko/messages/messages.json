@@ -74,10 +74,6 @@
     "title": "입력 값 없음",
     "message": "검색어를 입력해주세요."
   },
-  "SEARCH_INVALID_HEX": {
-    "title": "유효하지 않은 HEX",
-    "message": "유효한 16진수(0-9, A-F)를 입력해주세요."
-  },
   "SEARCH_OFFSET_OUT_OF_RANGE": {
     "title": "범위 초과",
     "message": "파일 범위를 벗어난 오프셋입니다."

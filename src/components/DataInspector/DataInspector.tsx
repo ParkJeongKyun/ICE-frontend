@@ -1,6 +1,8 @@
+'use client';
 import Collapse from '@/components/common/Collapse/Collapse';
 import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { useConfig } from '@/contexts/ConfigContext/ConfigContext';
 import {
   CellBodyDiv,
   CellHeaderDiv,
@@ -40,9 +42,11 @@ import {
   MIN_BYTE_LENGTHS,
 } from '@/utils/dataInspector';
 import { byteToChar } from '@/utils/encoding';
+import { formatOffset } from '@/utils/formatters';
 
 const DataInspector: React.FC = () => {
   const t = useTranslations();
+  const { config } = useConfig();
   const { searcherRef } = useRefs();
   const { activeData } = useTab();
   const { activeSelectionState } = useSelection();
@@ -53,36 +57,33 @@ const DataInspector: React.FC = () => {
 
   // 상대 오프셋 이동 핸들러
   const handleJumpToOffset = useCallback(
-    async (value: string) => {
-      if (
-        !searcherRef?.current ||
-        value === '-' ||
-        activeSelectionState?.start === null
-      )
-        return;
+    async (offset: number) => {
+      if (!searcherRef?.current) return;
 
-      const numValue = parseInt(value, 10);
-      if (isNaN(numValue)) return;
-
-      const targetOffset = activeSelectionState.start + numValue;
+      // selection 시작점 기준 또는 cursor 기준, 없으면 0
+      const base =
+        activeSelectionState?.start ?? activeSelectionState?.cursor ?? 0;
+      const targetOffset = base + offset;
       if (targetOffset < 0 || targetOffset >= fileSize) return;
 
-      const hexStr = targetOffset.toString(16);
-      await searcherRef.current.findByOffset(hexStr);
+      await searcherRef.current.findByOffset(targetOffset);
     },
-    [searcherRef, activeSelectionState?.start, fileSize]
+    [
+      searcherRef,
+      activeSelectionState?.start,
+      activeSelectionState?.cursor,
+      fileSize,
+    ]
   );
 
   // 절대 오프셋 이동 핸들러
   const handleJumpToAbsoluteOffset = useCallback(
-    async (value: string) => {
-      if (!searcherRef?.current || value === '-') return;
+    async (offset: number) => {
+      if (!searcherRef?.current) return;
 
-      const numValue = parseInt(value, 10);
-      if (isNaN(numValue) || numValue < 0 || numValue >= fileSize) return;
+      if (offset < 0 || offset >= fileSize) return;
 
-      const hexStr = numValue.toString(16);
-      await searcherRef.current.findByOffset(hexStr);
+      await searcherRef.current.findByOffset(offset);
     },
     [searcherRef, fileSize]
   );
@@ -225,15 +226,27 @@ const DataInspector: React.FC = () => {
     // Time/Date
     const oletime =
       bytes.length >= MIN_BYTE_LENGTHS.OLETIME
-        ? bytesToOLETIME(getSlice(MIN_BYTE_LENGTHS.OLETIME), endian === 'le')
+        ? bytesToOLETIME(
+            getSlice(MIN_BYTE_LENGTHS.OLETIME),
+            endian === 'le',
+            config.ui.dateFormat
+          )
         : '-';
     const filetime =
       bytes.length >= MIN_BYTE_LENGTHS.FILETIME
-        ? bytesToFILETIME(getSlice(MIN_BYTE_LENGTHS.FILETIME), endian === 'le')
+        ? bytesToFILETIME(
+            getSlice(MIN_BYTE_LENGTHS.FILETIME),
+            endian === 'le',
+            config.ui.dateFormat
+          )
         : '-';
     const dosdate =
       bytes.length >= MIN_BYTE_LENGTHS.DOSDATE
-        ? bytesToDOSDate(getSlice(MIN_BYTE_LENGTHS.DOSDATE), endian === 'le')
+        ? bytesToDOSDate(
+            getSlice(MIN_BYTE_LENGTHS.DOSDATE),
+            endian === 'le',
+            config.ui.dateFormat
+          )
         : '-';
     const dostime =
       bytes.length >= MIN_BYTE_LENGTHS.DOSTIME
@@ -243,16 +256,25 @@ const DataInspector: React.FC = () => {
       bytes.length >= MIN_BYTE_LENGTHS.DOSDATETIME
         ? bytesToDOSDateTime(
             getSlice(MIN_BYTE_LENGTHS.DOSDATETIME),
-            endian === 'le'
+            endian === 'le',
+            config.ui.dateFormat
           )
         : '-';
     const timet32 =
       bytes.length >= MIN_BYTE_LENGTHS.TIMET32
-        ? bytesToTimeT32(getSlice(MIN_BYTE_LENGTHS.TIMET32), endian === 'le')
+        ? bytesToTimeT32(
+            getSlice(MIN_BYTE_LENGTHS.TIMET32),
+            endian === 'le',
+            config.ui.dateFormat
+          )
         : '-';
     const timet64 =
       bytes.length >= MIN_BYTE_LENGTHS.TIMET64
-        ? bytesToTimeT64(getSlice(MIN_BYTE_LENGTHS.TIMET64), endian === 'le')
+        ? bytesToTimeT64(
+            getSlice(MIN_BYTE_LENGTHS.TIMET64),
+            endian === 'le',
+            config.ui.dateFormat
+          )
         : '-';
 
     // GUID
@@ -344,18 +366,20 @@ const DataInspector: React.FC = () => {
                         {canJumpRelative && (
                           <Tooltip
                             text={t('dataInspector.relativeJumpTooltip', {
-                              current: activeSelectionState
-                                ?.start!.toString(16)
-                                .toUpperCase(),
-                              currentDec: activeSelectionState?.start || '',
+                              current: formatOffset(
+                                activeSelectionState?.start || 0,
+                                config.ui.numberBase
+                              ),
                               operator: numValue >= 0 ? '+' : '',
                               value: item.value,
-                              target: targetOffset!.toString(16).toUpperCase(),
-                              targetDec: targetOffset,
+                              target: formatOffset(
+                                targetOffset!,
+                                config.ui.numberBase
+                              ),
                             })}
                           >
                             <JumpButton
-                              onClick={() => handleJumpToOffset(item.value)}
+                              onClick={() => handleJumpToOffset(numValue)}
                               aria-label={t('dataInspector.jumpRelative')}
                             >
                               <DoubleChevronsRightIcon width={14} height={14} />
@@ -368,13 +392,16 @@ const DataInspector: React.FC = () => {
                         {canJumpAbsolute && (
                           <Tooltip
                             text={t('dataInspector.absoluteJumpTooltip', {
-                              target: numValue.toString(16).toUpperCase(),
+                              target: formatOffset(
+                                numValue,
+                                config.ui.numberBase
+                              ),
                               targetDec: numValue,
                             })}
                           >
                             <JumpButton
                               onClick={() =>
-                                handleJumpToAbsoluteOffset(item.value)
+                                handleJumpToAbsoluteOffset(numValue)
                               }
                               aria-label={t('dataInspector.jumpAbsolute')}
                             >

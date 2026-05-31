@@ -126,7 +126,7 @@
     "startOffset": "시작 위치",
     "endOffset": "끝 위치",
     "length": "길이",
-    "radixTooltip": "16/10/8진수 전환"
+    "radixTooltip": "16/10/8/2진수 전환"
   },
   "footer": {
     "selection": "선택",
@@ -138,10 +138,11 @@
     "message": "파일을 여기에 놓으면 분석이 시작됩니다 (클릭하여 닫기)"
   },
   "offsetNavigator": {
-    "radixTooltip": "16/10/8진수 전환",
+    "radixTooltip": "16/10/8/2진수 전환",
     "hexPlaceholder": "오프셋 (16진수)",
     "decPlaceholder": "오프셋 (10진수)",
     "octPlaceholder": "오프셋 (8진수)",
+    "binPlaceholder": "오프셋 (2진수)",
     "navigateTooltip": "오프셋으로 이동"
   },
   "dataInspector": {
@@ -151,8 +152,8 @@
     "bigEndian": "빅 엔디안",
     "littleEndianTooltip": "리틀엔디안으로 변경",
     "bigEndianTooltip": "빅엔디안으로 변경",
-    "relativeJumpTooltip": "상대 오프셋 이동: 현재(0x{current}({currentDec})) {operator}{value} → 0x{target}({targetDec})",
-    "absoluteJumpTooltip": "절대 오프셋 이동: 0x{target}({targetDec})",
+    "relativeJumpTooltip": "상대 오프셋 이동: 현재[{current}] {operator}{value} → {target}",
+    "absoluteJumpTooltip": "절대 오프셋 이동: {target}",
     "jumpRelative": "상대 오프셋으로 이동",
     "jumpAbsolute": "절대 오프셋으로 이동",
     "dataTypes": {
@@ -244,20 +245,20 @@
     "firstIfdOffset": "첫번째 IFD 오프셋",
     "ifdInfo": "IFD 정보",
     "ifdName": "IFD 이름",
-    "ifdOffset": "오프셋",
+    "ifdOffset": "EXIF 기준 상대 오프셋",
     "ifdTagCount": "태그 개수",
     "ifdNextOffset": "다음 IFD 오프셋",
-    "jumpToOffset": "다음으로 이동: 0x{target}({targetDec}) ({bytes} 바이트)",
-    "jumpToTag": "태그 오프셋으로 이동: 0x{target}({targetDec}) ({bytes} 바이트)",
+    "jumpToOffset": "다음으로 이동: {target} ({bytes} 바이트)",
+    "jumpToTag": "태그 오프셋으로 이동: {target} ({bytes} 바이트)",
     "jumpUnavailable": "이동 불가",
     "jumpToIfdOffset": "IFD 오프셋으로 이동",
-    "jumpToPointerTarget": "포인터가 가리키는 위치로 이동: 0x{target}({targetDec}) ({bytes} 바이트)",
-    "jumpToData": "데이터 위치로 이동: 0x{target}({targetDec}) ({bytes} 바이트)"
+    "jumpToPointerTarget": "포인터가 가리키는 위치로 이동",
+    "jumpToData": "데이터 위치로 이동: {target} ({bytes} 바이트)"
   },
   "textChunksViewer": {
     "ihdrInfo": "IHDR 정보",
     "textChunks": "텍스트 청크",
-    "jumpToOffset": "다음으로 이동: 0x{target}({targetDec}) ({bytes} 바이트)"
+    "jumpToOffset": "다음으로 이동: {target} ({bytes} 바이트)"
   },
   "calculateHash": {
     "title": "해시 계산",
