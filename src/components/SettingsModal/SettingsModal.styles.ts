@@ -23,32 +23,66 @@ export const SettingsWrapper = styled.div`
 `;
 
 export const SettingsPanel = styled.div`
-  min-width: 200px;
-  max-height: 75vh;
-  overflow-y: auto;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80vw;
+  max-width: 800px;
+  max-height: 85vh;
   background: var(--main-bg-color);
   border: 1px solid var(--main-line-color);
   border-radius: 4px;
-  padding: 10px 12px;
-  z-index: 1100;
-  position: relative;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  z-index: 1101;
 `;
 
-export const SettingsPanelTitle = styled.div`
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: var(--main-color-reverse);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  margin-bottom: 8px;
-  padding-bottom: 6px;
+export const SettingsHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 26px;
+  padding: 2px 8px;
   border-bottom: 1px solid var(--main-line-color);
+`;
+
+export const SettingsTitle = styled.h3`
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--ice-main-color);
+`;
+
+export const CloseBtn = styled.div`
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--main-color);
+  padding: 4px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  border-radius: 3px;
+
+  &:hover {
+    color: var(--ice-main-color);
+    background-color: var(--main-hover-color);
+  }
+`;
+
+export const SettingsContent = styled.div`
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
 `;
 
 export const SettingsSectionLabel = styled.div`
   font-size: 0.68rem;
   color: var(--main-color-reverse);
   letter-spacing: 0.04em;
+  font-weight: 600;
   margin-bottom: 2px;
 `;
 
@@ -56,11 +90,10 @@ export const SettingsSection = styled.div`
   display: flex;
   flex-direction: column;
   gap: 6px;
-
+  border-top: 1px solid var(--main-line-color);
+  padding-top: 5px;
   & + & {
     margin-top: 8px;
-    padding-top: 8px;
-    border-top: 1px solid var(--main-line-color);
   }
 `;
 
@@ -251,9 +284,9 @@ export const ResetButton = styled.button`
   width: 100%;
   padding: 6px 8px;
   border-radius: 3px;
-  border: 1px solid var(--main-line-color);
+  border: 1px solid var(--ice-main-color-error);
   background: transparent;
-  color: var(--main-color);
+  color: var(--ice-main-color-error);
   font-size: 0.75rem;
   cursor: pointer;
   transition: opacity 0.2s;
@@ -265,5 +298,7 @@ export const ResetButton = styled.button`
 
   &:hover:not(:disabled) {
     background-color: var(--main-hover-color);
+    border-color: rgba(255, 107, 138, 0.3);
+    background: rgba(255, 107, 138, 0.1);
   }
 `;

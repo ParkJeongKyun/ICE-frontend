@@ -229,9 +229,12 @@
     "mimeTypeMessage": "파일 내용 기반 MIME 타입",
     "appropriateExtension": "적절한 확장자",
     "appropriateExtensionMessage": "시그니처/푸터 기반 확장자",
+    "zeroLocation": "위치 정보 초기화됨 (0, 0)",
+    "zeroLocationMessage": "GPS 정보가 0으로 채워져 있습니다. 최신 기기의 보안 정책이나 정보 누락으로 인해 발생할 수 있습니다.",
     "thumbnail": "썸네일",
     "map": "지도",
     "address": "주소",
+    "locationTrackingDisabled": "위치 정보 전송이 비활성화되어 있습니다",
     "exifData": "Exif 데이터",
     "exifTags": "Exif 태그",
     "exifInfo": "Exif 정보",
@@ -305,11 +308,13 @@
     "analysis": {
       "title": "분석",
       "enable": "분석 활성화",
-      "imageMetadata": "이미지 메타데이터 분석"
+      "imageMetadata": "이미지 메타데이터 분석",
+      "locationTracking": "위치 정보 전송 허용 (지도 서비스용)"
     },
     "ui": {
-      "title": "UI 환경설정",
+      "title": "UI",
       "panelVisibility": {
+        "title": "패널(좌/우탭)",
         "infoPanel": "정보 패널",
         "toolsPanel": "도구 패널",
         "exifThumbnail": "썸네일",

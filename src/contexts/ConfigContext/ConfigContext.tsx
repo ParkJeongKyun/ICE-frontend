@@ -14,6 +14,7 @@ export interface IceConfig {
   analysis: {
     enabled: boolean;
     imageMetadata: boolean;
+    locationTracking: boolean;
   };
   // UI/UX 설정
   ui: {
@@ -50,6 +51,7 @@ const DEFAULT_CONFIG: IceConfig = {
   analysis: {
     enabled: true,
     imageMetadata: true,
+    locationTracking: true,
   },
   ui: {
     bytesPerLine: 16,
@@ -168,6 +170,10 @@ function validateConfig(config: IceConfig): IceConfig {
   }
   if (typeof config.analysis.imageMetadata !== 'boolean') {
     validated.analysis.imageMetadata = DEFAULT_CONFIG.analysis.imageMetadata;
+  }
+  if (typeof config.analysis.locationTracking !== 'boolean') {
+    validated.analysis.locationTracking =
+      DEFAULT_CONFIG.analysis.locationTracking;
   }
 
   return validated;

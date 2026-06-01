@@ -87,9 +87,17 @@ export const getAddress = async (
   }
 };
 
-// 위치값 유효성 검사
+// 위치값 유효성 검사 (형식 위주)
 export function isValidLocation(lat: unknown, lng: unknown) {
   return isValidNumber(lat) && isValidNumber(lng);
+}
+
+// 0, 0 여부 확인
+export function isZeroLocation(lat: unknown, lng: unknown): boolean {
+  const latNum = typeof lat === 'string' ? parseFloat(lat) : Number(lat);
+  const lngNum = typeof lng === 'string' ? parseFloat(lng) : Number(lng);
+
+  return latNum === 0 && lngNum === 0;
 }
 
 // 숫자 유효성 검사

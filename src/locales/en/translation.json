@@ -229,9 +229,12 @@
     "mimeTypeMessage": "MIME type based on file content",
     "appropriateExtension": "Appropriate Extension",
     "appropriateExtensionMessage": "Extension based on signature/footer",
+    "zeroLocation": "Location Data Reset (0, 0)",
+    "zeroLocationMessage": "GPS data is filled with zeros. This may occur due to modern device privacy policies or missing GPS info.",
     "thumbnail": "Thumbnail",
     "map": "Map",
     "address": "Address",
+    "locationTrackingDisabled": "Location data transmission is disabled",
     "exifData": "Exif Data",
     "exifTags": "Exif Tags",
     "exifInfo": "Exif Info",
@@ -305,11 +308,13 @@
     "analysis": {
       "title": "Analysis",
       "enable": "Enable Analysis",
-      "imageMetadata": "Image Metadata Analysis"
+      "imageMetadata": "Image Metadata Analysis",
+      "locationTracking": "Allow Location Data Transmission (for map services)"
     },
     "ui": {
-      "title": "UI Preferences",
+      "title": "UI",
       "panelVisibility": {
+        "title": "Panel(Left/Right Tabs)",
         "infoPanel": "Info Panel",
         "toolsPanel": "Tools Panel",
         "exifThumbnail": "Thumbnail",
