@@ -55,6 +55,10 @@ export const SponsorLink = styled.a`
   &:hover {
     filter: brightness(1.15);
   }
+
+  @media (max-width: 480px) {
+    gap: 0;
+  }
 `;
 
 export const ReportLink = styled.a`
@@ -69,6 +73,16 @@ export const ReportLink = styled.a`
 
   &:hover {
     filter: brightness(1.15);
+  }
+
+  @media (max-width: 480px) {
+    gap: 0;
+  }
+`;
+
+export const LinkLabelText = styled.span`
+  @media (max-width: 480px) {
+    display: none;
   }
 `;
 

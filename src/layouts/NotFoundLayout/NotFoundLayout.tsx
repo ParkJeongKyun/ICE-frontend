@@ -5,6 +5,7 @@ import Logo from '@/components/common/Icons/Logo/Logo';
 import CoffeeIcon from '@/components/common/Icons/CoffeeIcon';
 import IssueIcon from '@/components/common/Icons/IssueIcon';
 import HeartIcon from '@/components/common/Icons/HeartIcon';
+import CircleDotIcon from '@/components/common/Icons/CircleDotIcon';
 import {
   PageLayout,
   PageHeader,
@@ -17,7 +18,6 @@ import {
   FooterLink,
   FooterDivider,
   HeaderRight,
-  GitHubLink,
   HeaderDivider,
   SponsorLink,
   ReportLink,
@@ -30,6 +30,7 @@ import {
   ErrorActions,
   BtnPrimary,
   ReportIssueLink,
+  LinkLabelText,
 } from './NotFoundLayout.styles';
 
 const NotFoundLayout: React.FC = () => {
@@ -50,7 +51,7 @@ const NotFoundLayout: React.FC = () => {
               height={13}
               color="var(--ice-main-color-love)"
             />
-            Sponsor
+            <LinkLabelText>Sponsor</LinkLabelText>
           </SponsorLink>
           <HeaderDivider />
           <SponsorLink
@@ -64,7 +65,7 @@ const NotFoundLayout: React.FC = () => {
               height={13}
               color="var(--ice-main-color-love)"
             />
-            Ko-fi
+            <LinkLabelText>Ko-fi</LinkLabelText>
           </SponsorLink>
           <HeaderDivider />
           <ReportLink
@@ -74,7 +75,7 @@ const NotFoundLayout: React.FC = () => {
             aria-label="Report issue"
           >
             <IssueIcon width={13} height={13} color="var(--ice-main-color)" />
-            Report
+            <LinkLabelText>Report</LinkLabelText>
           </ReportLink>
         </HeaderRight>
       </PageHeader>
@@ -85,15 +86,7 @@ const NotFoundLayout: React.FC = () => {
             <ErrorCode>404</ErrorCode>
             <BadgeRow>
               <Badge>
-                <svg
-                  width="11"
-                  height="11"
-                  viewBox="0 0 16 16"
-                  fill="currentColor"
-                  aria-hidden="true"
-                >
-                  <path d="M8 9.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3ZM8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Z" />
-                </svg>
+                <CircleDotIcon width={11} height={11} />
                 Page Not Found
               </Badge>
             </BadgeRow>
