@@ -14,6 +14,30 @@ export const IceMap = styled.div`
   height: 150px;
 `;
 
+export const DisabledMapPlaceholder = styled.div`
+  width: 100%;
+  min-height: 150px;
+  background-color: var(--main-hover-color);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  color: var(--ice-main-color-warning);
+  opacity: 0.7;
+  text-align: center;
+
+  svg {
+    opacity: 0.5;
+  }
+
+  span {
+    font-size: 0.75rem;
+    line-height: 1.4;
+  }
+`;
+
 export const AddressInfo = styled.div`
   padding: 5px 10px;
 `;
