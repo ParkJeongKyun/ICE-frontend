@@ -33,6 +33,7 @@ const CRITICAL_CSS = `
     --ice-shadow: rgba(0, 0, 0, 0.1);
     --ice-shadow-deep: rgba(0, 0, 0, 0.2);
     --ice-shadow-heavy: rgba(0, 0, 0, 0.15);
+    --ice-shadow-light: rgba(0, 0, 0, 0.1);
 
     --ice-color-danger: #dc3545;
     --ice-bg-danger: rgba(220, 53, 69, 0.1);
@@ -40,6 +41,7 @@ const CRITICAL_CSS = `
     --ice-bg-love: rgba(255, 107, 138, 0.1);
     --ice-border-love: rgba(255, 107, 138, 0.3);
 
+    --ice-icon-bg-color: #00B0F0;
     --ice-color-white: #ffffff;
     --ice-color-black: #000000;
 

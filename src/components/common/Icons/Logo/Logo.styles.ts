@@ -25,7 +25,7 @@ export const LogoInner = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 6px 18px var(--ice-shadow-light);
   box-sizing: border-box;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 
@@ -73,18 +73,34 @@ export const Star = styled.div`
 
   ${LogoWrapper}:hover & span,
   ${LogoContainer}:hover & span {
-    box-shadow: 0 0 18px var(--arm-glow);
+    box-shadow: 0 0 2.5px color-mix(in srgb, var(--arm-color), transparent 40%);
     width: calc(var(--arm-w) * 1.3);
   }
 
-  span:nth-child(1) { transform: translate(-50%, -100%) rotate(0deg); }
-  span:nth-child(2) { transform: translate(-50%, -100%) rotate(45deg); }
-  span:nth-child(3) { transform: translate(-50%, -100%) rotate(90deg); }
-  span:nth-child(4) { transform: translate(-50%, -100%) rotate(135deg); }
-  span:nth-child(5) { transform: translate(-50%, -100%) rotate(180deg); }
-  span:nth-child(6) { transform: translate(-50%, -100%) rotate(225deg); }
-  span:nth-child(7) { transform: translate(-50%, -100%) rotate(270deg); }
-  span:nth-child(8) { transform: translate(-50%, -100%) rotate(315deg); }
+  span:nth-child(1) {
+    transform: translate(-50%, -100%) rotate(0deg);
+  }
+  span:nth-child(2) {
+    transform: translate(-50%, -100%) rotate(45deg);
+  }
+  span:nth-child(3) {
+    transform: translate(-50%, -100%) rotate(90deg);
+  }
+  span:nth-child(4) {
+    transform: translate(-50%, -100%) rotate(135deg);
+  }
+  span:nth-child(5) {
+    transform: translate(-50%, -100%) rotate(180deg);
+  }
+  span:nth-child(6) {
+    transform: translate(-50%, -100%) rotate(225deg);
+  }
+  span:nth-child(7) {
+    transform: translate(-50%, -100%) rotate(270deg);
+  }
+  span:nth-child(8) {
+    transform: translate(-50%, -100%) rotate(315deg);
+  }
 `;
 
 export const LogoText = styled.div`

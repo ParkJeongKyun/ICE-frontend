@@ -92,7 +92,7 @@ const Tooltip: React.FC<TooltipProps> = ({
               wordBreak: 'break-word',
               zIndex: 1202,
               pointerEvents: 'none',
-              boxShadow: '0 1px 4px rgba(0, 0, 0, 0.12)',
+              boxShadow: '0 1px 4px var(--ice-shadow-light)',
               opacity: opacity,
               transition: 'opacity 0.15s ease',
               willChange: 'transform',
