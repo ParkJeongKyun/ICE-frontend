@@ -128,11 +128,8 @@ const GhostButton = css`
   }
 
   &:hover {
-    background-color: rgba(
-      255,
-      255,
-      255,
-      0.08
+    background-color: var(
+      --main-hover-color
     ); /* 마우스 올릴 때만 은은한 배경 */
     color: var(--ice-main-color);
     svg {
@@ -155,7 +152,7 @@ export const ToggleButton = styled.button<{ $isReadOnly: boolean }>`
   ${({ $isReadOnly }) =>
     !$isReadOnly &&
     `
-    background-color: rgba(0, 180, 255, 0.05);
+    background-color: var(--main-hover-color);
     color: var(--ice-main-color);
     svg { opacity: 1; color: var(--ice-main-color); }
   `}
@@ -210,7 +207,7 @@ export const MainContainer = styled.div`
     p {
       font-size: 1.05rem;
       line-height: 1.7;
-      color: rgba(255, 255, 255, 0.85);
+      color: var(--main-color);
       word-break: break-word;
       text-align: left;
     }
@@ -234,7 +231,7 @@ export const MainContainer = styled.div`
     }
 
     code {
-      background: rgba(0, 0, 0, 0.3);
+      background: var(--main-hover-color);
       border-radius: 4px;
       padding: 2px 5px;
       font-size: 0.88em;
@@ -242,8 +239,8 @@ export const MainContainer = styled.div`
     }
 
     pre {
-      background: rgba(0, 0, 0, 0.3);
-      border: 1px solid rgba(255, 255, 255, 0.05);
+      background: var(--main-hover-color);
+      border: 1px solid var(--main-line-color);
       border-radius: 8px;
       padding: 16px;
       font-size: 0.9rem;
@@ -267,7 +264,7 @@ export const MainContainer = styled.div`
   .ProseMirror p.is-editor-empty:first-child::before {
     content: attr(data-placeholder);
     float: left;
-    color: rgba(255, 255, 255, 0.25);
+    color: var(--main-disabled-color);
     pointer-events: none;
     height: 0;
   }
@@ -283,13 +280,13 @@ export const FloatingButton = styled.button<{ $show: boolean }>`
   height: 44px;
   border-radius: 50%;
   background-color: var(--main-bg-color);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--main-line-color);
   color: var(--main-color);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 16px var(--ice-shadow-deep);
   z-index: 1000;
 
   /* 부드러운 애니메이션 적용 */
@@ -324,13 +321,13 @@ export const Toast = styled.div<{ $show: boolean }>`
   transform: translateX(-50%)
     translateY(${({ $show }) => ($show ? '0' : '20px')});
   background-color: var(--main-bg-color);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--main-line-color);
   color: var(--ice-main-color);
   padding: 12px 24px;
   font-size: 0.85rem;
   font-weight: 500;
   border-radius: 30px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 8px 24px var(--ice-shadow-deep);
   z-index: 2000;
   opacity: ${({ $show }) => ($show ? 1 : 0)};
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
