@@ -1,5 +1,8 @@
 import { useRef, useCallback, useMemo, RefObject } from 'react';
-import { useTab, SelectionState } from '@/contexts/TabDataContext/TabDataContext';
+import {
+  useTab,
+  SelectionState,
+} from '@/contexts/TabDataContext/TabDataContext';
 import { useSelection } from '@/contexts/TabDataContext/TabDataContext';
 import { useConfig } from '@/contexts/ConfigContext/ConfigContext';
 import { getDevicePixelRatio } from '@/utils/hexViewer';
@@ -248,7 +251,7 @@ export const useHexViewerRender = ({
 
         if (byte === null || byte === undefined) {
           const xHex = HEX_START_X + i * hexByteWidth + hexByteWidth / 2;
-          offCtx.fillStyle = 'rgba(128, 128, 128, 0.15)';
+          offCtx.fillStyle = colors.BG;
           offCtx.fillRect(
             xHex - hexByteWidth / 2 + 1,
             y + 2,
@@ -270,8 +273,10 @@ export const useHexViewerRender = ({
         const isSel =
           currentSelectionRange.start !== null &&
           currentSelectionRange.end !== null &&
-          idx >= Math.min(currentSelectionRange.start, currentSelectionRange.end) &&
-          idx <= Math.max(currentSelectionRange.start, currentSelectionRange.end);
+          idx >=
+            Math.min(currentSelectionRange.start, currentSelectionRange.end) &&
+          idx <=
+            Math.max(currentSelectionRange.start, currentSelectionRange.end);
 
         // HEX 영역
         const xHex = HEX_START_X + i * hexByteWidth + hexByteWidth / 2;
