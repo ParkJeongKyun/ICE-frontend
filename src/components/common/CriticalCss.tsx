@@ -42,6 +42,9 @@ const CRITICAL_CSS = `
     --ice-bg-love: rgba(255, 107, 138, 0.1);
     --ice-border-love: rgba(255, 107, 138, 0.3);
 
+    --ice-bg-primary: rgba(96, 200, 255, 0.1);
+    --ice-border-primary: rgba(96, 200, 255, 0.3);
+
     --ice-icon-bg-color: #00B0F0;
     --ice-color-white: #ffffff;
     --ice-color-black: #000000;
