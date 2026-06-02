@@ -28,6 +28,21 @@ const CRITICAL_CSS = `
     --scrollbar-color: rgba(52, 81, 103, 0.5);
     --scrollbar-color-hover: rgba(52, 81, 103, 0.9);
 
+    --ice-bg-overlay: rgba(0, 0, 0, 0.5);
+    --ice-bg-overlay-light: rgba(0, 0, 0, 0.3);
+    --ice-shadow: rgba(0, 0, 0, 0.1);
+    --ice-shadow-deep: rgba(0, 0, 0, 0.2);
+    --ice-shadow-heavy: rgba(0, 0, 0, 0.15);
+
+    --ice-color-danger: #dc3545;
+    --ice-bg-danger: rgba(220, 53, 69, 0.1);
+
+    --ice-bg-love: rgba(255, 107, 138, 0.1);
+    --ice-border-love: rgba(255, 107, 138, 0.3);
+
+    --ice-color-white: #ffffff;
+    --ice-color-black: #000000;
+
     --ice-main-color: #60c8ff;
     --ice-main-color-error: #e05858;
     --ice-main-color-success: #40e0a0;

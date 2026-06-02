@@ -8,7 +8,7 @@ interface SpinnerProps {
 
 const Spinner: React.FC<SpinnerProps> = ({
     size = 16,
-    color = '#ffffff',
+    color = 'var(--ice-color-white)',
 }) => {
     return (
         <SpinnerWrapper $size={size} $color={color}>
