@@ -60,7 +60,7 @@ export const IceHeader = styled.div<{
       bottom: 0;
       height: 1.5px;
       width: 100%;
-      background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.05) 20%, var(--ice-main-color) 50%, rgba(255,255,255,0.05) 80%, transparent 100%);
+      background: linear-gradient(90deg, transparent 0%, var(--ice-shadow-extra-light) 20%, var(--ice-main-color) 50%, var(--ice-shadow-extra-light) 80%, transparent 100%);
       transform: translateX(-100%);
       animation: shimmer 2.5s linear infinite;
       pointer-events: none;

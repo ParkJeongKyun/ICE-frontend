@@ -40,7 +40,7 @@ export const MessageBox = styled.div<{
   border-left: 4px solid ${({ $type }) => getMessageTypeColor($type)};
   border-radius: 4px;
   padding: 14px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 16px var(--ice-shadow-deep);
   min-width: 300px;
   max-width: 400px;
   display: flex;

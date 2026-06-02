@@ -176,7 +176,7 @@ const SettingsModal: React.FC = () => {
             lockScroll
             style={{
               zIndex: 1100,
-              backgroundColor: 'rgba(0, 0, 0, 0.5)',
+              backgroundColor: 'var(--ice-bg-overlay)',
             }}
           >
             <SettingsPanel ref={refs.setFloating} {...getFloatingProps()}>

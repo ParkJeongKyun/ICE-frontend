@@ -34,6 +34,7 @@ const CRITICAL_CSS = `
     --ice-shadow-deep: rgba(0, 0, 0, 0.2);
     --ice-shadow-heavy: rgba(0, 0, 0, 0.15);
     --ice-shadow-light: rgba(0, 0, 0, 0.1);
+    --ice-shadow-extra-light: rgba(0, 0, 0, 0.05);
 
     --ice-color-danger: #dc3545;
     --ice-bg-danger: rgba(220, 53, 69, 0.1);
