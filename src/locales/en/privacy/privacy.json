@@ -1,6 +1,6 @@
 {
   "title": "Privacy Policy",
-  "lastUpdated": "Last Updated: March 3, 2026",
+  "lastUpdated": "Last Updated: June 1, 2026",
   "sections": [
     {
       "id": "overview",
@@ -29,7 +29,7 @@
             },
             {
               "bold": "Location Data (Latitude/Longitude):",
-              "text": " When you request location information from a photo, the coordinate data is transmitted to Nominatim (OpenStreetMap) and Leaflet linked servers for map visualization and address conversion (Reverse Geocoding)."
+              "text": " When you request location information from a photo, the coordinate data is transmitted to Nominatim (OpenStreetMap) and Leaflet linked servers for map visualization and address conversion (Reverse Geocoding). This feature can be disabled at any time through the 'Allow Location Search' option in the service settings."
             }
           ]
         }

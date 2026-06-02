@@ -1,6 +1,6 @@
 {
   "title": "개인정보 처리방침",
-  "lastUpdated": "최종 업데이트: 2026년 3월 03일",
+  "lastUpdated": "최종 업데이트: 2026년 6월 01일",
   "sections": [
     {
       "id": "overview",
@@ -29,7 +29,7 @@
             },
             {
               "bold": "위치 정보(위도·경도):",
-              "text": " 사용자가 사진의 위치 정보 조회를 요청할 경우, 지도 시각화 및 주소 변환(Reverse Geocoding)을 위해 해당 좌표 데이터가 Nominatim (OpenStreetMap) 및 Leaflet 연동 서버로 전송됩니다."
+              "text": " 사용자가 사진의 위치 정보 조회를 요청할 경우, 지도 시각화 및 주소 변환(Reverse Geocoding)을 위해 해당 좌표 데이터가 Nominatim (OpenStreetMap) 및 Leaflet 연동 서버로 전송됩니다. 해당 기능은 서비스 설정에서 '위치정보 조회 허용' 옵션을 통해 언제든지 비활성화할 수 있습니다."
             }
           ]
         }
