@@ -44,11 +44,11 @@ const GitHubSponsorLink = styled(SponsorLink)`
   padding-right: 0.25rem;
   border-radius: 0.375rem 0 0 0.375rem;
   &:hover {
-    background: rgba(255, 107, 138, 0.1);
-    border-color: rgba(255, 107, 138, 0.3);
+    background: var(--ice-bg-love);
+    border-color: var(--ice-border-love);
 
     svg {
-      filter: drop-shadow(0 0 4px rgba(255, 107, 138, 0.5));
+      filter: drop-shadow(0 0 4px var(--ice-main-color-love));
     }
   }
 `;
@@ -58,11 +58,11 @@ const KoFiLink = styled(SponsorLink)`
   padding-left: 0.25rem;
   border-radius: 0 0.375rem 0.375rem 0;
   &:hover {
-    background: rgba(255, 107, 138, 0.1);
-    border-color: rgba(255, 107, 138, 0.3);
+    background: var(--ice-bg-love);
+    border-color: var(--ice-border-love);
 
     svg {
-      filter: drop-shadow(0 0 4px rgba(255, 107, 138, 0.5));
+      filter: drop-shadow(0 0 4px var(--ice-main-color-love));
     }
   }
 `;

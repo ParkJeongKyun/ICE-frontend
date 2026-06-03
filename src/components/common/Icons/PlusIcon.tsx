@@ -9,7 +9,7 @@ interface SvgIconProps {
 const PlusIcon: React.FC<SvgIconProps> = ({
   width = 18,
   height = 18,
-  color = 'white',
+  color = 'currentColor',
 }) => (
   <svg
     width={width}

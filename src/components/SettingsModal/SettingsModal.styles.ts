@@ -33,7 +33,7 @@ export const SettingsPanel = styled.div`
   background: var(--main-bg-color);
   border: 1px solid var(--main-line-color);
   border-radius: 4px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 10px var(--ice-shadow-deep);
   display: flex;
   flex-direction: column;
   z-index: 1101;
@@ -145,7 +145,7 @@ export const ToggleThumb = styled.div<{ $on: boolean }>`
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: #fff;
+  background: var(--ice-icon-color);
   transition: left 0.2s ease;
 `;
 
@@ -158,7 +158,8 @@ export const SegmentGroup = styled.div`
 export const SegmentBtn = styled.button<{ $active: boolean }>`
   background: ${({ $active }) =>
     $active ? 'var(--ice-main-color)' : 'var(--main-bg-color)'};
-  color: ${({ $active }) => ($active ? '#000' : 'var(--main-color)')};
+  color: ${({ $active }) =>
+    $active ? 'var(--main-line-color)' : 'var(--main-color)'};
   border: 1px solid
     ${({ $active }) =>
       $active ? 'var(--ice-main-color)' : 'var(--main-line-color)'};
@@ -298,7 +299,7 @@ export const ResetButton = styled.button`
 
   &:hover:not(:disabled) {
     background-color: var(--main-hover-color);
-    border-color: rgba(255, 107, 138, 0.3);
-    background: rgba(255, 107, 138, 0.1);
+    border-color: var(--ice-border-love);
+    background: var(--ice-bg-love);
   }
 `;

@@ -39,7 +39,7 @@ export const HistoryOverlay = styled.div`
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.3);
+  background-color: var(--ice-bg-overlay-light);
   z-index: 1100;
   display: none;
 
@@ -57,7 +57,7 @@ export const HistoryPanel = styled.div<{ $isOpen: boolean }>`
   background-color: var(--main-bg-color);
   border: 1px solid var(--main-line-color);
   border-radius: 4px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px var(--ice-shadow-heavy);
   z-index: 1101;
   display: ${({ $isOpen }) => ($isOpen ? 'flex' : 'none')};
   flex-direction: column;
@@ -222,8 +222,8 @@ export const HistoryItemDelete = styled.button`
   align-items: center;
 
   &:hover {
-    color: #dc3545;
-    background-color: rgba(220, 53, 69, 0.1);
+    color: var(--ice-color-danger);
+    background-color: var(--ice-bg-danger);
   }
 `;
 

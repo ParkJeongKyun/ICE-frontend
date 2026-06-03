@@ -23,6 +23,7 @@ import SponsorButton from '@/components/SponsorButton/SponsorButton';
 import LocaleSwitcher from '@/components/LocaleSwitcher/LocaleSwitcher';
 import ForensicInterviewCard from './ForensicInterviewCard/ForensicInterviewCard';
 import { Link } from '@/locales/routing';
+import ScrollArrowIcon from '@/components/common/Icons/ScrollArrowIcon';
 import {
   calculateCareerDuration,
   calculateTotalCareerDuration,
@@ -96,15 +97,7 @@ const About: React.FC = () => {
         </LangSwitcherCorner>
         <Lanyard />
         <ScrollIndicator>
-          <svg className="arrow" viewBox="0 0 24 24" fill="none">
-            <path
-              d="M12 5v14M12 19l-7-7M12 19l7-7"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+          <ScrollArrowIcon className="arrow" width={24} height={24} />
         </ScrollIndicator>
       </HeroSection>
       <AppContainer>

@@ -398,6 +398,8 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
         OFFSET: style.getPropertyValue(COLOR_KEYS.OFFSET).trim(),
         BG: style.getPropertyValue(COLOR_KEYS.BG).trim(),
       };
+      handleDragRepaint();
+      renderHeader();
     };
     updateColors();
     const observer = new MutationObserver(updateColors);
@@ -406,7 +408,7 @@ const HexViewer: React.ForwardRefRenderFunction<HexViewerRef> = (
       attributeFilter: ['class', 'data-theme'],
     });
     return () => observer.disconnect();
-  }, []);
+  }, [handleDragRepaint, renderHeader]);
 
   // Resize Observer (with forced repaint)
   useEffect(() => {

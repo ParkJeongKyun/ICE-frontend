@@ -22,12 +22,12 @@ const ReportLink = styled.a`
   cursor: pointer;
 
   &:hover {
-    background: rgba(96, 200, 255, 0.1);
-    border-color: rgba(96, 200, 255, 0.3);
+    background: var(--ice-bg-primary);
+    border-color: var(--ice-border-primary);
 
     svg {
       transform: scale(1.15);
-      filter: drop-shadow(0 0 4px rgba(96, 200, 255, 0.5));
+      filter: drop-shadow(0 0 4px var(--ice-main-color));
     }
   }
 

@@ -298,6 +298,12 @@
   "settings": {
     "title": "Settings",
     "language": "Language",
+    "theme": "Theme",
+    "themeOptions": {
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System Settings"
+    },
     "languageHint": "Want to add a language or found a translation error?",
     "resetSettings": "Reset to Defaults",
     "notifications": {

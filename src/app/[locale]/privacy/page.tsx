@@ -55,19 +55,6 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   };
 }
 
-import { getMarkdownData } from '@/utils/getMarkdown';
-
-export default async function PrivacyPage(props: Props) {
-  const params = await props.params;
-  const locale = params.locale;
-
-  const md = getMarkdownData(locale, ['privacy']);
-
-  return (
-    <PrivacyLayout
-      initialContent={
-        md['privacy'] || 'Privacy policy is temporarily unavailable.'
-      }
-    />
-  );
+export default async function PrivacyPage() {
+  return <PrivacyLayout />;
 }

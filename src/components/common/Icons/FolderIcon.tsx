@@ -9,7 +9,7 @@ interface SvgIconProps {
 const FolderIcon: React.FC<SvgIconProps> = ({
   width = 18,
   height = 18,
-  color = 'white',
+  color = 'currentColor',
 }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"

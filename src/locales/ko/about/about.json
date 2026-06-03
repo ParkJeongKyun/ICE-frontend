@@ -89,7 +89,7 @@
   "careersData": [
     {
       "period": "2025.01 - 2026.03",
-      "company": "아이모스(주) AI 플랫폼 R&D팀",
+      "company": "아이모스 주식회사 - AI플랫폼R&D팀",
       "position": "프리랜서 개발자"
     },
     {
@@ -99,38 +99,38 @@
     },
     {
       "period": "2022.07 - 2024.06",
-      "company": "누리꿈소프트(주) DX 개발팀",
+      "company": "누리꿈소프트(주) - DX개발팀",
       "position": "개발자"
     },
     {
       "period": "2021.01 - 2022.07",
-      "company": "대한민국 해군 3함대사령부 사이버방호과",
+      "company": "대한민국 해군 3함대사령부 - 사이버방호과",
       "position": "CERT/보안관제"
     }
   ],
   "projectsData": [
     {
-      "name": "AIMOS - 철 스크랩 AI 검수 시스템",
+      "name": "AIMOS - 고철스크랩 AI 검수 시스템",
       "client": "대한제강, LG CNS, Aimos",
-      "role": "시스템 개발 및 운영",
+      "role": "인프라, 풀스택 개발 및 운영",
       "period": "2023.06 - 2026.03"
     },
     {
       "name": "현대제철 야드비상조업 시스템",
       "client": "현대제철, 현대ITC",
-      "role": "JSP 웹 개발",
+      "role": "JSP 프론트엔드 화면 개발",
       "period": "2023.06 - 2023.12"
     },
     {
       "name": "현대 ITC 안전 보건 시스템",
       "client": "현대ITC",
-      "role": "React 웹 프론트엔드 개발",
+      "role": "React 프론트엔드 화면 개발",
       "period": "2023.03 - 2023.06"
     },
     {
       "name": "차세대 지방 재정 분석 시스템",
       "client": "한국지역정보개발원",
-      "role": "JupyterHub AI 분석 환경, Nifi 데이터 ETL",
+      "role": "JupyterHub AI 분석 환경 개발, Nifi 데이터 ETL",
       "period": "2023.01 - 2023.08"
     },
     {

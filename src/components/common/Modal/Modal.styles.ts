@@ -7,7 +7,7 @@ export const ModalContainer = styled.div<{ $isOpen: boolean }>`
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: var(--ice-bg-overlay);
   z-index: 1200;
 `;
 
@@ -17,7 +17,7 @@ export const ModalContent = styled.div<{ $top: string; $left: string }>`
   top: ${({ $top }) => $top};
   left: ${({ $left }) => $left};
   transform: ${({ $top, $left }) => `translate(-${$top}, -${$left})`};
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 10px var(--ice-shadow);
   border-radius: 4px;
   border: 1px solid var(--main-line-color);
   width: 80vw;

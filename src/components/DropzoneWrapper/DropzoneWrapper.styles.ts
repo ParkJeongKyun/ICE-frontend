@@ -20,7 +20,7 @@ export const DragOverlay = styled.div`
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(96, 200, 255, 0.1);
+  background: color-mix(in srgb, var(--ice-main-color) 10%, transparent);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   border: 3px dashed var(--ice-main-color);

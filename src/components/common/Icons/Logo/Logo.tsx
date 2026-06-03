@@ -23,12 +23,12 @@ interface LogoProps {
 
 const Logo: React.FC<LogoProps> = ({
   size = 16,
-  bg = '#00B0F0',
-  star = '#ffffff',
+  bg = 'var(--ice-icon-bg-color)',
+  star = 'var(--ice-icon-color)',
   corner = '20%',
   showText = false,
   textSize = 14,
-  textColor = '#ffffff',
+  textColor = 'var(--ice-icon-color)',
   textWeight = 500,
   textGap = 1,
   letterSpacing = -1,
@@ -42,14 +42,6 @@ const Logo: React.FC<LogoProps> = ({
   const letterSpacingValue =
     typeof letterSpacing === 'number' ? `${letterSpacing}px` : letterSpacing;
 
-  // RGB 추출 함수
-  const hexToRgba = (hex: string, alpha: number) => {
-    const r = parseInt(hex.slice(1, 3), 16);
-    const g = parseInt(hex.slice(3, 5), 16);
-    const b = parseInt(hex.slice(5, 7), 16);
-    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-  };
-
   const cssVars = {
     ['--size' as string]: sizeValue,
     ['--bg' as string]: bg,
@@ -58,8 +50,6 @@ const Logo: React.FC<LogoProps> = ({
     ['--arm-h' as string]: '35%',
     ['--arm-radius' as string]: '8px',
     ['--arm-color' as string]: star,
-    ['--arm-glow' as string]: hexToRgba(star, 0.6),
-    ['--hover-shadow' as string]: hexToRgba(bg, 0.3),
     ['--text-size' as string]: textSizeValue,
     ['--text-color' as string]: textColor,
     ['--text-weight' as string]: textWeight.toString(),
