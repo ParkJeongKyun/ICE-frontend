@@ -222,6 +222,25 @@ const SettingsModal: React.FC = () => {
                       </LangFlagRow>
                     </SettingsSection>
 
+                    {/* 테마 설정 */}
+                    <SettingsSection>
+                      <SettingsSectionLabel>
+                        {t('theme')}
+                      </SettingsSectionLabel>
+                      <LangFlagRow>
+                        {(['light', 'dark', 'system'] as const).map((mode) => (
+                          <LangFlagBtn
+                            key={mode}
+                            $active={config.theme === mode}
+                            onClick={() => updateConfig({ theme: mode })}
+                            aria-label={t(`themeOptions.${mode}`)}
+                          >
+                            {t(`themeOptions.${mode}`)}
+                          </LangFlagBtn>
+                        ))}
+                      </LangFlagRow>
+                    </SettingsSection>
+
                     {/* 알람 설정 */}
                     <SettingsSection>
                       <SettingsSectionLabel>

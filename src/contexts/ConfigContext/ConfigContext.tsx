@@ -8,6 +8,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 // ==================================================================================
 
 export interface IceConfig {
+  theme: 'dark' | 'light' | 'system';
   notifications: {
     enabled: boolean;
   };
@@ -45,6 +46,7 @@ export interface IceConfig {
 }
 
 const DEFAULT_CONFIG: IceConfig = {
+  theme: 'dark',
   notifications: {
     enabled: true,
   },
@@ -121,6 +123,12 @@ function deepMerge<T extends object>(base: T, override: DeepPartial<T>): T {
 
 function validateConfig(config: IceConfig): IceConfig {
   const validated = { ...config };
+
+  // theme 검증
+  const validThemes = new Set(['dark', 'light', 'system']);
+  if (!validThemes.has(config.theme)) {
+    validated.theme = DEFAULT_CONFIG.theme;
+  }
 
   // bytesPerLine 검증: 8, 16, 32, 64만 허용
   const validBytesPerLine = new Set([8, 16, 32, 64]);
@@ -213,6 +221,40 @@ export function ConfigProvider({ children }: { children: React.ReactNode }) {
       // ignore malformed storage
     }
   }, []);
+
+  // Theme 효과 적용
+  useEffect(() => {
+    if (!isClient) return;
+
+    const applyTheme = (theme: 'dark' | 'light' | 'system') => {
+      const root = document.documentElement;
+      let isDark = false;
+
+      if (theme === 'dark') {
+        isDark = true;
+      } else if (theme === 'light') {
+        isDark = false;
+      } else {
+        isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      }
+
+      if (isDark) {
+        root.classList.add('dark');
+      } else {
+        root.classList.remove('dark');
+      }
+    };
+
+    applyTheme(config.theme);
+
+    // 시스템 테마 변경 감지
+    if (config.theme === 'system') {
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      const listener = () => applyTheme('system');
+      mediaQuery.addEventListener('change', listener);
+      return () => mediaQuery.removeEventListener('change', listener);
+    }
+  }, [config.theme, isClient]);
 
   const updateConfig = (partial: DeepPartial<IceConfig>) => {
     setConfig((prev) => {

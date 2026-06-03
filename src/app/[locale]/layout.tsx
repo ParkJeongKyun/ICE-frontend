@@ -6,7 +6,7 @@ import { redirect } from 'next/navigation';
 import type { Metadata, Viewport } from 'next';
 import JsonLd from './JsonLd';
 import GoogleScripts from '../GoogleScripts';
-import CriticalCss from '@/components/common/CriticalCss';
+import { CRITICAL_CSS } from '@/components/common/CriticalCss';
 
 const DOMAIN = process.env.NEXT_PUBLIC_DOMAIN || 'https://www.ice-forensic.com';
 
@@ -69,7 +69,41 @@ export default async function LocaleLayout({
   return (
     <html lang={locale} suppressHydrationWarning>
       <head>
-        <CriticalCss />
+        <style dangerouslySetInnerHTML={{ __html: CRITICAL_CSS }} />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var config = JSON.parse(localStorage.getItem('ice_user_config'));
+                  var theme = config ? config.theme : 'system';
+                  var isDark = false;
+
+                  if (theme === 'dark') {
+                    isDark = true;
+                  } else if (theme === 'light') {
+                    isDark = false;
+                  } else {
+                    isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                  }
+
+                  if (isDark) {
+                    document.documentElement.classList.add('dark');
+                  } else {
+                    document.documentElement.classList.remove('dark');
+                  }
+
+                  var locale = localStorage.getItem('user-locale');
+                  if (locale && (locale === 'ko' || locale === 'en')) {
+                    if (window.location.pathname === '/' || window.location.pathname === '') {
+                      window.location.replace('/' + locale);
+                    }
+                  }
+                } catch (e) {}
+              })();
+            `,
+          }}
+        />
         <meta charSet="utf-8" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="msapplication-TileColor" content="#000000" />
