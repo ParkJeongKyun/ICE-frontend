@@ -58,6 +58,12 @@ export const ToolbarTitle = styled.div`
     color: var(--ice-main-color);
   }
 
+  a {
+    text-decoration: none;
+    color: inherit;
+    flex-shrink: 0;
+  }
+
   &::after {
     content: '';
     display: block;
