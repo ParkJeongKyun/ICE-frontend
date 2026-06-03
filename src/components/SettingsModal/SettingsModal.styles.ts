@@ -145,7 +145,7 @@ export const ToggleThumb = styled.div<{ $on: boolean }>`
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: var(--ice-color-white);
+  background: var(--ice-icon-color);
   transition: left 0.2s ease;
 `;
 
@@ -158,7 +158,8 @@ export const SegmentGroup = styled.div`
 export const SegmentBtn = styled.button<{ $active: boolean }>`
   background: ${({ $active }) =>
     $active ? 'var(--ice-main-color)' : 'var(--main-bg-color)'};
-  color: ${({ $active }) => ($active ? 'var(--ice-color-black)' : 'var(--main-color)')};
+  color: ${({ $active }) =>
+    $active ? 'var(--main-line-color)' : 'var(--main-color)'};
   border: 1px solid
     ${({ $active }) =>
       $active ? 'var(--ice-main-color)' : 'var(--main-line-color)'};

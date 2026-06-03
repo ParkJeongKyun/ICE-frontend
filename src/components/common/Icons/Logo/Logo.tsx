@@ -24,11 +24,11 @@ interface LogoProps {
 const Logo: React.FC<LogoProps> = ({
   size = 16,
   bg = 'var(--ice-icon-bg-color)',
-  star = 'var(--ice-color-white)',
+  star = 'var(--ice-icon-color)',
   corner = '20%',
   showText = false,
   textSize = 14,
-  textColor = 'var(--ice-color-white)',
+  textColor = 'var(--ice-icon-color)',
   textWeight = 500,
   textGap = 1,
   letterSpacing = -1,

@@ -1,15 +1,15 @@
 export const CRITICAL_CSS = `
   :root {
-    --main-bg-color: #f9fafb; /* 현대적인 웹 사이트 표준의 깨끗한 오프화이트 */
+    --main-bg-color: #f9fafb;
     --main-bg-color-primary: #00B0F0;
     --main-bg-color-reverse: #111827;
-    --main-hover-color: #f3f4f6;
+    --main-hover-color: #e2e8f0;
     --main-hover-color-primary: #e5e7eb;
     --main-hover-line-color: #00B0F0;
-    --main-color: #1f2937; /* 가독성이 높으면서도 부드러운 다크 그레이 */
+    --main-color: #1f2937;
     --main-color-reverse: #6b7280;
-    --main-line-color: #e5e7eb;
-    --main-disabled-color: #d1d5db;
+    --main-line-color: #94a3b8;
+    --main-disabled-color: #64748b;
 
     --scrollbar-color: rgba(0, 0, 0, 0.08);
     --scrollbar-color-hover: rgba(0, 0, 0, 0.15);
@@ -31,9 +31,8 @@ export const CRITICAL_CSS = `
     --ice-bg-primary: rgba(14, 165, 233, 0.08);
     --ice-border-primary: rgba(14, 165, 233, 0.2);
 
+    --ice-icon-color: #1f2937;
     --ice-icon-bg-color: #00B0F0;
-    --ice-color-white: #ffffff;
-    --ice-color-black: #000000;
 
     --ice-main-color: #0ea5e9;
     --ice-main-color-error: #ef4444;
@@ -76,9 +75,8 @@ export const CRITICAL_CSS = `
     --ice-bg-primary: rgba(96, 200, 255, 0.1);
     --ice-border-primary: rgba(96, 200, 255, 0.3);
 
+    --ice-icon-color: #ffffff;
     --ice-icon-bg-color: #00B0F0;
-    --ice-color-white: #ffffff;
-    --ice-color-black: #000000;
 
     --ice-main-color: #60c8ff;
     --ice-main-color-error: #e05858;
