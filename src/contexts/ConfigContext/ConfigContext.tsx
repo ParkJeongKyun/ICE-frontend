@@ -222,40 +222,6 @@ export function ConfigProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  // Theme 효과 적용
-  useEffect(() => {
-    if (!isClient) return;
-
-    const applyTheme = (theme: 'dark' | 'light' | 'system') => {
-      const root = document.documentElement;
-      let isDark = false;
-
-      if (theme === 'dark') {
-        isDark = true;
-      } else if (theme === 'light') {
-        isDark = false;
-      } else {
-        isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      }
-
-      if (isDark) {
-        root.classList.add('dark');
-      } else {
-        root.classList.remove('dark');
-      }
-    };
-
-    applyTheme(config.theme);
-
-    // 시스템 테마 변경 감지
-    if (config.theme === 'system') {
-      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-      const listener = () => applyTheme('system');
-      mediaQuery.addEventListener('change', listener);
-      return () => mediaQuery.removeEventListener('change', listener);
-    }
-  }, [config.theme, isClient]);
-
   const updateConfig = (partial: DeepPartial<IceConfig>) => {
     setConfig((prev) => {
       const updated = deepMerge(prev, partial);

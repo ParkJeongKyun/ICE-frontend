@@ -86,6 +86,14 @@ export const SettingsSectionLabel = styled.div`
   margin-bottom: 2px;
 `;
 
+export const SettingsSectionNote = styled.div`
+  font-size: 0.65rem;
+  color: var(--main-color-reverse);
+  opacity: 0.8;
+  margin-top: 4px;
+  line-height: 1.4;
+`;
+
 export const SettingsSection = styled.div`
   display: flex;
   flex-direction: column;
