@@ -68,6 +68,7 @@ export const Sidebar = styled.aside`
   overflow-y: auto;
   padding: 2rem;
   border-right: 1px solid var(--main-line-color);
+  box-sizing: border-box;
 
   @media (max-width: 1023px) {
     width: 100%;
@@ -85,6 +86,7 @@ export const MainContent = styled.div`
   overflow-y: auto;
   padding: 2rem 3rem;
   scroll-behavior: smooth;
+  box-sizing: border-box;
 
   @media (max-width: 1023px) {
     padding: 1.5rem 1rem;
@@ -98,6 +100,8 @@ export const Title = styled.h1`
   margin-bottom: 0.5rem;
   color: var(--main-color);
   line-height: 1.2;
+  word-break: keep-all;
+  overflow-wrap: break-word;
 `;
 
 export const LastUpdated = styled.p`
@@ -105,6 +109,8 @@ export const LastUpdated = styled.p`
   color: var(--main-color-reverse);
   margin-bottom: 2rem;
   font-weight: 500;
+  word-break: keep-all;
+  overflow-wrap: break-word;
 `;
 
 export const NavItem = styled.div<{ $active: boolean }>`
@@ -119,6 +125,9 @@ export const NavItem = styled.div<{ $active: boolean }>`
     props.$active ? 'var(--main-line-color)' : 'transparent'};
   font-weight: ${(props) => (props.$active ? '700' : '500')};
   margin-bottom: 0.25rem;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  box-sizing: border-box;
 
   &:hover {
     background: var(--main-line-color);
@@ -147,6 +156,8 @@ export const SectionTitle = styled.h2`
   border-bottom: 2px solid var(--main-line-color);
   color: var(--main-color);
   letter-spacing: -0.01em;
+  word-break: keep-all;
+  overflow-wrap: break-word;
 `;
 
 export const SectionContent = styled.div`
@@ -154,6 +165,8 @@ export const SectionContent = styled.div`
   line-height: 1.7;
   color: var(--main-color);
   text-align: left;
+  word-break: keep-all;
+  overflow-wrap: break-word;
 
   p {
     margin-bottom: 1rem;
@@ -178,6 +191,8 @@ export const ListItem = styled.li`
   padding-left: 1.25rem;
   position: relative;
   line-height: 1.6;
+  word-break: keep-all;
+  overflow-wrap: break-word;
 
   &::before {
     content: '•';
