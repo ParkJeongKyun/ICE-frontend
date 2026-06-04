@@ -305,6 +305,7 @@
       "system": "System Settings"
     },
     "languageHint": "Want to add a language or found a translation error?",
+    "languageCloseNote": "The settings modal will close when the language is changed.",
     "resetSettings": "Reset to Defaults",
     "notifications": {
       "title": "Notifications",

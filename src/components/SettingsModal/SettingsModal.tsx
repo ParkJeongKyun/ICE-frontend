@@ -23,6 +23,7 @@ import {
   SettingsContent,
   SettingsSection,
   SettingsSectionLabel,
+  SettingsSectionNote,
   SettingsWrapper,
   SettingsRow,
   SettingsLabel,
@@ -220,6 +221,9 @@ const SettingsModal: React.FC = () => {
                           English
                         </LangFlagBtn>
                       </LangFlagRow>
+                      <SettingsSectionNote>
+                        {t('languageCloseNote')}
+                      </SettingsSectionNote>
                     </SettingsSection>
 
                     {/* 테마 설정 */}

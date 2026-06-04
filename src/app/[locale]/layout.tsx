@@ -6,6 +6,7 @@ import { redirect } from 'next/navigation';
 import type { Metadata, Viewport } from 'next';
 import JsonLd from './JsonLd';
 import GoogleScripts from '../GoogleScripts';
+import ThemeInitializer from '@/components/common/ThemeInitializer';
 import { CRITICAL_CSS } from '@/components/common/CriticalCss';
 
 const DOMAIN = process.env.NEXT_PUBLIC_DOMAIN || 'https://www.ice-forensic.com';
@@ -122,6 +123,7 @@ export default async function LocaleLayout({
         <JsonLd locale={locale} />
 
         <NextIntlClientProvider locale={locale} messages={messages}>
+          <ThemeInitializer />
           <MessageProvider>{children}</MessageProvider>
         </NextIntlClientProvider>
 

@@ -305,6 +305,7 @@
       "system": "시스템 설정"
     },
     "languageHint": "언어를 추가하고 싶거나 번역이 잘못되었나요?",
+    "languageCloseNote": "언어 변경 시 설정 모달이 닫힙니다.",
     "resetSettings": "기본값으로 초기화",
     "notifications": {
       "title": "알림",
