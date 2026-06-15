@@ -10,6 +10,8 @@ import React, {
 import { WorkerManager } from '@/utils/WorkerManager';
 import { useProcess } from '@/contexts/ProcessContext/ProcessContext';
 import eventBus from '@/types/eventBus';
+import { useConfig } from '@/contexts/ConfigContext/ConfigContext';
+import { WASM_MANIFEST } from '@/constants/wasm';
 
 interface WorkerContextType {
   hashManager: WorkerManager | null; // 제네릭 제거!
@@ -42,6 +44,48 @@ export const WorkerProvider: React.FC<{ children: React.ReactNode }> = ({
     startAnalysisProcessing,
     stopAnalysisProcessing,
   } = useProcess();
+
+  const { config } = useConfig();
+
+  // ✅ 플러그인 동적 로딩 관리
+  useEffect(() => {
+    if (!isWasmReady || !managers.analysisManager) return;
+
+    const loadPlugins = async () => {
+      // Image Engine
+      if (config.engines.image) {
+        try {
+          await managers.analysisManager?.execute('LOAD_PLUGIN', {
+            pluginType: 'image',
+            path: WASM_MANIFEST.image,
+          });
+          console.log('[WorkerContext] Image engine loaded');
+        } catch (err) {
+          console.error('[WorkerContext] Failed to load Image engine:', err);
+        }
+      }
+
+      // PE Engine
+      if (config.engines.pe) {
+        try {
+          await managers.analysisManager?.execute('LOAD_PLUGIN', {
+            pluginType: 'pe',
+            path: WASM_MANIFEST.pe,
+          });
+          console.log('[WorkerContext] PE engine loaded');
+        } catch (err) {
+          console.error('[WorkerContext] Failed to load PE engine:', err);
+        }
+      }
+    };
+
+    loadPlugins();
+  }, [
+    isWasmReady,
+    managers.analysisManager,
+    config.engines.image,
+    config.engines.pe,
+  ]);
 
   useEffect(() => {
     startAnalysisProcessing();

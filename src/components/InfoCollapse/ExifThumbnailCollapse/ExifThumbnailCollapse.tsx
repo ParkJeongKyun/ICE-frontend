@@ -4,7 +4,7 @@ import React from 'react';
 import { useTranslations } from 'next-intl';
 import { useTab } from '@/contexts/TabDataContext/TabDataContext';
 import Collapse from '@/components/common/Collapse/Collapse';
-import { ThumbDiv, Thumbnail, NoDataMessage } from '../ExifRowViewer.styles';
+import { ThumbDiv, Thumbnail, NoDataMessage } from '../InfoCollapse.styles';
 
 const ExifThumbnailCollapse: React.FC = () => {
   const t = useTranslations();
@@ -13,7 +13,7 @@ const ExifThumbnailCollapse: React.FC = () => {
 
   return (
     <Collapse
-      title={t('exifViewer.thumbnail')}
+      title={t('exifThumbnail.title')}
       children={
         thumbnail ? (
           <ThumbDiv>

@@ -54,6 +54,31 @@ export interface TextChunkInfo {
   }>;
 }
 
+// PE 정보
+export interface PeSection {
+  name: string;
+  virtualSize: number;
+  virtualAddress: number;
+  sizeOfRawData: number;
+  pointerToRawData: number;
+  pointerToRelocations: number;
+  pointerToLineNumbers: number;
+  numberOfRelocations: number;
+  numberOfLineNumbers: number;
+  characteristics: number;
+}
+
+export interface PeInfo {
+  machine: string;
+  numberOfSections: number;
+  timeDateStamp: string;
+  pointerToSymbolTable: number;
+  numberOfSymbols: number;
+  sizeOfOptionalHeader: number;
+  characteristics: number;
+  sections: PeSection[];
+}
+
 // 파일 정보
 export interface fileinfo {
   name: string;
@@ -70,6 +95,12 @@ export interface TabWindow {
   contents: React.ReactNode;
 }
 
+export interface AnalysisEngines {
+  core: boolean;
+  image: boolean;
+  pe: boolean;
+}
+
 export interface TabData {
   [key: TabKey]: {
     window: TabWindow;
@@ -78,5 +109,7 @@ export interface TabData {
     hasExif: boolean;
     exifInfo?: ExifInfo;
     textChunkData?: TextChunkInfo;
+    peData?: PeInfo;
+    engines?: AnalysisEngines;
   };
 }

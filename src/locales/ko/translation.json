@@ -219,9 +219,8 @@
     "foundOne": "1개 찾음",
     "success": "{count}개의 결과를 찾았습니다."
   },
-  "exifViewer": {
-    "title": "Exif 데이터",
-    "fileInfo": "파일 정보",
+  "fileInfo": {
+    "title": "파일 정보",
     "fileName": "파일명",
     "lastModified": "마지막 수정 시간",
     "size": "크기",
@@ -229,15 +228,20 @@
     "mimeTypeMessage": "파일 내용 기반 MIME 타입",
     "appropriateExtension": "적절한 확장자",
     "appropriateExtensionMessage": "시그니처/푸터 기반 확장자",
-    "zeroLocation": "위치 정보 초기화됨 (0, 0)",
-    "zeroLocationMessage": "GPS 정보가 0으로 채워져 있습니다. 최신 기기의 보안 정책이나 정보 누락으로 인해 발생할 수 있습니다.",
-    "thumbnail": "썸네일",
-    "map": "지도",
+    "analyzers": "사용된 분석엔진"
+  },
+  "exifThumbnail": {
+    "title": "썸네일"
+  },
+  "map": {
+    "title": "지도",
     "address": "주소",
     "locationTrackingDisabled": "위치 정보 전송이 비활성화되어 있습니다",
-    "exifData": "Exif 데이터",
-    "exifTags": "Exif 태그",
-    "exifInfo": "Exif 정보",
+    "zeroLocation": "위치 정보 초기화됨 (0, 0)",
+    "zeroLocationMessage": "GPS 정보가 0으로 채워져 있습니다. 최신 기기의 보안 정책이나 정보 누락으로 인해 발생할 수 있습니다."
+  },
+  "exifInfo": {
+    "title": "Exif 정보",
     "byteOrder": "바이트 오더",
     "littleEndian": "리틀 엔디안",
     "bigEndian": "빅 엔디안",
@@ -246,17 +250,46 @@
     "endOffset": "Exif 끝 위치",
     "dataSize": "Exif 크기",
     "firstIfdOffset": "첫번째 IFD 오프셋",
-    "ifdInfo": "IFD 정보",
+    "jumpToOffset": "다음으로 이동: {target} ({bytes} 바이트)"
+  },
+  "ifdInfo": {
+    "title": "IFD 정보",
     "ifdName": "IFD 이름",
     "ifdOffset": "EXIF 기준 상대 오프셋",
     "ifdTagCount": "태그 개수",
     "ifdNextOffset": "다음 IFD 오프셋",
-    "jumpToOffset": "다음으로 이동: {target} ({bytes} 바이트)",
+    "jumpToIfdOffset": "IFD 오프셋으로 이동"
+  },
+  "exifTagsInfo": {
+    "title": "Exif 태그",
     "jumpToTag": "태그 오프셋으로 이동: {target} ({bytes} 바이트)",
     "jumpUnavailable": "이동 불가",
-    "jumpToIfdOffset": "IFD 오프셋으로 이동",
     "jumpToPointerTarget": "포인터가 가리키는 위치로 이동",
     "jumpToData": "데이터 위치로 이동: {target} ({bytes} 바이트)"
+  },
+  "analyzers": {
+    "title": "사용된 분석엔진",
+    "analyzerCore": "CORE",
+    "analyzerCoreDesc": "기본 파일 타입 및 시그니처 감지",
+    "analyzerImage": "IMAGE",
+    "analyzerImageDesc": "이미지 메타데이터(EXIF) 및 청크 분석",
+    "analyzerPe": "PE",
+    "analyzerPeDesc": "Windows 실행 파일 헤더 및 섹션 분석",
+    "analyzerApk": "APK",
+    "analyzerApkDesc": "안드로이드 패키지 구조 및 매니페스트 분석 (예정)",
+    "analyzerElf": "ELF",
+    "analyzerElfDesc": "리눅스 실행 파일 구조 분석 (예정)"
+  },
+  "peInfo": {
+    "title": "PE 정보",
+    "machine": "머신",
+    "timeDateStamp": "타임스탬프",
+    "numberOfSections": "섹션 수",
+    "characteristics": "속성",
+    "sections": "섹션 목록",
+    "sectionName": "이름",
+    "virtualSize": "가상 크기",
+    "rawSize": "실제 크기"
   },
   "textChunksViewer": {
     "ihdrInfo": "IHDR 정보",
@@ -316,7 +349,16 @@
       "title": "분석",
       "enable": "분석 활성화",
       "imageMetadata": "이미지 메타데이터 분석",
+      "textChunks": "텍스트 청크 분석",
       "locationTracking": "위치 정보 전송 허용 (지도 서비스용)"
+    },
+    "engines": {
+      "title": "분석엔진 (WASM)",
+      "image": "이미지 분석 (EXIF/PNG)",
+      "pe": "PE 분석 (EXE/DLL)",
+      "loading": "분석엔진 로드 중...",
+      "loaded": "분석엔진 로드됨",
+      "error": "분석엔진 로드 실패"
     },
     "ui": {
       "title": "UI",
@@ -331,6 +373,8 @@
         "ifdInfo": "IFD 정보",
         "exifTags": "EXIF 태그",
         "textChunks": "텍스트 청크 & IHDR 정보",
+        "peInfo": "PE 정보",
+        "analyzers": "분석 엔진 정보",
         "searcher": "검색기",
         "hashCalculator": "해시 계산기",
         "dataConverter": "데이터 변환기",

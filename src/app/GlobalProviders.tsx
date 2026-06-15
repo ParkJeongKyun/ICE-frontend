@@ -10,6 +10,7 @@ import { TabDataProvider } from '@/contexts/TabDataContext/TabDataContext';
 import { WorkerProvider } from '@/contexts/WorkerContext/WorkerContext';
 import { ConfigProvider } from '@/contexts/ConfigContext/ConfigContext';
 import StyledComponentsRegistry from '@/app/[locale]/StyledComponentsRegistry';
+import { WASM_MANIFEST } from '@/constants/wasm';
 
 // WASM/Worker가 필요 없는 경량 페이지 경로
 const LIGHT_PATHS = ['/linknote', '/about', '/docs'];
@@ -30,7 +31,9 @@ export default function GlobalProviders({
     );
   }
 
-  preload(process.env.NEXT_PUBLIC_WASM_PATH as string, { as: 'fetch' });
+  preload(WASM_MANIFEST.core, { as: 'fetch' });
+  preload(WASM_MANIFEST.image, { as: 'fetch' });
+  preload(WASM_MANIFEST.pe, { as: 'fetch' });
 
   return (
     <ConfigProvider>

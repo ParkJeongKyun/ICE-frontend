@@ -150,22 +150,22 @@ const LeafletMap: React.FC<Props> = ({ latitude, longitude }) => {
       {!config.analysis.locationTracking ? (
         <DisabledMapPlaceholder>
           <SignalIcon width={24} height={24} />
-          <span>{t('exifViewer.locationTrackingDisabled')}</span>
+          <span>{t('map.locationTrackingDisabled')}</span>
         </DisabledMapPlaceholder>
       ) : isZero ? (
         <DisabledMapPlaceholder>
           <MapPinOffIcon width={24} height={24} />
           <div style={{ fontWeight: 600, fontSize: '0.8rem' }}>
-            {t('exifViewer.zeroLocation')}
+            {t('map.zeroLocation')}
           </div>
-          <span>{t('exifViewer.zeroLocationMessage')}</span>
+          <span>{t('map.zeroLocationMessage')}</span>
         </DisabledMapPlaceholder>
       ) : (
         <IceMap id="IceLocaionMap" />
       )}
       <AddressInfo>
         <ContentDiv>
-          <CellHeaderDiv>{t('exifViewer.address')}</CellHeaderDiv>
+          <CellHeaderDiv>{t('map.address')}</CellHeaderDiv>
           <CellBodyDiv>
             {address ? (
               <Tooltip text={`${latitude}, ${longitude}`}>{address}</Tooltip>

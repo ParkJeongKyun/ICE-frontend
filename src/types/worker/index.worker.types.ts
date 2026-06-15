@@ -3,7 +3,11 @@
  */
 
 import type { HashResult, HashType } from './hash.worker.types';
-import type { SearchResult, AnalysisResult } from './analysis.worker.types';
+import type {
+  SearchResult,
+  AnalysisResult,
+  PluginType,
+} from './analysis.worker.types';
 
 /**
  * 워커 응답의 통합 stats 구조
@@ -33,7 +37,7 @@ export type TaskMap = {
     res: HashResult['data'];
   };
   PROCESS_ANALYSIS: {
-    req: { file: File };
+    req: { file: File; options?: any };
     res: AnalysisResult['data'];
   };
   SEARCH_HEX: {
@@ -43,6 +47,10 @@ export type TaskMap = {
   SEARCH_ASCII: {
     req: { file: File; pattern: Uint8Array; ignoreCase?: boolean }; // 🚀 Uint8Array로 변경
     res: SearchResult['data'];
+  };
+  LOAD_PLUGIN: {
+    req: { pluginType: PluginType; path: string };
+    res: void;
   };
 };
 

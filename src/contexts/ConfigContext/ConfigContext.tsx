@@ -1,6 +1,9 @@
 'use client';
 
-import { NumberBase, EncodingType } from '@/components/HexViewer/hexViewerConstants';
+import {
+  NumberBase,
+  EncodingType,
+} from '@/components/HexViewer/hexViewerConstants';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
 // ==================================================================================
@@ -14,8 +17,15 @@ export interface IceConfig {
   };
   analysis: {
     enabled: boolean;
-    imageMetadata: boolean;
     locationTracking: boolean;
+  };
+  engines: {
+    image: {
+      enabled: boolean;
+      exif: boolean;
+      textChunk: boolean;
+    };
+    pe: boolean;
   };
   // UI/UX 설정
   ui: {
@@ -33,6 +43,7 @@ export interface IceConfig {
         ifdInfo: boolean;
         exifTags: boolean;
         textChunks: boolean;
+        peInfo: boolean;
       };
       tools: {
         enabled: boolean;
@@ -52,8 +63,15 @@ const DEFAULT_CONFIG: IceConfig = {
   },
   analysis: {
     enabled: true,
-    imageMetadata: true,
     locationTracking: true,
+  },
+  engines: {
+    image: {
+      enabled: false,
+      exif: true,
+      textChunk: true,
+    },
+    pe: false,
   },
   ui: {
     bytesPerLine: 16,
@@ -70,6 +88,7 @@ const DEFAULT_CONFIG: IceConfig = {
         ifdInfo: true,
         exifTags: true,
         textChunks: true,
+        peInfo: true,
       },
       tools: {
         enabled: true,
@@ -158,6 +177,7 @@ function validateConfig(config: IceConfig): IceConfig {
     typeof v?.info?.ifdInfo !== 'boolean' ||
     typeof v?.info?.exifTags !== 'boolean' ||
     typeof v?.info?.textChunks !== 'boolean' ||
+    typeof v?.info?.peInfo !== 'boolean' ||
     typeof v?.tools?.enabled !== 'boolean' ||
     typeof v?.tools?.searcher !== 'boolean' ||
     typeof v?.tools?.hashCalculator !== 'boolean' ||
@@ -176,12 +196,34 @@ function validateConfig(config: IceConfig): IceConfig {
   if (typeof config.analysis.enabled !== 'boolean') {
     validated.analysis.enabled = DEFAULT_CONFIG.analysis.enabled;
   }
-  if (typeof config.analysis.imageMetadata !== 'boolean') {
-    validated.analysis.imageMetadata = DEFAULT_CONFIG.analysis.imageMetadata;
-  }
   if (typeof config.analysis.locationTracking !== 'boolean') {
     validated.analysis.locationTracking =
       DEFAULT_CONFIG.analysis.locationTracking;
+  }
+
+  // engines 검증
+  if (!config.engines) {
+    validated.engines = { ...DEFAULT_CONFIG.engines };
+  } else {
+    // Image Engine validation
+    if (typeof config.engines.image !== 'object') {
+      validated.engines.image = { ...DEFAULT_CONFIG.engines.image };
+    } else {
+      if (typeof config.engines.image.enabled !== 'boolean') {
+        validated.engines.image.enabled = DEFAULT_CONFIG.engines.image.enabled;
+      }
+      if (typeof config.engines.image.exif !== 'boolean') {
+        validated.engines.image.exif = DEFAULT_CONFIG.engines.image.exif;
+      }
+      if (typeof config.engines.image.textChunk !== 'boolean') {
+        validated.engines.image.textChunk =
+          DEFAULT_CONFIG.engines.image.textChunk;
+      }
+    }
+
+    if (typeof config.engines.pe !== 'boolean') {
+      validated.engines.pe = DEFAULT_CONFIG.engines.pe;
+    }
   }
 
   return validated;

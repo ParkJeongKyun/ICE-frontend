@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 import { useTab } from '@/contexts/TabDataContext/TabDataContext';
 import Collapse from '@/components/common/Collapse/Collapse';
 import { isValidLocation } from '@/utils/getAddress';
-import { NoDataMessage } from '../ExifRowViewer.styles';
+import { NoDataMessage } from '../InfoCollapse.styles';
 
 import dynamic from 'next/dynamic';
 
@@ -23,7 +23,7 @@ const MapCollapse: React.FC = () => {
 
   return (
     <Collapse
-      title={t('exifViewer.map')}
+      title={t('map.title')}
       children={
         isValid ? (
           <LeafletMap latitude={lat || ''} longitude={lng || ''} />

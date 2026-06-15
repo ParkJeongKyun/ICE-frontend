@@ -215,13 +215,11 @@
     "nextTooltip": "Next",
     "resetTooltip": "Reset",
     "maxResults": "(max)",
-    "maxResultsTooltip": "Maximum 1000 results displayed",
     "foundOne": "1 found",
     "success": "{count} result(s) found"
   },
-  "exifViewer": {
-    "title": "Exif Data",
-    "fileInfo": "File Info",
+  "fileInfo": {
+    "title": "File Info",
     "fileName": "File Name",
     "lastModified": "Last Modified",
     "size": "Size",
@@ -229,15 +227,20 @@
     "mimeTypeMessage": "MIME type based on file content",
     "appropriateExtension": "Appropriate Extension",
     "appropriateExtensionMessage": "Extension based on signature/footer",
-    "zeroLocation": "Location Data Reset (0, 0)",
-    "zeroLocationMessage": "GPS data is filled with zeros. This may occur due to modern device privacy policies or missing GPS info.",
-    "thumbnail": "Thumbnail",
-    "map": "Map",
+    "analyzers": "Used Analysis Engines"
+  },
+  "exifThumbnail": {
+    "title": "Thumbnail"
+  },
+  "map": {
+    "title": "Map",
     "address": "Address",
     "locationTrackingDisabled": "Location data transmission is disabled",
-    "exifData": "Exif Data",
-    "exifTags": "Exif Tags",
-    "exifInfo": "Exif Info",
+    "zeroLocation": "Location Data Reset (0, 0)",
+    "zeroLocationMessage": "GPS data is filled with zeros. This may occur due to modern device privacy policies or missing GPS info."
+  },
+  "exifInfo": {
+    "title": "Exif Info",
     "byteOrder": "Byte Order",
     "littleEndian": "Little Endian",
     "bigEndian": "Big Endian",
@@ -246,17 +249,46 @@
     "endOffset": "Exif End Offset",
     "dataSize": "Exif Size",
     "firstIfdOffset": "First IFD Offset",
-    "ifdInfo": "IFD Info",
+    "jumpToOffset": "Jump to: {target} ({bytes} bytes)"
+  },
+  "ifdInfo": {
+    "title": "IFD Info",
     "ifdName": "IFD Name",
     "ifdOffset": "Offset based on EXIF",
     "ifdTagCount": "Tag Count",
     "ifdNextOffset": "Next IFD Offset",
-    "jumpToOffset": "Jump to: {target} ({bytes} bytes)",
+    "jumpToIfdOffset": "Jump to IFD offset"
+  },
+  "exifTagsInfo": {
+    "title": "Exif Tags",
     "jumpToTag": "Jump to tag offset: {target} ({bytes} bytes)",
     "jumpUnavailable": "Jump (unavailable)",
-    "jumpToIfdOffset": "Jump to IFD offset",
     "jumpToPointerTarget": "Jump to pointer target",
     "jumpToData": "Jump to data at: {target} ({bytes} bytes)"
+  },
+  "analyzers": {
+    "title": "Used Analysis Engines",
+    "analyzerCore": "CORE",
+    "analyzerCoreDesc": "Basic file type and signature detection",
+    "analyzerImage": "IMAGE",
+    "analyzerImageDesc": "Image metadata (EXIF) and chunk analysis",
+    "analyzerPe": "PE",
+    "analyzerPeDesc": "Windows executable header and section analysis",
+    "analyzerApk": "APK",
+    "analyzerApkDesc": "Android package and manifest analysis (Planned)",
+    "analyzerElf": "ELF",
+    "analyzerElfDesc": "Linux executable structure analysis (Planned)"
+  },
+  "peInfo": {
+    "title": "PE Information",
+    "machine": "Machine",
+    "timeDateStamp": "Timestamp",
+    "numberOfSections": "Section Count",
+    "characteristics": "Characteristics",
+    "sections": "Sections",
+    "sectionName": "Name",
+    "virtualSize": "Virtual Size",
+    "rawSize": "Raw Size"
   },
   "textChunksViewer": {
     "ihdrInfo": "IHDR Info",
@@ -316,7 +348,16 @@
       "title": "Analysis",
       "enable": "Enable Analysis",
       "imageMetadata": "Image Metadata Analysis",
+      "textChunks": "Text Chunk Analysis",
       "locationTracking": "Allow Location Data Transmission (for map services)"
+    },
+    "engines": {
+      "title": "Analysis Engines (WASM)",
+      "image": "Image Analysis (EXIF/PNG)",
+      "pe": "PE Analysis (EXE/DLL)",
+      "loading": "Loading analysis engine...",
+      "loaded": "Analysis engine loaded",
+      "error": "Failed to load analysis engine"
     },
     "ui": {
       "title": "UI",
@@ -331,6 +372,8 @@
         "ifdInfo": "IFD Info",
         "exifTags": "EXIF Tags",
         "textChunks": "Text Chunks & IHDR Info",
+        "peInfo": "PE Info",
+        "analyzers": "Analysis Engines",
         "searcher": "Searcher",
         "hashCalculator": "Hash Calculator",
         "dataConverter": "Data Converter",

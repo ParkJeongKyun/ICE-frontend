@@ -4,7 +4,7 @@
  */
 
 import { WorkerStats } from './index.worker.types';
-import { ExifInfo, TextChunkInfo } from '@/types';
+import { ExifInfo, TextChunkInfo, PeInfo } from '@/types';
 
 // ============================================================================
 // Request
@@ -13,7 +13,17 @@ import { ExifInfo, TextChunkInfo } from '@/types';
 export type AnalysisWorkerRequestType =
   | 'SEARCH_HEX'
   | 'SEARCH_ASCII'
-  | 'PROCESS_ANALYSIS';
+  | 'PROCESS_ANALYSIS'
+  | 'LOAD_PLUGIN';
+
+export type PluginType = 'image' | 'pe';
+
+export interface LoadPluginRequest {
+  type: 'LOAD_PLUGIN';
+  id: string;
+  pluginType: PluginType;
+  path: string;
+}
 
 export interface AnalysisWorkerRequest {
   type: AnalysisWorkerRequestType;
@@ -21,6 +31,19 @@ export interface AnalysisWorkerRequest {
   file?: File;
   pattern?: Uint8Array; // Uint8Array로 변경
   ignoreCase?: boolean;
+  pluginType?: PluginType;
+  path?: string;
+  options?: {
+    enabled?: boolean;
+    mimeType?: string;
+    extension?: string;
+    image?: {
+      enabled: boolean;
+      exif: boolean;
+      textChunk: boolean;
+    };
+    pe?: boolean;
+  };
 }
 
 // ============================================================================
@@ -39,8 +62,14 @@ export interface AnalysisResult {
     hasExif: boolean;
     mimeType: string;
     extension: string;
-    exifInfo: ExifInfo;
+    exifInfo?: ExifInfo;
     textChunkData?: TextChunkInfo;
+    peData?: PeInfo;
+    engines: {
+      core: boolean;
+      image: boolean;
+      pe: boolean;
+    };
   };
   stats?: WorkerStats; // optional로 변경 (ExecuteResponse와 일치)
 }
@@ -64,9 +93,6 @@ export interface WasmSearchResponse {
 }
 
 export interface WasmExifResponse {
-  mimeType: string;
-  extension: string;
-  typeDetected: boolean;
   hasExif: boolean;
   isEmpty: boolean;
   exifData?: string;
@@ -80,13 +106,39 @@ export interface WasmTextChunkResponse {
   error?: string;
 }
 
+export interface WasmDetectTypeResponse {
+  mimeType: string;
+  extension: string;
+}
+
+export type WasmDetectTypeFunction = (file: File) => WasmDetectTypeResponse;
+
 export type WasmSearchFunction = (
   file: File,
   pattern: Uint8Array,
   options?: SearchOptions
 ) => WasmSearchResponse;
 
-export type WasmExifFunction = (data: File) => WasmExifResponse;
+export type WasmExifFunction = (
+  data: File,
+  mimeType: string,
+  extension: string
+) => WasmExifResponse;
+
+export interface WasmPeResponse {
+  peData?: string;
+  error?: string;
+}
+
+export type WasmPeFunction = (
+  data: File,
+  mimeType: string,
+  extension: string
+) => WasmPeResponse;
 
 // PNG 메타데이터 함수 (EXIF와 동일하게 JSON 문자열 반환)
-export type WasmTextChunkFunction = (data: File) => WasmTextChunkResponse;
+export type WasmTextChunkFunction = (
+  data: File,
+  mimeType: string,
+  extension: string
+) => WasmTextChunkResponse;

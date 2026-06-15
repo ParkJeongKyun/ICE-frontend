@@ -105,3 +105,67 @@ export const ScrollableDataDiv = styled.div`
     }
   }
 `;
+
+export const SectionTable = styled.table`
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+  margin-top: 8px;
+
+  th {
+    text-align: left;
+    padding: 4px;
+    border-bottom: 1px solid var(--main-line-color);
+    color: var(--main-color);
+    opacity: 0.8;
+  }
+
+  td {
+    padding: 4px;
+    border-bottom: 1px solid var(--main-hover-color);
+    color: var(--ice-main-color);
+  }
+`;
+
+export const AnalyzerBadgeContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  justify-content: flex-start;
+  width: 100%;
+`;
+
+export const AnalyzerBadge = styled.span<{ $active?: boolean }>`
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background-color: ${({ $active }) =>
+    $active ? 'var(--ice-main-color)' : 'var(--main-line-color)'};
+  color: ${({ $active }) => ($active ? '#fff' : 'var(--main-color)')};
+  opacity: ${({ $active }) => ($active ? 1 : 0.5)};
+  cursor: help;
+  white-space: nowrap;
+`;
+
+
+export const AnalyzerName = styled.span`
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ice-main-color);
+`;
+
+export const AnalyzerDesc = styled.div`
+  font-size: 10px;
+  color: var(--main-color);
+  opacity: 0.7;
+  padding-left: 2px;
+`;
+
+export const AnalyzerLabel = styled.div`
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--main-color);
+  margin-bottom: 6px;
+  padding-left: 2px;
+`;

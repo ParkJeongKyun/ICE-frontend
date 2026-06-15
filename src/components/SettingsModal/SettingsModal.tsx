@@ -69,7 +69,7 @@ const SettingsModal: React.FC = () => {
   const [open, setOpen] = useState(false);
   const isProcessing = isHashProcessing || isAnalysisProcessing;
 
-  const { refs, floatingStyles, context } = useFloating({
+  const { refs, context } = useFloating({
     open,
     onOpenChange: setOpen,
     placement: 'bottom',
@@ -102,13 +102,29 @@ const SettingsModal: React.FC = () => {
     });
   };
 
-  const handleToggleAnalysis = (
-    key: 'enabled' | 'imageMetadata' | 'locationTracking'
-  ) => {
+  const handleToggleAnalysisMaster = () => {
     updateConfig({
       analysis: {
         ...config.analysis,
-        [key]: !config.analysis[key],
+        enabled: !config.analysis.enabled,
+      },
+    });
+  };
+
+  const handleToggleLocationTracking = () => {
+    updateConfig({
+      analysis: {
+        ...config.analysis,
+        locationTracking: !config.analysis.locationTracking,
+      },
+    });
+  };
+
+  const handleTogglePlugin = (key: 'image' | 'pe') => {
+    updateConfig({
+      engines: {
+        ...config.engines,
+        [key]: !config.engines[key],
       },
     });
   };
@@ -197,6 +213,7 @@ const SettingsModal: React.FC = () => {
                 <SettingsGrid>
                   {/* 왼쪽 컬럼 */}
                   <div>
+                    {/* 기본 설정 (Core) */}
                     <SettingsSection>
                       <SettingsSectionLabel>
                         {t('language')}
@@ -261,50 +278,104 @@ const SettingsModal: React.FC = () => {
                       </SettingsRow>
                     </SettingsSection>
 
-                    {/* 분석 설정 */}
+                    {/* 분석엔진 설정 (WASM) */}
                     <SettingsSection>
                       <SettingsSectionLabel>
-                        {t('analysis.title')}
+                        {t('engines.title')}
                       </SettingsSectionLabel>
+
+                      {/* 분석 마스터 토글 */}
                       <SettingsRow>
                         <SettingsLabel>{t('analysis.enable')}</SettingsLabel>
                         <ToggleSwitch
                           checked={config.analysis.enabled}
-                          onChange={() => handleToggleAnalysis('enabled')}
+                          onChange={handleToggleAnalysisMaster}
                         />
                       </SettingsRow>
+
                       {config.analysis.enabled && (
                         <>
-                          <SettingsRow
-                            style={{ marginLeft: '12px', opacity: 0.8 }}
-                          >
-                            <SettingsLabel>
-                              {t('analysis.imageMetadata')}
-                            </SettingsLabel>
+                          {/* Image Engine */}
+                          <SettingsRow style={{ marginTop: '8px' }}>
+                            <SettingsLabel>{t('engines.image')}</SettingsLabel>
                             <ToggleSwitch
-                              checked={config.analysis.imageMetadata}
+                              checked={config.engines.image.enabled}
                               onChange={() =>
-                                handleToggleAnalysis('imageMetadata')
+                                updateConfig({
+                                  engines: {
+                                    ...config.engines,
+                                    image: {
+                                      ...config.engines.image,
+                                      enabled: !config.engines.image.enabled,
+                                    },
+                                  },
+                                })
                               }
                             />
                           </SettingsRow>
-                          <SettingsRow
-                            style={{ marginLeft: '12px', opacity: 0.8 }}
-                          >
-                            <SettingsLabel>
-                              {t('analysis.locationTracking')}
-                            </SettingsLabel>
+                          {config.engines.image.enabled && (
+                            <div style={{ marginLeft: '12px' }}>
+                              <SettingsRow style={{ opacity: 0.8 }}>
+                                <SettingsLabel>{t('analysis.imageMetadata')}</SettingsLabel>
+                                <ToggleSwitch
+                                  checked={config.engines.image.exif}
+                                  onChange={() =>
+                                    updateConfig({
+                                      engines: {
+                                        ...config.engines,
+                                        image: {
+                                          ...config.engines.image,
+                                          exif: !config.engines.image.exif,
+                                        },
+                                      },
+                                    })
+                                  }
+                                />
+                              </SettingsRow>
+                              <SettingsRow style={{ opacity: 0.8 }}>
+                                <SettingsLabel>{t('analysis.textChunks')}</SettingsLabel>
+                                <ToggleSwitch
+                                  checked={config.engines.image.textChunk}
+                                  onChange={() =>
+                                    updateConfig({
+                                      engines: {
+                                        ...config.engines,
+                                        image: {
+                                          ...config.engines.image,
+                                          textChunk: !config.engines.image.textChunk,
+                                        },
+                                      },
+                                    })
+                                  }
+                                />
+                              </SettingsRow>
+                              <SettingsRow style={{ opacity: 0.8 }}>
+                                <SettingsLabel>
+                                  {t('analysis.locationTracking')}
+                                </SettingsLabel>
+                                <ToggleSwitch
+                                  checked={config.analysis.locationTracking}
+                                  onChange={handleToggleLocationTracking}
+                                />
+                              </SettingsRow>
+                            </div>
+                          )}
+
+                          {/* PE Engine */}
+                          <SettingsRow>
+                            <SettingsLabel>{t('engines.pe')}</SettingsLabel>
                             <ToggleSwitch
-                              checked={config.analysis.locationTracking}
-                              onChange={() =>
-                                handleToggleAnalysis('locationTracking')
-                              }
+                              checked={config.engines.pe}
+                              onChange={() => handleTogglePlugin('pe')}
                             />
                           </SettingsRow>
                         </>
                       )}
                     </SettingsSection>
+                  </div>
 
+                  {/* 오른쪽 컬럼 */}
+                  <div>
                     {/* UI 설정 */}
                     <SettingsSection>
                       <SettingsSectionLabel>
@@ -393,10 +464,7 @@ const SettingsModal: React.FC = () => {
                         </SelectWrapper>
                       </SettingsRow>
                     </SettingsSection>
-                  </div>
 
-                  {/* 오른쪽 컬럼 */}
-                  <div>
                     {/* 패널 설정 */}
                     <SettingsSection>
                       <SettingsSectionLabel>
@@ -432,6 +500,8 @@ const SettingsModal: React.FC = () => {
                               'ifdInfo',
                               'exifTags',
                               'textChunks',
+                              'peInfo',
+                              'analyzers',
                             ] as const
                           ).map((key) => (
                             <SettingsRow key={key} style={{ opacity: 0.8 }}>

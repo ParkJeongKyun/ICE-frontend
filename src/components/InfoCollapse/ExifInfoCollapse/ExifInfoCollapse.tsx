@@ -14,7 +14,7 @@ import {
   ContentDiv,
   JumpButton,
   NoDataMessage,
-} from '../ExifRowViewer.styles';
+} from '../InfoCollapse.styles';
 import { formatOffset } from '@/utils/formatters';
 
 const ExifInfoCollapse: React.FC = () => {
@@ -30,11 +30,11 @@ const ExifInfoCollapse: React.FC = () => {
       if (!byteOrder) return '-';
       switch (byteOrder) {
         case 'LittleEndian':
-          return t('exifViewer.littleEndian');
+          return t('exifInfo.littleEndian');
         case 'BigEndian':
-          return t('exifViewer.bigEndian');
+          return t('exifInfo.bigEndian');
         case 'NativeEndian':
-          return t('exifViewer.nativeEndian');
+          return t('exifInfo.nativeEndian');
         default:
           return byteOrder;
       }
@@ -103,16 +103,16 @@ const ExifInfoCollapse: React.FC = () => {
 
   return (
     <Collapse
-      title={t('exifViewer.exifInfo')}
+      title={t('exifInfo.title')}
       children={
         exifInfo ? (
           <>
             <ContentDiv>
               <CellHeaderDiv>
-                {t('exifViewer.byteOrder')}
+                {t('exifInfo.byteOrder')}
                 {typeof baseOffset === 'number' && (
                   <Tooltip
-                    text={t('exifViewer.jumpToOffset', {
+                    text={t('exifInfo.jumpToOffset', {
                       target: formatOffset(
                         Number(baseOffset),
                         config.ui.numberBase
@@ -122,7 +122,7 @@ const ExifInfoCollapse: React.FC = () => {
                   >
                     <JumpButton
                       onClick={() => onJumpToBaseOffset(true)}
-                      aria-label={t('exifViewer.jumpToOffset', {
+                      aria-label={t('exifInfo.jumpToOffset', {
                         target: formatOffset(
                           Number(baseOffset),
                           config.ui.numberBase
@@ -139,10 +139,10 @@ const ExifInfoCollapse: React.FC = () => {
             </ContentDiv>
             <ContentDiv>
               <CellHeaderDiv>
-                {t('exifViewer.baseOffset')}
+                {t('exifInfo.baseOffset')}
                 {typeof baseOffset === 'number' && (
                   <Tooltip
-                    text={t('exifViewer.jumpToOffset', {
+                    text={t('exifInfo.jumpToOffset', {
                       target: formatOffset(
                         Number(baseOffset),
                         config.ui.numberBase
@@ -152,7 +152,7 @@ const ExifInfoCollapse: React.FC = () => {
                   >
                     <JumpButton
                       onClick={() => onJumpToBaseOffset(false)}
-                      aria-label={t('exifViewer.jumpToOffset', {
+                      aria-label={t('exifInfo.jumpToOffset', {
                         target: formatOffset(
                           Number(baseOffset),
                           config.ui.numberBase
@@ -169,10 +169,10 @@ const ExifInfoCollapse: React.FC = () => {
             </ContentDiv>
             <ContentDiv>
               <CellHeaderDiv>
-                {t('exifViewer.endOffset')}
+                {t('exifInfo.endOffset')}
                 {typeof exifInfo.endOffset === 'number' && (
                   <Tooltip
-                    text={t('exifViewer.jumpToOffset', {
+                    text={t('exifInfo.jumpToOffset', {
                       target: formatOffset(
                         Number(exifInfo.endOffset),
                         config.ui.numberBase
@@ -182,7 +182,7 @@ const ExifInfoCollapse: React.FC = () => {
                   >
                     <JumpButton
                       onClick={onJumpToEndOffset}
-                      aria-label={t('exifViewer.jumpToOffset', {
+                      aria-label={t('exifInfo.jumpToOffset', {
                         target: formatOffset(
                           Number(exifInfo.endOffset),
                           config.ui.numberBase
@@ -198,15 +198,15 @@ const ExifInfoCollapse: React.FC = () => {
               <CellBodyDiv>{exifInfo.endOffset ?? '-'}</CellBodyDiv>
             </ContentDiv>
             <ContentDiv>
-              <CellHeaderDiv>{t('exifViewer.dataSize')}</CellHeaderDiv>
+              <CellHeaderDiv>{t('exifInfo.dataSize')}</CellHeaderDiv>
               <CellBodyDiv>{exifInfo.dataSize ?? '-'}</CellBodyDiv>
             </ContentDiv>
             <ContentDiv>
               <CellHeaderDiv>
-                {t('exifViewer.firstIfdOffset')}
+                {t('exifInfo.firstIfdOffset')}
                 {typeof exifInfo.firstIfdOffset === 'number' && (
                   <Tooltip
-                    text={t('exifViewer.jumpToOffset', {
+                    text={t('exifInfo.jumpToOffset', {
                       target: formatOffset(
                         Number(baseOffset) + Number(exifInfo.firstIfdOffset),
                         config.ui.numberBase
@@ -216,7 +216,7 @@ const ExifInfoCollapse: React.FC = () => {
                   >
                     <JumpButton
                       onClick={onJumpToFirstIfdOffset}
-                      aria-label={t('exifViewer.jumpToOffset', {
+                      aria-label={t('exifInfo.jumpToOffset', {
                         target: formatOffset(
                           Number(baseOffset) + Number(exifInfo.firstIfdOffset),
                           config.ui.numberBase

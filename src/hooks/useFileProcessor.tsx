@@ -23,61 +23,25 @@ export const useFileProcessor = () => {
       try {
         const newActiveKey = getNewKey();
 
-        // 설정값 기반 분석 여부 결정
-        const shouldSkipAnalysis =
-          !config.analysis.enabled || !config.analysis.imageMetadata;
+        // 워커 매니저를 통한 파일 분석 요청 (타입 감지 포함 + 설정 전달)
+        const engineOptions = {
+          enabled: config.analysis.enabled,
+          image: {
+            enabled: config.engines.image.enabled,
+            exif: config.engines.image.exif,
+            textChunk: config.engines.image.textChunk,
+          },
+          pe: config.engines.pe,
+        };
 
-        if (shouldSkipAnalysis) {
-          // 분석 스킵: 기본 탭 데이터만 생성
-          if (process.env.NODE_ENV === 'development') {
-            console.log('[FileProcessor] Analysis skipped due to config');
-          }
-
-          setTabData((prevDatas) => ({
-            ...prevDatas,
-            [newActiveKey]: {
-              window: {
-                label: file.name,
-                contents: <HexViewer ref={hexViewerRef} />,
-              },
-              file,
-              fileInfo: {
-                name: file.name,
-                lastModified: file.lastModified,
-                size: file.size,
-                mimeType: file.type,
-              },
-              hasExif: false,
-            },
-          }));
-
-          setActiveKey(newActiveKey);
-          eventBus.emit('toast', {
-            code: 'TAB_CREATED',
-          });
-          return true;
-        }
-
-        // 워커 매니저를 통한 파일 분석 요청
         const result = await analysisManager.execute('PROCESS_ANALYSIS', {
           file,
+          options: engineOptions,
         });
 
         if (process.env.NODE_ENV === 'development') {
-          console.log('[FileProcessor] EXIF processing result:', result);
+          console.log('[FileProcessor] Analysis result:', result);
         }
-
-        const {
-          thumbnail,
-          baseOffset,
-          dataSize,
-          endOffset,
-          byteOrder,
-          firstIfdOffset,
-          location,
-          ifdInfos,
-          tagInfos,
-        } = result.data.exifInfo;
 
         // 2️⃣ 분석 결과를 바탕으로 새로운 탭 데이터 생성
         setTabData((prevDatas) => ({
@@ -96,25 +60,24 @@ export const useFileProcessor = () => {
               extension: result.data.extension,
             },
             hasExif: result.data.hasExif || false,
-            exifInfo: {
-              thumbnail,
-              baseOffset,
-              dataSize,
-              endOffset,
-              byteOrder,
-              firstIfdOffset,
-              location,
-              ifdInfos,
-              tagInfos,
-            },
+            exifInfo: result.data.exifInfo,
             textChunkData: result.data.textChunkData,
+            peData: result.data.peData,
+            engines: result.data.engines,
           },
         }));
 
         // 새 탭을 활성화하고 성공 토스트 띄우기
         setActiveKey(newActiveKey);
+
+        // 분석이 수행되었는지 여부 판단
+        const isAnalysisPerformed =
+          result.data.hasExif ||
+          !!result.data.textChunkData ||
+          !!result.data.peData;
+
         eventBus.emit('toast', {
-          code: 'ANALYSIS_SUCCESS',
+          code: isAnalysisPerformed ? 'ANALYSIS_SUCCESS' : 'TAB_CREATED',
           stats: result.stats,
         });
         return true;

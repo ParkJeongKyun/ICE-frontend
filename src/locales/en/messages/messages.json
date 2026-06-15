@@ -24,6 +24,14 @@
     "title": "WASM Not Ready",
     "message": "WASM is not ready yet.\nPlease try again later."
   },
+  "PLUGIN_LOAD_FAILED": {
+    "title": "Plugin Load Failed",
+    "message": "Failed to load plugin module."
+  },
+  "PLUGIN_NOT_READY": {
+    "title": "Plugin Not Ready",
+    "message": "The required plugin is not loaded.\nPlease enable it in settings."
+  },
   "FILE_PROCESSING_FAILED": {
     "title": "File Processing Failed",
     "message": "An error occurred while processing the file."

@@ -299,7 +299,10 @@ export class WorkerManager {
     const timeoutCode = timeoutCodeMap[type] ?? 'TIMEOUT';
 
     // 📏 파일 크기 기반 동적 타임아웃 계산
-    const fileSizeBytes = payload.file?.size; // File 객체 또는 undefined
+    const fileSizeBytes =
+      'file' in payload && payload.file instanceof File
+        ? payload.file.size
+        : undefined;
     const timeoutMs = this.calculateDynamicTimeout(type, fileSizeBytes);
 
     return new Promise((resolve, reject) => {

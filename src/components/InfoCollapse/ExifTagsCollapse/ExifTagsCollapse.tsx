@@ -17,7 +17,7 @@ import {
   ThumbDiv,
   Thumbnail,
   NoDataMessage,
-} from '../ExifRowViewer.styles';
+} from '../InfoCollapse.styles';
 import type { ExifRow } from '@/types';
 import { formatOffset, getDate } from '@/utils/formatters';
 
@@ -153,7 +153,7 @@ const ExifTagsCollapse: React.FC = () => {
 
   return (
     <Collapse
-      title={t('exifViewer.exifTags')}
+      title={t('exifTagsInfo.title')}
       children={
         hasData ? (
           <>
@@ -175,11 +175,11 @@ const ExifTagsCollapse: React.FC = () => {
                         ? formatOffset(abs, config.ui.numberBase)
                         : '-';
                       const headerTooltip = absValid
-                        ? t('exifViewer.jumpToTag', {
+                        ? t('exifTagsInfo.jumpToTag', {
                             target: absStr,
                             bytes: item.isFar ? 4 : item.length || 0,
                           })
-                        : t('exifViewer.jumpUnavailable');
+                        : t('exifTagsInfo.jumpUnavailable');
 
                       return (
                         <Tooltip text={headerTooltip}>
@@ -219,8 +219,8 @@ const ExifTagsCollapse: React.FC = () => {
                         config.ui.numberBase
                       );
                       const realTooltip = item.isFar
-                        ? t('exifViewer.jumpToPointerTarget')
-                        : t('exifViewer.jumpToData', {
+                        ? t('exifTagsInfo.jumpToPointerTarget')
+                        : t('exifTagsInfo.jumpToData', {
                             target: entryStr,
                             bytes: item.length || 0,
                           });

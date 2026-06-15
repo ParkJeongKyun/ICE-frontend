@@ -14,7 +14,7 @@ import {
   ContentDiv,
   JumpButton,
   NoDataMessage,
-} from '../ExifRowViewer.styles';
+} from '../InfoCollapse.styles';
 import { formatOffset } from '@/utils/formatters';
 
 const IfdInfoCollapse: React.FC = () => {
@@ -61,7 +61,7 @@ const IfdInfoCollapse: React.FC = () => {
 
   return (
     <Collapse
-      title={t('exifViewer.ifdInfo')}
+      title={t('ifdInfo.title')}
       children={
         hasData ? (
           <div style={{ borderTop: '1px solid var(--main-line-color)' }}>
@@ -72,11 +72,11 @@ const IfdInfoCollapse: React.FC = () => {
                 children={
                   <>
                     <ContentDiv>
-                      <CellHeaderDiv>{t('exifViewer.ifdOffset')}</CellHeaderDiv>
+                      <CellHeaderDiv>{t('ifdInfo.ifdOffset')}</CellHeaderDiv>
                       <CellBodyDiv>
                         <span>{ifd.offset}</span>
                         <Tooltip
-                          text={t('exifViewer.jumpToOffset', {
+                          text={t('exifInfo.jumpToOffset', {
                             target: formatOffset(
                               Number(baseOffset ?? 0) + Number(ifd.offset || 0),
                               config.ui.numberBase
@@ -88,7 +88,7 @@ const IfdInfoCollapse: React.FC = () => {
                         >
                           <JumpButton
                             onClick={() => onJumpToIfdOffset(ifd.offset)}
-                            aria-label={t('exifViewer.jumpToIfdOffset')}
+                            aria-label={t('ifdInfo.jumpToIfdOffset')}
                           >
                             <ChevronRightIcon />
                           </JumpButton>
@@ -97,13 +97,13 @@ const IfdInfoCollapse: React.FC = () => {
                     </ContentDiv>
                     <ContentDiv>
                       <CellHeaderDiv>
-                        {t('exifViewer.ifdTagCount')}
+                        {t('ifdInfo.ifdTagCount')}
                       </CellHeaderDiv>
                       <CellBodyDiv>{ifd.tagCount ?? '-'}</CellBodyDiv>
                     </ContentDiv>
                     <ContentDiv>
                       <CellHeaderDiv>
-                        {t('exifViewer.ifdNextOffset')}
+                        {t('ifdInfo.ifdNextOffset')}
                       </CellHeaderDiv>
                       <CellBodyDiv>{ifd.nextIfdOffset ?? '-'}</CellBodyDiv>
                     </ContentDiv>

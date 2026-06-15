@@ -2,14 +2,29 @@
 import {
   AnalysisWorkerRequest,
   SearchOptions,
+  WasmDetectTypeFunction,
   WasmExifFunction,
+  WasmPeFunction,
   WasmSearchFunction,
   WasmTextChunkFunction,
 } from '@/types/worker/analysis.worker.types';
 import { createStats, calculateProgressInterval } from './utils';
+import { fetchWasmWithCache } from './utils/wasmLoader';
 import { parseExifDataInWorker } from '@/workers/utils/exifParser';
+import { WASM_MANIFEST } from '@/constants/wasm';
 
 declare const self: DedicatedWorkerGlobalScope;
+
+/**
+ * 분석 가능한 파일 카테고리 정의
+ */
+const FILE_CATEGORY = {
+  IMAGE: 'image',
+  PE: 'pe',
+  UNKNOWN: 'unknown',
+} as const;
+
+type FileCategory = (typeof FILE_CATEGORY)[keyof typeof FILE_CATEGORY];
 
 /**
  * 분석 워커 클래스
@@ -31,13 +46,24 @@ class AnalysisWorker {
   private syncReader = new FileReaderSync();
 
   // WASM 관련 변수
-  private wasmReady = false;
-  private wasmInitializing = false;
+  private coreReady = false;
+  private coreInitializing = false;
+  private imagePluginReady = false;
+  private imagePluginInitializing = false;
+  private pePluginReady = false;
+  private pePluginInitializing = false;
+
   private wasmSearchFunc: WasmSearchFunction | null = null;
+  private wasmDetectTypeFunc: WasmDetectTypeFunction | null = null;
   private wasmExifFunc: WasmExifFunction | null = null;
   private wasmTextChunkFunc: WasmTextChunkFunction | null = null;
-  private goInstance: Go | null = null;
-  private wasmPath = process.env.NEXT_PUBLIC_WASM_PATH;
+  private wasmPeFunc: WasmPeFunction | null = null;
+
+  private coreGoInstance: Go | null = null;
+  private imageGoInstance: Go | null = null;
+  private peGoInstance: Go | null = null;
+
+  private wasmPath = WASM_MANIFEST.core;
 
   /**
    * Go WASM에서 호출할 전역 동기 함수 설정
@@ -98,7 +124,8 @@ class AnalysisWorker {
    * 검색 진행률 전송 (StandardWorkerResponse 형식)
    */
   private sendSearchProgress(): void {
-    if (this.currentRequestId === undefined) return;
+    const requestId = this.currentRequestId;
+    if (requestId === undefined) return;
 
     const duration = performance.now();
 
@@ -106,7 +133,7 @@ class AnalysisWorker {
       status: 'PROGRESS',
       taskType: 'SEARCH_HEX', // or SEARCH_ASCII (taskType은 호출자가 구분하지만, 진행률에서는 크게 중요하지 않음)
       stats: createStats(
-        this.currentRequestId,
+        requestId,
         duration,
         this.totalReadBytes,
         this.currentFileSize,
@@ -116,168 +143,329 @@ class AnalysisWorker {
   }
 
   /**
-   * WASM 초기화
+   * 특정 전역 함수가 등록될 때까지 대기 (WASM 초기화 확인용)
    */
-  async initWasm(): Promise<void> {
-    if (this.wasmReady) {
-      self.postMessage({ status: 'WASM_READY' });
-      return;
+  private async waitForFunctions(
+    fnNames: string[],
+    timeoutMs: number = 10000
+  ): Promise<void> {
+    const start = Date.now();
+    while (fnNames.some((name) => typeof (self as any)[name] !== 'function')) {
+      if (Date.now() - start > timeoutMs) {
+        throw new Error(
+          `TIMEOUT: WASM functions not registered: ${fnNames.join(', ')}`
+        );
+      }
+      await new Promise((resolve) => setTimeout(resolve, 100));
     }
+  }
 
-    if (this.wasmInitializing) {
-      return;
-    }
-
-    this.wasmInitializing = true;
+  /**
+   * WASM 초기화 (Core)
+   */
+  async initCoreWasm(): Promise<void> {
+    if (this.coreReady || this.coreInitializing) return;
+    this.coreInitializing = true;
 
     try {
-      if (this.goInstance) {
-        if (this.goInstance.exit) {
-          try {
-            this.goInstance.exit(0);
-          } catch (e) {
-            // Cleanup error ignored
-          }
-        }
-        this.goInstance = null;
-      }
-
-      this.wasmSearchFunc = null;
-      this.wasmExifFunc = null;
-      this.wasmReady = false;
-
       self.importScripts('/js/wasm_exec.js');
-
       if (typeof (self as any).Go !== 'function') {
-        throw new Error('Go class not found after loading wasm_exec.js');
+        throw new Error('Go class not found');
       }
 
       const go = new ((self as any).Go as typeof Go)();
-      this.goInstance = go;
+      this.coreGoInstance = go;
 
-      if (!this.wasmPath) {
-        throw new Error(
-          'WASM_PATH_NOT_CONFIGURED: NEXT_PUBLIC_WASM_PATH environment variable is not set'
-        );
-      }
-
-      const response = await fetch(this.wasmPath);
-      if (!response.ok) {
-        throw new Error(
-          `WASM_LOAD_FAILED: Failed to load WASM from "${this.wasmPath}" (HTTP ${response.status} ${response.statusText})`
-        );
-      }
-
+      const response = await fetchWasmWithCache(this.wasmPath);
       const result = await WebAssembly.instantiateStreaming(
         Promise.resolve(response),
         go.importObject
       );
 
-      go.run(result.instance).catch((err: any) => {
-        console.error('[Worker] go.run exited with error:', err);
-      });
+      go.run(result.instance).catch((err) =>
+        console.error('[Worker] Core go.run error:', err)
+      );
 
-      // 2. [수정됨] 이벤트 리스너(Promise.race) 대신 폴링(Polling) 대기
-      // Go의 main()이 js.Global().Set("searchFunc", ...)를 완료할 때까지 기다립니다.
-      let retries = 0;
-      while (!(self as any).searchFunc || !(self as any).exifFunc) {
-        if (retries > 100) {
-          // 100ms * 100 = 10초 타임아웃
-          throw new Error('WASM INIT TIMEOUT: Functions not registered');
-        }
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        retries++;
-      }
+      await this.waitForFunctions(['searchFunc', 'detectTypeFunc']);
 
-      // 함수 가져오기
-      const globalScope = self as DedicatedWorkerGlobalScope;
-      this.wasmSearchFunc = globalScope.searchFunc;
-      this.wasmExifFunc = globalScope.exifFunc;
-      this.wasmTextChunkFunc = globalScope.textChunkFunc;
-
-      if (
-        !this.wasmSearchFunc ||
-        !this.wasmExifFunc ||
-        !this.wasmTextChunkFunc
-      ) {
-        throw new Error('WASM functions not registered');
-      }
-
-      this.wasmReady = true;
-      this.wasmInitializing = false;
-
+      this.wasmSearchFunc = (self as any).searchFunc;
+      this.wasmDetectTypeFunc = (self as any).detectTypeFunc;
+      this.coreReady = true;
       self.postMessage({ status: 'WASM_READY' });
     } catch (error) {
-      this.wasmReady = false;
-      this.wasmInitializing = false;
-      console.error('[Worker] WASM initialization error:', error);
-      self.postMessage({
-        status: 'ERROR',
-        errorCode: 'WASM_LOAD_FAILED',
-      });
+      console.error('[Worker] Core WASM init error:', error);
+      self.postMessage({ status: 'ERROR', errorCode: 'WASM_LOAD_FAILED' });
+    } finally {
+      this.coreInitializing = false;
     }
   }
 
   /**
-   * EXIF 처리 (PNG 메타데이터 추출 포함)
+   * 플러그인 로드 (Image, PE 등)
    */
-  async processExif(id: string, file: File): Promise<void> {
+  async loadPlugin(
+    id: string,
+    pluginType: 'image' | 'pe',
+    path: string
+  ): Promise<void> {
+    const isReady =
+      pluginType === 'image' ? this.imagePluginReady : this.pePluginReady;
+    const isInitializing =
+      pluginType === 'image'
+        ? this.imagePluginInitializing
+        : this.pePluginInitializing;
+
+    if (isReady || isInitializing) {
+      if (isReady)
+        self.postMessage({ id, status: 'SUCCESS', taskType: 'LOAD_PLUGIN' });
+      return;
+    }
+
+    if (pluginType === 'image') this.imagePluginInitializing = true;
+    else this.pePluginInitializing = true;
+
+    try {
+      const go = new ((self as any).Go as typeof Go)();
+      const response = await fetchWasmWithCache(path);
+      const result = await WebAssembly.instantiateStreaming(
+        Promise.resolve(response),
+        go.importObject
+      );
+
+      go.run(result.instance).catch((err) =>
+        console.error(`[Worker] ${pluginType} go.run error:`, err)
+      );
+
+      if (pluginType === 'image') {
+        await this.waitForFunctions(['exifFunc', 'textChunkFunc']);
+        this.wasmExifFunc = (self as any).exifFunc;
+        this.wasmTextChunkFunc = (self as any).textChunkFunc;
+        this.imagePluginReady = true;
+        this.imageGoInstance = go;
+      } else {
+        await this.waitForFunctions(['peFunc']);
+        this.wasmPeFunc = (self as any).peFunc;
+        this.pePluginReady = true;
+        this.peGoInstance = go;
+      }
+
+      self.postMessage({ id, status: 'SUCCESS', taskType: 'LOAD_PLUGIN' });
+    } catch (error) {
+      console.error(`[Worker] ${pluginType} plugin init error:`, error);
+      self.postMessage({
+        id,
+        status: 'ERROR',
+        taskType: 'LOAD_PLUGIN',
+        errorCode: 'PLUGIN_LOAD_FAILED',
+      });
+    } finally {
+      if (pluginType === 'image') this.imagePluginInitializing = false;
+      else this.pePluginInitializing = false;
+    }
+  }
+
+  /**
+   * 파일 타입 감지 및 카테고리 분류
+   */
+  private getFileInfo(
+    file: File,
+    options?: AnalysisWorkerRequest['options']
+  ): { mimeType: string; extension: string; category: FileCategory } {
+    let mimeType = options?.mimeType;
+    let extension = options?.extension;
+
+    if (!mimeType && this.wasmDetectTypeFunc) {
+      const typeResult = this.wasmDetectTypeFunc!(file);
+      mimeType = typeResult.mimeType || file.type || 'application/octet-stream';
+      extension = typeResult.extension || '';
+    }
+
+    mimeType = mimeType || file.type || 'application/octet-stream';
+    extension = extension || '';
+
+    let category: FileCategory = FILE_CATEGORY.UNKNOWN;
+    if (mimeType.startsWith('image/')) {
+      category = FILE_CATEGORY.IMAGE;
+    } else if (
+      mimeType === 'application/x-msdownload' ||
+      mimeType === 'application/x-executable' ||
+      ['exe', 'dll', 'sys', 'ocx'].includes(extension.toLowerCase())
+    ) {
+      category = FILE_CATEGORY.PE;
+    }
+
+    return { mimeType, extension, category };
+  }
+
+  /**
+   * JSON 파싱 헬퍼 (WASM 응답 처리용)
+   */
+  private parseJsonData<T>(data: any): T | undefined {
+    if (!data) return undefined;
+    try {
+      return typeof data === 'string' ? JSON.parse(data) : data;
+    } catch (e) {
+      console.error('[Worker] JSON parsing failed:', e);
+      return undefined;
+    }
+  }
+
+  /**
+   * 이미지 파일 분석 로직
+   */
+  private async analyzeImage(
+    file: File,
+    mimeType: string,
+    extension: string,
+    options?: AnalysisWorkerRequest['options']
+  ) {
+    let hasExif = false;
+    let exifInfo = undefined;
+    let textChunkData = undefined;
+
+    const imageOpts = options?.image;
+    try {
+      if (imageOpts?.exif !== false && this.wasmExifFunc) {
+        const wasmResult = this.wasmExifFunc!(file, mimeType, extension);
+        if (wasmResult && !wasmResult.error) {
+          hasExif = wasmResult.hasExif || false;
+          exifInfo = await parseExifDataInWorker(
+            wasmResult.exifData || '[]',
+            file,
+            mimeType,
+            this.syncReader
+          );
+        }
+      }
+
+      if (
+        imageOpts?.textChunk !== false &&
+        this.wasmTextChunkFunc &&
+        mimeType.includes('image/png')
+      ) {
+        const pngResponse = this.wasmTextChunkFunc!(file, mimeType, extension);
+        textChunkData = this.parseJsonData(pngResponse?.textChunkData);
+      }
+    } catch (e) {
+      console.warn('[Worker] Image plugin analysis failed:', e);
+    }
+
+    return { hasExif, exifInfo, textChunkData };
+  }
+
+  /**
+   * PE 파일 분석 로직
+   */
+  private async analyzePe(
+    file: File,
+    mimeType: string,
+    extension: string,
+    options?: AnalysisWorkerRequest['options']
+  ) {
+    let peData = undefined;
+
+    try {
+      const wasmResult = this.wasmPeFunc!(file, mimeType, extension);
+      if (wasmResult && !wasmResult.error) {
+        peData = this.parseJsonData(wasmResult.peData);
+      }
+    } catch (e) {
+      console.warn('[Worker] PE plugin analysis failed:', e);
+    }
+
+    return { peData };
+  }
+
+  /**
+   * 파일 분석 (기본 타입 감지 + 선택적 플러그인 분석)
+   */
+  async processAnalysis(
+    id: string,
+    file: File,
+    options?: AnalysisWorkerRequest['options']
+  ): Promise<void> {
     try {
       this.initProgress(file.size, id);
 
-      if (!this.wasmReady || !this.wasmExifFunc || !this.wasmTextChunkFunc) {
-        self.postMessage({
-          id, // 루트에 id 직접 삽입
-          status: 'ERROR',
-          taskType: 'PROCESS_ANALYSIS',
-          errorCode: 'WASM_NOT_READY',
-        });
-        return;
+      if (!this.coreReady || !this.wasmDetectTypeFunc) {
+        throw new Error('WASM_NOT_READY');
       }
 
       const perfStart = performance.now();
+      const { mimeType, extension, category } = this.getFileInfo(file, options);
 
-      // --- WASM 실행 (EXIF 추출) ---
-      const wasmResult = this.wasmExifFunc(file);
-      // -------------------------
+      let analysisResult: any = {
+        hasExif: false,
+        exifInfo: undefined,
+        textChunkData: undefined,
+        peData: undefined,
+      };
 
-      const perfEnd = performance.now();
-      const duration = perfEnd - perfStart;
+      const engines = {
+        core: true, // Core는 항상 사용됨
+        image: false,
+        pe: false,
+      };
 
-      if (wasmResult.error) {
+      // 0. 분석 기능 자체가 꺼져있으면 기본 정보만 반환
+      if (options?.enabled === false) {
+        const duration = performance.now() - perfStart;
         self.postMessage({
-          id, // 루트에 id 직접 삽입
-          status: 'ERROR',
+          id,
+          status: 'SUCCESS',
           taskType: 'PROCESS_ANALYSIS',
-          errorCode: 'ANALYSIS_ERROR',
+          stats: createStats(
+            id,
+            duration,
+            this.totalReadBytes,
+            this.currentFileSize,
+            file.name
+          ),
+          data: {
+            mimeType,
+            extension,
+            ...analysisResult,
+            engines,
+          },
         });
         return;
       }
 
-      // 📝 EXIF 데이터 파싱 (워커 유틸 사용)
-      const exifInfo = await parseExifDataInWorker(
-        wasmResult.exifData || '[]',
-        file,
-        wasmResult.mimeType || '',
-        this.syncReader
-      );
-
-      // PNG 파일인 경우 추가로 PNG 메타데이터 추출
-      let textChunkData = undefined;
-      if (
-        wasmResult.mimeType === 'image/png' ||
-        wasmResult.mimeType === 'image/apng'
-      ) {
-        try {
-          // WASM 함수가 JSON 문자열을 반환 (EXIF와 동일한 패턴)
-          const pngResponse = this.wasmTextChunkFunc(file);
-          if (pngResponse.hasTextChunks && pngResponse.textChunkData) {
-            textChunkData = JSON.parse(pngResponse.textChunkData);
+      // 카테고리별 분석 수행
+      switch (category) {
+        case FILE_CATEGORY.IMAGE:
+          const imageOpts = options?.image;
+          if (imageOpts?.enabled !== false && this.imagePluginReady) {
+            const imageResult = await this.analyzeImage(
+              file,
+              mimeType,
+              extension,
+              options
+            );
+            analysisResult = { ...analysisResult, ...imageResult };
+            engines.image = true;
           }
-        } catch (e) {
-          console.warn('[Worker] PNG metadata extraction failed:', e);
-        }
+          break;
+
+        case FILE_CATEGORY.PE:
+          if (options?.pe !== false && this.pePluginReady) {
+            const peResult = await this.analyzePe(
+              file,
+              mimeType,
+              extension,
+              options
+            );
+            analysisResult = { ...analysisResult, ...peResult };
+            engines.pe = true;
+          }
+          break;
+
+        default:
+          // 기본 분석 외 추가 작업 없음
+          break;
       }
+
+      const duration = performance.now() - perfStart;
 
       self.postMessage({
         id,
@@ -291,19 +479,22 @@ class AnalysisWorker {
           file.name
         ),
         data: {
-          hasExif: wasmResult.hasExif || false,
-          mimeType: wasmResult.mimeType,
-          extension: wasmResult.extension,
-          exifInfo,
-          textChunkData,
+          mimeType,
+          extension,
+          ...analysisResult,
+          engines,
         },
       });
-    } catch (error) {
+    } catch (error: any) {
+      console.error('[Worker] processAnalysis error:', error);
       self.postMessage({
-        id, // 루트에 id 직접 삽입
+        id,
         status: 'ERROR',
         taskType: 'PROCESS_ANALYSIS',
-        errorCode: 'ANALYSIS_ERROR',
+        errorCode:
+          error.message === 'WASM_NOT_READY'
+            ? 'WASM_NOT_READY'
+            : 'ANALYSIS_ERROR',
       });
     }
   }
@@ -314,15 +505,15 @@ class AnalysisWorker {
   async search(
     id: string,
     file: File,
-    pattern: Uint8Array, // Uint8Array로 직접 받음
+    pattern: Uint8Array,
     type: 'HEX' | 'ASCII',
     ignoreCase: boolean = false
   ): Promise<void> {
     this.initProgress(file.size, id, file.name);
 
-    if (!this.wasmReady || !this.wasmSearchFunc) {
+    if (!this.coreReady || !this.wasmSearchFunc) {
       self.postMessage({
-        id, // 루트에 id 직접 삽입
+        id,
         status: 'ERROR',
         taskType: type === 'HEX' ? 'SEARCH_HEX' : 'SEARCH_ASCII',
         errorCode: 'WASM_NOT_READY',
@@ -332,38 +523,20 @@ class AnalysisWorker {
 
     try {
       const perfStart = performance.now();
-
       const searchOptions: SearchOptions = {
         ignoreCase: type === 'ASCII' ? ignoreCase : false,
         maxResults: 1000,
       };
 
-      // --- WASM 실행 (핵심 작업) ---
-      const result = this.wasmSearchFunc(file, pattern, searchOptions);
-      // -------------------------
-
-      const perfEnd = performance.now();
-      const duration = perfEnd - perfStart;
+      const result = this.wasmSearchFunc!(file, pattern, searchOptions);
+      const duration = performance.now() - perfStart;
 
       if (result.error) {
-        self.postMessage({
-          id, // 루트에 id 직접 삽입
-          status: 'ERROR',
-          taskType: type === 'HEX' ? 'SEARCH_HEX' : 'SEARCH_ASCII',
-          errorCode: 'SEARCH_WASM_ERROR',
-        });
-        return;
+        throw new Error('SEARCH_WASM_ERROR');
       }
 
-      let parsedIndices: number[] = [];
-      try {
-        if (typeof result.indices === 'string') {
-          parsedIndices = JSON.parse(result.indices);
-        }
-      } catch (e) {
-        console.error('Failed to parse search indices', e);
-      }
-
+      let parsedIndices: number[] =
+        this.parseJsonData<number[]>(result.indices) || [];
       const results = parsedIndices.map((idx: number) => ({
         index: idx,
         offset: pattern.length,
@@ -384,12 +557,15 @@ class AnalysisWorker {
           indices: results,
         },
       });
-    } catch (error) {
+    } catch (error: any) {
       self.postMessage({
-        id, // 루트에 id 직접 삽입
+        id,
         status: 'ERROR',
         taskType: type === 'HEX' ? 'SEARCH_HEX' : 'SEARCH_ASCII',
-        errorCode: 'SEARCH_ERROR',
+        errorCode:
+          error.message === 'SEARCH_WASM_ERROR'
+            ? 'SEARCH_WASM_ERROR'
+            : 'SEARCH_ERROR',
       });
     }
   }
@@ -398,9 +574,16 @@ class AnalysisWorker {
    * 메시지 핸들러
    */
   async handle(data: AnalysisWorkerRequest): Promise<void> {
-    const { type, id, file, pattern, ignoreCase } = data;
+    const { type, id, file, pattern, ignoreCase, pluginType, path, options } =
+      data;
 
     switch (type) {
+      case 'LOAD_PLUGIN':
+        if (pluginType && path) {
+          await this.loadPlugin(id, pluginType, path);
+        }
+        break;
+
       case 'SEARCH_HEX':
       case 'SEARCH_ASCII':
         if (file && pattern) {
@@ -416,7 +599,7 @@ class AnalysisWorker {
 
       case 'PROCESS_ANALYSIS':
         if (file) {
-          await this.processExif(id, file);
+          await this.processAnalysis(id, file, options);
         }
         break;
     }
@@ -445,5 +628,5 @@ self.addEventListener('message', (e: MessageEvent<AnalysisWorkerRequest>) => {
   analysisWorker.handle(e.data as AnalysisWorkerRequest);
 });
 
-// 워커 생성 직후 자동으로 WASM 초기화
-analysisWorker.initWasm();
+// 워커 생성 직후 자동으로 Core WASM 초기화
+analysisWorker.initCoreWasm();
