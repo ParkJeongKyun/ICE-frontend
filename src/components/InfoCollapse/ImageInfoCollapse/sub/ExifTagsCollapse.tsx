@@ -17,7 +17,7 @@ import {
   ThumbDiv,
   Thumbnail,
   NoDataMessage,
-} from '../InfoCollapse.styles';
+} from '../../InfoCollapse.styles';
 import type { ExifRow } from '@/types';
 import { formatOffset, getDate } from '@/utils/formatters';
 

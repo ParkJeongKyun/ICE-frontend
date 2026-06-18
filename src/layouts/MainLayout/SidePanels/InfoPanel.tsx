@@ -1,13 +1,8 @@
 import React from 'react';
 import { useConfig } from '@/contexts/ConfigContext/ConfigContext';
 import { useTab } from '@/contexts/TabDataContext/TabDataContext';
-import ExifThumbnailCollapse from '@/components/InfoCollapse/ExifThumbnailCollapse/ExifThumbnailCollapse';
 import FileInfoCollapse from '@/components/InfoCollapse/FileInfoCollapse/FileInfoCollapse';
-import MapCollapse from '@/components/InfoCollapse/MapCollapse';
-import ExifInfoCollapse from '@/components/InfoCollapse/ExifInfoCollapse/ExifInfoCollapse';
-import IfdInfoCollapse from '@/components/InfoCollapse/IfdInfoCollapse/IfdInfoCollapse';
-import ExifTagsCollapse from '@/components/InfoCollapse/ExifTagsCollapse/ExifTagsCollapse';
-import TextChunksCollapse from '@/components/InfoCollapse/TextChunksCollapse/TextChunksCollapse';
+import ImageInfoCollapse from '@/components/InfoCollapse/ImageInfoCollapse/ImageInfoCollapse';
 import PeInfoCollapse from '@/components/InfoCollapse/PeInfoCollapse/PeInfoCollapse';
 
 const InfoPanel: React.FC = () => {
@@ -24,17 +19,7 @@ const InfoPanel: React.FC = () => {
   return (
     <div>
       {v.fileInfo && <FileInfoCollapse />}
-      {isImageEngineUsed && (
-        <>
-          {v.exifThumbnail && <ExifThumbnailCollapse />}
-          {v.map && <MapCollapse />}
-          {v.exifInfo && <ExifInfoCollapse />}
-          {v.ifdInfo && <IfdInfoCollapse />}
-          {v.exifTags && <ExifTagsCollapse />}
-          {v.textChunks && <TextChunksCollapse />}
-        </>
-      )}
-
+      {isImageEngineUsed && <>{<ImageInfoCollapse />}</>}
       {isPeEngineUsed && <>{v.peInfo && <PeInfoCollapse />}</>}
     </div>
   );

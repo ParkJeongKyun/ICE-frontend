@@ -14,7 +14,7 @@ import {
   ContentDiv,
   JumpButton,
   NoDataMessage,
-} from '../InfoCollapse.styles';
+} from '../../InfoCollapse.styles';
 import { formatOffset } from '@/utils/formatters';
 
 const ExifInfoCollapse: React.FC = () => {

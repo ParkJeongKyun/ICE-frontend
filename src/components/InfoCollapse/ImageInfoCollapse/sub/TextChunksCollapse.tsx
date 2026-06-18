@@ -12,7 +12,7 @@ import {
   NoDataMessage,
   JumpButton,
   ScrollableDataDiv,
-} from '../InfoCollapse.styles';
+} from '../../InfoCollapse.styles';
 import ChevronRightIcon from '@/components/common/Icons/ChevronRightIcon';
 import { formatOffset } from '@/utils/formatters';
 

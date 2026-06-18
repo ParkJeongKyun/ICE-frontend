@@ -14,7 +14,7 @@ import {
   ContentDiv,
   JumpButton,
   NoDataMessage,
-} from '../InfoCollapse.styles';
+} from '../../InfoCollapse.styles';
 import { formatOffset } from '@/utils/formatters';
 
 const IfdInfoCollapse: React.FC = () => {
@@ -96,9 +96,7 @@ const IfdInfoCollapse: React.FC = () => {
                       </CellBodyDiv>
                     </ContentDiv>
                     <ContentDiv>
-                      <CellHeaderDiv>
-                        {t('ifdInfo.ifdTagCount')}
-                      </CellHeaderDiv>
+                      <CellHeaderDiv>{t('ifdInfo.ifdTagCount')}</CellHeaderDiv>
                       <CellBodyDiv>{ifd.tagCount ?? '-'}</CellBodyDiv>
                     </ContentDiv>
                     <ContentDiv>
