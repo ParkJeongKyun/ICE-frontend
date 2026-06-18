@@ -59,7 +59,6 @@ export interface SearchResult {
 
 export interface AnalysisResult {
   data: {
-    hasExif: boolean;
     mimeType: string;
     extension: string;
     exifInfo?: ExifInfo;
@@ -87,29 +86,25 @@ export interface SearchOptions {
 // WASM Response Types
 // ============================================================================
 
-export interface WasmSearchResponse {
-  indices: string;
-  error?: string;
-}
-
-export interface WasmExifResponse {
-  hasExif: boolean;
+export interface WasmResponse<T = any> {
+  success: boolean;
+  found: boolean;
   isEmpty: boolean;
-  exifData?: string;
-  error?: string;
+  data: T;
+  error: string;
 }
 
-// PNG 메타데이터 응답 (EXIF와 동일한 패턴: JSON 문자열)
-export interface WasmTextChunkResponse {
-  hasTextChunks: boolean;
-  textChunkData?: string;
-  error?: string;
-}
+export type WasmSearchResponse = WasmResponse<string>; // JSON string of indices
 
-export interface WasmDetectTypeResponse {
+export type WasmExifResponse = WasmResponse<string>; // JSON string of exifData
+
+export type WasmTextChunkResponse = WasmResponse<string>; // JSON string of textChunkData
+
+export interface WasmDetectTypeData {
   mimeType: string;
   extension: string;
 }
+export type WasmDetectTypeResponse = WasmResponse<WasmDetectTypeData>;
 
 export type WasmDetectTypeFunction = (file: File) => WasmDetectTypeResponse;
 
@@ -125,10 +120,7 @@ export type WasmExifFunction = (
   extension: string
 ) => WasmExifResponse;
 
-export interface WasmPeResponse {
-  peData?: string;
-  error?: string;
-}
+export type WasmPeResponse = WasmResponse<string>; // JSON string of PeInfo
 
 export type WasmPeFunction = (
   data: File,

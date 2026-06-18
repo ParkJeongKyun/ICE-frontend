@@ -276,8 +276,10 @@ class AnalysisWorker {
 
     if (!mimeType && this.wasmDetectTypeFunc) {
       const typeResult = this.wasmDetectTypeFunc!(file);
-      mimeType = typeResult.mimeType || file.type || 'application/octet-stream';
-      extension = typeResult.extension || '';
+      if (typeResult.success && typeResult.data) {
+        mimeType = typeResult.data.mimeType || file.type || 'application/octet-stream';
+        extension = typeResult.data.extension || '';
+      }
     }
 
     mimeType = mimeType || file.type || 'application/octet-stream';
@@ -319,7 +321,6 @@ class AnalysisWorker {
     extension: string,
     options?: AnalysisWorkerRequest['options']
   ) {
-    let hasExif = false;
     let exifInfo = undefined;
     let textChunkData = undefined;
 
@@ -327,10 +328,9 @@ class AnalysisWorker {
     try {
       if (imageOpts?.exif !== false && this.wasmExifFunc) {
         const wasmResult = this.wasmExifFunc!(file, mimeType, extension);
-        if (wasmResult && !wasmResult.error) {
-          hasExif = wasmResult.hasExif || false;
+        if (wasmResult && wasmResult.success && wasmResult.found) {
           exifInfo = await parseExifDataInWorker(
-            wasmResult.exifData || '[]',
+            wasmResult.data || '[]',
             file,
             mimeType,
             this.syncReader
@@ -344,13 +344,15 @@ class AnalysisWorker {
         mimeType.includes('image/png')
       ) {
         const pngResponse = this.wasmTextChunkFunc!(file, mimeType, extension);
-        textChunkData = this.parseJsonData(pngResponse?.textChunkData);
+        if (pngResponse && pngResponse.success && pngResponse.found) {
+          textChunkData = this.parseJsonData(pngResponse.data);
+        }
       }
     } catch (e) {
       console.warn('[Worker] Image plugin analysis failed:', e);
     }
 
-    return { hasExif, exifInfo, textChunkData };
+    return { exifInfo, textChunkData };
   }
 
   /**
@@ -366,8 +368,8 @@ class AnalysisWorker {
 
     try {
       const wasmResult = this.wasmPeFunc!(file, mimeType, extension);
-      if (wasmResult && !wasmResult.error) {
-        peData = this.parseJsonData(wasmResult.peData);
+      if (wasmResult && wasmResult.success && wasmResult.found) {
+        peData = this.parseJsonData(wasmResult.data);
       }
     } catch (e) {
       console.warn('[Worker] PE plugin analysis failed:', e);
@@ -395,7 +397,6 @@ class AnalysisWorker {
       const { mimeType, extension, category } = this.getFileInfo(file, options);
 
       let analysisResult: any = {
-        hasExif: false,
         exifInfo: undefined,
         textChunkData: undefined,
         peData: undefined,
@@ -531,12 +532,12 @@ class AnalysisWorker {
       const result = this.wasmSearchFunc!(file, pattern, searchOptions);
       const duration = performance.now() - perfStart;
 
-      if (result.error) {
+      if (!result.success) {
         throw new Error('SEARCH_WASM_ERROR');
       }
 
       let parsedIndices: number[] =
-        this.parseJsonData<number[]>(result.indices) || [];
+        this.parseJsonData<number[]>(result.data) || [];
       const results = parsedIndices.map((idx: number) => ({
         index: idx,
         offset: pattern.length,

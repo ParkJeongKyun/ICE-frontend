@@ -4,72 +4,67 @@ import React from 'react';
 import { useTranslations } from 'next-intl';
 import { useTab } from '@/contexts/TabDataContext/TabDataContext';
 import Collapse from '@/components/common/Collapse/Collapse';
-import {
-  CellBodyDiv,
-  CellHeaderDiv,
-  ContentDiv,
-  NoDataMessage,
-  SectionTable,
-} from '../InfoCollapse.styles';
+import { NoDataMessage } from '../InfoCollapse.styles';
+import PeBasicCollapse from './sub/PeBasicCollapse';
+import PeDosHeaderCollapse from './sub/PeDosHeaderCollapse';
+import PeFileHeaderCollapse from './sub/PeFileHeaderCollapse';
+import PeOptionalHeaderCollapse from './sub/PeOptionalHeaderCollapse';
+import PeRichHeaderCollapse from './sub/PeRichHeaderCollapse';
+import PeSectionsCollapse from './sub/PeSectionsCollapse';
+import PeDataDirectoriesCollapse from './sub/PeDataDirectoriesCollapse';
+import PeImportsCollapse from './sub/PeImportsCollapse';
+import PeExportsCollapse from './sub/PeExportsCollapse';
+import PeAnomaliesCollapse from './sub/PeAnomaliesCollapse';
+import PeDebugCollapse from './sub/PeDebugCollapse';
+import PeSecurityCollapse from './sub/PeSecurityCollapse';
+import PeCertificatesCollapse from './sub/PeCertificatesCollapse';
+import PeVersionInfoCollapse from './sub/PeVersionInfoCollapse';
+import PeTlsCollapse from './sub/PeTlsCollapse';
+import PeHashesCollapse from './sub/PeHashesCollapse';
 
 const PeInfoCollapse: React.FC = () => {
   const t = useTranslations();
   const { activeData } = useTab();
   const peData = activeData?.peData;
 
-  return (
-    <Collapse
-      title={t('peInfo.title')}
-      children={
-        peData ? (
-          <>
-            <ContentDiv>
-              <CellHeaderDiv>{t('peInfo.machine')}</CellHeaderDiv>
-              <CellBodyDiv>{peData.machine}</CellBodyDiv>
-            </ContentDiv>
-            <ContentDiv>
-              <CellHeaderDiv>{t('peInfo.timeDateStamp')}</CellHeaderDiv>
-              <CellBodyDiv>{peData.timeDateStamp}</CellBodyDiv>
-            </ContentDiv>
-            <ContentDiv>
-              <CellHeaderDiv>{t('peInfo.numberOfSections')}</CellHeaderDiv>
-              <CellBodyDiv>{peData.numberOfSections}</CellBodyDiv>
-            </ContentDiv>
-            <ContentDiv>
-              <CellHeaderDiv>{t('peInfo.characteristics')}</CellHeaderDiv>
-              <CellBodyDiv>
-                0x{peData.characteristics.toString(16).toUpperCase()}
-              </CellBodyDiv>
-            </ContentDiv>
+  if (!peData) {
+    return (
+      <Collapse
+        title={t('peInfo.title')}
+        children={<NoDataMessage>{t('common.noData')}</NoDataMessage>}
+        open
+      />
+    );
+  }
 
-            <div style={{ marginTop: '16px' }}>
-              <CellHeaderDiv>{t('peInfo.sections')}</CellHeaderDiv>
-              <SectionTable>
-                <thead>
-                  <tr>
-                    <th>{t('peInfo.sectionName')}</th>
-                    <th>{t('peInfo.virtualSize')}</th>
-                    <th>{t('peInfo.rawSize')}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {peData.sections.map((s, i) => (
-                    <tr key={i}>
-                      <td>{s.name}</td>
-                      <td>0x{s.virtualSize.toString(16).toUpperCase()}</td>
-                      <td>0x{s.sizeOfRawData.toString(16).toUpperCase()}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </SectionTable>
-            </div>
-          </>
-        ) : (
-          <NoDataMessage>{t('common.noData')}</NoDataMessage>
-        )
-      }
-      open
-    />
+  return (
+    <>
+      {/* 1. Essential/Identification */}
+      <PeBasicCollapse />
+      <PeHashesCollapse />
+      
+      {/* 2. Headers */}
+      <PeFileHeaderCollapse />
+      <PeDosHeaderCollapse />
+      <PeRichHeaderCollapse />
+      <PeOptionalHeaderCollapse />
+      
+      {/* 3. Security/Debug/Metadata */}
+      <PeSecurityCollapse />
+      <PeDebugCollapse />
+      <PeTlsCollapse />
+      <PeCertificatesCollapse />
+      <PeVersionInfoCollapse />
+      
+      {/* 4. Structure/Data */}
+      <PeSectionsCollapse />
+      <PeDataDirectoriesCollapse />
+      <PeImportsCollapse />
+      <PeExportsCollapse />
+      
+      {/* 5. Alerts */}
+      <PeAnomaliesCollapse />
+    </>
   );
 };
 

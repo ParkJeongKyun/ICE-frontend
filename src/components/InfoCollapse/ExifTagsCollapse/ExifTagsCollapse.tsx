@@ -27,7 +27,7 @@ const ExifTagsCollapse: React.FC = () => {
   const { activeData } = useTab();
   const { searcherRef } = useRefs();
 
-  const tagInfos = activeData?.hasExif ? activeData?.exifInfo?.tagInfos : null;
+  const tagInfos = activeData?.exifInfo?.tagInfos;
   const thumbnail = activeData?.exifInfo?.thumbnail;
   const baseOffset = activeData?.exifInfo?.baseOffset ?? 0;
   const fileSize = activeData?.file?.size ?? 0;

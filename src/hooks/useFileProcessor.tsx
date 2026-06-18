@@ -59,7 +59,6 @@ export const useFileProcessor = () => {
               mimeType: result.data.mimeType,
               extension: result.data.extension,
             },
-            hasExif: result.data.hasExif || false,
             exifInfo: result.data.exifInfo,
             textChunkData: result.data.textChunkData,
             peData: result.data.peData,
@@ -72,7 +71,7 @@ export const useFileProcessor = () => {
 
         // 분석이 수행되었는지 여부 판단
         const isAnalysisPerformed =
-          result.data.hasExif ||
+          !!result.data.exifInfo ||
           !!result.data.textChunkData ||
           !!result.data.peData;
 

@@ -25,7 +25,7 @@ const IfdInfoCollapse: React.FC = () => {
   const baseOffset = activeData?.exifInfo?.baseOffset;
 
   const ifdInfos = useMemo(() => {
-    if (!activeData?.hasExif) return [];
+    if (!activeData?.exifInfo) return [];
     const infos = activeData?.exifInfo?.ifdInfos ?? [];
     return [...infos].sort((a, b) => {
       const ao = Number(a.offset ?? 0);
@@ -35,7 +35,7 @@ const IfdInfoCollapse: React.FC = () => {
       const bn = String(b.ifdName ?? '');
       return an.localeCompare(bn);
     });
-  }, [activeData?.exifInfo?.ifdInfos, activeData?.hasExif]);
+  }, [activeData?.exifInfo?.ifdInfos]);
 
   const onJumpToIfdOffset = useCallback(
     async (ifdOffset?: number) => {

@@ -22,7 +22,7 @@ const ExifInfoCollapse: React.FC = () => {
   const { config } = useConfig();
   const { activeData } = useTab();
   const { searcherRef } = useRefs();
-  const exifInfo = activeData?.hasExif ? activeData?.exifInfo : null;
+  const exifInfo = activeData?.exifInfo;
   const baseOffset = activeData?.exifInfo?.baseOffset;
 
   const getByteOrderLabel = useCallback(
