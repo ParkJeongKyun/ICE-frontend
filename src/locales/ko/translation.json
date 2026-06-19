@@ -285,7 +285,7 @@
     "groups": {
       "basic": "PE 정보",
       "headers": "Headers",
-      "directoriesRich": "Directories & Rich",
+      "directories": "Directories",
       "sections": "Sections",
       "importsExports": "Imports & Exports",
       "certificatesTls": "Certificates & TLS"

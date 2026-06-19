@@ -24,13 +24,13 @@
     "title": "WASM Not Ready",
     "message": "WASM is not ready yet.\nPlease try again later."
   },
-  "PLUGIN_LOAD_FAILED": {
-    "title": "Plugin Load Failed",
-    "message": "Failed to load plugin module."
+  "ENGINE_LOAD_FAILED": {
+    "title": "Engine Load Failed",
+    "message": "Failed to load engine module."
   },
-  "PLUGIN_NOT_READY": {
-    "title": "Plugin Not Ready",
-    "message": "The required plugin is not loaded.\nPlease enable it in settings."
+  "ENGINE_NOT_READY": {
+    "title": "Engine Not Ready",
+    "message": "The required engine is not loaded.\nPlease enable it in settings."
   },
   "FILE_PROCESSING_FAILED": {
     "title": "File Processing Failed",

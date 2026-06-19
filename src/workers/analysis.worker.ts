@@ -48,10 +48,10 @@ class AnalysisWorker {
   // WASM 관련 변수
   private coreReady = false;
   private coreInitializing = false;
-  private imagePluginReady = false;
-  private imagePluginInitializing = false;
-  private pePluginReady = false;
-  private pePluginInitializing = false;
+  private imageEngineReady = false;
+  private imageEngineInitializing = false;
+  private peEngineReady = false;
+  private peEngineInitializing = false;
 
   private wasmSearchFunc: WasmSearchFunction | null = null;
   private wasmDetectTypeFunc: WasmDetectTypeFunction | null = null;
@@ -201,28 +201,28 @@ class AnalysisWorker {
   }
 
   /**
-   * 플러그인 로드 (Image, PE 등)
+   * 엔진 로드 (Image, PE 등)
    */
-  async loadPlugin(
+  async loadEngine(
     id: string,
-    pluginType: 'image' | 'pe',
+    engineType: 'image' | 'pe',
     path: string
   ): Promise<void> {
     const isReady =
-      pluginType === 'image' ? this.imagePluginReady : this.pePluginReady;
+      engineType === 'image' ? this.imageEngineReady : this.peEngineReady;
     const isInitializing =
-      pluginType === 'image'
-        ? this.imagePluginInitializing
-        : this.pePluginInitializing;
+      engineType === 'image'
+        ? this.imageEngineInitializing
+        : this.peEngineInitializing;
 
     if (isReady || isInitializing) {
       if (isReady)
-        self.postMessage({ id, status: 'SUCCESS', taskType: 'LOAD_PLUGIN' });
+        self.postMessage({ id, status: 'SUCCESS', taskType: 'LOAD_ENGINE' });
       return;
     }
 
-    if (pluginType === 'image') this.imagePluginInitializing = true;
-    else this.pePluginInitializing = true;
+    if (engineType === 'image') this.imageEngineInitializing = true;
+    else this.peEngineInitializing = true;
 
     try {
       const go = new ((self as any).Go as typeof Go)();
@@ -233,34 +233,34 @@ class AnalysisWorker {
       );
 
       go.run(result.instance).catch((err) =>
-        console.error(`[Worker] ${pluginType} go.run error:`, err)
+        console.error(`[Worker] ${engineType} go.run error:`, err)
       );
 
-      if (pluginType === 'image') {
+      if (engineType === 'image') {
         await this.waitForFunctions(['exifFunc', 'textChunkFunc']);
         this.wasmExifFunc = (self as any).exifFunc;
         this.wasmTextChunkFunc = (self as any).textChunkFunc;
-        this.imagePluginReady = true;
+        this.imageEngineReady = true;
         this.imageGoInstance = go;
       } else {
         await this.waitForFunctions(['peFunc']);
         this.wasmPeFunc = (self as any).peFunc;
-        this.pePluginReady = true;
+        this.peEngineReady = true;
         this.peGoInstance = go;
       }
 
-      self.postMessage({ id, status: 'SUCCESS', taskType: 'LOAD_PLUGIN' });
+      self.postMessage({ id, status: 'SUCCESS', taskType: 'LOAD_ENGINE' });
     } catch (error) {
-      console.error(`[Worker] ${pluginType} plugin init error:`, error);
+      console.error(`[Worker] ${engineType} engine init error:`, error);
       self.postMessage({
         id,
         status: 'ERROR',
-        taskType: 'LOAD_PLUGIN',
-        errorCode: 'PLUGIN_LOAD_FAILED',
+        taskType: 'LOAD_ENGINE',
+        errorCode: 'ENGINE_LOAD_FAILED',
       });
     } finally {
-      if (pluginType === 'image') this.imagePluginInitializing = false;
-      else this.pePluginInitializing = false;
+      if (engineType === 'image') this.imageEngineInitializing = false;
+      else this.peEngineInitializing = false;
     }
   }
 
@@ -349,7 +349,7 @@ class AnalysisWorker {
         }
       }
     } catch (e) {
-      console.warn('[Worker] Image plugin analysis failed:', e);
+      console.warn('[Worker] Image engine analysis failed:', e);
     }
 
     return { exifInfo, textChunkData };
@@ -372,7 +372,7 @@ class AnalysisWorker {
         peData = this.parseJsonData(wasmResult.data);
       }
     } catch (e) {
-      console.warn('[Worker] PE plugin analysis failed:', e);
+      console.warn('[Worker] PE engine analysis failed:', e);
     }
 
     return { peData };
@@ -436,7 +436,7 @@ class AnalysisWorker {
       switch (category) {
         case FILE_CATEGORY.IMAGE:
           const imageOpts = options?.image;
-          if (imageOpts?.enabled !== false && this.imagePluginReady) {
+          if (imageOpts?.enabled !== false && this.imageEngineReady) {
             const imageResult = await this.analyzeImage(
               file,
               mimeType,
@@ -449,7 +449,7 @@ class AnalysisWorker {
           break;
 
         case FILE_CATEGORY.PE:
-          if (options?.pe !== false && this.pePluginReady) {
+          if (options?.pe !== false && this.peEngineReady) {
             const peResult = await this.analyzePe(
               file,
               mimeType,
@@ -575,13 +575,13 @@ class AnalysisWorker {
    * 메시지 핸들러
    */
   async handle(data: AnalysisWorkerRequest): Promise<void> {
-    const { type, id, file, pattern, ignoreCase, pluginType, path, options } =
+    const { type, id, file, pattern, ignoreCase, engineType, path, options } =
       data;
 
     switch (type) {
-      case 'LOAD_PLUGIN':
-        if (pluginType && path) {
-          await this.loadPlugin(id, pluginType, path);
+      case 'LOAD_ENGINE':
+        if (engineType && path) {
+          await this.loadEngine(id, engineType, path);
         }
         break;
 

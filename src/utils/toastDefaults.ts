@@ -11,8 +11,8 @@ export const TOAST_DEFAULTS: Record<
   // 웹어셈블리
   WASM_LOAD_FAILED: { type: 'error', duration: 10000 },
   WASM_NOT_READY: { type: 'error', duration: 10000 },
-  PLUGIN_LOAD_FAILED: { type: 'error', duration: 10000 },
-  PLUGIN_NOT_READY: { type: 'error', duration: 10000 },
+  ENGINE_LOAD_FAILED: { type: 'error', duration: 10000 },
+  ENGINE_NOT_READY: { type: 'error', duration: 10000 },
 
   // 파일
   FILE_PROCESSING_FAILED: { type: 'error', duration: 10000 },

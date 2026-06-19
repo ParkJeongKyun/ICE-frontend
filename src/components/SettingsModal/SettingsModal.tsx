@@ -115,10 +115,34 @@ const SettingsModal: React.FC = () => {
   };
 
   const handleToggleAnalysisMaster = () => {
+    const nextEnabled = !config.analysis.enabled;
+    const newInfo = { ...config.ui.panelVisibility.info };
+
+    if (nextEnabled) {
+      if (config.engines.image.enabled) {
+        newInfo.enabled = true;
+        newInfo.imageInfo = true;
+      }
+      if (config.engines.pe) {
+        newInfo.enabled = true;
+        newInfo.peInfo = true;
+      }
+    } else {
+      newInfo.imageInfo = false;
+      newInfo.peInfo = false;
+    }
+
     updateConfig({
       analysis: {
         ...config.analysis,
-        enabled: !config.analysis.enabled,
+        enabled: nextEnabled,
+      },
+      ui: {
+        ...config.ui,
+        panelVisibility: {
+          ...config.ui.panelVisibility,
+          info: newInfo,
+        },
       },
     });
   };
@@ -132,13 +156,55 @@ const SettingsModal: React.FC = () => {
     });
   };
 
-  const handleTogglePlugin = (key: 'image' | 'pe') => {
-    updateConfig({
-      engines: {
-        ...config.engines,
-        [key]: !config.engines[key],
-      },
-    });
+  const handleToggleEngine = (key: 'image' | 'pe') => {
+    const newInfo = { ...config.ui.panelVisibility.info };
+
+    if (key === 'image') {
+      const nextEnabled = !config.engines.image.enabled;
+      if (nextEnabled) {
+        newInfo.enabled = true;
+        newInfo.imageInfo = true;
+      } else {
+        newInfo.imageInfo = false;
+      }
+      updateConfig({
+        engines: {
+          ...config.engines,
+          image: {
+            ...config.engines.image,
+            enabled: nextEnabled,
+          },
+        },
+        ui: {
+          ...config.ui,
+          panelVisibility: {
+            ...config.ui.panelVisibility,
+            info: newInfo,
+          },
+        },
+      });
+    } else {
+      const nextEnabled = !config.engines.pe;
+      if (nextEnabled) {
+        newInfo.enabled = true;
+        newInfo.peInfo = true;
+      } else {
+        newInfo.peInfo = false;
+      }
+      updateConfig({
+        engines: {
+          ...config.engines,
+          pe: nextEnabled,
+        },
+        ui: {
+          ...config.ui,
+          panelVisibility: {
+            ...config.ui.panelVisibility,
+            info: newInfo,
+          },
+        },
+      });
+    }
   };
 
   const handleUIChange = (key: string, value: any) => {
@@ -323,17 +389,7 @@ const SettingsModal: React.FC = () => {
                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                               <ToggleSwitch
                                 checked={config.engines.image.enabled}
-                                onChange={() =>
-                                  updateConfig({
-                                    engines: {
-                                      ...config.engines,
-                                      image: {
-                                        ...config.engines.image,
-                                        enabled: !config.engines.image.enabled,
-                                      },
-                                    },
-                                  })
-                                }
+                                onChange={() => handleToggleEngine('image')}
                               />
                               <Tooltip text={t('engines.deleteCache')}>
                                 <DeleteCacheBtn
@@ -399,7 +455,7 @@ const SettingsModal: React.FC = () => {
                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                               <ToggleSwitch
                                 checked={config.engines.pe}
-                                onChange={() => handleTogglePlugin('pe')}
+                                onChange={() => handleToggleEngine('pe')}
                               />
                               <Tooltip text={t('engines.deleteCache')}>
                                 <DeleteCacheBtn
@@ -535,13 +591,8 @@ const SettingsModal: React.FC = () => {
                         >
                           {(
                             [
-                              'exifThumbnail',
                               'fileInfo',
-                              'map',
-                              'exifInfo',
-                              'ifdInfo',
-                              'exifTags',
-                              'textChunks',
+                              'imageInfo',
                               'peInfo',
                             ] as const
                           ).map((key) => (

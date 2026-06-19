@@ -14,14 +14,14 @@ export type AnalysisWorkerRequestType =
   | 'SEARCH_HEX'
   | 'SEARCH_ASCII'
   | 'PROCESS_ANALYSIS'
-  | 'LOAD_PLUGIN';
+  | 'LOAD_ENGINE';
 
-export type PluginType = 'image' | 'pe';
+export type EngineType = 'image' | 'pe';
 
-export interface LoadPluginRequest {
-  type: 'LOAD_PLUGIN';
+export interface LoadEngineRequest {
+  type: 'LOAD_ENGINE';
   id: string;
-  pluginType: PluginType;
+  engineType: EngineType;
   path: string;
 }
 
@@ -31,7 +31,7 @@ export interface AnalysisWorkerRequest {
   file?: File;
   pattern?: Uint8Array; // Uint8Array로 변경
   ignoreCase?: boolean;
-  pluginType?: PluginType;
+  engineType?: EngineType;
   path?: string;
   options?: {
     enabled?: boolean;

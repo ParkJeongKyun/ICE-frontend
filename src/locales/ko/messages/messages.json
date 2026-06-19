@@ -24,13 +24,13 @@
     "title": "WASM 준비 안됨",
     "message": "WASM이 아직 준비되지 않았습니다.\n잠시 후 다시 시도해주세요."
   },
-  "PLUGIN_LOAD_FAILED": {
-    "title": "플러그인 로드 실패",
-    "message": "플러그인 모듈을 불러오지 못했습니다."
+  "ENGINE_LOAD_FAILED": {
+    "title": "엔진 로드 실패",
+    "message": "엔진 모듈을 불러오지 못했습니다."
   },
-  "PLUGIN_NOT_READY": {
-    "title": "플러그인 준비 안됨",
-    "message": "필요한 플러그인이 로드되지 않았습니다.\n설정에서 활성화해주세요."
+  "ENGINE_NOT_READY": {
+    "title": "엔진 준비 안됨",
+    "message": "필요한 엔진이 로드되지 않았습니다.\n설정에서 활성화해주세요."
   },
   "FILE_PROCESSING_FAILED": {
     "title": "파일 처리 실패",

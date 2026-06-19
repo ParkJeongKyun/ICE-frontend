@@ -6,7 +6,7 @@ import type { HashResult, HashType } from './hash.worker.types';
 import type {
   SearchResult,
   AnalysisResult,
-  PluginType,
+  EngineType,
 } from './analysis.worker.types';
 
 /**
@@ -48,8 +48,8 @@ export type TaskMap = {
     req: { file: File; pattern: Uint8Array; ignoreCase?: boolean }; // 🚀 Uint8Array로 변경
     res: SearchResult['data'];
   };
-  LOAD_PLUGIN: {
-    req: { pluginType: PluginType; path: string };
+  LOAD_ENGINE: {
+    req: { engineType: EngineType; path: string };
     res: void;
   };
 };

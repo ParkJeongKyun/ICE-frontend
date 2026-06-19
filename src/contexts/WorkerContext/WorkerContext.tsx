@@ -48,16 +48,16 @@ export const WorkerProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const { config } = useConfig();
 
-  // ✅ 플러그인 동적 로딩 관리
+  // ✅ 엔진 동적 로딩 관리
   useEffect(() => {
     if (!isWasmReady || !managers.analysisManager) return;
 
-    const loadPlugins = async () => {
+    const loadEngines = async () => {
       // Image Engine
       if (config.engines.image) {
         try {
-          await managers.analysisManager?.execute('LOAD_PLUGIN', {
-            pluginType: 'image',
+          await managers.analysisManager?.execute('LOAD_ENGINE', {
+            engineType: 'image',
             path: WASM_MANIFEST.image,
           });
           console.log('[WorkerContext] Image engine loaded');
@@ -69,8 +69,8 @@ export const WorkerProvider: React.FC<{ children: React.ReactNode }> = ({
       // PE Engine
       if (config.engines.pe) {
         try {
-          await managers.analysisManager?.execute('LOAD_PLUGIN', {
-            pluginType: 'pe',
+          await managers.analysisManager?.execute('LOAD_ENGINE', {
+            engineType: 'pe',
             path: WASM_MANIFEST.pe,
           });
           console.log('[WorkerContext] PE engine loaded');
@@ -80,7 +80,7 @@ export const WorkerProvider: React.FC<{ children: React.ReactNode }> = ({
       }
     };
 
-    loadPlugins();
+    loadEngines();
   }, [
     isWasmReady,
     managers.analysisManager,

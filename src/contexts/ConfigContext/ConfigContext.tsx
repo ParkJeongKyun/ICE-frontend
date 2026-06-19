@@ -36,13 +36,8 @@ export interface IceConfig {
     panelVisibility: {
       info: {
         enabled: boolean;
-        exifThumbnail: boolean;
         fileInfo: boolean;
-        map: boolean;
-        exifInfo: boolean;
-        ifdInfo: boolean;
-        exifTags: boolean;
-        textChunks: boolean;
+        imageInfo: boolean;
         peInfo: boolean;
       };
       tools: {
@@ -81,13 +76,8 @@ const DEFAULT_CONFIG: IceConfig = {
     panelVisibility: {
       info: {
         enabled: true,
-        exifThumbnail: true,
         fileInfo: true,
-        map: true,
-        exifInfo: true,
-        ifdInfo: true,
-        exifTags: true,
-        textChunks: true,
+        imageInfo: true,
         peInfo: true,
       },
       tools: {
@@ -170,13 +160,8 @@ function validateConfig(config: IceConfig): IceConfig {
   const v = config.ui.panelVisibility;
   if (
     typeof v?.info?.enabled !== 'boolean' ||
-    typeof v?.info?.exifThumbnail !== 'boolean' ||
     typeof v?.info?.fileInfo !== 'boolean' ||
-    typeof v?.info?.map !== 'boolean' ||
-    typeof v?.info?.exifInfo !== 'boolean' ||
-    typeof v?.info?.ifdInfo !== 'boolean' ||
-    typeof v?.info?.exifTags !== 'boolean' ||
-    typeof v?.info?.textChunks !== 'boolean' ||
+    typeof v?.info?.imageInfo !== 'boolean' ||
     typeof v?.info?.peInfo !== 'boolean' ||
     typeof v?.tools?.enabled !== 'boolean' ||
     typeof v?.tools?.searcher !== 'boolean' ||
