@@ -282,6 +282,14 @@
   },
   "peInfo": {
     "title": "PE 정보",
+    "groups": {
+      "basic": "PE 정보",
+      "headers": "Headers",
+      "directoriesRich": "Directories & Rich",
+      "sections": "Sections",
+      "importsExports": "Imports & Exports",
+      "certificatesTls": "Certificates & TLS"
+    },
     "basic": "기본 정보",
     "magic": "매직",
     "language": "언어",
@@ -398,7 +406,8 @@
       "pe": "PE 분석 (EXE/DLL)",
       "loading": "분석엔진 로드 중...",
       "loaded": "분석엔진 로드됨",
-      "error": "분석엔진 로드 실패"
+      "error": "분석엔진 로드 실패",
+      "deleteCache": "캐시 삭제 및 재다운로드"
     },
     "ui": {
       "title": "UI",

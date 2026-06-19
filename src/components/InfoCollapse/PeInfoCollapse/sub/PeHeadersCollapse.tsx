@@ -7,15 +7,10 @@ import { useTab } from '@/contexts/TabDataContext/TabDataContext';
 import { useRefs } from '@/contexts/RefContext/RefContext';
 import Collapse from '@/components/common/Collapse/Collapse';
 import ChevronRightIcon from '@/components/common/Icons/ChevronRightIcon';
-import {
-  CellBodyDiv,
-  CellHeaderDiv,
-  ContentDiv,
-  JumpButton,
-} from '../../InfoCollapse.styles';
+import { SubHeader, CellBodyDiv, CellHeaderDiv, ContentDiv, JumpButton } from '../../InfoCollapse.styles';
 import { formatOffset } from '@/utils/formatters';
 
-const PeFileHeaderCollapse: React.FC = () => {
+const PeHeadersCollapse: React.FC = () => {
   const t = useTranslations();
   const { config } = useConfig();
   const { activeData } = useTab();
@@ -34,12 +29,32 @@ const PeFileHeaderCollapse: React.FC = () => {
   if (!peData) return null;
 
   return (
-    <Collapse title={t('peInfo.fileHeader')}>
+    <Collapse title={t('peInfo.groups.headers')}>
+      {/* DOS Header */}
+      <SubHeader>{t('peInfo.dosHeader')}</SubHeader>
+      <ContentDiv>
+        <CellHeaderDiv>{t('peInfo.magic')}</CellHeaderDiv>
+        <CellBodyDiv>{peData.dosHeader.magic}</CellBodyDiv>
+      </ContentDiv>
+      <ContentDiv>
+        <CellHeaderDiv>
+          {t('peInfo.lfanew')}
+          <JumpButton onClick={() => onJumpToOffset(peData.dosHeader.lfanew)}>
+            <ChevronRightIcon width={12} height={12} />
+          </JumpButton>
+        </CellHeaderDiv>
+        <CellBodyDiv>
+          {formatOffset(peData.dosHeader.lfanew, config.ui.numberBase)}
+        </CellBodyDiv>
+      </ContentDiv>
+
+      {/* File Header */}
+      <SubHeader>{t('peInfo.fileHeader')}</SubHeader>
       <ContentDiv>
         <CellHeaderDiv>
           {t('peInfo.offset')}
           <JumpButton onClick={() => onJumpToOffset(peData.fileHeader.offset)}>
-            <ChevronRightIcon size={12} />
+            <ChevronRightIcon width={12} height={12} />
           </JumpButton>
         </CellHeaderDiv>
         <CellBodyDiv>
@@ -56,8 +71,25 @@ const PeFileHeaderCollapse: React.FC = () => {
           {formatOffset(peData.fileHeader.characteristics, config.ui.numberBase)}
         </CellBodyDiv>
       </ContentDiv>
+
+      {/* Optional Header */}
+      {peData.optionalHeader && Object.keys(peData.optionalHeader).length > 0 && (
+        <>
+          <SubHeader>{t('peInfo.optionalHeader')}</SubHeader>
+          {Object.keys(peData.optionalHeader).map((key) => (
+            <ContentDiv key={key}>
+              <CellHeaderDiv>{key}</CellHeaderDiv>
+              <CellBodyDiv>
+                {typeof peData.optionalHeader[key] === 'number'
+                  ? `0x${peData.optionalHeader[key].toString(16)} (${peData.optionalHeader[key]})`
+                  : String(peData.optionalHeader[key])}
+              </CellBodyDiv>
+            </ContentDiv>
+          ))}
+        </>
+      )}
     </Collapse>
   );
 };
 
-export default React.memo(PeFileHeaderCollapse);
+export default React.memo(PeHeadersCollapse);

@@ -18,6 +18,7 @@ interface WorkerContextType {
   analysisManager: WorkerManager | null; // 제네릭 제거!
   chunkWorker: Worker | null;
   isWasmReady: boolean;
+  restartAnalysisWorker: () => void;
 }
 
 const WorkerContext = createContext<WorkerContextType | undefined>(undefined);
@@ -192,12 +193,20 @@ export const WorkerProvider: React.FC<{ children: React.ReactNode }> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const restartAnalysisWorker = () => {
+    if (managers.analysisManager) {
+      setIsWasmReady(false);
+      managers.analysisManager.restart();
+    }
+  };
+
   const value = useMemo(
     () => ({
       hashManager: managers.hashManager,
       analysisManager: managers.analysisManager,
       chunkWorker: managers.chunkWorker,
       isWasmReady,
+      restartAnalysisWorker,
     }),
     [managers, isWasmReady]
   );

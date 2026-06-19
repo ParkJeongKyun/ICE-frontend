@@ -311,3 +311,23 @@ export const ResetButton = styled.button`
     background: var(--ice-bg-love);
   }
 `;
+
+export const DeleteCacheBtn = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--main-color);
+  opacity: 0.6;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  transition: all 0.2s;
+
+  &:hover {
+    opacity: 1;
+    color: var(--ice-main-color-error);
+    background-color: var(--main-hover-color);
+  }
+`;

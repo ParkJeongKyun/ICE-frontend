@@ -169,3 +169,21 @@ export const AnalyzerLabel = styled.div`
   margin-bottom: 6px;
   padding-left: 2px;
 `;
+
+export const SubHeader = styled.div`
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--main-color-reverse);
+  padding: 4px 6px;
+  margin-top: 8px;
+  margin-bottom: 4px;
+  border-bottom: 1px dashed var(--main-line-color);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  opacity: 0.8;
+
+  &:first-child {
+    margin-top: 0;
+  }
+`;

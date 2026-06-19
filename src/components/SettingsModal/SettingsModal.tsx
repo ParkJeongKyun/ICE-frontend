@@ -12,6 +12,7 @@ import HeartIcon from '../common/Icons/HeartIcon';
 import CoffeeIcon from '../common/Icons/CoffeeIcon';
 import IssueIcon from '../common/Icons/IssueIcon';
 import XIcon from '../common/Icons/XIcon';
+import TrashIcon from '../common/Icons/TrashIcon';
 import {
   LangFlagBtn,
   LangFlagRow,
@@ -36,8 +37,12 @@ import {
   StyledSelect,
   SettingsGrid,
   ResetButton,
+  DeleteCacheBtn,
 } from './SettingsModal.styles';
 import Tooltip from '@/components/common/Tooltip/Tooltip';
+import { useWorker } from '@/contexts/WorkerContext/WorkerContext';
+import { deleteWasmCache } from '@/workers/utils/wasmLoader';
+import { WASM_MANIFEST } from '@/constants/wasm';
 import {
   useFloating,
   autoUpdate,
@@ -65,6 +70,13 @@ const SettingsModal: React.FC = () => {
   const [isPending, startTransition] = useTransition();
   const { isHashProcessing, isAnalysisProcessing } = useProcess();
   const { config, updateConfig, resetConfig } = useConfig();
+  const { restartAnalysisWorker } = useWorker();
+
+  const handleDeleteCache = async (engineKey: keyof typeof WASM_MANIFEST) => {
+    const path = WASM_MANIFEST[engineKey];
+    await deleteWasmCache(path);
+    restartAnalysisWorker();
+  };
 
   const [open, setOpen] = useState(false);
   const isProcessing = isHashProcessing || isAnalysisProcessing;
@@ -287,10 +299,20 @@ const SettingsModal: React.FC = () => {
                       {/* 분석 마스터 토글 */}
                       <SettingsRow>
                         <SettingsLabel>{t('analysis.enable')}</SettingsLabel>
-                        <ToggleSwitch
-                          checked={config.analysis.enabled}
-                          onChange={handleToggleAnalysisMaster}
-                        />
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <ToggleSwitch
+                            checked={config.analysis.enabled}
+                            onChange={handleToggleAnalysisMaster}
+                          />
+                          <Tooltip text={t('engines.deleteCache')}>
+                            <DeleteCacheBtn
+                              onClick={() => handleDeleteCache('core')}
+                              aria-label={t('engines.deleteCache')}
+                            >
+                              <TrashIcon width={13} height={13} />
+                            </DeleteCacheBtn>
+                          </Tooltip>
+                        </div>
                       </SettingsRow>
 
                       {config.analysis.enabled && (
@@ -298,20 +320,30 @@ const SettingsModal: React.FC = () => {
                           {/* Image Engine */}
                           <SettingsRow style={{ marginTop: '8px' }}>
                             <SettingsLabel>{t('engines.image')}</SettingsLabel>
-                            <ToggleSwitch
-                              checked={config.engines.image.enabled}
-                              onChange={() =>
-                                updateConfig({
-                                  engines: {
-                                    ...config.engines,
-                                    image: {
-                                      ...config.engines.image,
-                                      enabled: !config.engines.image.enabled,
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              <ToggleSwitch
+                                checked={config.engines.image.enabled}
+                                onChange={() =>
+                                  updateConfig({
+                                    engines: {
+                                      ...config.engines,
+                                      image: {
+                                        ...config.engines.image,
+                                        enabled: !config.engines.image.enabled,
+                                      },
                                     },
-                                  },
-                                })
-                              }
-                            />
+                                  })
+                                }
+                              />
+                              <Tooltip text={t('engines.deleteCache')}>
+                                <DeleteCacheBtn
+                                  onClick={() => handleDeleteCache('image')}
+                                  aria-label={t('engines.deleteCache')}
+                                >
+                                  <TrashIcon width={13} height={13} />
+                                </DeleteCacheBtn>
+                              </Tooltip>
+                            </div>
                           </SettingsRow>
                           {config.engines.image.enabled && (
                             <div style={{ marginLeft: '12px' }}>
@@ -364,10 +396,20 @@ const SettingsModal: React.FC = () => {
                           {/* PE Engine */}
                           <SettingsRow>
                             <SettingsLabel>{t('engines.pe')}</SettingsLabel>
-                            <ToggleSwitch
-                              checked={config.engines.pe}
-                              onChange={() => handleTogglePlugin('pe')}
-                            />
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              <ToggleSwitch
+                                checked={config.engines.pe}
+                                onChange={() => handleTogglePlugin('pe')}
+                              />
+                              <Tooltip text={t('engines.deleteCache')}>
+                                <DeleteCacheBtn
+                                  onClick={() => handleDeleteCache('pe')}
+                                  aria-label={t('engines.deleteCache')}
+                                >
+                                  <TrashIcon width={13} height={13} />
+                                </DeleteCacheBtn>
+                              </Tooltip>
+                            </div>
                           </SettingsRow>
                         </>
                       )}
@@ -501,7 +543,6 @@ const SettingsModal: React.FC = () => {
                               'exifTags',
                               'textChunks',
                               'peInfo',
-                              'analyzers',
                             ] as const
                           ).map((key) => (
                             <SettingsRow key={key} style={{ opacity: 0.8 }}>

@@ -43,6 +43,21 @@ export async function fetchWasmWithCache(path: string): Promise<Response> {
 }
 
 /**
+ * 특정 WASM 파일의 캐시를 삭제함
+ */
+export async function deleteWasmCache(path: string): Promise<boolean> {
+  try {
+    const cache = await caches.open(CACHE_NAME);
+    const result = await cache.delete(path);
+    if (IS_DEV) console.log(`[WasmLoader] Cache deleted for path: ${path}, result: ${result}`);
+    return result;
+  } catch (error) {
+    console.error(`[WasmLoader] Failed to delete WASM cache for path: ${path}`, error);
+    return false;
+  }
+}
+
+/**
  * 동일한 용도의 구버전 WASM 캐시 삭제
  * 예: ice_core_260606.wasm 로드 시 ice_core_*.wasm 인 다른 캐시 삭제
  */

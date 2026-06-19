@@ -282,6 +282,14 @@
   },
   "peInfo": {
     "title": "PE Information",
+    "groups": {
+      "basic": "PE Info",
+      "headers": "Headers",
+      "directoriesRich": "Directories & Rich",
+      "sections": "Sections",
+      "importsExports": "Imports & Exports",
+      "certificatesTls": "Certificates & TLS"
+    },
     "basic": "Basic Info",
     "magic": "Magic",
     "language": "Language",
@@ -398,7 +406,8 @@
       "pe": "PE Analysis (EXE/DLL)",
       "loading": "Loading analysis engine...",
       "loaded": "Analysis engine loaded",
-      "error": "Failed to load analysis engine"
+      "error": "Failed to load analysis engine",
+      "deleteCache": "Delete Cache & Re-download"
     },
     "ui": {
       "title": "UI",

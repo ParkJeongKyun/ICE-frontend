@@ -7,12 +7,7 @@ import { useTab } from '@/contexts/TabDataContext/TabDataContext';
 import { useRefs } from '@/contexts/RefContext/RefContext';
 import Collapse from '@/components/common/Collapse/Collapse';
 import ChevronRightIcon from '@/components/common/Icons/ChevronRightIcon';
-import {
-  CellBodyDiv,
-  CellHeaderDiv,
-  ContentDiv,
-  JumpButton,
-} from '../../InfoCollapse.styles';
+import { SubHeader, CellBodyDiv, CellHeaderDiv, ContentDiv, JumpButton } from '../../InfoCollapse.styles';
 import { formatOffset } from '@/utils/formatters';
 
 const PeBasicCollapse: React.FC = () => {
@@ -34,7 +29,8 @@ const PeBasicCollapse: React.FC = () => {
   if (!peData) return null;
 
   return (
-    <Collapse title={t('peInfo.basic')} open>
+    <Collapse title={t('peInfo.groups.basic')} open>
+      {/* Basic Content */}
       <ContentDiv>
         <CellHeaderDiv>{t('peInfo.magic')}</CellHeaderDiv>
         <CellBodyDiv>{peData.basic.magic}</CellBodyDiv>
@@ -82,7 +78,7 @@ const PeBasicCollapse: React.FC = () => {
           <JumpButton
             onClick={() => onJumpToOffset(peData.basic.entryPointOffset)}
           >
-            <ChevronRightIcon size={12} />
+            <ChevronRightIcon width={12} height={12} />
           </JumpButton>
         </CellHeaderDiv>
         <CellBodyDiv>
@@ -90,6 +86,58 @@ const PeBasicCollapse: React.FC = () => {
           {formatOffset(peData.basic.entryPointOffset, config.ui.numberBase)})
         </CellBodyDiv>
       </ContentDiv>
+
+      {/* Hashes Content */}
+      {peData.hashes && (
+        <>
+          <SubHeader>{t('peInfo.hashes')}</SubHeader>
+          <ContentDiv>
+            <CellHeaderDiv>{t('peInfo.impHash')}</CellHeaderDiv>
+            <CellBodyDiv style={{ fontFamily: 'monospace', fontSize: '11px' }}>{peData.hashes.impHash}</CellBodyDiv>
+          </ContentDiv>
+          <ContentDiv>
+            <CellHeaderDiv>{t('peInfo.authentihash')}</CellHeaderDiv>
+            <CellBodyDiv style={{ fontFamily: 'monospace', fontSize: '11px' }}>{peData.hashes.authentihash}</CellBodyDiv>
+          </ContentDiv>
+        </>
+      )}
+
+      {/* VersionInfo Content */}
+      {peData.versionInfo && Object.keys(peData.versionInfo).length > 0 && (
+        <>
+          <SubHeader>{t('peInfo.versionInfo')}</SubHeader>
+          {Object.entries(peData.versionInfo).map(([key, value]) => (
+            <ContentDiv key={key}>
+              <CellHeaderDiv style={{ fontSize: '11px' }}>{key}</CellHeaderDiv>
+              <CellBodyDiv style={{ wordBreak: 'break-all', fontSize: '11px' }}>{value}</CellBodyDiv>
+            </ContentDiv>
+          ))}
+        </>
+      )}
+
+      {/* Anomalies Content */}
+      {peData.anomalies && peData.anomalies.length > 0 && (
+        <>
+          <SubHeader>{t('peInfo.anomalies')}</SubHeader>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {peData.anomalies.map((anomaly, i) => (
+              <div
+                key={i}
+                style={{
+                  padding: '8px',
+                  background: 'rgba(255, 0, 0, 0.1)',
+                  borderLeft: '4px solid #ff4d4f',
+                  borderRadius: '4px',
+                  fontSize: '12px',
+                  color: 'var(--main-color)',
+                }}
+              >
+                ⚠️ {anomaly}
+              </div>
+            ))}
+          </div>
+        </>
+      )}
     </Collapse>
   );
 };

@@ -70,6 +70,16 @@ export class WorkerManager {
     this.initWorker(); // 새 워커 생성 후 리스너 다시 연결!
   }
 
+  // 외부에서 워커를 강제로 재시작할 수 있도록 공개 메서드 추가
+  public restart(errorCode: string = 'WORKER_RESTARTED') {
+    this.pendingRequests.forEach((req) => {
+      req.reject(new Error(errorCode));
+    });
+    this.pendingRequests.clear();
+    this.respawnWorker();
+    this.stopProcessing?.();
+  }
+
   private setupListener() {
     // 1️⃣ 메시지 수신 리스너
     this.worker.onmessage = (e: MessageEvent<StandardWorkerResponse>) => {

@@ -7,10 +7,7 @@ import { useTab } from '@/contexts/TabDataContext/TabDataContext';
 import { useRefs } from '@/contexts/RefContext/RefContext';
 import Collapse from '@/components/common/Collapse/Collapse';
 import ChevronRightIcon from '@/components/common/Icons/ChevronRightIcon';
-import {
-  SectionTable,
-  JumpButton,
-} from '../../InfoCollapse.styles';
+import { JumpButton, SectionTable } from '../../InfoCollapse.styles';
 import { formatOffset } from '@/utils/formatters';
 
 const PeSectionsCollapse: React.FC = () => {
@@ -32,7 +29,7 @@ const PeSectionsCollapse: React.FC = () => {
   if (!peData || !peData.sections || peData.sections.length === 0) return null;
 
   return (
-    <Collapse title={t('peInfo.sections')}>
+    <Collapse title={t('peInfo.groups.sections')}>
       <SectionTable>
         <thead>
           <tr>
@@ -61,7 +58,7 @@ const PeSectionsCollapse: React.FC = () => {
               <td>{formatOffset(s.sizeOfRawData, config.ui.numberBase)}</td>
               <td>
                 <JumpButton onClick={() => onJumpToOffset(s.fileOffset)}>
-                  <ChevronRightIcon size={12} />
+                  <ChevronRightIcon width={12} height={12} />
                 </JumpButton>
               </td>
             </tr>
