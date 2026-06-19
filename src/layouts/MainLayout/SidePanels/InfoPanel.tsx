@@ -19,7 +19,7 @@ const InfoPanel: React.FC = () => {
   return (
     <div>
       {v.fileInfo && <FileInfoCollapse />}
-      {isImageEngineUsed && <>{<ImageInfoCollapse />}</>}
+      {isImageEngineUsed && <>{v.imageInfo && <ImageInfoCollapse />}</>}
       {isPeEngineUsed && <>{v.peInfo && <PeInfoCollapse />}</>}
     </div>
   );
