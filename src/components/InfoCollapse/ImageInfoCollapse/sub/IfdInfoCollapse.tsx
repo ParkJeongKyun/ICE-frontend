@@ -14,6 +14,7 @@ import {
   ContentDiv,
   JumpButton,
   NoDataMessage,
+  SubHeader,
 } from '../../InfoCollapse.styles';
 import { formatOffset } from '@/utils/formatters';
 
@@ -61,55 +62,53 @@ const IfdInfoCollapse: React.FC = () => {
 
   return (
     <Collapse
+      id="img-ifd-info"
       title={t('ifdInfo.title')}
       children={
         hasData ? (
-          <div style={{ borderTop: '1px solid var(--main-line-color)' }}>
+          <>
             {ifdInfos.map((ifd, i) => (
-              <Collapse
-                key={`${ifd.ifdName || 'ifd'}-${i}`}
-                title={`${ifd.ifdName}${ifd.tagCount ? ` (${ifd.tagCount})` : ''}`}
-                children={
-                  <>
-                    <ContentDiv>
-                      <CellHeaderDiv>{t('ifdInfo.ifdOffset')}</CellHeaderDiv>
-                      <CellBodyDiv>
-                        <span>{ifd.offset}</span>
-                        <Tooltip
-                          text={t('exifInfo.jumpToOffset', {
-                            target: formatOffset(
-                              Number(baseOffset ?? 0) + Number(ifd.offset || 0),
-                              config.ui.numberBase
-                            ),
-                            targetDec:
-                              Number(baseOffset ?? 0) + Number(ifd.offset || 0),
-                            bytes: 0,
-                          })}
-                        >
-                          <JumpButton
-                            onClick={() => onJumpToIfdOffset(ifd.offset)}
-                            aria-label={t('ifdInfo.jumpToIfdOffset')}
-                          >
-                            <ChevronRightIcon />
-                          </JumpButton>
-                        </Tooltip>
-                      </CellBodyDiv>
-                    </ContentDiv>
-                    <ContentDiv>
-                      <CellHeaderDiv>{t('ifdInfo.ifdTagCount')}</CellHeaderDiv>
-                      <CellBodyDiv>{ifd.tagCount ?? '-'}</CellBodyDiv>
-                    </ContentDiv>
-                    <ContentDiv>
-                      <CellHeaderDiv>
-                        {t('ifdInfo.ifdNextOffset')}
-                      </CellHeaderDiv>
-                      <CellBodyDiv>{ifd.nextIfdOffset ?? '-'}</CellBodyDiv>
-                    </ContentDiv>
-                  </>
-                }
-              />
+              <React.Fragment key={`${ifd.ifdName || 'ifd'}-${i}`}>
+                <SubHeader>
+                  {`${ifd.ifdName}${ifd.tagCount ? ` (${ifd.tagCount})` : ''}`}
+                </SubHeader>
+                <ContentDiv>
+                  <CellHeaderDiv>{t('ifdInfo.ifdOffset')}</CellHeaderDiv>
+                  <CellBodyDiv>
+                    <span>{ifd.offset}</span>
+                    <Tooltip
+                      text={t('exifInfo.jumpToOffset', {
+                        target: formatOffset(
+                          Number(baseOffset ?? 0) + Number(ifd.offset || 0),
+                          config.ui.numberBase
+                        ),
+                        targetDec:
+                          Number(baseOffset ?? 0) + Number(ifd.offset || 0),
+                        bytes: 0,
+                      })}
+                    >
+                      <JumpButton
+                        onClick={() => onJumpToIfdOffset(ifd.offset)}
+                        aria-label={t('ifdInfo.jumpToIfdOffset')}
+                      >
+                        <ChevronRightIcon />
+                      </JumpButton>
+                    </Tooltip>
+                  </CellBodyDiv>
+                </ContentDiv>
+                <ContentDiv>
+                  <CellHeaderDiv>{t('ifdInfo.ifdTagCount')}</CellHeaderDiv>
+                  <CellBodyDiv>{ifd.tagCount ?? '-'}</CellBodyDiv>
+                </ContentDiv>
+                <ContentDiv>
+                  <CellHeaderDiv>
+                    {t('ifdInfo.ifdNextOffset')}
+                  </CellHeaderDiv>
+                  <CellBodyDiv>{ifd.nextIfdOffset ?? '-'}</CellBodyDiv>
+                </ContentDiv>
+              </React.Fragment>
             ))}
-          </div>
+          </>
         ) : (
           <NoDataMessage>{t('common.noData')}</NoDataMessage>
         )

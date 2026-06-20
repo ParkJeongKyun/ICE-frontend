@@ -54,7 +54,7 @@ const TextChunksCollapse: React.FC = () => {
 
   return (
     <>
-      <Collapse title={t('textChunksViewer.ihdrInfo')} open>
+      <Collapse id="img-ihdr-info" title={t('textChunksViewer.ihdrInfo')} open>
         {!textChunkData ? (
           <NoDataMessage>{t('common.noData')}</NoDataMessage>
         ) : (
@@ -138,7 +138,7 @@ const TextChunksCollapse: React.FC = () => {
           </>
         )}
       </Collapse>
-      <Collapse title={t('textChunksViewer.textChunks')} open>
+      <Collapse id="img-text-chunks" title={t('textChunksViewer.textChunks')} open>
         {!textChunkData ||
         !textChunkData.chunks ||
         textChunkData.chunks.length === 0 ? (

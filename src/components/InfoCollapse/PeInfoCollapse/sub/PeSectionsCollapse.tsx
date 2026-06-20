@@ -29,7 +29,7 @@ const PeSectionsCollapse: React.FC = () => {
   if (!peData || !peData.sections || peData.sections.length === 0) return null;
 
   return (
-    <Collapse title={t('peInfo.groups.sections')}>
+    <Collapse id="pe-sections" title={t('peInfo.groups.sections')} open>
       <SectionTable>
         <thead>
           <tr>

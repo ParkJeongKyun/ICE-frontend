@@ -153,6 +153,7 @@ const ExifTagsCollapse: React.FC = () => {
 
   return (
     <Collapse
+      id="img-exif-tags"
       title={t('exifTagsInfo.title')}
       children={
         hasData ? (

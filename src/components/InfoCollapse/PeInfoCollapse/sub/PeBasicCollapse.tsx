@@ -29,7 +29,7 @@ const PeBasicCollapse: React.FC = () => {
   if (!peData) return null;
 
   return (
-    <Collapse title={t('peInfo.groups.basic')} open>
+    <Collapse id="pe-basic" title={t('peInfo.groups.basic')} open>
       {/* Basic Content */}
       <ContentDiv>
         <CellHeaderDiv>{t('peInfo.magic')}</CellHeaderDiv>

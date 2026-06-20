@@ -13,6 +13,7 @@ const ExifThumbnailCollapse: React.FC = () => {
 
   return (
     <Collapse
+      id="img-exif-thumbnail"
       title={t('exifThumbnail.title')}
       children={
         thumbnail ? (

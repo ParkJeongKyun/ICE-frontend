@@ -33,6 +33,7 @@ const FileInfoCollapse: React.FC = () => {
 
   return (
     <Collapse
+      id="file-info"
       title={t('fileInfo.title')}
       children={
         fileInfo ? (

@@ -34,7 +34,11 @@ const PeImportsExportsCollapse: React.FC = () => {
   if (!hasImports && !hasExports) return null;
 
   return (
-    <Collapse title={t('peInfo.groups.importsExports')}>
+    <Collapse
+      id="pe-imports-exports"
+      title={t('peInfo.groups.importsExports')}
+      open
+    >
       {hasImports && (
         <>
           <SubHeader>{t('peInfo.imports')}</SubHeader>
@@ -78,7 +82,15 @@ const PeImportsExportsCollapse: React.FC = () => {
                   }}
                 >
                   {lib.imports.map((imp, j) => (
-                    <span key={j} style={{ background: 'var(--main-bg-color)', padding: '1px 4px', borderRadius: '2px', border: '1px solid var(--main-line-color)' }}>
+                    <span
+                      key={j}
+                      style={{
+                        background: 'var(--main-bg-color)',
+                        padding: '1px 4px',
+                        borderRadius: '2px',
+                        border: '1px solid var(--main-line-color)',
+                      }}
+                    >
                       {imp.name}
                     </span>
                   ))}

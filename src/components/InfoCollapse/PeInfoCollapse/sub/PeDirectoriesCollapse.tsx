@@ -28,12 +28,13 @@ const PeDirectoriesCollapse: React.FC = () => {
 
   if (!peData) return null;
 
-  const hasDirectories = peData.dataDirectories && peData.dataDirectories.length > 0;
+  const hasDirectories =
+    peData.dataDirectories && peData.dataDirectories.length > 0;
 
   if (!hasDirectories) return null;
 
   return (
-    <Collapse title={t('peInfo.groups.directories')}>
+    <Collapse id="pe-directories" title={t('peInfo.groups.directories')} open>
       {hasDirectories && (
         <>
           <SubHeader>{t('peInfo.dataDirectories')}</SubHeader>

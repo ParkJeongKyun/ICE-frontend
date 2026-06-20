@@ -23,6 +23,7 @@ const MapCollapse: React.FC = () => {
 
   return (
     <Collapse
+      id="img-map"
       title={t('map.title')}
       children={
         isValid ? (

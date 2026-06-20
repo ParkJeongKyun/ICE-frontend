@@ -77,11 +77,18 @@ interface SelectionContextType {
   activeSelectionState: SelectionState;
 }
 
+// === CollapseState Context (탭별 Collapse 열림/닫힘 상태) ===
+interface CollapseStateContextType {
+  collapseStates: Record<TabKey, Record<string, boolean>>;
+  setCollapseOpen: (tabKey: TabKey, collapseId: string, isOpen: boolean) => void;
+}
+
 const TabContext = createContext<TabContextType | undefined>(undefined);
 const ScrollContext = createContext<ScrollContextType | undefined>(undefined);
 const SelectionContext = createContext<SelectionContextType | undefined>(
   undefined
 );
+const CollapseStateContext = createContext<CollapseStateContextType | undefined>(undefined);
 
 export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -93,6 +100,9 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
   >({});
   const [selectionStates, setSelectionStates] = useState<
     Record<TabKey, SelectionState>
+  >({});
+  const [collapseStates, setCollapseStates] = useState<
+    Record<TabKey, Record<string, boolean>>
   >({});
   const [tabOrder, setTabOrder] = useState<TabKey[]>([]);
   const [addressCache, setAddressCache] = useState<AddressCache>({});
@@ -149,6 +159,11 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
     });
 
     setSelectionStates((prev) => {
+      const { [key]: _, ...rest } = prev;
+      return rest;
+    });
+
+    setCollapseStates((prev) => {
       const { [key]: _, ...rest } = prev;
       return rest;
     });
@@ -235,6 +250,28 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
     [selectionStates, activeSelectionState]
   );
 
+  // === CollapseState Context ===
+  const setCollapseOpen = useCallback(
+    (tabKey: TabKey, collapseId: string, isOpen: boolean) => {
+      setCollapseStates((prev) => ({
+        ...prev,
+        [tabKey]: {
+          ...prev[tabKey],
+          [collapseId]: isOpen,
+        },
+      }));
+    },
+    []
+  );
+
+  const collapseStateContextValue = useMemo(
+    () => ({
+      collapseStates,
+      setCollapseOpen,
+    }),
+    [collapseStates, setCollapseOpen]
+  );
+
   // ref to the latest tabData for cleanup on unmount
   const tabDataRef = React.useRef<TabData>(tabData);
   React.useEffect(() => {
@@ -266,7 +303,9 @@ export const TabDataProvider: React.FC<{ children: React.ReactNode }> = ({
       <AddressCacheContext.Provider value={addressCacheContextValue}>
         <ScrollContext.Provider value={scrollContextValue}>
           <SelectionContext.Provider value={selectionContextValue}>
-            {children}
+            <CollapseStateContext.Provider value={collapseStateContextValue}>
+              {children}
+            </CollapseStateContext.Provider>
           </SelectionContext.Provider>
         </ScrollContext.Provider>
       </AddressCacheContext.Provider>
@@ -302,6 +341,14 @@ export const useAddressCache = () => {
   const context = useContext(AddressCacheContext);
   if (!context) {
     throw new Error('useAddressCache must be used within a TabDataProvider');
+  }
+  return context;
+};
+
+export const useCollapseState = () => {
+  const context = useContext(CollapseStateContext);
+  if (!context) {
+    throw new Error('useCollapseState must be used within a TabDataProvider');
   }
   return context;
 };

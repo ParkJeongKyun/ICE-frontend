@@ -7,7 +7,14 @@ import { useTab } from '@/contexts/TabDataContext/TabDataContext';
 import { useRefs } from '@/contexts/RefContext/RefContext';
 import Collapse from '@/components/common/Collapse/Collapse';
 import ChevronRightIcon from '@/components/common/Icons/ChevronRightIcon';
-import { SubHeader, CellBodyDiv, CellHeaderDiv, ContentDiv, JumpButton, SectionTable } from '../../InfoCollapse.styles';
+import {
+  SubHeader,
+  CellBodyDiv,
+  CellHeaderDiv,
+  ContentDiv,
+  JumpButton,
+  SectionTable,
+} from '../../InfoCollapse.styles';
 import { formatOffset } from '@/utils/formatters';
 
 const PeHeadersCollapse: React.FC = () => {
@@ -29,7 +36,7 @@ const PeHeadersCollapse: React.FC = () => {
   if (!peData) return null;
 
   return (
-    <Collapse title={t('peInfo.groups.headers')}>
+    <Collapse id="pe-headers" title={t('peInfo.groups.headers')} open>
       {/* DOS Header */}
       <SubHeader>{t('peInfo.dosHeader')}</SubHeader>
       <ContentDiv>
@@ -68,57 +75,72 @@ const PeHeadersCollapse: React.FC = () => {
       <ContentDiv>
         <CellHeaderDiv>{t('peInfo.characteristics')}</CellHeaderDiv>
         <CellBodyDiv>
-          {formatOffset(peData.fileHeader.characteristics, config.ui.numberBase)}
+          {formatOffset(
+            peData.fileHeader.characteristics,
+            config.ui.numberBase
+          )}
         </CellBodyDiv>
       </ContentDiv>
 
       {/* Optional Header */}
-      {peData.optionalHeader && Object.keys(peData.optionalHeader).length > 0 && (
-        <>
-          <SubHeader>{t('peInfo.optionalHeader')}</SubHeader>
-          {Object.keys(peData.optionalHeader).map((key) => (
-            <ContentDiv key={key}>
-              <CellHeaderDiv>{key}</CellHeaderDiv>
-              <CellBodyDiv>
-                {typeof peData.optionalHeader[key] === 'number'
-                  ? `0x${peData.optionalHeader[key].toString(16)} (${peData.optionalHeader[key]})`
-                  : String(peData.optionalHeader[key])}
-              </CellBodyDiv>
-            </ContentDiv>
-          ))}
-        </>
-      )}
+      {peData.optionalHeader &&
+        Object.keys(peData.optionalHeader).length > 0 && (
+          <>
+            <SubHeader>{t('peInfo.optionalHeader')}</SubHeader>
+            {Object.keys(peData.optionalHeader).map((key) => (
+              <ContentDiv key={key}>
+                <CellHeaderDiv>{key}</CellHeaderDiv>
+                <CellBodyDiv>
+                  {typeof peData.optionalHeader[key] === 'number'
+                    ? `0x${peData.optionalHeader[key].toString(16)} (${peData.optionalHeader[key]})`
+                    : String(peData.optionalHeader[key])}
+                </CellBodyDiv>
+              </ContentDiv>
+            ))}
+          </>
+        )}
 
       {/* Rich Header */}
-      {peData.richHeader && peData.richHeader.items && peData.richHeader.items.length > 0 && (
-        <>
-          <SubHeader>{t('peInfo.richHeader')}</SubHeader>
-          <div style={{ marginBottom: '8px', fontSize: '11px', opacity: 0.8 }}>
-            Offset: 0x{peData.richHeader.offset.toString(16)}
-            <JumpButton onClick={() => onJumpToOffset(peData.richHeader.offset)} style={{ marginLeft: '4px', display: 'inline-flex', verticalAlign: 'middle' }}>
-              <ChevronRightIcon width={10} height={10} />
-            </JumpButton>
-          </div>
-          <SectionTable>
-            <thead>
-              <tr>
-                <th>Prod ID</th>
-                <th>Version</th>
-                <th>Count</th>
-              </tr>
-            </thead>
-            <tbody>
-              {peData.richHeader.items.map((item, i) => (
-                <tr key={i}>
-                  <td>{item.id}</td>
-                  <td>{item.version}</td>
-                  <td>{item.count}</td>
+      {peData.richHeader &&
+        peData.richHeader.items &&
+        peData.richHeader.items.length > 0 && (
+          <>
+            <SubHeader>{t('peInfo.richHeader')}</SubHeader>
+            <div
+              style={{ marginBottom: '8px', fontSize: '11px', opacity: 0.8 }}
+            >
+              Offset: 0x{peData.richHeader.offset.toString(16)}
+              <JumpButton
+                onClick={() => onJumpToOffset(peData.richHeader.offset)}
+                style={{
+                  marginLeft: '4px',
+                  display: 'inline-flex',
+                  verticalAlign: 'middle',
+                }}
+              >
+                <ChevronRightIcon width={10} height={10} />
+              </JumpButton>
+            </div>
+            <SectionTable>
+              <thead>
+                <tr>
+                  <th>Prod ID</th>
+                  <th>Version</th>
+                  <th>Count</th>
                 </tr>
-              ))}
-            </tbody>
-          </SectionTable>
-        </>
-      )}
+              </thead>
+              <tbody>
+                {peData.richHeader.items.map((item, i) => (
+                  <tr key={i}>
+                    <td>{item.id}</td>
+                    <td>{item.version}</td>
+                    <td>{item.count}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </SectionTable>
+          </>
+        )}
     </Collapse>
   );
 };
